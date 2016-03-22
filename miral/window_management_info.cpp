@@ -25,12 +25,12 @@
 
 #include <atomic>
 
-namespace me = mir::examples;
+namespace ma = mir::al;
 namespace ms = mir::scene;
 namespace mg = mir::graphics;
 using namespace mir::geometry;
 
-me::SurfaceInfo::SurfaceInfo(
+ma::SurfaceInfo::SurfaceInfo(
     std::shared_ptr<scene::Session> const& session,
     std::shared_ptr<scene::Surface> const& surface,
     scene::SurfaceCreationParameters const& params) :
@@ -52,7 +52,7 @@ me::SurfaceInfo::SurfaceInfo(
         output_id = params.output_id;
 }
 
-bool me::SurfaceInfo::can_be_active() const
+bool ma::SurfaceInfo::can_be_active() const
 {
     switch (type)
     {
@@ -73,7 +73,7 @@ bool me::SurfaceInfo::can_be_active() const
     }
 }
 
-bool me::SurfaceInfo::must_have_parent() const
+bool ma::SurfaceInfo::must_have_parent() const
 {
     switch (type)
     {
@@ -88,7 +88,7 @@ bool me::SurfaceInfo::must_have_parent() const
     }
 }
 
-bool me::SurfaceInfo::can_morph_to(MirSurfaceType new_type) const
+bool ma::SurfaceInfo::can_morph_to(MirSurfaceType new_type) const
 {
     switch (new_type)
     {
@@ -130,7 +130,7 @@ bool me::SurfaceInfo::can_morph_to(MirSurfaceType new_type) const
     return false;
 }
 
-bool me::SurfaceInfo::must_not_have_parent() const
+bool ma::SurfaceInfo::must_not_have_parent() const
 {
     switch (type)
     {
@@ -143,7 +143,7 @@ bool me::SurfaceInfo::must_not_have_parent() const
     }
 }
 
-bool me::SurfaceInfo::is_visible() const
+bool ma::SurfaceInfo::is_visible() const
 {
     switch (state)
     {
@@ -156,7 +156,7 @@ bool me::SurfaceInfo::is_visible() const
     return true;
 }
 
-struct mir::examples::SurfaceInfo::StreamPainter
+struct mir::al::SurfaceInfo::StreamPainter
 {
     virtual void paint(int) = 0;
     virtual ~StreamPainter() = default;
@@ -165,8 +165,8 @@ struct mir::examples::SurfaceInfo::StreamPainter
     StreamPainter& operator=(StreamPainter const&) = delete;
 };
 
-struct mir::examples::SurfaceInfo::SwappingPainter
-    : mir::examples::SurfaceInfo::StreamPainter
+struct mir::al::SurfaceInfo::SwappingPainter
+    : mir::al::SurfaceInfo::StreamPainter
 {
     SwappingPainter(std::shared_ptr<frontend::BufferStream> const& buffer_stream) :
         buffer_stream{buffer_stream}, buffer{nullptr}
@@ -201,8 +201,8 @@ struct mir::examples::SurfaceInfo::SwappingPainter
     std::atomic<graphics::Buffer*> buffer;
 };
 
-struct mir::examples::SurfaceInfo::AllocatingPainter
-    : mir::examples::SurfaceInfo::StreamPainter
+struct mir::al::SurfaceInfo::AllocatingPainter
+    : mir::al::SurfaceInfo::StreamPainter
 {
     AllocatingPainter(std::shared_ptr<frontend::BufferStream> const& buffer_stream, Size size) :
         buffer_stream(buffer_stream),
@@ -243,7 +243,7 @@ struct mir::examples::SurfaceInfo::AllocatingPainter
     mg::BufferID back_buffer; 
 };
 
-void mir::examples::SurfaceInfo::init_titlebar(std::shared_ptr<scene::Surface> const& surface)
+void mir::al::SurfaceInfo::init_titlebar(std::shared_ptr<scene::Surface> const& surface)
 {
     auto stream = surface->primary_buffer_stream();
     try
@@ -256,12 +256,12 @@ void mir::examples::SurfaceInfo::init_titlebar(std::shared_ptr<scene::Surface> c
     }
 }
 
-void mir::examples::SurfaceInfo::paint_titlebar(int intensity)
+void mir::al::SurfaceInfo::paint_titlebar(int intensity)
 {
     stream_painter->paint(intensity);
 }
 
-void me::SurfaceInfo::constrain_resize(
+void ma::SurfaceInfo::constrain_resize(
     std::shared_ptr<ms::Surface> const& surface,
     Point& requested_pos,
     Size& requested_size,
@@ -389,7 +389,7 @@ void me::SurfaceInfo::constrain_resize(
     requested_size = new_size;
 }
 
-bool me::SurfaceInfo::needs_titlebar(MirSurfaceType type)
+bool ma::SurfaceInfo::needs_titlebar(MirSurfaceType type)
 {
     switch (type)
     {

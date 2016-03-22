@@ -16,8 +16,8 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#ifndef MIR_SERVER_EXAMPLE_WINDOW_MANAGEMENT_INFO_H
-#define MIR_SERVER_EXAMPLE_WINDOW_MANAGEMENT_INFO_H
+#ifndef MIR_ABSTRACTION_WINDOW_MANAGEMENT_INFO_H
+#define MIR_ABSTRACTION_WINDOW_MANAGEMENT_INFO_H
 
 #include "mir/geometry/rectangles.h"
 #include "mir/optional_value.h"
@@ -28,7 +28,7 @@
 namespace mir
 {
 namespace scene { class Session; class Surface; class SurfaceCreationParameters; }
-namespace examples
+namespace al
 {
 struct SurfaceInfo
 {
@@ -100,4 +100,4 @@ struct SessionInfo
 }
 }
 
-#endif //MIR_SERVER_EXAMPLE_WINDOW_MANAGEMENT_INFO_H
+#endif //MIR_ABSTRACTION_WINDOW_MANAGEMENT_INFO_H

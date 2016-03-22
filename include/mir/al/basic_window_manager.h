@@ -16,8 +16,8 @@
  * Authored By: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#ifndef MIR_EXAMPLE_BASIC_WINDOW_MANAGER_H_
-#define MIR_EXAMPLE_BASIC_WINDOW_MANAGER_H_
+#ifndef MIR_ABSTRACTION_BASIC_WINDOW_MANAGER_H_
+#define MIR_ABSTRACTION_BASIC_WINDOW_MANAGER_H_
 
 #include "window_management_info.h"
 
@@ -28,12 +28,9 @@
 #include <map>
 #include <mutex>
 
-///\example server_example_basic_window_manager.h
-/// A generic policy-based window manager implementation
-
 namespace mir
 {
-namespace examples
+namespace al
 {
 using shell::SurfaceSet;
 
@@ -249,4 +246,4 @@ private:
 }
 }
 
-#endif /* MIR_EXAMPLE_BASIC_WINDOW_MANAGER_H_ */
+#endif /* MIR_ABSTRACTION_BASIC_WINDOW_MANAGER_H_ */

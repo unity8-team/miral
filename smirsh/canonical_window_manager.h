@@ -34,6 +34,8 @@ namespace mir
 namespace shell { class DisplayLayout; }
 namespace examples
 {
+using namespace mir::al;
+
 // standard window management algorithm:
 //  o Switch apps: tap or click on the corresponding tile
 //  o Move window: Alt-leftmousebutton drag (three finger drag)
