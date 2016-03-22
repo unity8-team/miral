@@ -258,12 +258,10 @@ void me::CanonicalWindowManagerPolicyCopy::generate_decorations_for(
         .of_type(mir_surface_type_gloss);
 
     auto titlebar = tools->build_surface(session, params);
-    auto id = titlebar.surface_id();
     titlebar.set_alpha(0.9);
 
     auto& surface_info = tools->info_for(surface);
     surface_info.titlebar = titlebar;
-    surface_info.titlebar_id = id;
     surface_info.children.push_back(titlebar);
 
     SurfaceInfo& titlebar_info =
@@ -426,7 +424,7 @@ void me::CanonicalWindowManagerPolicyCopy::handle_delete_surface(std::shared_ptr
     session->destroy_surface(surface);
     if (info.titlebar)
     {
-        session->destroy_surface(info.titlebar_id);
+        info.titlebar.destroy_surface();
         tools->forget(info.titlebar);
     }
 
@@ -498,8 +496,8 @@ int me::CanonicalWindowManagerPolicyCopy::handle_set_state(std::shared_ptr<ms::S
         surface->resize(info.restore_rect.size);
         if (info.titlebar)
         {
-            info.titlebar->resize(titlebar_size_for_window(info.restore_rect.size));
-            info.titlebar->show();
+            info.titlebar.resize(titlebar_size_for_window(info.restore_rect.size));
+            info.titlebar.show();
         }
         break;
 
@@ -507,7 +505,7 @@ int me::CanonicalWindowManagerPolicyCopy::handle_set_state(std::shared_ptr<ms::S
         movement = display_area.top_left - old_pos;
         surface->resize(display_area.size);
         if (info.titlebar)
-            info.titlebar->hide();
+            info.titlebar.hide();
         break;
 
     case mir_surface_state_horizmaximized:
@@ -515,8 +513,8 @@ int me::CanonicalWindowManagerPolicyCopy::handle_set_state(std::shared_ptr<ms::S
         surface->resize({display_area.size.width, info.restore_rect.size.height});
         if (info.titlebar)
         {
-            info.titlebar->resize(titlebar_size_for_window({display_area.size.width, info.restore_rect.size.height}));
-            info.titlebar->show();
+            info.titlebar.resize(titlebar_size_for_window({display_area.size.width, info.restore_rect.size.height}));
+            info.titlebar.show();
         }
         break;
 
@@ -524,7 +522,7 @@ int me::CanonicalWindowManagerPolicyCopy::handle_set_state(std::shared_ptr<ms::S
         movement = Point{info.restore_rect.top_left.x, display_area.top_left.y} - old_pos;
         surface->resize({info.restore_rect.size.width, display_area.size.height});
         if (info.titlebar)
-            info.titlebar->hide();
+            info.titlebar.hide();
         break;
 
     case mir_surface_state_fullscreen:
@@ -548,7 +546,7 @@ int me::CanonicalWindowManagerPolicyCopy::handle_set_state(std::shared_ptr<ms::S
     case mir_surface_state_hidden:
     case mir_surface_state_minimized:
         if (info.titlebar)
-            info.titlebar->hide();
+            info.titlebar.hide();
         surface->hide();
         return info.state = value;
 
@@ -779,9 +777,10 @@ void me::CanonicalWindowManagerPolicyCopy::select_active_surface(std::shared_ptr
     {
         if (auto const active_surface = active_surface_.lock())
         {
-            if (auto const titlebar = tools->info_for(active_surface).titlebar)
+            auto& info = tools->info_for(active_surface);
+            if (info.titlebar)
             {
-                tools->info_for(titlebar).paint_titlebar(0x3F);
+                tools->info_for(info.titlebar).paint_titlebar(0x3F);
             }
         }
 
@@ -798,14 +797,16 @@ void me::CanonicalWindowManagerPolicyCopy::select_active_surface(std::shared_ptr
     {
         if (auto const active_surface = active_surface_.lock())
         {
-            if (auto const titlebar = tools->info_for(active_surface).titlebar)
+            auto& info = tools->info_for(active_surface);
+            if (info.titlebar)
             {
-                tools->info_for(titlebar).paint_titlebar(0x3F);
+                tools->info_for(info.titlebar).paint_titlebar(0x3F);
             }
         }
-        if (auto const titlebar = tools->info_for(surface).titlebar)
+        auto& info = tools->info_for(surface);
+        if (info.titlebar)
         {
-            tools->info_for(titlebar).paint_titlebar(0xFF);
+            tools->info_for(info.titlebar).paint_titlebar(0xFF);
         }
         tools->set_focus_to(info_for.session.lock(), surface);
         tools->raise_tree(surface);

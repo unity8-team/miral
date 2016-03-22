@@ -19,6 +19,8 @@
 #ifndef MIR_ABSTRACTION_WINDOW_MANAGEMENT_INFO_H
 #define MIR_ABSTRACTION_WINDOW_MANAGEMENT_INFO_H
 
+#include "mir/al/surface.h"
+
 #include "mir/geometry/rectangles.h"
 #include "mir/optional_value.h"
 #include "mir/shell/surface_specification.h"
@@ -30,6 +32,8 @@ namespace mir
 namespace scene { class Session; class Surface; class SurfaceCreationParameters; }
 namespace al
 {
+class Surface;
+
 struct SurfaceInfo
 {
     SurfaceInfo(
@@ -63,8 +67,7 @@ struct SurfaceInfo
     std::weak_ptr <scene::Session> session;
     std::weak_ptr <scene::Surface> parent;
     std::vector <std::weak_ptr<scene::Surface>> children;
-    std::shared_ptr <scene::Surface> titlebar;
-    frontend::SurfaceId titlebar_id;
+    Surface titlebar;
     bool is_titlebar = false;
     geometry::Width min_width;
     geometry::Height min_height;

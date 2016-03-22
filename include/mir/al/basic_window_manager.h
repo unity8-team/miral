@@ -19,7 +19,7 @@
 #ifndef MIR_ABSTRACTION_BASIC_WINDOW_MANAGER_H_
 #define MIR_ABSTRACTION_BASIC_WINDOW_MANAGER_H_
 
-#include "window_management_info.h"
+#include "mir/al/window_management_info.h"
 
 #include "mir/geometry/rectangles.h"
 #include "mir/shell/abstract_shell.h"
@@ -33,24 +33,6 @@ namespace mir
 namespace al
 {
 using shell::SurfaceSet;
-
-class Surface
-{
-public:
-    Surface(std::shared_ptr<scene::Session> const& session, frontend::SurfaceId surface);
-
-    auto surface_id() const -> frontend::SurfaceId;
-    void set_alpha(float alpha);
-
-    // TODO remove this conversion which is convenient to maintain stable intermediate forms
-    operator std::weak_ptr<scene::Surface>() const;
-    // TODO remove this conversion which is convenient to maintain stable intermediate forms
-    operator std::shared_ptr<scene::Surface>() const;
-
-private:
-    struct Self;
-    std::shared_ptr<Self> self;
-};
 
 /// The interface through which the policy instructs the controller.
 /// These functions assume that the BasicWindowManager data structures can be accessed freely.

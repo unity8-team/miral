@@ -16,12 +16,17 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#include "mir/al/basic_window_manager.h"
+#include "mir/al/surface.h"
 
 #include "mir/scene/session.h"
 #include "mir/scene/surface.h"
 
 namespace ma = mir::al;
+
+namespace 
+{
+static char const* const invalid_surface = "Invalid surface";
+}
 
 struct ma::Surface::Self
 {
@@ -40,23 +45,61 @@ ma::Surface::Surface(std::shared_ptr<scene::Session> const& session, frontend::S
 {
 }
 
-auto ma::Surface::surface_id() const -> frontend::SurfaceId
+ma::Surface::Surface()
 {
-    return self->id;
 }
+
+ma::Surface::~Surface() = default;
 
 void ma::Surface::set_alpha(float alpha)
 {
+    if (!self) return;
     if (auto const surface = self->surface.lock())
         surface->set_alpha(alpha);
 }
 
+ma::Surface::operator bool() const
+{
+    return !!self;
+}
+
 ma::Surface::operator std::shared_ptr<scene::Surface>() const
 {
+    if (!self) return {};
     return self->surface.lock();
 }
 
 ma::Surface::operator std::weak_ptr<scene::Surface>() const
 {
+    if (!self) return {};
     return self->surface;
+}
+
+void ma::Surface::resize(geometry::Size const& size)
+{
+    if (!self) return;
+    if (auto const surface = self->surface.lock())
+        surface->resize(size);
+}
+
+void ma::Surface::show()
+{
+    if (!self) return;
+    if (auto const surface = self->surface.lock())
+        surface->show();
+}
+
+void ma::Surface::hide()
+{
+    if (!self) return;
+    if (auto const surface = self->surface.lock())
+        surface->hide();
+}
+
+void ma::Surface::destroy_surface()
+{
+    if (!self) return;
+    if (auto const session = self->session.lock())
+        session->destroy_surface(self->id);
+    self.reset();
 }
