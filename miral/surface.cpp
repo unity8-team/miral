@@ -23,11 +23,6 @@
 
 namespace ma = mir::al;
 
-namespace 
-{
-static char const* const invalid_surface = "Invalid surface";
-}
-
 struct ma::Surface::Self
 {
     Self(std::shared_ptr<scene::Session> const& session, frontend::SurfaceId surface);
