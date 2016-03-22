@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 Canonical Ltd.
+ * Copyright © 2015-2016 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3,
@@ -34,8 +34,7 @@ namespace ms = mir::scene;
 namespace mf = mir::frontend;
 using namespace mir::geometry;
 
-///\example tiling_window_manager.cpp
-/// Demonstrate implementing a simple tiling algorithm
+// Demonstrate implementing a simple tiling algorithm
 
 me::TilingWindowManagerPolicy::TilingWindowManagerPolicy(WindowManagerTools* const tools) :
     tools{tools}

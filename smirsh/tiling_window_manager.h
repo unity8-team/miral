@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 Canonical Ltd.
+ * Copyright © 2015-2016 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3,
@@ -21,8 +21,7 @@
 
 #include "mir/al/basic_window_manager.h"
 
-///\example server_example_tiling_window_manager.h
-/// Demonstrate implementing a simple tiling algorithm
+// Demonstrate implementing a simple tiling algorithm
 
 namespace mir
 {

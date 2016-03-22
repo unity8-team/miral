@@ -1,5 +1,5 @@
 /*
- * Copyright © 2012-2015 Canonical Ltd.
+ * Copyright © 2012-2016 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -21,18 +21,13 @@
 
 #include "mir/server.h"
 #include "mir/main_loop.h"
-#include "mir/fd.h"
 
 #include "mir/report_exception.h"
 #include "mir/options/option.h"
 
 #include <chrono>
-#include <cstdlib>
 
 namespace me = mir::examples;
-
-///\example server_example.cpp
-/// A simple server illustrating several customisations
 
 namespace
 {
@@ -60,8 +55,7 @@ try
 {
     mir::Server server;
 
-    // Use config options file in e.g. ~/.config/mir/mir_demo_server.config
-    server.set_config_filename("mir/mir_demo_server.config");
+    server.set_config_filename("smirsh.config");
 
     me::add_window_manager_option_to(server);
     add_timeout_option_to(server);

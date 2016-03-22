@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 Canonical Ltd.
+ * Copyright © 2015-2016 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3,
@@ -32,7 +32,6 @@ namespace me = mir::examples;
 namespace ms = mir::scene;
 using namespace mir::geometry;
 
-///\example canonical_window_manager.cpp
 // Based on "Mir and Unity: Surfaces, input, and displays (v0.3)"
 
 namespace

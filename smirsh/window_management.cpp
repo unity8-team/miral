@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 Canonical Ltd.
+ * Copyright © 2014-2016 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3,
@@ -38,9 +38,7 @@ namespace ms = mir::scene;
 namespace msh = mir::shell;
 using namespace mir::geometry;
 
-///\example window_management.cpp
-/// Demonstrate introducing a window management strategy
-
+// Demonstrate introducing a window management strategy
 namespace
 {
 char const* const wm_option = "window-manager";
@@ -114,7 +112,6 @@ public:
 private:
     std::shared_ptr<msh::DisplayLayout> const display_layout;
 };
-
 }
 
 using FullscreenWindowManager = me::WindowManagerBuilder<FullscreenWindowManagerPolicy>;

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 Canonical Ltd.
+ * Copyright © 2014-2016 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3,
@@ -25,8 +25,7 @@
 
 namespace me = mir::examples;
 
-///\example server_example_input_event_filter.cpp
-/// Demonstrate a custom input by making Ctrl+Alt+BkSp stop the server
+// Demonstrate a custom input by making Ctrl+Alt+BkSp stop the server
 
 me::QuitFilter::QuitFilter(std::function<void()> const& quit_action)
     : quit_action{quit_action}
