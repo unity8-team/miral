@@ -28,8 +28,16 @@ ma::BasicWindowManager::BasicWindowManager(
     shell::FocusController* focus_controller,
     std::unique_ptr<WindowManagementPolicy> policy) :
     focus_controller(focus_controller),
-    policy(std::move(policy))
+    policy(std::move(policy)),
+    surface_builder([](std::shared_ptr<scene::Session> const&, scene::SurfaceCreationParameters const&)->frontend::SurfaceId
+        { throw std::logic_error{"Can't create a surface yet"};})
 {
+}
+
+auto ma::BasicWindowManager::build_surface(std::shared_ptr<scene::Session> const& session, scene::SurfaceCreationParameters const& parameters)
+-> frontend::SurfaceId
+{
+    return surface_builder(session, parameters);
 }
 
 void ma::BasicWindowManager::add_session(std::shared_ptr<scene::Session> const& session)
@@ -53,12 +61,13 @@ auto ma::BasicWindowManager::add_surface(
 -> frontend::SurfaceId
 {
     std::lock_guard<decltype(mutex)> lock(mutex);
+    surface_builder = build;
     scene::SurfaceCreationParameters const placed_params = policy->handle_place_new_surface(session, params);
     auto const result = build(session, placed_params);
     auto const surface = session->surface(result);
     surface_info.emplace(surface, SurfaceInfo{session, surface, placed_params});
     policy->handle_new_surface(session, surface);
-    policy->generate_decorations_for(session, surface, surface_info, build);
+    policy->generate_decorations_for(session, surface, surface_info);
     return result;
 }
 

@@ -43,6 +43,9 @@ public:
     using SurfaceInfoMap = std::map<std::weak_ptr<scene::Surface>, SurfaceInfo, std::owner_less<std::weak_ptr<scene::Surface>>>;
     using SessionInfoMap = std::map<std::weak_ptr<scene::Session>, SessionInfo, std::owner_less<std::weak_ptr<scene::Session>>>;
 
+    virtual auto build_surface(std::shared_ptr<scene::Session> const& session, scene::SurfaceCreationParameters const& parameters)
+    -> frontend::SurfaceId = 0;
+
     virtual auto find_session(std::function<bool(SessionInfo const& info)> const& predicate)
     -> std::shared_ptr<scene::Session> = 0;
 
@@ -102,8 +105,7 @@ public:
 
     virtual void generate_decorations_for(
         std::shared_ptr<scene::Session> const& session, std::shared_ptr<scene::Surface> const& surface,
-        SurfaceInfoMap& surface_info,
-        std::function<frontend::SurfaceId(std::shared_ptr<scene::Session> const&, scene::SurfaceCreationParameters const&)> const& build) = 0;
+        SurfaceInfoMap& surface_info) = 0;
 
     virtual bool handle_keyboard_event(MirKeyboardEvent const* event) = 0;
 
@@ -134,6 +136,9 @@ protected:
 public:
     using typename WindowManagerTools::SurfaceInfoMap;
     using typename WindowManagerTools::SessionInfoMap;
+
+    auto build_surface(std::shared_ptr<scene::Session> const& session, scene::SurfaceCreationParameters const& parameters)
+    -> frontend::SurfaceId override;
 
     void add_session(std::shared_ptr<scene::Session> const& session) override;
 
@@ -210,6 +215,9 @@ private:
     geometry::Rectangles displays;
     geometry::Point cursor;
     uint64_t last_input_event_timestamp{0};
+
+    // Cache the builder functor for the convenience of policies - this should become unnecessary
+    std::function<frontend::SurfaceId(std::shared_ptr<scene::Session> const& session, scene::SurfaceCreationParameters const& params)> surface_builder;
 
     void update_event_timestamp(MirKeyboardEvent const* kev);
     void update_event_timestamp(MirPointerEvent const* pev);

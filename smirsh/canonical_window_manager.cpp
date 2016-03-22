@@ -243,8 +243,7 @@ auto me::CanonicalWindowManagerPolicyCopy::handle_place_new_surface(
 void me::CanonicalWindowManagerPolicyCopy::generate_decorations_for(
     std::shared_ptr<scene::Session> const& session,
     std::shared_ptr<scene::Surface> const& surface,
-    SurfaceInfoMap& surface_map,
-    std::function<frontend::SurfaceId(std::shared_ptr<scene::Session> const& session, scene::SurfaceCreationParameters const& params)> const& build)
+    SurfaceInfoMap& surface_map)
 {
     if (!SurfaceInfo::needs_titlebar(surface->type()))
         return;
@@ -257,7 +256,7 @@ void me::CanonicalWindowManagerPolicyCopy::generate_decorations_for(
         .of_buffer_usage(mir::graphics::BufferUsage::software)
         .of_position(titlebar_position_for_window(surface->top_left()))
         .of_type(mir_surface_type_gloss);
-    auto id = build(session, params);
+    auto id = tools->build_surface(session, params);
     auto titlebar = session->surface(id);
     titlebar->set_alpha(0.9);
 
