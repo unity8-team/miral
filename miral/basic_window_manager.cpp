@@ -35,9 +35,9 @@ ma::BasicWindowManager::BasicWindowManager(
 }
 
 auto ma::BasicWindowManager::build_surface(std::shared_ptr<scene::Session> const& session, scene::SurfaceCreationParameters const& parameters)
--> frontend::SurfaceId
+-> Surface
 {
-    return surface_builder(session, parameters);
+    return Surface{session, surface_builder(session, parameters)};
 }
 
 void ma::BasicWindowManager::add_session(std::shared_ptr<scene::Session> const& session)

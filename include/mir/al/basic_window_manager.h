@@ -34,6 +34,24 @@ namespace al
 {
 using shell::SurfaceSet;
 
+class Surface
+{
+public:
+    Surface(std::shared_ptr<scene::Session> const& session, frontend::SurfaceId surface);
+
+    auto surface_id() const -> frontend::SurfaceId;
+    void set_alpha(float alpha);
+
+    // TODO remove this conversion which is convenient to maintain stable intermediate forms
+    operator std::weak_ptr<scene::Surface>() const;
+    // TODO remove this conversion which is convenient to maintain stable intermediate forms
+    operator std::shared_ptr<scene::Surface>() const;
+
+private:
+    struct Self;
+    std::shared_ptr<Self> self;
+};
+
 /// The interface through which the policy instructs the controller.
 /// These functions assume that the BasicWindowManager data structures can be accessed freely.
 /// I.e. should only be invoked by the policy handle_... methods (where any necessary locks are held).
@@ -44,7 +62,7 @@ public:
     using SessionInfoMap = std::map<std::weak_ptr<scene::Session>, SessionInfo, std::owner_less<std::weak_ptr<scene::Session>>>;
 
     virtual auto build_surface(std::shared_ptr<scene::Session> const& session, scene::SurfaceCreationParameters const& parameters)
-    -> frontend::SurfaceId = 0;
+    -> Surface = 0;
 
     virtual auto find_session(std::function<bool(SessionInfo const& info)> const& predicate)
     -> std::shared_ptr<scene::Session> = 0;
@@ -138,7 +156,7 @@ public:
     using typename WindowManagerTools::SessionInfoMap;
 
     auto build_surface(std::shared_ptr<scene::Session> const& session, scene::SurfaceCreationParameters const& parameters)
-    -> frontend::SurfaceId override;
+    -> Surface override;
 
     void add_session(std::shared_ptr<scene::Session> const& session) override;
 
