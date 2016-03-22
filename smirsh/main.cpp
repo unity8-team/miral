@@ -21,6 +21,7 @@
 
 #include "mir/server.h"
 #include "mir/main_loop.h"
+#include "mir/graphics/default_display_configuration_policy.h"
 
 #include "mir/report_exception.h"
 #include "mir/options/option.h"
@@ -28,6 +29,7 @@
 #include <chrono>
 
 namespace me = mir::examples;
+namespace mg = mir::graphics;
 
 namespace
 {
@@ -48,6 +50,14 @@ void add_timeout_option_to(mir::Server& server)
         }
     });
 }
+
+void set_sidebyside_display(mir::Server& server)
+{
+    server.wrap_display_configuration_policy(
+        [&](std::shared_ptr<mir::graphics::DisplayConfigurationPolicy> const& /*wrapped*/)
+            -> std::shared_ptr<mir::graphics::DisplayConfigurationPolicy>
+            { return std::make_shared<mir::graphics::SideBySideDisplayConfigurationPolicy>(); });
+}
 }
 
 int main(int argc, char const* argv[])
@@ -59,6 +69,7 @@ try
 
     me::add_window_manager_option_to(server);
     add_timeout_option_to(server);
+    set_sidebyside_display(server);
 
     // Create some input filters (we need to keep them or they deactivate)
     auto const quit_filter = me::make_quit_filter_for(server);
