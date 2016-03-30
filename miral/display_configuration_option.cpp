@@ -88,7 +88,7 @@ void PixelFormatSelector::apply_to(mg::DisplayConfiguration & conf)
         });
 }
 
-void miral::add_display_configuration_options_to(mir::Server& server)
+void miral::display_configuration_options(mir::Server& server)
 {
     // Add choice of monitor configuration
     server.add_configuration_option(display_config_opt, display_config_descr,   sidebyside_opt_val);

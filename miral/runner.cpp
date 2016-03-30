@@ -29,7 +29,7 @@ miral::MirRunner::MirRunner(int argc, char const* argv[], char const* config_fil
 {
 }
 
-auto miral::MirRunner::run(std::initializer_list<std::function<void(::mir::Server&)>> options)
+auto miral::MirRunner::run_with(std::initializer_list<std::function<void(::mir::Server&)>> options)
 -> int
 try
 {

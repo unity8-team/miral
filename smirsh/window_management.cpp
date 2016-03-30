@@ -116,7 +116,7 @@ private:
 using FullscreenWindowManager = me::WindowManagerBuilder<FullscreenWindowManagerPolicy>;
 using CanonicalWindowManager = me::WindowManagerBuilder<me::CanonicalWindowManagerPolicyCopy>;
 
-void me::add_window_manager_option_to(Server& server)
+void me::window_manager_option(Server& server)
 {
     server.add_configuration_option(wm_option, wm_description, wm_canonical);
 

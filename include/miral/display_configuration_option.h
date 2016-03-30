@@ -16,17 +16,15 @@
  * Authored By: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#ifndef MIR_ABSTRACTION_DISPLAY_CONFIGURATION_POLICY_H_
-#define MIR_ABSTRACTION_DISPLAY_CONFIGURATION_POLICY_H_
-
-#include "mir/graphics/display_configuration_policy.h"
+#ifndef MIRAL_DISPLAY_CONFIGURATION_OPTIONS_H_
+#define MIRAL_DISPLAY_CONFIGURATION_OPTIONS_H_
 
 namespace mir { class Server; }
 
 namespace miral
 {
-void add_display_configuration_options_to(mir::Server& server);
+void display_configuration_options(mir::Server& server);
 }
 
 
-#endif /* MIR_ABSTRACTION_DISPLAY_CONFIGURATION_POLICY_H_ */
+#endif /* MIRAL_DISPLAY_CONFIGURATION_OPTIONS_H_ */

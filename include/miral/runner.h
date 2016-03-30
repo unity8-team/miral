@@ -16,8 +16,8 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#ifndef MIR_ABSTRACTION_RUNNER_H
-#define MIR_ABSTRACTION_RUNNER_H
+#ifndef MIRAL_RUNNER_H
+#define MIRAL_RUNNER_H
 
 #include <functional>
 #include <initializer_list>
@@ -38,7 +38,7 @@ class MirRunner
 public:
     MirRunner(int argc, char const* argv[], char const* config_file);
 
-    auto run(std::initializer_list<std::function<void(::mir::Server&)>> options) -> int;
+    auto run_with(std::initializer_list<std::function<void(::mir::Server&)>> options) -> int;
 
 private:
     int const argc;
@@ -47,4 +47,4 @@ private:
 };
 }
 
-#endif //MIR_ABSTRACTION_RUNNER_H
+#endif //MIRAL_RUNNER_H

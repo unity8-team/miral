@@ -25,7 +25,7 @@ class Server;
 
 namespace examples
 {
-void add_window_manager_option_to(Server& server);
+void window_manager_option(Server& server);
 }
 } // namespace mir
 

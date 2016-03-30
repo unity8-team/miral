@@ -27,8 +27,9 @@ int main(int argc, char const* argv[])
 {
     miral::MirRunner runner(argc, argv, "smirsh.config");
 
-    return runner.run({
-            &me::add_window_manager_option_to,
-            &miral::add_display_configuration_options_to
+    return runner.run_with(
+        {
+            me::window_manager_option,
+            miral::display_configuration_options
         });
 }
