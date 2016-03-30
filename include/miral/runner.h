@@ -19,18 +19,26 @@
 #ifndef MIR_ABSTRACTION_RUNNER_H
 #define MIR_ABSTRACTION_RUNNER_H
 
+#include <functional>
 #include <initializer_list>
 
 namespace mir { class Server; }
 
+/** Mir Abstraction Layer.
+ * A thin, hopefully ABI stable, layer over the Mir libraries exposing only
+ * those abstractions needed to write a shell. One day this may inspire a core
+ * Mir library.
+ */
 namespace miral
 {
+
+/// Runner for applying initialization options to Mir.
 class MirRunner
 {
 public:
     MirRunner(int argc, char const* argv[], char const* config_file);
 
-    auto run(std::initializer_list<void (*)(::mir::Server&)> options) -> int;
+    auto run(std::initializer_list<std::function<void(::mir::Server&)>> options) -> int;
 
 private:
     int const argc;

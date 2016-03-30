@@ -18,17 +18,18 @@
 
 #include "miral/runner.h"
 
-#include "mir/server.h"
 #include "input_event_filter.h"
-#include "mir/main_loop.h"
+
+#include "mir/server.h"
 #include "mir/report_exception.h"
 
 
 miral::MirRunner::MirRunner(int argc, char const* argv[], char const* config_file) :
     argc(argc), argv(argv), config_file{config_file}
-{}
+{
+}
 
-auto miral::MirRunner::run(std::initializer_list<void (*)(mir::Server&)> options)
+auto miral::MirRunner::run(std::initializer_list<std::function<void(::mir::Server&)>> options)
 -> int
 try
 {
@@ -36,7 +37,7 @@ try
 
     server.set_config_filename(config_file);
 
-    for (auto* option : options)
+    for (auto& option : options)
         option(server);
 
     // Create some input filters (we need to keep them or they deactivate)
