@@ -17,7 +17,6 @@
  */
 
 #include "window_management.h"
-#include "timeout_option.h"
 
 #include "miral/display_configuration_option.h"
 #include "miral/runner.h"
@@ -30,7 +29,6 @@ int main(int argc, char const* argv[])
 
     return runner.run({
             &me::add_window_manager_option_to,
-            &me::add_timeout_option_to,
             &miral::add_display_configuration_options_to
         });
 }
