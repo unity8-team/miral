@@ -17,10 +17,10 @@
  */
 
 #include "window_management.h"
+#include "timeout_option.h"
 
 #include "mir/al/runner.h"
 #include "mir/server.h"
-#include "mir/main_loop.h"
 #include "mir/graphics/default_display_configuration_policy.h"
 
 #include "mir/options/option.h"
@@ -32,24 +32,6 @@ namespace mg = mir::graphics;
 
 namespace
 {
-void add_timeout_option_to(mir::Server& server)
-{
-    static const char* const timeout_opt = "timeout";
-    static const char* const timeout_descr = "Seconds to run before exiting";
-
-    server.add_configuration_option(timeout_opt, timeout_descr, mir::OptionType::integer);
-
-    server.add_init_callback([&server]
-    {
-        const auto options = server.get_options();
-        if (options->is_set(timeout_opt))
-        {
-            static auto const exit_action = server.the_main_loop()->create_alarm([&server] { server.stop(); });
-            exit_action->reschedule_in(std::chrono::seconds(options->get<int>(timeout_opt)));
-        }
-    });
-}
-
 void set_sidebyside_display(mir::Server& server)
 {
     server.wrap_display_configuration_policy(
@@ -63,6 +45,6 @@ int main(int argc, char const* argv[])
 {
     mir::al::MirRunner runner(argc, argv, "smirsh.config");
     return runner.run({ &me::add_window_manager_option_to,
-                    &add_timeout_option_to,
+                    &me::add_timeout_option_to,
                     set_sidebyside_display });
 }
