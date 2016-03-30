@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014-2016 Canonical Ltd.
+ * Copyright © 2016 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3,
@@ -13,37 +13,33 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Authored By: Alan Griffiths <alan@octopull.co.uk>
+ * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#ifndef EXAMPLE_INPUT_EVENT_FILTER_H_
-#define EXAMPLE_INPUT_EVENT_FILTER_H_
+#ifndef MIRAL_RUNNER_H
+#define MIRAL_RUNNER_H
 
-#include "mir/input/event_filter.h"
-
-#include <functional>
-#include <memory>
+#include <initializer_list>
 
 namespace mir
 {
 class Server;
 
-namespace examples
+namespace al
 {
-class QuitFilter : public mir::input::EventFilter
+class MirRunner
 {
 public:
-    QuitFilter(std::function<void()> const& quit_action);
+    MirRunner(int argc, char const* argv[], char const* config_file);
 
-    bool handle(MirEvent const& event) override;
+    auto run(std::initializer_list<void (*)(::mir::Server&)> options) -> int;
 
 private:
-    std::function<void()> const quit_action;
+    int const argc;
+    char const** argv;
+    char const* const config_file;
 };
-
-// Set up a Ctrl+Alt+BkSp => quit
-auto make_quit_filter_for(Server& server) -> std::shared_ptr<mir::input::EventFilter>;
 }
 }
 
-#endif /* EXAMPLE_INPUT_EVENT_FILTER_H_ */
+#endif //MIRAL_RUNNER_H

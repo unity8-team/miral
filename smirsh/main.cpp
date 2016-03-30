@@ -17,13 +17,12 @@
  */
 
 #include "window_management.h"
-#include "input_event_filter.h"
 
+#include "mir/al/runner.h"
 #include "mir/server.h"
 #include "mir/main_loop.h"
 #include "mir/graphics/default_display_configuration_policy.h"
 
-#include "mir/report_exception.h"
 #include "mir/options/option.h"
 
 #include <chrono>
@@ -61,28 +60,9 @@ void set_sidebyside_display(mir::Server& server)
 }
 
 int main(int argc, char const* argv[])
-try
 {
-    mir::Server server;
-
-    server.set_config_filename("smirsh.config");
-
-    me::add_window_manager_option_to(server);
-    add_timeout_option_to(server);
-    set_sidebyside_display(server);
-
-    // Create some input filters (we need to keep them or they deactivate)
-    auto const quit_filter = me::make_quit_filter_for(server);
-
-    // Provide the command line and run the server
-    server.set_command_line(argc, argv);
-    server.apply_settings();
-    server.run();
-
-    return server.exited_normally() ? EXIT_SUCCESS : EXIT_FAILURE;
-}
-catch (...)
-{
-    mir::report_exception();
-    return EXIT_FAILURE;
+    mir::al::MirRunner runner(argc, argv, "smirsh.config");
+    return runner.run({ &me::add_window_manager_option_to,
+                    &add_timeout_option_to,
+                    set_sidebyside_display });
 }
