@@ -16,14 +16,13 @@
  * Authored By: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#include "mir/al/display_configuration_option.h"
+#include "miral/display_configuration_option.h"
 
 #include "mir/graphics/default_display_configuration_policy.h"
 #include "mir/graphics/display_configuration.h"
 #include "mir/server.h"
 #include "mir/options/option.h"
 
-namespace ma = mir::al;
 namespace mg = mir::graphics;
 
 namespace
@@ -89,7 +88,7 @@ void PixelFormatSelector::apply_to(mg::DisplayConfiguration & conf)
         });
 }
 
-void ma::add_display_configuration_options_to(mir::Server& server)
+void miral::add_display_configuration_options_to(mir::Server& server)
 {
     // Add choice of monitor configuration
     server.add_configuration_option(display_config_opt, display_config_descr,   sidebyside_opt_val);

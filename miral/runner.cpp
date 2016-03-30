@@ -16,21 +16,19 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#include "mir/al/runner.h"
+#include "miral/runner.h"
 
 #include "mir/server.h"
 #include "input_event_filter.h"
 #include "mir/main_loop.h"
 #include "mir/report_exception.h"
 
-namespace ma = mir::al;
 
-
-ma::MirRunner::MirRunner(int argc, char const* argv[], char const* config_file) :
+miral::MirRunner::MirRunner(int argc, char const* argv[], char const* config_file) :
     argc(argc), argv(argv), config_file{config_file}
 {}
 
-auto ma::MirRunner::run(std::initializer_list<void (*)(mir::Server&)> options)
+auto miral::MirRunner::run(std::initializer_list<void (*)(mir::Server&)> options)
 -> int
 try
 {

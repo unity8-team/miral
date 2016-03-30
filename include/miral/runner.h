@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 Canonical Ltd.
+ * Copyright © 2016 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3,
@@ -13,22 +13,30 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Authored By: Alan Griffiths <alan@octopull.co.uk>
+ * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#ifndef MIR_ABSTRACTION_DISPLAY_CONFIGURATION_POLICY_H_
-#define MIR_ABSTRACTION_DISPLAY_CONFIGURATION_POLICY_H_
+#ifndef MIR_ABSTRACTION_RUNNER_H
+#define MIR_ABSTRACTION_RUNNER_H
 
-#include "mir/graphics/display_configuration_policy.h"
+#include <initializer_list>
 
-namespace mir
+namespace mir { class Server; }
+
+namespace miral
 {
-class Server;
-
-namespace al
+class MirRunner
 {
-void add_display_configuration_options_to(Server& server);
-}
+public:
+    MirRunner(int argc, char const* argv[], char const* config_file);
+
+    auto run(std::initializer_list<void (*)(::mir::Server&)> options) -> int;
+
+private:
+    int const argc;
+    char const** const argv;
+    char const* const config_file;
+};
 }
 
-#endif /* MIR_ABSTRACTION_DISPLAY_CONFIGURATION_POLICY_H_ */
+#endif //MIR_ABSTRACTION_RUNNER_H

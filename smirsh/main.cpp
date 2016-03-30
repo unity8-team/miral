@@ -19,19 +19,18 @@
 #include "window_management.h"
 #include "timeout_option.h"
 
-#include "mir/al/display_configuration_option.h"
-#include "mir/al/runner.h"
+#include "miral/display_configuration_option.h"
+#include "miral/runner.h"
 
-namespace ma = mir::al;
 namespace me = mir::examples;
 
 int main(int argc, char const* argv[])
 {
-    mir::al::MirRunner runner(argc, argv, "smirsh.config");
+    miral::MirRunner runner(argc, argv, "smirsh.config");
 
     return runner.run({
             &me::add_window_manager_option_to,
             &me::add_timeout_option_to,
-            &ma::add_display_configuration_options_to
+            &miral::add_display_configuration_options_to
         });
 }

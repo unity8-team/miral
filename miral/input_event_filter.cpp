@@ -23,16 +23,12 @@
 
 #include <linux/input.h>
 
-namespace ma = mir::al;
-
-// Demonstrate a custom input by making Ctrl+Alt+BkSp stop the server
-
-ma::QuitFilter::QuitFilter(std::function<void()> const& quit_action)
+miral::QuitFilter::QuitFilter(std::function<void()> const& quit_action)
     : quit_action{quit_action}
 {
 }
 
-bool ma::QuitFilter::handle(MirEvent const& event)
+bool miral::QuitFilter::handle(MirEvent const& event)
 {
     if (mir_event_get_type(&event) != mir_event_type_input)
         return false;
@@ -54,10 +50,10 @@ bool ma::QuitFilter::handle(MirEvent const& event)
     return false;
 }
 
-auto ma::make_quit_filter_for(mir::Server& server)
+auto miral::make_quit_filter_for(mir::Server& server)
 -> std::shared_ptr<mir::input::EventFilter>
 {
-    auto const quit_filter = std::make_shared<ma::QuitFilter>([&]{ server.stop(); });
+    auto const quit_filter = std::make_shared<miral::QuitFilter>([&]{ server.stop(); });
 
     server.add_init_callback([quit_filter, &server]
         { server.the_composite_event_filter()->append(quit_filter); });
