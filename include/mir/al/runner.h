@@ -16,8 +16,8 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#ifndef MIRAL_RUNNER_H
-#define MIRAL_RUNNER_H
+#ifndef MIR_ABSTRACTION_RUNNER_H
+#define MIR_ABSTRACTION_RUNNER_H
 
 #include <initializer_list>
 
@@ -36,10 +36,10 @@ public:
 
 private:
     int const argc;
-    char const** argv;
+    char const** const argv;
     char const* const config_file;
 };
 }
 }
 
-#endif //MIRAL_RUNNER_H
+#endif //MIR_ABSTRACTION_RUNNER_H

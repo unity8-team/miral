@@ -16,8 +16,8 @@
  * Authored By: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#ifndef MIR_EXAMPLE_DISPLAY_CONFIGURATION_POLICY_H_
-#define MIR_EXAMPLE_DISPLAY_CONFIGURATION_POLICY_H_
+#ifndef MIR_ABSTRACTION_DISPLAY_CONFIGURATION_POLICY_H_
+#define MIR_ABSTRACTION_DISPLAY_CONFIGURATION_POLICY_H_
 
 #include "mir/graphics/display_configuration_policy.h"
 
@@ -31,4 +31,4 @@ void add_display_configuration_options_to(Server& server);
 }
 }
 
-#endif /* MIR_EXAMPLE_DISPLAY_CONFIGURATION_POLICY_H_ */
+#endif /* MIR_ABSTRACTION_DISPLAY_CONFIGURATION_POLICY_H_ */

@@ -16,8 +16,8 @@
  * Authored By: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#ifndef EXAMPLE_INPUT_EVENT_FILTER_H_
-#define EXAMPLE_INPUT_EVENT_FILTER_H_
+#ifndef MIR_ABSTRACT_INPUT_EVENT_FILTER_H_
+#define MIR_ABSTRACT_INPUT_EVENT_FILTER_H_
 
 #include "mir/input/event_filter.h"
 
@@ -46,4 +46,4 @@ auto make_quit_filter_for(Server& server) -> std::shared_ptr<mir::input::EventFi
 }
 }
 
-#endif /* EXAMPLE_INPUT_EVENT_FILTER_H_ */
+#endif /* MIR_ABSTRACT_INPUT_EVENT_FILTER_H_ */

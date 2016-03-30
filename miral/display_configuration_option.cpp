@@ -92,7 +92,7 @@ void PixelFormatSelector::apply_to(mg::DisplayConfiguration & conf)
 void ma::add_display_configuration_options_to(mir::Server& server)
 {
     // Add choice of monitor configuration
-    server.add_configuration_option(display_config_opt, display_config_descr,   clone_opt_val);
+    server.add_configuration_option(display_config_opt, display_config_descr,   sidebyside_opt_val);
     server.add_configuration_option(display_alpha_opt,  display_alpha_descr,    display_alpha_off);
 
     server.wrap_display_configuration_policy(
