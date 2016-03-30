@@ -19,7 +19,7 @@
 #ifndef MIR_ABSTRACTION_WINDOW_MANAGEMENT_INFO_H
 #define MIR_ABSTRACTION_WINDOW_MANAGEMENT_INFO_H
 
-#include "mir/al/surface.h"
+#include "miral/surface.h"
 
 #include "mir/geometry/rectangles.h"
 #include "mir/optional_value.h"
@@ -27,12 +27,14 @@
 
 #include <vector>
 
+namespace miral { class Surface; }
+
 namespace mir
 {
 namespace scene { class Session; class Surface; class SurfaceCreationParameters; }
 namespace al
 {
-class Surface;
+using ::miral::Surface;
 
 struct SurfaceInfo
 {

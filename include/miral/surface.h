@@ -16,19 +16,18 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#ifndef MIR_ABSTRACTION_SURFACE_H
-#define MIR_ABSTRACTION_SURFACE_H
+#ifndef MIRAL_SURFACE_H
+#define MIRAL_SURFACE_H
 
-#include "mir/frontend/surface_id.h"
-
-#include <memory>
+// TODO remove frontend::SurfaceId from the interface
+#include <mir/frontend/surface_id.h>
 #include <mir/geometry/size.h>
 
-namespace mir
-{
-namespace scene { class Session; class Surface; }
+#include <memory>
 
-namespace al
+namespace mir { namespace scene { class Session; class Surface; }}
+
+namespace miral
 {
 /// Handle class to manage a Mir surface. It may be null (e.g. default initialized) in which case
 ///
@@ -36,30 +35,29 @@ class Surface
 {
 public:
     Surface();
-    Surface(std::shared_ptr <scene::Session> const& session, frontend::SurfaceId surface);
+    Surface(std::shared_ptr <mir::scene::Session> const& session, mir::frontend::SurfaceId surface);
     ~Surface();
 
     // Indicates that the Surface isn't null
     operator bool() const;
 
     void set_alpha(float alpha);
-    void resize(geometry::Size const& size);
+    void resize(mir::geometry::Size const& size);
     void show();
     void hide();
 
     void destroy_surface();
 
     // TODO remove this conversion which is convenient to maintain stable intermediate forms
-    operator std::weak_ptr<scene::Surface>() const;
+    operator std::weak_ptr<mir::scene::Surface>() const;
 
     // TODO remove this conversion which is convenient to maintain stable intermediate forms
-    operator std::shared_ptr<scene::Surface>() const;
+    operator std::shared_ptr<mir::scene::Surface>() const;
 
 private:
     struct Self;
     std::shared_ptr <Self> self;
 };
 }
-}
 
-#endif //MIR_ABSTRACTION_SURFACE_H
+#endif //MIRAL_SURFACE_H
