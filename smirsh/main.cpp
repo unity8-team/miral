@@ -1,5 +1,5 @@
 /*
- * Copyright © 2012-2016 Canonical Ltd.
+ * Copyright © 2016 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -19,32 +19,19 @@
 #include "window_management.h"
 #include "timeout_option.h"
 
+#include "mir/al/display_configuration_option.h"
 #include "mir/al/runner.h"
-#include "mir/server.h"
-#include "mir/graphics/default_display_configuration_policy.h"
 
-#include "mir/options/option.h"
-
-#include <chrono>
-
+namespace ma = mir::al;
 namespace me = mir::examples;
-namespace mg = mir::graphics;
-
-namespace
-{
-void set_sidebyside_display(mir::Server& server)
-{
-    server.wrap_display_configuration_policy(
-        [&](std::shared_ptr<mir::graphics::DisplayConfigurationPolicy> const& /*wrapped*/)
-            -> std::shared_ptr<mir::graphics::DisplayConfigurationPolicy>
-            { return std::make_shared<mir::graphics::SideBySideDisplayConfigurationPolicy>(); });
-}
-}
 
 int main(int argc, char const* argv[])
 {
     mir::al::MirRunner runner(argc, argv, "smirsh.config");
-    return runner.run({ &me::add_window_manager_option_to,
-                    &me::add_timeout_option_to,
-                    set_sidebyside_display });
+
+    return runner.run({
+            &me::add_window_manager_option_to,
+            &me::add_timeout_option_to,
+            &ma::add_display_configuration_options_to
+        });
 }
