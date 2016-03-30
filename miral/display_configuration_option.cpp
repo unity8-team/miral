@@ -30,7 +30,7 @@ namespace
 char const* const display_config_opt = "display-config";
 char const* const display_config_descr = "Display configuration [{clone,sidebyside,single}]";
 
-char const* const clone_opt_val = "clone";
+//char const* const clone_opt_val = "clone";
 char const* const sidebyside_opt_val = "sidebyside";
 char const* const single_opt_val = "single";
 
