@@ -98,7 +98,7 @@ public:
 
     virtual void handle_delete_surface(SurfaceInfo& surface_info) = 0;
 
-    virtual int handle_set_state(SurfaceInfo& surface_info, MirSurfaceState value) = 0;
+    virtual auto handle_set_state(SurfaceInfo& surface_info, MirSurfaceState value) -> MirSurfaceState = 0;
 
     virtual void generate_decorations_for(SurfaceInfo& surface_info) = 0;
 

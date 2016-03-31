@@ -66,7 +66,7 @@ public:
 
     void handle_delete_surface(SurfaceInfo& surface_info) override;
 
-    int handle_set_state(SurfaceInfo& surface_info, MirSurfaceState value) override;
+    auto handle_set_state(SurfaceInfo& surface_info, MirSurfaceState value) -> MirSurfaceState override;
 
     bool handle_keyboard_event(MirKeyboardEvent const* event);
 

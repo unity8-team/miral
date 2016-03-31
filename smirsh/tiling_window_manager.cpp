@@ -208,7 +208,8 @@ void me::TilingWindowManagerPolicy::handle_delete_surface(SurfaceInfo& surface_i
     }
 }
 
-int me::TilingWindowManagerPolicy::handle_set_state(SurfaceInfo& surface_info, MirSurfaceState value)
+auto me::TilingWindowManagerPolicy::handle_set_state(SurfaceInfo& surface_info, MirSurfaceState value)
+-> MirSurfaceState
 {
     switch (value)
     {

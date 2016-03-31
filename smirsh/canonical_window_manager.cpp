@@ -440,7 +440,8 @@ void me::CanonicalWindowManagerPolicy::handle_delete_surface(SurfaceInfo& surfac
     }
 }
 
-int me::CanonicalWindowManagerPolicy::handle_set_state(SurfaceInfo& surface_info, MirSurfaceState value)
+auto me::CanonicalWindowManagerPolicy::handle_set_state(SurfaceInfo& surface_info, MirSurfaceState value)
+-> MirSurfaceState
 {
     switch (value)
     {
