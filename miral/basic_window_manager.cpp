@@ -211,7 +211,8 @@ auto ma::BasicWindowManager::focused_session() const
 auto ma::BasicWindowManager::focused_surface() const
 -> Surface
 {
-    return info_for(focus_controller->focused_surface()).surface;
+    auto focussed_surface = focus_controller->focused_surface();
+    return focussed_surface ? info_for(focussed_surface).surface : Surface{};
 }
 
 void ma::BasicWindowManager::focus_next_session()
