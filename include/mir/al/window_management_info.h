@@ -56,8 +56,7 @@ struct SurfaceInfo
         geometry::Point& requested_pos,
         geometry::Size& requested_size,
         const bool left_resize,
-        const bool top_resize,
-        geometry::Rectangle const& bounds) const;
+        const bool top_resize) const;
 
     Surface surface;
 

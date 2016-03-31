@@ -264,8 +264,7 @@ void ma::SurfaceInfo::constrain_resize(
     Point& requested_pos,
     Size& requested_size,
     bool const left_resize,
-    bool const top_resize,
-    Rectangle const& /*bounds*/) const
+    bool const top_resize) const
 {
     Point new_pos = requested_pos;
     Size new_size = requested_size;

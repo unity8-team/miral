@@ -107,7 +107,7 @@ private:
     void select_active_surface(std::shared_ptr<scene::Surface> const& surface);
     auto active_surface() const -> std::shared_ptr<scene::Surface>;
 
-    bool resize(std::shared_ptr<scene::Surface> const& surface, geometry::Point cursor, geometry::Point old_cursor, geometry::Rectangle bounds);
+    bool resize(std::shared_ptr<scene::Surface> const& surface, geometry::Point cursor, geometry::Point old_cursor);
     bool drag(std::shared_ptr<scene::Surface> surface, geometry::Point to, geometry::Point from, geometry::Rectangle bounds);
     void move_tree(std::shared_ptr<scene::Surface> const& root, geometry::Displacement movement) const;
     void apply_resize(

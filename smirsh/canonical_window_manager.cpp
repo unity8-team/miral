@@ -90,7 +90,7 @@ void me::CanonicalWindowManagerPolicyCopy::handle_displays_updated(SessionInfoMa
 void me::CanonicalWindowManagerPolicyCopy::resize(Point cursor)
 {
     select_active_surface(tools->surface_at(old_cursor));
-    resize(active_surface(), cursor, old_cursor, display_area);
+    resize(active_surface(), cursor, old_cursor);
 }
 
 auto me::CanonicalWindowManagerPolicyCopy::handle_place_new_surface(
@@ -387,8 +387,7 @@ void me::CanonicalWindowManagerPolicyCopy::handle_modify_surface(
             top_left,
             new_size,
             false,
-            false,
-            display_area);
+            false);
 
         apply_resize(surface, surface_info.titlebar, top_left, new_size);
     }
@@ -834,7 +833,7 @@ auto me::CanonicalWindowManagerPolicyCopy::active_surface() const
     return std::shared_ptr<ms::Surface>{};
 }
 
-bool me::CanonicalWindowManagerPolicyCopy::resize(std::shared_ptr<ms::Surface> const& surface, Point cursor, Point old_cursor, Rectangle bounds)
+bool me::CanonicalWindowManagerPolicyCopy::resize(std::shared_ptr<ms::Surface> const& surface, Point cursor, Point old_cursor)
 {
     if (!surface || !surface->input_area_contains(old_cursor))
         return false;
@@ -870,7 +869,7 @@ bool me::CanonicalWindowManagerPolicyCopy::resize(std::shared_ptr<ms::Surface> c
 
     auto const& surface_info = tools->info_for(surface);
 
-    surface_info.constrain_resize(new_pos, new_size, left_resize, top_resize, bounds);
+    surface_info.constrain_resize(new_pos, new_size, left_resize, top_resize);
 
     apply_resize(surface, surface_info.titlebar, new_pos, new_size);
 
