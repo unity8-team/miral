@@ -564,11 +564,9 @@ void me::CanonicalWindowManagerPolicy::drag(Point cursor)
     drag(active_surface(), cursor, old_cursor, display_area);
 }
 
-void me::CanonicalWindowManagerPolicy::handle_raise_surface(
-    std::shared_ptr<ms::Session> const& /*session*/,
-    std::shared_ptr<ms::Surface> const& surface)
+void me::CanonicalWindowManagerPolicy::handle_raise_surface(SurfaceInfo& surface_info)
 {
-    select_active_surface(surface);
+    select_active_surface(surface_info.surface);
 }
 
 bool me::CanonicalWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* event)

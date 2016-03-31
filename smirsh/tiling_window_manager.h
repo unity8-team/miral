@@ -65,9 +65,7 @@ public:
 
     bool handle_pointer_event(MirPointerEvent const* event);
 
-    void handle_raise_surface(
-        std::shared_ptr<scene::Session> const& session,
-        std::shared_ptr<scene::Surface> const& surface);
+    void handle_raise_surface(SurfaceInfo& surface_info) override;
 
     void generate_decorations_for(SurfaceInfo& surface_info) override;
 

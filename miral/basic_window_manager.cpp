@@ -139,13 +139,13 @@ bool ma::BasicWindowManager::handle_pointer_event(MirPointerEvent const* event)
 }
 
 void ma::BasicWindowManager::handle_raise_surface(
-    std::shared_ptr<scene::Session> const& session,
+    std::shared_ptr<scene::Session> const& /*session*/,
     std::shared_ptr<scene::Surface> const& surface,
     uint64_t timestamp)
 {
     std::lock_guard<decltype(mutex)> lock(mutex);
     if (timestamp >= last_input_event_timestamp)
-        policy->handle_raise_surface(session, surface);
+        policy->handle_raise_surface(info_for(surface));
 }
 
 int ma::BasicWindowManager::set_surface_attribute(

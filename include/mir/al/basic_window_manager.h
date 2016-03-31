@@ -108,9 +108,7 @@ public:
 
     virtual bool handle_pointer_event(MirPointerEvent const* event) = 0;
 
-    virtual void handle_raise_surface(
-        std::shared_ptr<scene::Session> const& session,
-        std::shared_ptr<scene::Surface> const& surface) = 0;
+    virtual void handle_raise_surface(SurfaceInfo& surface_info) = 0;
 
     virtual ~WindowManagementPolicy() = default;
     WindowManagementPolicy() = default;

@@ -277,11 +277,9 @@ void me::TilingWindowManagerPolicy::drag(Point cursor)
     }
 }
 
-void me::TilingWindowManagerPolicy::handle_raise_surface(
-    std::shared_ptr<ms::Session> const& session,
-    std::shared_ptr<ms::Surface> const& surface)
+void me::TilingWindowManagerPolicy::handle_raise_surface(SurfaceInfo& surface_info)
 {
-    select_active_surface(session, surface);
+    select_active_surface(surface_info.surface.session(), surface_info.surface);
 }
 
 bool me::TilingWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* event)
