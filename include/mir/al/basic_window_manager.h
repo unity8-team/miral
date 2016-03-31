@@ -63,7 +63,7 @@ public:
 
     virtual void set_focus_to(Surface const& surface) = 0;
 
-    virtual auto surface_at(geometry::Point cursor) const -> std::shared_ptr<scene::Surface> = 0;
+    virtual auto surface_at(geometry::Point cursor) const -> Surface = 0;
 
     virtual auto active_display() -> geometry::Rectangle const = 0;
 
@@ -190,7 +190,7 @@ public:
 
     void set_focus_to(Surface const& surface) override;
 
-    auto surface_at(geometry::Point cursor) const -> std::shared_ptr<scene::Surface> override;
+    auto surface_at(geometry::Point cursor) const -> Surface override;
 
     auto active_display() -> geometry::Rectangle const override;
 

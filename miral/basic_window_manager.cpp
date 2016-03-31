@@ -216,9 +216,9 @@ void ma::BasicWindowManager::set_focus_to(Surface const& surface)
 }
 
 auto ma::BasicWindowManager::surface_at(geometry::Point cursor) const
--> std::shared_ptr<scene::Surface>
+-> Surface
 {
-    return focus_controller->surface_at(cursor);
+    return info_for(focus_controller->surface_at(cursor)).surface;
 }
 
 auto ma::BasicWindowManager::active_display()
