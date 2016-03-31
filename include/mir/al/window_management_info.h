@@ -38,10 +38,7 @@ using ::miral::Surface;
 
 struct SurfaceInfo
 {
-    SurfaceInfo(
-        std::shared_ptr <scene::Session> const& session,
-        std::shared_ptr <scene::Surface> const& surface,
-        scene::SurfaceCreationParameters const& params);
+    SurfaceInfo(Surface const& surface, scene::SurfaceCreationParameters const& params);
 
     bool can_be_active() const;
 

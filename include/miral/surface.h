@@ -19,9 +19,12 @@
 #ifndef MIRAL_SURFACE_H
 #define MIRAL_SURFACE_H
 
+#include <mir_toolkit/common.h>
+#include <mir/geometry/point.h>
+#include <mir/geometry/size.h>
+
 // TODO remove frontend::SurfaceId from the interface
 #include <mir/frontend/surface_id.h>
-#include <mir/geometry/size.h>
 
 #include <memory>
 
@@ -37,6 +40,13 @@ public:
     Surface();
     Surface(std::shared_ptr <mir::scene::Session> const& session, mir::frontend::SurfaceId surface);
     ~Surface();
+
+    auto type()         const -> MirSurfaceType;
+    auto state()        const -> MirSurfaceState;
+    auto top_left()     const -> mir::geometry::Point;
+    auto size()         const -> mir::geometry::Size;
+    auto session()      const -> std::weak_ptr<mir::scene::Session>;
+    auto surface_id()   const -> mir::frontend::SurfaceId;
 
     // Indicates that the Surface isn't null
     operator bool() const;

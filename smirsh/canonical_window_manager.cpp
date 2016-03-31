@@ -265,7 +265,7 @@ void me::CanonicalWindowManagerPolicyCopy::generate_decorations_for(
     surface_info.children.push_back(titlebar);
 
     SurfaceInfo& titlebar_info =
-            surface_map.emplace(titlebar, SurfaceInfo{session, titlebar, {}}).first->second;
+            surface_map.emplace(titlebar, SurfaceInfo{titlebar, {}}).first->second;
     titlebar_info.is_titlebar = true;
     titlebar_info.parent = surface;
     titlebar_info.init_titlebar(titlebar);

@@ -31,13 +31,12 @@ namespace mg = mir::graphics;
 using namespace mir::geometry;
 
 ma::SurfaceInfo::SurfaceInfo(
-    std::shared_ptr<scene::Session> const& session,
-    std::shared_ptr<scene::Surface> const& surface,
+    Surface const& surface,
     scene::SurfaceCreationParameters const& params) :
-    type{surface->type()},
-    state{surface->state()},
-    restore_rect{surface->top_left(), surface->size()},
-    session{session},
+    type{surface.type()},
+    state{surface.state()},
+    restore_rect{surface.top_left(), surface.size()},
+    session{surface.session()},
     parent{params.parent},
     min_width{params.min_width.is_set() ? params.min_width.value()  : Width{}},
     min_height{params.min_height.is_set() ? params.min_height.value() : Height{}},

@@ -96,3 +96,53 @@ void miral::Surface::destroy_surface()
         session->destroy_surface(self->id);
     self.reset();
 }
+
+auto miral::Surface::type() const
+-> MirSurfaceType
+{
+    if (auto const surface = self->surface.lock())
+        return surface->type();
+
+    return mir_surface_type_normal;
+}
+
+auto miral::Surface::state() const
+-> MirSurfaceState
+{
+    if (auto const surface = self->surface.lock())
+        return surface->state();
+
+    return mir_surface_state_unknown;
+}
+
+auto miral::Surface::top_left() const
+-> mir::geometry::Point
+{
+    if (auto const surface = self->surface.lock())
+        return surface->top_left();
+
+    return {};
+}
+
+auto miral::Surface::size() const
+-> mir::geometry::Size
+{
+    if (auto const surface = self->surface.lock())
+        return surface->size();
+
+    return {};
+}
+
+auto miral::Surface::session() const
+-> std::weak_ptr<mir::scene::Session>
+{
+    if (!self) return {};
+    return self->session;
+}
+
+auto miral::Surface::surface_id() const
+-> mir::frontend::SurfaceId
+{
+    if (!self) return {};
+    return self->id;
+}
