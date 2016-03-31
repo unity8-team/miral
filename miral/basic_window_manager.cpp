@@ -72,12 +72,12 @@ auto ma::BasicWindowManager::add_surface(
 }
 
 void ma::BasicWindowManager::modify_surface(
-    std::shared_ptr<scene::Session> const& session,
+    std::shared_ptr<scene::Session> const& /*session*/,
     std::shared_ptr<scene::Surface> const& surface,
     shell::SurfaceSpecification const& modifications)
 {
     std::lock_guard<decltype(mutex)> lock(mutex);
-    policy->handle_modify_surface(session, surface, modifications);
+    policy->handle_modify_surface(info_for(surface), modifications);
 }
 
 void ma::BasicWindowManager::remove_surface(

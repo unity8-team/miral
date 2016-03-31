@@ -27,6 +27,7 @@
 #include <mir/frontend/surface_id.h>
 
 #include <memory>
+#include <string>
 
 namespace mir { namespace scene { class Session; class Surface; }}
 
@@ -55,6 +56,7 @@ public:
     void resize(mir::geometry::Size const& size);
     void show();
     void hide();
+    void rename(std::string const& name);
 
     void destroy_surface();
 

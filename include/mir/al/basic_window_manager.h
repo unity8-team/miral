@@ -92,12 +92,9 @@ public:
         scene::SurfaceCreationParameters const& request_parameters)
         -> scene::SurfaceCreationParameters = 0;
 
-    virtual void handle_new_surface(SurfaceInfo& surface) = 0;
+    virtual void handle_new_surface(SurfaceInfo& surface_info) = 0;
 
-    virtual void handle_modify_surface(
-        std::shared_ptr<scene::Session> const& session,
-        std::shared_ptr<scene::Surface> const& surface,
-        shell::SurfaceSpecification const& modifications) = 0;
+    virtual void handle_modify_surface(SurfaceInfo& surface_info, shell::SurfaceSpecification const& modifications) = 0;
 
     virtual void handle_delete_surface(std::shared_ptr<scene::Session> const& session, std::weak_ptr<scene::Surface> const& surface) = 0;
 

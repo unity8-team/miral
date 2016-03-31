@@ -57,10 +57,7 @@ public:
 
     void handle_new_surface(SurfaceInfo& surface_info) override;
 
-    void handle_modify_surface(
-        std::shared_ptr<scene::Session> const& session,
-        std::shared_ptr<scene::Surface> const& surface,
-        shell::SurfaceSpecification const& modifications);
+    void handle_modify_surface(SurfaceInfo& surface_info, shell::SurfaceSpecification const& modifications);
 
     void handle_delete_surface(std::shared_ptr<scene::Session> const& session, std::weak_ptr<scene::Surface> const& surface);
 

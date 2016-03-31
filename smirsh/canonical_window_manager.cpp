@@ -300,13 +300,11 @@ void me::CanonicalWindowManagerPolicyCopy::handle_new_surface(SurfaceInfo& surfa
 }
 
 void me::CanonicalWindowManagerPolicyCopy::handle_modify_surface(
-    std::shared_ptr<scene::Session> const& session,
-    std::shared_ptr<scene::Surface> const& surface,
+    SurfaceInfo& surface_info_old,
     shell::SurfaceSpecification const& modifications)
 {
-    auto& surface_info_old = tools->info_for(surface);
-
     auto surface_info = surface_info_old;
+    std::shared_ptr<scene::Surface> const surface{surface_info.surface};
 
     if (modifications.parent.is_set())
         surface_info.parent = modifications.parent.value();
@@ -365,7 +363,7 @@ void me::CanonicalWindowManagerPolicyCopy::handle_modify_surface(
     {
         auto v = modifications.streams.value();
         std::vector<shell::StreamSpecification> l (v.begin(), v.end());
-        session->configure_streams(*surface, l);
+        surface_info.surface.session()->configure_streams(*surface, l);
     }
 
     if (modifications.input_shape.is_set())

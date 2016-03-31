@@ -146,3 +146,11 @@ auto miral::Surface::surface_id() const
     if (!self) return {};
     return self->id;
 }
+
+void miral::Surface::rename(std::string const& name)
+{
+    if (!self) return;
+    if (auto const surface = self->surface.lock())
+        surface->rename(name);
+}
+

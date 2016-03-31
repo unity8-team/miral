@@ -73,10 +73,7 @@ public:
 
         return placed_parameters;
     }
-    void handle_modify_surface(
-        std::shared_ptr<ms::Session> const& /*session*/,
-        std::shared_ptr<ms::Surface> const& /*surface*/,
-        msh::SurfaceSpecification const& /*modifications*/)
+    void handle_modify_surface(mir::al::SurfaceInfo&, msh::SurfaceSpecification const&) override
     {
     }
 
