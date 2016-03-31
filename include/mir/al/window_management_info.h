@@ -31,7 +31,7 @@ namespace miral { class Surface; }
 
 namespace mir
 {
-namespace scene { class Session; class Surface; class SurfaceCreationParameters; }
+namespace scene { class Session; class SurfaceCreationParameters; }
 namespace al
 {
 using ::miral::Surface;
