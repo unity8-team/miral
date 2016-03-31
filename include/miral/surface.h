@@ -22,6 +22,7 @@
 #include <mir_toolkit/common.h>
 #include <mir/geometry/point.h>
 #include <mir/geometry/size.h>
+#include <mir/geometry/rectangle.h>
 
 // TODO remove frontend::SurfaceId from the interface
 #include <mir/frontend/surface_id.h>
@@ -48,6 +49,7 @@ public:
     auto size()         const -> mir::geometry::Size;
     auto session()      const -> std::shared_ptr<mir::scene::Session>;
     auto surface_id()   const -> mir::frontend::SurfaceId;
+    auto input_bounds() const -> mir::geometry::Rectangle;
 
     // Indicates that the Surface isn't null
     operator bool() const;

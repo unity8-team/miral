@@ -200,9 +200,9 @@ auto ma::BasicWindowManager::focused_session() const
 }
 
 auto ma::BasicWindowManager::focused_surface() const
-->std::shared_ptr<scene::Surface>
+-> Surface
 {
-    return focus_controller->focused_surface();
+    return info_for(focus_controller->focused_surface()).surface;
 }
 
 void ma::BasicWindowManager::focus_next_session()
@@ -230,7 +230,7 @@ auto ma::BasicWindowManager::active_display()
     //    proportion of the area of that window.
     if (auto const surface = focused_surface())
     {
-        auto const surface_rect = surface->input_bounds();
+        auto const surface_rect = surface.input_bounds();
         int max_overlap_area = -1;
 
         for (auto const& display : displays)

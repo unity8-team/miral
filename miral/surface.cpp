@@ -100,8 +100,11 @@ void miral::Surface::destroy_surface()
 auto miral::Surface::type() const
 -> MirSurfaceType
 {
-    if (auto const surface = self->surface.lock())
-        return surface->type();
+    if (self)
+    {
+        if (auto const surface = self->surface.lock())
+            return surface->type();
+    }
 
     return mir_surface_type_normal;
 }
@@ -109,8 +112,11 @@ auto miral::Surface::type() const
 auto miral::Surface::state() const
 -> MirSurfaceState
 {
-    if (auto const surface = self->surface.lock())
-        return surface->state();
+    if (self)
+    {
+        if (auto const surface = self->surface.lock())
+            return surface->state();
+    }
 
     return mir_surface_state_unknown;
 }
@@ -118,8 +124,11 @@ auto miral::Surface::state() const
 auto miral::Surface::top_left() const
 -> mir::geometry::Point
 {
-    if (auto const surface = self->surface.lock())
-        return surface->top_left();
+    if (self)
+    {
+        if (auto const surface = self->surface.lock())
+            return surface->top_left();
+    }
 
     return {};
 }
@@ -127,8 +136,11 @@ auto miral::Surface::top_left() const
 auto miral::Surface::size() const
 -> mir::geometry::Size
 {
-    if (auto const surface = self->surface.lock())
-        return surface->size();
+    if (self)
+    {
+        if (auto const surface = self->surface.lock())
+            return surface->size();
+    }
 
     return {};
 }
@@ -145,6 +157,18 @@ auto miral::Surface::surface_id() const
 {
     if (!self) return {};
     return self->id;
+}
+
+auto miral::Surface::input_bounds() const
+-> mir::geometry::Rectangle
+{
+    if (self)
+    {
+        if (auto const surface = self->surface.lock())
+            return surface->input_bounds();
+    }
+
+    return {};
 }
 
 void miral::Surface::rename(std::string const& name)

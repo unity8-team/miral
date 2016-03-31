@@ -57,7 +57,7 @@ public:
 
     virtual std::shared_ptr<scene::Session> focused_session() const = 0;
 
-    virtual std::shared_ptr<scene::Surface> focused_surface() const = 0;
+    virtual auto focused_surface() const -> Surface = 0;
 
     virtual void focus_next_session() = 0;
 
@@ -184,7 +184,7 @@ public:
 
     std::shared_ptr<scene::Session> focused_session() const override;
 
-    std::shared_ptr<scene::Surface> focused_surface() const override;
+    auto focused_surface() const -> Surface override;
 
     void focus_next_session() override;
 
