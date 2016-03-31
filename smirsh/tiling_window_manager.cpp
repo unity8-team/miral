@@ -148,7 +148,7 @@ void me::TilingWindowManagerPolicy::handle_new_surface(SurfaceInfo& surface_info
 
     if (auto const parent = surface_info.parent)
     {
-        tools->info_for(parent).children.push_back(surface);
+        tools->info_for(parent).children.push_back(surface_info.surface);
     }
 
     if (surface_info.can_be_active())
@@ -180,7 +180,7 @@ void me::TilingWindowManagerPolicy::handle_delete_surface(SurfaceInfo& surface_i
 
         for (auto i = begin(siblings); i != end(siblings); ++i)
         {
-            if (surface == i->lock())
+            if (surface == *i)
             {
                 siblings.erase(i);
                 break;
@@ -547,7 +547,7 @@ void me::TilingWindowManagerPolicy::drag(std::shared_ptr<ms::Surface> surface, P
         for (auto const& child: tools->info_for(surface).children)
         {
             auto move = movement;
-            constrained_move(child.lock(), move, bounds);
+            constrained_move(child, move, bounds);
         }
     }
 }

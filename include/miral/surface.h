@@ -72,7 +72,19 @@ public:
 private:
     struct Self;
     std::shared_ptr <Self> self;
+
+    friend bool operator==(Surface const& lhs, Surface const& rhs);
+    friend bool operator==(std::shared_ptr<mir::scene::Surface> const& lhs, Surface const& rhs);
+    friend bool operator==(Surface const& lhs, std::shared_ptr<mir::scene::Surface> const& rhs);
 };
+
+bool operator==(Surface const& lhs, Surface const& rhs);
+bool operator==(std::shared_ptr<mir::scene::Surface> const& lhs, Surface const& rhs);
+bool operator==(Surface const& lhs, std::shared_ptr<mir::scene::Surface> const& rhs);
+
+inline bool operator!=(Surface const& lhs, Surface const& rhs) { return !(lhs == rhs); }
+inline bool operator!=(std::shared_ptr<mir::scene::Surface> const& lhs, Surface const& rhs) { return !(lhs == rhs); }
+inline bool operator!=(Surface const& lhs, std::shared_ptr<mir::scene::Surface> const& rhs) { return !(lhs == rhs); }
 }
 
 #endif //MIRAL_SURFACE_H

@@ -273,7 +273,7 @@ void me::CanonicalWindowManagerPolicy::handle_new_surface(SurfaceInfo& surface_i
 
     if (auto const parent = surface_info.parent)
     {
-        tools->info_for(parent).children.push_back(surface);
+        tools->info_for(parent).children.push_back(surface_info.surface);
     }
 
     tools->info_for(session).surfaces.push_back(surface);
@@ -393,7 +393,7 @@ void me::CanonicalWindowManagerPolicy::handle_modify_surface(
 void me::CanonicalWindowManagerPolicy::handle_delete_surface(SurfaceInfo& surface_info)
 {
     std::shared_ptr<ms::Session> const session{surface_info.surface.session()};
-    std::weak_ptr<ms::Surface> const surface{surface_info.surface};
+    std::shared_ptr<ms::Surface> const surface{surface_info.surface};
 
     fullscreen_surfaces.erase(surface);
 
@@ -403,7 +403,7 @@ void me::CanonicalWindowManagerPolicy::handle_delete_surface(SurfaceInfo& surfac
 
         for (auto i = begin(siblings); i != end(siblings); ++i)
         {
-            if (surface.lock() == i->lock())
+            if (surface == *i)
             {
                 siblings.erase(i);
                 break;
@@ -423,7 +423,7 @@ void me::CanonicalWindowManagerPolicy::handle_delete_surface(SurfaceInfo& surfac
 
     for (auto i = begin(surfaces); i != end(surfaces); ++i)
     {
-        if (surface.lock() == i->lock())
+        if (surface == i->lock())
         {
             surfaces.erase(i);
             break;
@@ -924,6 +924,6 @@ void me::CanonicalWindowManagerPolicy::move_tree(std::shared_ptr<ms::Surface> co
 
     for (auto const& child: tools->info_for(root).children)
     {
-        move_tree(child.lock(), movement);
+        move_tree(child, movement);
     }
 }

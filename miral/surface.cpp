@@ -183,3 +183,20 @@ void miral::Surface::rename(std::string const& name)
         surface->rename(name);
 }
 
+bool miral::operator==(Surface const& lhs, Surface const& rhs)
+{
+    return lhs.self == rhs.self;
+}
+
+bool miral::operator==(std::shared_ptr<mir::scene::Surface> const& lhs, Surface const& rhs)
+{
+    if (!rhs.self) return !lhs;
+    return lhs == rhs.self->surface.lock();
+}
+
+bool miral::operator==(Surface const& lhs, std::shared_ptr<mir::scene::Surface> const& rhs)
+{
+    return rhs == lhs;
+}
+
+
