@@ -212,7 +212,7 @@ auto ma::BasicWindowManager::focused_surface() const
 -> Surface
 {
     auto focussed_surface = focus_controller->focused_surface();
-    return focussed_surface ? info_for(focussed_surface).surface : Surface{};
+    return focussed_surface ? info_for(focussed_surface).surface :Surface{};
 }
 
 void ma::BasicWindowManager::focus_next_session()
@@ -228,7 +228,8 @@ void ma::BasicWindowManager::set_focus_to(Surface const& surface)
 auto ma::BasicWindowManager::surface_at(geometry::Point cursor) const
 -> Surface
 {
-    return info_for(focus_controller->surface_at(cursor)).surface;
+    auto surface_at = focus_controller->surface_at(cursor);
+    return surface_at ? info_for(surface_at).surface : Surface{};
 }
 
 auto ma::BasicWindowManager::active_display()
