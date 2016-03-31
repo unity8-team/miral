@@ -81,11 +81,11 @@ void ma::BasicWindowManager::modify_surface(
 }
 
 void ma::BasicWindowManager::remove_surface(
-    std::shared_ptr<scene::Session> const& session,
+    std::shared_ptr<scene::Session> const& /*session*/,
     std::weak_ptr<scene::Surface> const& surface)
 {
     std::lock_guard<decltype(mutex)> lock(mutex);
-    policy->handle_delete_surface(session, surface);
+    policy->handle_delete_surface(info_for(surface));
 
     surface_info.erase(surface);
 }

@@ -81,8 +81,8 @@ public:
     {
     }
 
-    void handle_delete_surface(std::shared_ptr<ms::Session> const& session, std::weak_ptr<ms::Surface> const& surface)
-        { session->destroy_surface(surface); }
+    void handle_delete_surface(mir::al::SurfaceInfo& surface_info) override
+        { surface_info.surface.destroy_surface(); }
 
     int handle_set_state(std::shared_ptr<ms::Surface> const& /*surface*/, MirSurfaceState value)
         { return value; }

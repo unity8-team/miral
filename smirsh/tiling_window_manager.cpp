@@ -172,17 +172,18 @@ void me::TilingWindowManagerPolicy::handle_modify_surface(
         surface_info.surface.rename(modifications.name.value());
 }
 
-void me::TilingWindowManagerPolicy::handle_delete_surface(std::shared_ptr<ms::Session> const& session, std::weak_ptr<ms::Surface> const& surface)
+void me::TilingWindowManagerPolicy::handle_delete_surface(SurfaceInfo& surface_info)
 {
-    auto& info = tools->info_for(surface);
+    std::shared_ptr<ms::Session> const session{surface_info.surface.session()};
+    std::shared_ptr<ms::Surface> const surface{surface_info.surface};
 
-    if (auto const parent = info.parent.lock())
+    if (auto const parent = surface_info.parent.lock())
     {
         auto& siblings = tools->info_for(parent).children;
 
         for (auto i = begin(siblings); i != end(siblings); ++i)
         {
-            if (surface.lock() == i->lock())
+            if (surface == i->lock())
             {
                 siblings.erase(i);
                 break;
@@ -194,14 +195,14 @@ void me::TilingWindowManagerPolicy::handle_delete_surface(std::shared_ptr<ms::Se
 
     for (auto i = begin(surfaces); i != end(surfaces); ++i)
     {
-        if (surface.lock() == i->lock())
+        if (surface == i->lock())
         {
             surfaces.erase(i);
             break;
         }
     }
 
-    session->destroy_surface(surface);
+    surface_info.surface.destroy_surface();
 
     if (surfaces.empty() && session == tools->focused_session())
     {

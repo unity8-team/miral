@@ -96,7 +96,7 @@ public:
 
     virtual void handle_modify_surface(SurfaceInfo& surface_info, shell::SurfaceSpecification const& modifications) = 0;
 
-    virtual void handle_delete_surface(std::shared_ptr<scene::Session> const& session, std::weak_ptr<scene::Surface> const& surface) = 0;
+    virtual void handle_delete_surface(SurfaceInfo& surface_info) = 0;
 
     virtual int handle_set_state(std::shared_ptr<scene::Surface> const& surface, MirSurfaceState value) = 0;
 

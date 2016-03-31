@@ -395,13 +395,14 @@ void me::CanonicalWindowManagerPolicy::handle_modify_surface(
     }
 }
 
-void me::CanonicalWindowManagerPolicy::handle_delete_surface(std::shared_ptr<ms::Session> const& session, std::weak_ptr<ms::Surface> const& surface)
+void me::CanonicalWindowManagerPolicy::handle_delete_surface(SurfaceInfo& surface_info)
 {
+    std::shared_ptr<ms::Session> const session{surface_info.surface.session()};
+    std::weak_ptr<ms::Surface> const surface{surface_info.surface};
+
     fullscreen_surfaces.erase(surface);
 
-    auto& info = tools->info_for(surface);
-
-    if (auto const parent = info.parent.lock())
+    if (auto const parent = surface_info.parent.lock())
     {
         auto& siblings = tools->info_for(parent).children;
 
@@ -415,11 +416,12 @@ void me::CanonicalWindowManagerPolicy::handle_delete_surface(std::shared_ptr<ms:
         }
     }
 
-    session->destroy_surface(surface);
-    if (info.titlebar)
+    surface_info.surface.destroy_surface();
+
+    if (surface_info.titlebar)
     {
-        info.titlebar.destroy_surface();
-        tools->forget(info.titlebar);
+        surface_info.titlebar.destroy_surface();
+        tools->forget(surface_info.titlebar);
     }
 
     auto& surfaces = tools->info_for(session).surfaces;
