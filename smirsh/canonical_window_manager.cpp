@@ -260,7 +260,6 @@ void me::CanonicalWindowManagerPolicy::generate_decorations_for(SurfaceInfo& sur
     titlebar_info.surface.set_alpha(0.9);
     titlebar_info.is_titlebar = true;
     titlebar_info.parent = surface;
-    titlebar_info.init_titlebar(titlebar_info.surface);
 
     surface_info.titlebar = titlebar_info.surface;
     surface_info.children.push_back(titlebar_info.surface);

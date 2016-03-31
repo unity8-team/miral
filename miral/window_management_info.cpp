@@ -241,21 +241,21 @@ struct mir::al::SurfaceInfo::AllocatingPainter
     mg::BufferID back_buffer; 
 };
 
-void mir::al::SurfaceInfo::init_titlebar(std::shared_ptr<scene::Surface> const& surface)
-{
-    auto stream = surface->primary_buffer_stream();
-    try
-    {
-        stream_painter = std::make_shared<AllocatingPainter>(stream, surface->size());
-    }
-    catch (...)
-    {
-        stream_painter = std::make_shared<SwappingPainter>(stream);
-    }
-}
-
 void mir::al::SurfaceInfo::paint_titlebar(int intensity)
 {
+    if (!stream_painter)
+    {
+        auto stream = std::shared_ptr<mir::scene::Surface>(surface)->primary_buffer_stream();
+        try
+        {
+            stream_painter = std::make_shared<AllocatingPainter>(stream, surface.size());
+        }
+        catch (...)
+        {
+            stream_painter = std::make_shared<SwappingPainter>(stream);
+        }
+    }
+
     stream_painter->paint(intensity);
 }
 
