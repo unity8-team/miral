@@ -256,16 +256,15 @@ void me::CanonicalWindowManagerPolicy::generate_decorations_for(SurfaceInfo& sur
         .of_position(titlebar_position_for_window(surface.top_left()))
         .of_type(mir_surface_type_gloss);
 
-    auto titlebar = tools->build_surface(surface.session(), params);
-    titlebar.set_alpha(0.9);
+    auto titlebar_info = tools->build_surface(surface.session(), params);
+    titlebar_info.surface.set_alpha(0.9);
 
-    surface_info.titlebar = titlebar;
-    surface_info.children.push_back(titlebar);
+    surface_info.titlebar = titlebar_info.surface;
+    surface_info.children.push_back(titlebar_info.surface);
 
-    SurfaceInfo& titlebar_info = tools->info_for(titlebar);
     titlebar_info.is_titlebar = true;
     titlebar_info.parent = surface;
-    titlebar_info.init_titlebar(titlebar);
+    titlebar_info.init_titlebar(titlebar_info.surface);
 }
 
 void me::CanonicalWindowManagerPolicy::handle_new_surface(SurfaceInfo& surface_info)
@@ -273,7 +272,7 @@ void me::CanonicalWindowManagerPolicy::handle_new_surface(SurfaceInfo& surface_i
     std::shared_ptr<scene::Surface> const surface = surface_info.surface;
     auto const session = surface_info.surface.session();
 
-    if (auto const parent = surface_info.parent.lock())
+    if (auto const parent = surface_info.parent)
     {
         tools->info_for(parent).children.push_back(surface);
     }
@@ -304,7 +303,7 @@ void me::CanonicalWindowManagerPolicy::handle_modify_surface(
     std::shared_ptr<scene::Surface> const surface{surface_info_new.surface};
 
     if (modifications.parent.is_set())
-        surface_info_new.parent = modifications.parent.value();
+        surface_info_new.parent = tools->info_for(modifications.parent.value()).surface;
 
     if (modifications.type.is_set() &&
         surface_info_new.type != modifications.type.value())
@@ -327,7 +326,7 @@ void me::CanonicalWindowManagerPolicy::handle_modify_surface(
         }
         else if (surface_info_new.must_have_parent())
         {
-            if (!surface_info_new.parent.lock())
+            if (!surface_info_new.parent)
                 throw std::runtime_error("Target surface type requires parent");
         }
 
@@ -399,7 +398,7 @@ void me::CanonicalWindowManagerPolicy::handle_delete_surface(SurfaceInfo& surfac
 
     fullscreen_surfaces.erase(surface);
 
-    if (auto const parent = surface_info.parent.lock())
+    if (auto const parent = surface_info.parent)
     {
         auto& siblings = tools->info_for(parent).children;
 
@@ -805,7 +804,7 @@ void me::CanonicalWindowManagerPolicy::select_active_surface(std::shared_ptr<ms:
     else
     {
         // Cannot have input focus - try the parent
-        if (auto const parent = info_for.parent.lock())
+        if (auto const parent = info_for.parent)
             select_active_surface(parent);
     }
 }

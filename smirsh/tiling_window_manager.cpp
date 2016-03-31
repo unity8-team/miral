@@ -146,7 +146,7 @@ void me::TilingWindowManagerPolicy::handle_new_surface(SurfaceInfo& surface_info
 
     tools->info_for(session).surfaces.push_back(surface);
 
-    if (auto const parent = surface_info.parent.lock())
+    if (auto const parent = surface_info.parent)
     {
         tools->info_for(parent).children.push_back(surface);
     }
@@ -174,7 +174,7 @@ void me::TilingWindowManagerPolicy::handle_delete_surface(SurfaceInfo& surface_i
     std::shared_ptr<ms::Session> const session{surface_info.surface.session()};
     std::shared_ptr<ms::Surface> const surface{surface_info.surface};
 
-    if (auto const parent = surface_info.parent.lock())
+    if (auto const parent = surface_info.parent)
     {
         auto& siblings = tools->info_for(parent).children;
 
@@ -626,7 +626,7 @@ std::shared_ptr<ms::Surface> me::TilingWindowManagerPolicy::select_active_surfac
     else
     {
         // Cannot have input focus - try the parent
-        if (auto const parent = info_for.parent.lock())
+        if (auto const parent = info_for.parent)
             return select_active_surface(session, parent);
 
         return {};

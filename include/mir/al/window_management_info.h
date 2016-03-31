@@ -59,7 +59,7 @@ struct SurfaceInfo
     MirSurfaceType type;
     MirSurfaceState state;
     geometry::Rectangle restore_rect;
-    std::weak_ptr <scene::Surface> parent;
+    Surface parent;
     std::vector <std::weak_ptr<scene::Surface>> children;
     Surface titlebar;
     bool is_titlebar = false;

@@ -97,6 +97,11 @@ void miral::Surface::destroy_surface()
     self.reset();
 }
 
+void miral::Surface::reset()
+{
+    self.reset();
+}
+
 auto miral::Surface::type() const
 -> MirSurfaceType
 {

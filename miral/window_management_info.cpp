@@ -37,7 +37,6 @@ ma::SurfaceInfo::SurfaceInfo(
     type{surface.type()},
     state{surface.state()},
     restore_rect{surface.top_left(), surface.size()},
-    parent{params.parent},
     min_width{params.min_width.is_set() ? params.min_width.value()  : Width{}},
     min_height{params.min_height.is_set() ? params.min_height.value() : Height{}},
     max_width{params.max_width.is_set() ? params.max_width.value() : Width{std::numeric_limits<int>::max()}},

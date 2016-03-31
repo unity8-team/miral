@@ -61,6 +61,7 @@ public:
     void rename(std::string const& name);
 
     void destroy_surface();
+    void reset();
 
     // TODO remove this conversion which is convenient to maintain stable intermediate forms
     operator std::weak_ptr<mir::scene::Surface>() const;

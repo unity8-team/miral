@@ -46,7 +46,7 @@ public:
     using SessionInfoMap = std::map<std::weak_ptr<scene::Session>, SessionInfo, std::owner_less<std::weak_ptr<scene::Session>>>;
 
     virtual auto build_surface(std::shared_ptr<scene::Session> const& session, scene::SurfaceCreationParameters const& parameters)
-    -> Surface = 0;
+    -> SurfaceInfo& = 0;
 
     virtual auto find_session(std::function<bool(SessionInfo const& info)> const& predicate)
     -> std::shared_ptr<scene::Session> = 0;
@@ -134,7 +134,7 @@ public:
     using typename WindowManagerTools::SessionInfoMap;
 
     auto build_surface(std::shared_ptr<scene::Session> const& session, scene::SurfaceCreationParameters const& parameters)
-    -> Surface override;
+    -> SurfaceInfo& override;
 
     void add_session(std::shared_ptr<scene::Session> const& session) override;
 

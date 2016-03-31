@@ -29,17 +29,19 @@ ma::BasicWindowManager::BasicWindowManager(
     std::unique_ptr<WindowManagementPolicy> policy) :
     focus_controller(focus_controller),
     policy(std::move(policy)),
-    surface_builder([](std::shared_ptr<scene::Session> const&, scene::SurfaceCreationParameters const&)->Surface
+    surface_builder([](std::shared_ptr<scene::Session> const&, scene::SurfaceCreationParameters const&) -> Surface
         { throw std::logic_error{"Can't create a surface yet"};})
 {
 }
 
 auto ma::BasicWindowManager::build_surface(std::shared_ptr<scene::Session> const& session, scene::SurfaceCreationParameters const& parameters)
--> Surface
+-> SurfaceInfo&
 {
     auto result = surface_builder(session, parameters);
-    surface_info.emplace(result, SurfaceInfo{result, parameters});
-    return result;
+    auto& info = surface_info.emplace(result, SurfaceInfo{result, parameters}).first->second;
+    if (auto const parent = parameters.parent.lock())
+        info.parent = info_for(parent).surface;
+    return info;
 }
 
 void ma::BasicWindowManager::add_session(std::shared_ptr<scene::Session> const& session)
@@ -65,13 +67,14 @@ auto ma::BasicWindowManager::add_surface(
     std::lock_guard<decltype(mutex)> lock(mutex);
     surface_builder = [build](std::shared_ptr<scene::Session> const& session, scene::SurfaceCreationParameters const& params)
         { return Surface{session, build(session, params)}; };
-    scene::SurfaceCreationParameters const placed_params = policy->handle_place_new_surface(session, params);
-    auto const result = surface_builder(session, placed_params);
-    
-    auto& info = surface_info.emplace(result, SurfaceInfo{result, placed_params}).first->second;
+    auto const placed_params = policy->handle_place_new_surface(session, params);
+
+    auto& info = build_surface(session, placed_params);
+
     policy->handle_new_surface(info);
     policy->generate_decorations_for(info);
-    return result.surface_id();
+
+    return info.surface.surface_id();
 }
 
 void ma::BasicWindowManager::modify_surface(
