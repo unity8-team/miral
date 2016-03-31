@@ -256,15 +256,14 @@ void me::CanonicalWindowManagerPolicy::generate_decorations_for(SurfaceInfo& sur
         .of_position(titlebar_position_for_window(surface.top_left()))
         .of_type(mir_surface_type_gloss);
 
-    auto titlebar_info = tools->build_surface(surface.session(), params);
+    auto& titlebar_info = tools->build_surface(surface.session(), params);
     titlebar_info.surface.set_alpha(0.9);
-
-    surface_info.titlebar = titlebar_info.surface;
-    surface_info.children.push_back(titlebar_info.surface);
-
     titlebar_info.is_titlebar = true;
     titlebar_info.parent = surface;
     titlebar_info.init_titlebar(titlebar_info.surface);
+
+    surface_info.titlebar = titlebar_info.surface;
+    surface_info.children.push_back(titlebar_info.surface);
 }
 
 void me::CanonicalWindowManagerPolicy::handle_new_surface(SurfaceInfo& surface_info)
