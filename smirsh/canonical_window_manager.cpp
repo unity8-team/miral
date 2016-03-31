@@ -384,7 +384,6 @@ void me::CanonicalWindowManagerPolicyCopy::handle_modify_surface(
         auto top_left = surface->top_left();
 
         surface_info.constrain_resize(
-            surface,
             top_left,
             new_size,
             false,
@@ -871,7 +870,7 @@ bool me::CanonicalWindowManagerPolicyCopy::resize(std::shared_ptr<ms::Surface> c
 
     auto const& surface_info = tools->info_for(surface);
 
-    surface_info.constrain_resize(surface, new_pos, new_size, left_resize, top_resize, bounds);
+    surface_info.constrain_resize(new_pos, new_size, left_resize, top_resize, bounds);
 
     apply_resize(surface, surface_info.titlebar, new_pos, new_size);
 

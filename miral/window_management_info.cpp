@@ -261,7 +261,6 @@ void mir::al::SurfaceInfo::paint_titlebar(int intensity)
 }
 
 void ma::SurfaceInfo::constrain_resize(
-    std::shared_ptr<ms::Surface> const& surface,
     Point& requested_pos,
     Size& requested_size,
     bool const left_resize,
@@ -361,15 +360,15 @@ void ma::SurfaceInfo::constrain_resize(
         // "A vertically maximised surface is anchored to the top and bottom of
         // the available workspace and can have any width."
     case mir_surface_state_vertmaximized:
-        new_pos.y = surface->top_left().y;
-        new_size.height = surface->size().height;
+        new_pos.y = surface.top_left().y;
+        new_size.height = surface.size().height;
         break;
 
         // "A horizontally maximised surface is anchored to the left and right of
         // the available workspace and can have any height"
     case mir_surface_state_horizmaximized:
-        new_pos.x = surface->top_left().x;
-        new_size.width = surface->size().width;
+        new_pos.x = surface.top_left().x;
+        new_size.width = surface.size().width;
         break;
 
         // "A maximised surface is anchored to the top, bottom, left and right of the
@@ -377,10 +376,10 @@ void ma::SurfaceInfo::constrain_resize(
         // the left-edge of the surface is anchored to the right-edge of the launcher."
     case mir_surface_state_maximized:
     default:
-        new_pos.x = surface->top_left().x;
-        new_pos.y = surface->top_left().y;
-        new_size.width = surface->size().width;
-        new_size.height = surface->size().height;
+        new_pos.x = surface.top_left().x;
+        new_pos.y = surface.top_left().y;
+        new_size.width = surface.size().width;
+        new_size.height = surface.size().height;
         break;
     }
 

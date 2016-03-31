@@ -53,7 +53,6 @@ struct SurfaceInfo
     static bool needs_titlebar(MirSurfaceType type);
 
     void constrain_resize(
-        std::shared_ptr <scene::Surface> const& surface,
         geometry::Point& requested_pos,
         geometry::Size& requested_size,
         const bool left_resize,
