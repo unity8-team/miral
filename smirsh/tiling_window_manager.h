@@ -42,18 +42,14 @@ class TilingWindowManagerPolicy : public WindowManagementPolicy
 public:
     explicit TilingWindowManagerPolicy(WindowManagerTools* const tools);
 
-    void click(geometry::Point cursor);
-
     void handle_session_info_updated(SessionInfoMap& session_info, geometry::Rectangles const& displays);
 
     void handle_displays_updated(SessionInfoMap& session_info, geometry::Rectangles const& displays);
 
-    void resize(geometry::Point cursor);
-
     auto handle_place_new_surface(
         std::shared_ptr<scene::Session> const& session,
         scene::SurfaceCreationParameters const& request_parameters)
-    -> scene::SurfaceCreationParameters;
+    -> scene::SurfaceCreationParameters override;
 
     void handle_new_surface(SurfaceInfo& surface_info) override;
 
@@ -62,8 +58,6 @@ public:
     void handle_delete_surface(std::shared_ptr<scene::Session> const& session, std::weak_ptr<scene::Surface> const& surface);
 
     int handle_set_state(std::shared_ptr<scene::Surface> const& surface, MirSurfaceState value);
-
-    void drag(geometry::Point cursor);
 
     bool handle_keyboard_event(MirKeyboardEvent const* event);
 
@@ -87,6 +81,9 @@ private:
         mir_input_event_modifier_ctrl |
         mir_input_event_modifier_meta;
 
+    void click(geometry::Point cursor);
+    void resize(geometry::Point cursor);
+    void drag(geometry::Point cursor);
     void toggle(MirSurfaceState state);
 
     std::shared_ptr<scene::Session> session_under(geometry::Point position);

@@ -51,7 +51,7 @@ Point titlebar_position_for_window(Point window_position)
 }
 }
 
-me::CanonicalWindowManagerPolicyCopy::CanonicalWindowManagerPolicyCopy(
+me::CanonicalWindowManagerPolicy::CanonicalWindowManagerPolicy(
     WindowManagerTools* const tools,
     std::shared_ptr<shell::DisplayLayout> const& display_layout) :
     tools{tools},
@@ -59,17 +59,17 @@ me::CanonicalWindowManagerPolicyCopy::CanonicalWindowManagerPolicyCopy(
 {
 }
 
-void me::CanonicalWindowManagerPolicyCopy::click(Point cursor)
+void me::CanonicalWindowManagerPolicy::click(Point cursor)
 {
     if (auto const surface = tools->surface_at(cursor))
         select_active_surface(surface);
 }
 
-void me::CanonicalWindowManagerPolicyCopy::handle_session_info_updated(SessionInfoMap& /*session_info*/, Rectangles const& /*displays*/)
+void me::CanonicalWindowManagerPolicy::handle_session_info_updated(SessionInfoMap& /*session_info*/, Rectangles const& /*displays*/)
 {
 }
 
-void me::CanonicalWindowManagerPolicyCopy::handle_displays_updated(SessionInfoMap& /*session_info*/, Rectangles const& displays)
+void me::CanonicalWindowManagerPolicy::handle_displays_updated(SessionInfoMap& /*session_info*/, Rectangles const& displays)
 {
     display_area = displays.bounding_rectangle();
 
@@ -87,13 +87,13 @@ void me::CanonicalWindowManagerPolicyCopy::handle_displays_updated(SessionInfoMa
     }
 }
 
-void me::CanonicalWindowManagerPolicyCopy::resize(Point cursor)
+void me::CanonicalWindowManagerPolicy::resize(Point cursor)
 {
     select_active_surface(tools->surface_at(old_cursor));
     resize(active_surface(), cursor, old_cursor);
 }
 
-auto me::CanonicalWindowManagerPolicyCopy::handle_place_new_surface(
+auto me::CanonicalWindowManagerPolicy::handle_place_new_surface(
     std::shared_ptr<ms::Session> const& session,
     ms::SurfaceCreationParameters const& request_parameters)
 -> ms::SurfaceCreationParameters
@@ -240,7 +240,7 @@ auto me::CanonicalWindowManagerPolicyCopy::handle_place_new_surface(
     return parameters;
 }
 
-void me::CanonicalWindowManagerPolicyCopy::generate_decorations_for(
+void me::CanonicalWindowManagerPolicy::generate_decorations_for(
     std::shared_ptr<scene::Session> const& session,
     std::shared_ptr<scene::Surface> const& surface,
     SurfaceInfoMap& surface_map)
@@ -271,7 +271,7 @@ void me::CanonicalWindowManagerPolicyCopy::generate_decorations_for(
     titlebar_info.init_titlebar(titlebar);
 }
 
-void me::CanonicalWindowManagerPolicyCopy::handle_new_surface(SurfaceInfo& surface_info)
+void me::CanonicalWindowManagerPolicy::handle_new_surface(SurfaceInfo& surface_info)
 {
     std::shared_ptr<scene::Surface> const surface = surface_info.surface;
     auto const session = surface_info.surface.session();
@@ -299,7 +299,7 @@ void me::CanonicalWindowManagerPolicyCopy::handle_new_surface(SurfaceInfo& surfa
         fullscreen_surfaces.insert(surface);
 }
 
-void me::CanonicalWindowManagerPolicyCopy::handle_modify_surface(
+void me::CanonicalWindowManagerPolicy::handle_modify_surface(
     SurfaceInfo& surface_info_old,
     shell::SurfaceSpecification const& modifications)
 {
@@ -395,7 +395,7 @@ void me::CanonicalWindowManagerPolicyCopy::handle_modify_surface(
     }
 }
 
-void me::CanonicalWindowManagerPolicyCopy::handle_delete_surface(std::shared_ptr<ms::Session> const& session, std::weak_ptr<ms::Surface> const& surface)
+void me::CanonicalWindowManagerPolicy::handle_delete_surface(std::shared_ptr<ms::Session> const& session, std::weak_ptr<ms::Surface> const& surface)
 {
     fullscreen_surfaces.erase(surface);
 
@@ -441,7 +441,7 @@ void me::CanonicalWindowManagerPolicyCopy::handle_delete_surface(std::shared_ptr
     }
 }
 
-int me::CanonicalWindowManagerPolicyCopy::handle_set_state(std::shared_ptr<ms::Surface> const& surface, MirSurfaceState value)
+int me::CanonicalWindowManagerPolicy::handle_set_state(std::shared_ptr<ms::Surface> const& surface, MirSurfaceState value)
 {
     auto& info = tools->info_for(surface);
 
@@ -561,20 +561,20 @@ int me::CanonicalWindowManagerPolicyCopy::handle_set_state(std::shared_ptr<ms::S
     return info.state;
 }
 
-void me::CanonicalWindowManagerPolicyCopy::drag(Point cursor)
+void me::CanonicalWindowManagerPolicy::drag(Point cursor)
 {
     select_active_surface(tools->surface_at(old_cursor));
     drag(active_surface(), cursor, old_cursor, display_area);
 }
 
-void me::CanonicalWindowManagerPolicyCopy::handle_raise_surface(
+void me::CanonicalWindowManagerPolicy::handle_raise_surface(
     std::shared_ptr<ms::Session> const& /*session*/,
     std::shared_ptr<ms::Surface> const& surface)
 {
     select_active_surface(surface);
 }
 
-bool me::CanonicalWindowManagerPolicyCopy::handle_keyboard_event(MirKeyboardEvent const* event)
+bool me::CanonicalWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* event)
 {
     auto const action = mir_keyboard_event_action(event);
     auto const scan_code = mir_keyboard_event_scan_code(event);
@@ -648,7 +648,7 @@ bool me::CanonicalWindowManagerPolicyCopy::handle_keyboard_event(MirKeyboardEven
     return false;
 }
 
-bool me::CanonicalWindowManagerPolicyCopy::handle_touch_event(MirTouchEvent const* event)
+bool me::CanonicalWindowManagerPolicy::handle_touch_event(MirTouchEvent const* event)
 {
     auto const count = mir_touch_event_point_count(event);
 
@@ -700,7 +700,7 @@ bool me::CanonicalWindowManagerPolicyCopy::handle_touch_event(MirTouchEvent cons
     return consumes_event;
 }
 
-bool me::CanonicalWindowManagerPolicyCopy::handle_pointer_event(MirPointerEvent const* event)
+bool me::CanonicalWindowManagerPolicy::handle_pointer_event(MirPointerEvent const* event)
 {
     auto const action = mir_pointer_event_action(event);
     auto const modifiers = mir_pointer_event_modifiers(event) & modifier_mask;
@@ -748,7 +748,7 @@ bool me::CanonicalWindowManagerPolicyCopy::handle_pointer_event(MirPointerEvent 
     return consumes_event;
 }
 
-void me::CanonicalWindowManagerPolicyCopy::toggle(MirSurfaceState state)
+void me::CanonicalWindowManagerPolicy::toggle(MirSurfaceState state)
 {
     if (auto const surface = active_surface())
     {
@@ -762,7 +762,7 @@ void me::CanonicalWindowManagerPolicyCopy::toggle(MirSurfaceState state)
     }
 }
 
-void me::CanonicalWindowManagerPolicyCopy::select_active_surface(std::shared_ptr<ms::Surface> const& surface)
+void me::CanonicalWindowManagerPolicy::select_active_surface(std::shared_ptr<ms::Surface> const& surface)
 {
     if (surface == active_surface_.lock())
         return;
@@ -814,7 +814,7 @@ void me::CanonicalWindowManagerPolicyCopy::select_active_surface(std::shared_ptr
     }
 }
 
-auto me::CanonicalWindowManagerPolicyCopy::active_surface() const
+auto me::CanonicalWindowManagerPolicy::active_surface() const
 -> std::shared_ptr<ms::Surface>
 {
     if (auto const surface = active_surface_.lock())
@@ -829,7 +829,7 @@ auto me::CanonicalWindowManagerPolicyCopy::active_surface() const
     return std::shared_ptr<ms::Surface>{};
 }
 
-bool me::CanonicalWindowManagerPolicyCopy::resize(std::shared_ptr<ms::Surface> const& surface, Point cursor, Point old_cursor)
+bool me::CanonicalWindowManagerPolicy::resize(std::shared_ptr<ms::Surface> const& surface, Point cursor, Point old_cursor)
 {
     if (!surface || !surface->input_area_contains(old_cursor))
         return false;
@@ -869,7 +869,7 @@ bool me::CanonicalWindowManagerPolicyCopy::resize(std::shared_ptr<ms::Surface> c
     return true;
 }
 
-void me::CanonicalWindowManagerPolicyCopy::apply_resize(SurfaceInfo& surface_info, Point new_pos, Size new_size) const
+void me::CanonicalWindowManagerPolicy::apply_resize(SurfaceInfo& surface_info, Point new_pos, Size new_size) const
 {
     surface_info.constrain_resize(new_pos, new_size);
 
@@ -881,7 +881,7 @@ void me::CanonicalWindowManagerPolicyCopy::apply_resize(SurfaceInfo& surface_inf
     move_tree(surface_info.surface, new_pos-surface_info.surface.top_left());
 }
 
-bool me::CanonicalWindowManagerPolicyCopy::drag(std::shared_ptr<ms::Surface> surface, Point to, Point from, Rectangle /*bounds*/)
+bool me::CanonicalWindowManagerPolicy::drag(std::shared_ptr<ms::Surface> surface, Point to, Point from, Rectangle /*bounds*/)
 {
     if (!surface)
         return false;
@@ -924,7 +924,7 @@ bool me::CanonicalWindowManagerPolicyCopy::drag(std::shared_ptr<ms::Surface> sur
     return true;
 }
 
-void me::CanonicalWindowManagerPolicyCopy::move_tree(std::shared_ptr<ms::Surface> const& root, Displacement movement) const
+void me::CanonicalWindowManagerPolicy::move_tree(std::shared_ptr<ms::Surface> const& root, Displacement movement) const
 {
     root->move_to(root->top_left() + movement);
 

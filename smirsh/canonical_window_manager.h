@@ -43,26 +43,22 @@ using namespace mir::al;
 //  o Maximize/restore current window (to display height): Shift-F11
 //  o Maximize/restore current window (to display width): Ctrl-F11
 //  o client requests to maximize, vertically maximize & restore
-class CanonicalWindowManagerPolicyCopy  : public WindowManagementPolicy
+class CanonicalWindowManagerPolicy  : public WindowManagementPolicy
 {
 public:
 
-    explicit CanonicalWindowManagerPolicyCopy(
+    explicit CanonicalWindowManagerPolicy(
         WindowManagerTools* const tools,
         std::shared_ptr<shell::DisplayLayout> const& display_layout);
-
-    void click(geometry::Point cursor);
 
     void handle_session_info_updated(SessionInfoMap& session_info, geometry::Rectangles const& displays);
 
     void handle_displays_updated(SessionInfoMap& session_info, geometry::Rectangles const& displays);
 
-    void resize(geometry::Point cursor);
-
     auto handle_place_new_surface(
         std::shared_ptr<scene::Session> const& session,
         scene::SurfaceCreationParameters const& request_parameters)
-    -> scene::SurfaceCreationParameters;
+    -> scene::SurfaceCreationParameters override;
 
     void handle_new_surface(SurfaceInfo& surface_info) override;
 
@@ -71,8 +67,6 @@ public:
     void handle_delete_surface(std::shared_ptr<scene::Session> const& session, std::weak_ptr<scene::Surface> const& surface);
 
     int handle_set_state(std::shared_ptr<scene::Surface> const& surface, MirSurfaceState value);
-
-    void drag(geometry::Point cursor);
 
     bool handle_keyboard_event(MirKeyboardEvent const* event);
 
@@ -97,6 +91,9 @@ private:
         mir_input_event_modifier_ctrl |
         mir_input_event_modifier_meta;
 
+    void drag(geometry::Point cursor);
+    void click(geometry::Point cursor);
+    void resize(geometry::Point cursor);
     void toggle(MirSurfaceState state);
 
     // "Mir and Unity: Surfaces, input, and displays (v0.3)" talks about active
