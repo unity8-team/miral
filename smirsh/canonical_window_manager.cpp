@@ -240,32 +240,29 @@ auto me::CanonicalWindowManagerPolicy::handle_place_new_surface(
     return parameters;
 }
 
-void me::CanonicalWindowManagerPolicy::generate_decorations_for(
-    std::shared_ptr<scene::Session> const& session,
-    std::shared_ptr<scene::Surface> const& surface,
-    SurfaceInfoMap& surface_map)
+void me::CanonicalWindowManagerPolicy::generate_decorations_for(SurfaceInfo& surface_info)
 {
-    if (!SurfaceInfo::needs_titlebar(surface->type()))
+    Surface const& surface = surface_info.surface;
+
+    if (!SurfaceInfo::needs_titlebar(surface.type()))
         return;
 
     auto format = mir_pixel_format_xrgb_8888;
     ms::SurfaceCreationParameters params;
-    params.of_size(titlebar_size_for_window(surface->size()))
+    params.of_size(titlebar_size_for_window(surface.size()))
         .of_name("decoration")
         .of_pixel_format(format)
         .of_buffer_usage(mir::graphics::BufferUsage::software)
-        .of_position(titlebar_position_for_window(surface->top_left()))
+        .of_position(titlebar_position_for_window(surface.top_left()))
         .of_type(mir_surface_type_gloss);
 
-    auto titlebar = tools->build_surface(session, params);
+    auto titlebar = tools->build_surface(surface.session(), params);
     titlebar.set_alpha(0.9);
 
-    auto& surface_info = tools->info_for(surface);
     surface_info.titlebar = titlebar;
     surface_info.children.push_back(titlebar);
 
-    SurfaceInfo& titlebar_info =
-            surface_map.emplace(titlebar, SurfaceInfo{titlebar, {}}).first->second;
+    SurfaceInfo& titlebar_info = tools->info_for(titlebar);
     titlebar_info.is_titlebar = true;
     titlebar_info.parent = surface;
     titlebar_info.init_titlebar(titlebar);

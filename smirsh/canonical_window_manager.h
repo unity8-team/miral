@@ -78,10 +78,7 @@ public:
         std::shared_ptr<scene::Session> const& session,
         std::shared_ptr<scene::Surface> const& surface);
 
-    void generate_decorations_for(
-        std::shared_ptr<scene::Session> const& session,
-        std::shared_ptr<scene::Surface> const& surface,
-        SurfaceInfoMap& surface_map);
+    void generate_decorations_for(SurfaceInfo& surface_info) override;
 
 private:
     static const int modifier_mask =

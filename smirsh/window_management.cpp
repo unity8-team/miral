@@ -99,10 +99,7 @@ public:
     {
     }
 
-    void generate_decorations_for(
-        std::shared_ptr<ms::Session> const&,
-        std::shared_ptr<ms::Surface> const&,
-        SurfaceInfoMap&)
+    void generate_decorations_for(mir::al::SurfaceInfo& /*surface_info*/) override
     {
     }
 private:

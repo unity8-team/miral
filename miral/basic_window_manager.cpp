@@ -37,7 +37,9 @@ ma::BasicWindowManager::BasicWindowManager(
 auto ma::BasicWindowManager::build_surface(std::shared_ptr<scene::Session> const& session, scene::SurfaceCreationParameters const& parameters)
 -> Surface
 {
-    return surface_builder(session, parameters);
+    auto result = surface_builder(session, parameters);
+    surface_info.emplace(result, SurfaceInfo{result, parameters});
+    return result;
 }
 
 void ma::BasicWindowManager::add_session(std::shared_ptr<scene::Session> const& session)
@@ -65,9 +67,10 @@ auto ma::BasicWindowManager::add_surface(
         { return Surface{session, build(session, params)}; };
     scene::SurfaceCreationParameters const placed_params = policy->handle_place_new_surface(session, params);
     auto const result = surface_builder(session, placed_params);
-    std::shared_ptr<scene::Surface> const surface = result;
-    policy->handle_new_surface(surface_info.emplace(surface, SurfaceInfo{result, placed_params}).first->second);
-    policy->generate_decorations_for(session, surface, surface_info);
+    
+    auto& info = surface_info.emplace(result, SurfaceInfo{result, placed_params}).first->second;
+    policy->handle_new_surface(info);
+    policy->generate_decorations_for(info);
     return result.surface_id();
 }
 

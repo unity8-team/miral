@@ -135,10 +135,7 @@ auto me::TilingWindowManagerPolicy::handle_place_new_surface(
     return parameters;
 }
 
-void me::TilingWindowManagerPolicy::generate_decorations_for(
-    std::shared_ptr<ms::Session> const&,
-    std::shared_ptr<ms::Surface> const&,
-    SurfaceInfoMap&)
+void me::TilingWindowManagerPolicy::generate_decorations_for(SurfaceInfo& /*surface_info*/)
 {
 }
 
