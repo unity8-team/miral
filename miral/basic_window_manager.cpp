@@ -93,7 +93,7 @@ void ma::BasicWindowManager::remove_surface(
     surface_info.erase(surface);
 }
 
-void ma::BasicWindowManager::forget(std::weak_ptr<scene::Surface> const& surface)
+void ma::BasicWindowManager::forget(Surface const& surface)
 {
     surface_info.erase(surface);
 }
@@ -191,6 +191,12 @@ auto ma::BasicWindowManager::info_for(std::weak_ptr<scene::Surface> const& surfa
 -> SurfaceInfo&
 {
     return const_cast<SurfaceInfo&>(surface_info.at(surface));
+}
+
+auto ma::BasicWindowManager::info_for(Surface const& surface) const
+-> SurfaceInfo&
+{
+    return info_for(std::weak_ptr<mir::scene::Surface>(surface));
 }
 
 auto ma::BasicWindowManager::focused_session() const

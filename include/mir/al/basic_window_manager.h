@@ -53,7 +53,10 @@ public:
 
     virtual auto info_for(std::weak_ptr<scene::Session> const& session) const -> SessionInfo& = 0;
 
+    //TODO remove this overload
     virtual auto info_for(std::weak_ptr<scene::Surface> const& surface) const -> SurfaceInfo& = 0;
+
+    virtual auto info_for(Surface const& surface) const -> SurfaceInfo& = 0;
 
     virtual std::shared_ptr<scene::Session> focused_session() const = 0;
 
@@ -67,7 +70,7 @@ public:
 
     virtual auto active_display() -> geometry::Rectangle const = 0;
 
-    virtual void forget(std::weak_ptr<scene::Surface> const& surface) = 0;
+    virtual void forget(Surface const& surface) = 0;
 
     virtual void raise_tree(std::shared_ptr<scene::Surface> const& root) = 0;
 
@@ -152,7 +155,7 @@ public:
         std::shared_ptr<scene::Session> const& session,
         std::weak_ptr<scene::Surface> const& surface) override;
 
-    void forget(std::weak_ptr<scene::Surface> const& surface) override;
+    void forget(Surface const& surface) override;
 
     void add_display(geometry::Rectangle const& area) override;
 
@@ -180,7 +183,9 @@ public:
 
     auto info_for(std::weak_ptr<scene::Session> const& session) const -> SessionInfo& override;
 
-    auto info_for(std::weak_ptr<scene::Surface> const& surface) const -> SurfaceInfo& override;
+    auto info_for(std::weak_ptr<scene::Surface> const& surface) const -> SurfaceInfo& /*override*/;
+
+    auto info_for(Surface const& surface) const -> SurfaceInfo& override;
 
     std::shared_ptr<scene::Session> focused_session() const override;
 
