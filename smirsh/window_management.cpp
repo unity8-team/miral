@@ -80,7 +80,7 @@ public:
     {
     }
 
-    void handle_new_surface(std::shared_ptr<ms::Session> const& /*session*/, std::shared_ptr<ms::Surface> const& /*surface*/)
+    void handle_new_surface(mir::al::SurfaceInfo& /*surface_info*/) override
     {
     }
 

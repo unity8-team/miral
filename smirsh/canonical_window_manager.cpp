@@ -271,9 +271,11 @@ void me::CanonicalWindowManagerPolicyCopy::generate_decorations_for(
     titlebar_info.init_titlebar(titlebar);
 }
 
-void me::CanonicalWindowManagerPolicyCopy::handle_new_surface(std::shared_ptr<ms::Session> const& session, std::shared_ptr<ms::Surface> const& surface)
+void me::CanonicalWindowManagerPolicyCopy::handle_new_surface(SurfaceInfo& surface_info)
 {
-    auto& surface_info = tools->info_for(surface);
+    std::shared_ptr<scene::Surface> const surface = surface_info.surface;
+    auto const session = surface_info.surface.session();
+
     if (auto const parent = surface_info.parent.lock())
     {
         tools->info_for(parent).children.push_back(surface);

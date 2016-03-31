@@ -142,11 +142,13 @@ void me::TilingWindowManagerPolicy::generate_decorations_for(
 {
 }
 
-void me::TilingWindowManagerPolicy::handle_new_surface(std::shared_ptr<ms::Session> const& session, std::shared_ptr<ms::Surface> const& surface)
+void me::TilingWindowManagerPolicy::handle_new_surface(SurfaceInfo& surface_info)
 {
+    std::shared_ptr<scene::Surface> const surface = surface_info.surface;
+    auto const session = surface_info.surface.session();
+
     tools->info_for(session).surfaces.push_back(surface);
 
-    auto& surface_info = tools->info_for(surface);
     if (auto const parent = surface_info.parent.lock())
     {
         tools->info_for(parent).children.push_back(surface);

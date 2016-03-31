@@ -66,8 +66,7 @@ auto ma::BasicWindowManager::add_surface(
     scene::SurfaceCreationParameters const placed_params = policy->handle_place_new_surface(session, params);
     auto const result = surface_builder(session, placed_params);
     std::shared_ptr<scene::Surface> const surface = result;
-    surface_info.emplace(surface, SurfaceInfo{result, placed_params});
-    policy->handle_new_surface(session, surface);
+    policy->handle_new_surface(surface_info.emplace(surface, SurfaceInfo{result, placed_params}).first->second);
     policy->generate_decorations_for(session, surface, surface_info);
     return result.surface_id();
 }
