@@ -385,7 +385,7 @@ void me::CanonicalWindowManagerPolicyCopy::handle_modify_surface(
 
         surface_info.constrain_resize(top_left, new_size);
 
-        apply_resize(surface, surface_info.titlebar, top_left, new_size);
+        apply_resize(surface_info, top_left, new_size);
     }
 
     if (modifications.state.is_set())
@@ -862,27 +862,23 @@ bool me::CanonicalWindowManagerPolicyCopy::resize(std::shared_ptr<ms::Surface> c
 
     Point new_pos = top_left + left_resize*delta.dx + top_resize*delta.dy;
 
-    auto const& surface_info = tools->info_for(surface);
+    auto& surface_info = tools->info_for(surface);
 
-    surface_info.constrain_resize(new_pos, new_size);
-
-    apply_resize(surface, surface_info.titlebar, new_pos, new_size);
+    apply_resize(surface_info, new_pos, new_size);
 
     return true;
 }
 
-void me::CanonicalWindowManagerPolicyCopy::apply_resize(
-    std::shared_ptr<ms::Surface> const& surface,
-    std::shared_ptr<ms::Surface> const& titlebar,
-    Point const& new_pos,
-    Size const& new_size) const
+void me::CanonicalWindowManagerPolicyCopy::apply_resize(SurfaceInfo& surface_info, Point new_pos, Size new_size) const
 {
-    if (titlebar)
-        titlebar->resize({new_size.width, Height{title_bar_height}});
+    surface_info.constrain_resize(new_pos, new_size);
 
-    surface->resize(new_size);
+    if (surface_info.titlebar)
+        surface_info.titlebar.resize({new_size.width, Height{title_bar_height}});
 
-    move_tree(surface, new_pos-surface->top_left());
+    surface_info.surface.resize(new_size);
+
+    move_tree(surface_info.surface, new_pos-surface_info.surface.top_left());
 }
 
 bool me::CanonicalWindowManagerPolicyCopy::drag(std::shared_ptr<ms::Surface> surface, Point to, Point from, Rectangle /*bounds*/)

@@ -110,11 +110,7 @@ private:
     bool resize(std::shared_ptr<scene::Surface> const& surface, geometry::Point cursor, geometry::Point old_cursor);
     bool drag(std::shared_ptr<scene::Surface> surface, geometry::Point to, geometry::Point from, geometry::Rectangle bounds);
     void move_tree(std::shared_ptr<scene::Surface> const& root, geometry::Displacement movement) const;
-    void apply_resize(
-        std::shared_ptr<mir::scene::Surface> const& surface,
-        std::shared_ptr<mir::scene::Surface> const& titlebar,
-        geometry::Point const& new_pos,
-        geometry::Size const& new_size) const;
+    void apply_resize(SurfaceInfo& surface_info, geometry::Point new_pos, geometry::Size new_size) const;
 
     WindowManagerTools* const tools;
     std::shared_ptr<shell::DisplayLayout> const display_layout;
