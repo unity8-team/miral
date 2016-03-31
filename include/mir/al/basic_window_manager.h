@@ -61,9 +61,7 @@ public:
 
     virtual void focus_next_session() = 0;
 
-    virtual void set_focus_to(
-        std::shared_ptr<scene::Session> const& focus,
-        std::shared_ptr<scene::Surface> const& surface) = 0;
+    virtual void set_focus_to(Surface const& surface) = 0;
 
     virtual auto surface_at(geometry::Point cursor) const -> std::shared_ptr<scene::Surface> = 0;
 
@@ -197,9 +195,7 @@ public:
 
     void focus_next_session() override;
 
-    void set_focus_to(
-        std::shared_ptr<scene::Session> const& focus,
-        std::shared_ptr<scene::Surface> const& surface) override;
+    void set_focus_to(Surface const& surface) override;
 
     auto surface_at(geometry::Point cursor) const -> std::shared_ptr<scene::Surface> override;
 

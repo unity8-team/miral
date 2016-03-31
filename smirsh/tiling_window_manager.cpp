@@ -235,7 +235,7 @@ int me::TilingWindowManagerPolicy::handle_set_state(std::shared_ptr<ms::Surface>
         return info.state;
     }
 
-    auto const& tile = tools->info_for(info.session).tile;
+    auto const& tile = tools->info_for(info.surface.session()).tile;
 
     switch (value)
     {
@@ -615,7 +615,7 @@ std::shared_ptr<ms::Surface> me::TilingWindowManagerPolicy::select_active_surfac
 {
     if (!surface)
     {
-        tools->set_focus_to({}, {});
+        tools->set_focus_to({});
         return surface;
     }
 
@@ -623,7 +623,7 @@ std::shared_ptr<ms::Surface> me::TilingWindowManagerPolicy::select_active_surfac
 
     if (info_for.can_be_active())
     {
-        tools->set_focus_to(session, surface);
+        tools->set_focus_to(info_for.surface);
         tools->raise_tree(surface);
         return surface;
     }

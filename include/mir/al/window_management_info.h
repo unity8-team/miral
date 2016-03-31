@@ -60,10 +60,11 @@ struct SurfaceInfo
         const bool top_resize,
         geometry::Rectangle const& bounds) const;
 
+    Surface surface;
+
     MirSurfaceType type;
     MirSurfaceState state;
     geometry::Rectangle restore_rect;
-    std::weak_ptr <scene::Session> session;
     std::weak_ptr <scene::Surface> parent;
     std::vector <std::weak_ptr<scene::Surface>> children;
     Surface titlebar;

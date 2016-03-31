@@ -208,11 +208,9 @@ void ma::BasicWindowManager::focus_next_session()
     focus_controller->focus_next_session();
 }
 
-void ma::BasicWindowManager::set_focus_to(
-    std::shared_ptr<scene::Session> const& focus,
-    std::shared_ptr<scene::Surface> const& surface)
+void ma::BasicWindowManager::set_focus_to(Surface const& surface)
 {
-    focus_controller->set_focus_to(focus, surface);
+    focus_controller->set_focus_to(surface.session(), surface);
 }
 
 auto ma::BasicWindowManager::surface_at(geometry::Point cursor) const

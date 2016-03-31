@@ -33,10 +33,10 @@ using namespace mir::geometry;
 ma::SurfaceInfo::SurfaceInfo(
     Surface const& surface,
     scene::SurfaceCreationParameters const& params) :
+    surface{surface},
     type{surface.type()},
     state{surface.state()},
     restore_rect{surface.top_left(), surface.size()},
-    session{surface.session()},
     parent{params.parent},
     min_width{params.min_width.is_set() ? params.min_width.value()  : Width{}},
     min_height{params.min_height.is_set() ? params.min_height.value() : Height{}},

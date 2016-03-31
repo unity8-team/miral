@@ -785,7 +785,7 @@ void me::CanonicalWindowManagerPolicyCopy::select_active_surface(std::shared_ptr
         }
 
         if (active_surface_.lock())
-            tools->set_focus_to({}, {});
+            tools->set_focus_to({});
 
         active_surface_.reset();
         return;
@@ -808,7 +808,7 @@ void me::CanonicalWindowManagerPolicyCopy::select_active_surface(std::shared_ptr
         {
             tools->info_for(info.titlebar).paint_titlebar(0xFF);
         }
-        tools->set_focus_to(info_for.session.lock(), surface);
+        tools->set_focus_to(info_for.surface);
         tools->raise_tree(surface);
         active_surface_ = surface;
     }

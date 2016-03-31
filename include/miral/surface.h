@@ -45,7 +45,7 @@ public:
     auto state()        const -> MirSurfaceState;
     auto top_left()     const -> mir::geometry::Point;
     auto size()         const -> mir::geometry::Size;
-    auto session()      const -> std::weak_ptr<mir::scene::Session>;
+    auto session()      const -> std::shared_ptr<mir::scene::Session>;
     auto surface_id()   const -> mir::frontend::SurfaceId;
 
     // Indicates that the Surface isn't null

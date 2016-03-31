@@ -134,10 +134,10 @@ auto miral::Surface::size() const
 }
 
 auto miral::Surface::session() const
--> std::weak_ptr<mir::scene::Session>
+-> std::shared_ptr<mir::scene::Session>
 {
     if (!self) return {};
-    return self->session;
+    return self->session.lock();
 }
 
 auto miral::Surface::surface_id() const
