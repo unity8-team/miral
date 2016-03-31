@@ -98,7 +98,7 @@ public:
 
     virtual void handle_delete_surface(SurfaceInfo& surface_info) = 0;
 
-    virtual int handle_set_state(std::shared_ptr<scene::Surface> const& surface, MirSurfaceState value) = 0;
+    virtual int handle_set_state(SurfaceInfo& surface_info, MirSurfaceState value) = 0;
 
     virtual void generate_decorations_for(
         std::shared_ptr<scene::Session> const& session, std::shared_ptr<scene::Surface> const& surface,

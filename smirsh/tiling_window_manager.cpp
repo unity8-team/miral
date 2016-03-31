@@ -211,10 +211,8 @@ void me::TilingWindowManagerPolicy::handle_delete_surface(SurfaceInfo& surface_i
     }
 }
 
-int me::TilingWindowManagerPolicy::handle_set_state(std::shared_ptr<ms::Surface> const& surface, MirSurfaceState value)
+int me::TilingWindowManagerPolicy::handle_set_state(SurfaceInfo& surface_info, MirSurfaceState value)
 {
-    auto& info = tools->info_for(surface);
-
     switch (value)
     {
     case mir_surface_state_restored:
@@ -224,48 +222,48 @@ int me::TilingWindowManagerPolicy::handle_set_state(std::shared_ptr<ms::Surface>
         break;
 
     default:
-        return info.state;
+        return surface_info.state;
     }
 
-    if (info.state == mir_surface_state_restored)
+    if (surface_info.state == mir_surface_state_restored)
     {
-        info.restore_rect = {surface->top_left(), surface->size()};
+        surface_info.restore_rect = {surface_info.surface.top_left(), surface_info.surface.size()};
     }
 
-    if (info.state == value)
+    if (surface_info.state == value)
     {
-        return info.state;
+        return surface_info.state;
     }
 
-    auto const& tile = tools->info_for(info.surface.session()).tile;
+    auto const& tile = tools->info_for(surface_info.surface.session()).tile;
 
     switch (value)
     {
     case mir_surface_state_restored:
-        surface->resize(info.restore_rect.size);
-        drag(surface, info.restore_rect.top_left, surface->top_left(), tile);
+        surface_info.surface.resize(surface_info.restore_rect.size);
+        drag(surface_info.surface, surface_info.restore_rect.top_left, surface_info.surface.top_left(), tile);
         break;
 
     case mir_surface_state_maximized:
-        surface->resize(tile.size);
-        drag(surface, tile.top_left, surface->top_left(), tile);
+        surface_info.surface.resize(tile.size);
+        drag(surface_info.surface, tile.top_left, surface_info.surface.top_left(), tile);
         break;
 
     case mir_surface_state_horizmaximized:
-        surface->resize({tile.size.width, info.restore_rect.size.height});
-        drag(surface, {tile.top_left.x, info.restore_rect.top_left.y}, surface->top_left(), tile);
+        surface_info.surface.resize({tile.size.width, surface_info.restore_rect.size.height});
+        drag(surface_info.surface, {tile.top_left.x, surface_info.restore_rect.top_left.y}, surface_info.surface.top_left(), tile);
         break;
 
     case mir_surface_state_vertmaximized:
-        surface->resize({info.restore_rect.size.width, tile.size.height});
-        drag(surface, {info.restore_rect.top_left.x, tile.top_left.y}, surface->top_left(), tile);
+        surface_info.surface.resize({surface_info.restore_rect.size.width, tile.size.height});
+        drag(surface_info.surface, {surface_info.restore_rect.top_left.x, tile.top_left.y}, surface_info.surface.top_left(), tile);
         break;
 
     default:
         break;
     }
 
-    return info.state = value;
+    return surface_info.state = value;
 }
 
 void me::TilingWindowManagerPolicy::drag(Point cursor)
@@ -459,7 +457,7 @@ void me::TilingWindowManagerPolicy::toggle(MirSurfaceState state)
             if (surface->state() == state)
                 state = mir_surface_state_restored;
 
-            auto const value = handle_set_state(surface, MirSurfaceState(state));
+            auto const value = handle_set_state(tools->info_for(surface), state);
             surface->configure(mir_surface_attrib_state, value);
         }
     }

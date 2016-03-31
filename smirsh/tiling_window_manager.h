@@ -57,7 +57,7 @@ public:
 
     void handle_delete_surface(SurfaceInfo& surface_info) override;
 
-    int handle_set_state(std::shared_ptr<scene::Surface> const& surface, MirSurfaceState value);
+    int handle_set_state(SurfaceInfo& surface_info, MirSurfaceState value) override;
 
     bool handle_keyboard_event(MirKeyboardEvent const* event);
 

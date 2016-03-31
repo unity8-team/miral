@@ -156,7 +156,7 @@ int ma::BasicWindowManager::set_surface_attribute(
     {
     case mir_surface_attrib_state:
     {
-        auto const state = policy->handle_set_state(surface, MirSurfaceState(value));
+        auto const state = policy->handle_set_state(info_for(surface), MirSurfaceState(value));
         return surface->configure(attrib, state);
     }
     default:

@@ -84,7 +84,7 @@ public:
     void handle_delete_surface(mir::al::SurfaceInfo& surface_info) override
         { surface_info.surface.destroy_surface(); }
 
-    int handle_set_state(std::shared_ptr<ms::Surface> const& /*surface*/, MirSurfaceState value)
+    int handle_set_state(mir::al::SurfaceInfo& /*surface_info*/, MirSurfaceState value)
         { return value; }
 
     bool handle_keyboard_event(MirKeyboardEvent const* /*event*/) { return false; }

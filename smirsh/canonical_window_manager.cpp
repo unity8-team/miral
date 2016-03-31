@@ -300,37 +300,37 @@ void me::CanonicalWindowManagerPolicy::handle_new_surface(SurfaceInfo& surface_i
 }
 
 void me::CanonicalWindowManagerPolicy::handle_modify_surface(
-    SurfaceInfo& surface_info_old,
+    SurfaceInfo& surface_info,
     shell::SurfaceSpecification const& modifications)
 {
-    auto surface_info = surface_info_old;
-    std::shared_ptr<scene::Surface> const surface{surface_info.surface};
+    auto surface_info_new = surface_info;
+    std::shared_ptr<scene::Surface> const surface{surface_info_new.surface};
 
     if (modifications.parent.is_set())
-        surface_info.parent = modifications.parent.value();
+        surface_info_new.parent = modifications.parent.value();
 
     if (modifications.type.is_set() &&
-        surface_info.type != modifications.type.value())
+        surface_info_new.type != modifications.type.value())
     {
         auto const new_type = modifications.type.value();
 
-        if (!surface_info.can_morph_to(new_type))
+        if (!surface_info_new.can_morph_to(new_type))
         {
             throw std::runtime_error("Unsupported surface type change");
         }
 
-        surface_info.type = new_type;
+        surface_info_new.type = new_type;
 
-        if (surface_info.must_not_have_parent())
+        if (surface_info_new.must_not_have_parent())
         {
             if (modifications.parent.is_set())
                 throw std::runtime_error("Target surface type does not support parent");
 
-            surface_info.parent.reset();
+            surface_info_new.parent.reset();
         }
-        else if (surface_info.must_have_parent())
+        else if (surface_info_new.must_have_parent())
         {
-            if (!surface_info.parent.lock())
+            if (!surface_info_new.parent.lock())
                 throw std::runtime_error("Target surface type requires parent");
         }
 
@@ -339,7 +339,7 @@ void me::CanonicalWindowManagerPolicy::handle_modify_surface(
 
     #define COPY_IF_SET(field)\
         if (modifications.field.is_set())\
-            surface_info.field = modifications.field.value()
+            surface_info_new.field = modifications.field.value()
 
     COPY_IF_SET(min_width);
     COPY_IF_SET(min_height);
@@ -354,7 +354,7 @@ void me::CanonicalWindowManagerPolicy::handle_modify_surface(
 
     #undef COPY_IF_SET
 
-    std::swap(surface_info, surface_info_old);
+    std::swap(surface_info_new, surface_info);
 
     if (modifications.name.is_set())
         surface->rename(modifications.name.value());
@@ -363,7 +363,7 @@ void me::CanonicalWindowManagerPolicy::handle_modify_surface(
     {
         auto v = modifications.streams.value();
         std::vector<shell::StreamSpecification> l (v.begin(), v.end());
-        surface_info.surface.session()->configure_streams(*surface, l);
+        surface_info_new.surface.session()->configure_streams(*surface, l);
     }
 
     if (modifications.input_shape.is_set())
@@ -390,7 +390,7 @@ void me::CanonicalWindowManagerPolicy::handle_modify_surface(
 
     if (modifications.state.is_set())
     {
-        auto const state = handle_set_state(surface, modifications.state.value());
+        auto const state = handle_set_state(surface_info, modifications.state.value());
         surface->configure(mir_surface_attrib_state, state);
     }
 }
@@ -443,10 +443,8 @@ void me::CanonicalWindowManagerPolicy::handle_delete_surface(SurfaceInfo& surfac
     }
 }
 
-int me::CanonicalWindowManagerPolicy::handle_set_state(std::shared_ptr<ms::Surface> const& surface, MirSurfaceState value)
+int me::CanonicalWindowManagerPolicy::handle_set_state(SurfaceInfo& surface_info, MirSurfaceState value)
 {
-    auto& info = tools->info_for(surface);
-
     switch (value)
     {
     case mir_surface_state_restored:
@@ -459,75 +457,75 @@ int me::CanonicalWindowManagerPolicy::handle_set_state(std::shared_ptr<ms::Surfa
         break;
 
     default:
-        return info.state;
+        return surface_info.state;
     }
 
-    if (info.state == mir_surface_state_restored)
+    if (surface_info.state == mir_surface_state_restored)
     {
-        info.restore_rect = {surface->top_left(), surface->size()};
+        surface_info.restore_rect = {surface_info.surface.top_left(), surface_info.surface.size()};
     }
 
-    if (info.state != mir_surface_state_fullscreen)
+    if (surface_info.state != mir_surface_state_fullscreen)
     {
-        info.output_id = decltype(info.output_id){};
-        fullscreen_surfaces.erase(surface);
+        surface_info.output_id = decltype(surface_info.output_id){};
+        fullscreen_surfaces.erase(surface_info.surface);
     }
     else
     {
-        fullscreen_surfaces.insert(surface);
+        fullscreen_surfaces.insert(surface_info.surface);
     }
 
-    if (info.state == value)
+    if (surface_info.state == value)
     {
-        return info.state;
+        return surface_info.state;
     }
 
-    auto const old_pos = surface->top_left();
+    auto const old_pos = surface_info.surface.top_left();
     Displacement movement;
 
     switch (value)
     {
     case mir_surface_state_restored:
-        movement = info.restore_rect.top_left - old_pos;
-        surface->resize(info.restore_rect.size);
-        if (info.titlebar)
+        movement = surface_info.restore_rect.top_left - old_pos;
+        surface_info.surface.resize(surface_info.restore_rect.size);
+        if (surface_info.titlebar)
         {
-            info.titlebar.resize(titlebar_size_for_window(info.restore_rect.size));
-            info.titlebar.show();
+            surface_info.titlebar.resize(titlebar_size_for_window(surface_info.restore_rect.size));
+            surface_info.titlebar.show();
         }
         break;
 
     case mir_surface_state_maximized:
         movement = display_area.top_left - old_pos;
-        surface->resize(display_area.size);
-        if (info.titlebar)
-            info.titlebar.hide();
+        surface_info.surface.resize(display_area.size);
+        if (surface_info.titlebar)
+            surface_info.titlebar.hide();
         break;
 
     case mir_surface_state_horizmaximized:
-        movement = Point{display_area.top_left.x, info.restore_rect.top_left.y} - old_pos;
-        surface->resize({display_area.size.width, info.restore_rect.size.height});
-        if (info.titlebar)
+        movement = Point{display_area.top_left.x, surface_info.restore_rect.top_left.y} - old_pos;
+        surface_info.surface.resize({display_area.size.width, surface_info.restore_rect.size.height});
+        if (surface_info.titlebar)
         {
-            info.titlebar.resize(titlebar_size_for_window({display_area.size.width, info.restore_rect.size.height}));
-            info.titlebar.show();
+            surface_info.titlebar.resize(titlebar_size_for_window({display_area.size.width, surface_info.restore_rect.size.height}));
+            surface_info.titlebar.show();
         }
         break;
 
     case mir_surface_state_vertmaximized:
-        movement = Point{info.restore_rect.top_left.x, display_area.top_left.y} - old_pos;
-        surface->resize({info.restore_rect.size.width, display_area.size.height});
-        if (info.titlebar)
-            info.titlebar.hide();
+        movement = Point{surface_info.restore_rect.top_left.x, display_area.top_left.y} - old_pos;
+        surface_info.surface.resize({surface_info.restore_rect.size.width, display_area.size.height});
+        if (surface_info.titlebar)
+            surface_info.titlebar.hide();
         break;
 
     case mir_surface_state_fullscreen:
     {
-        Rectangle rect{old_pos, surface->size()};
+        Rectangle rect{old_pos, surface_info.surface.size()};
 
-        if (info.output_id.is_set())
+        if (surface_info.output_id.is_set())
         {
-            display_layout->place_in_output(info.output_id.value(), rect);
+            display_layout->place_in_output(surface_info.output_id.value(), rect);
         }
         else
         {
@@ -535,16 +533,16 @@ int me::CanonicalWindowManagerPolicy::handle_set_state(std::shared_ptr<ms::Surfa
         }
 
         movement = rect.top_left - old_pos;
-        surface->resize(rect.size);
+        surface_info.surface.resize(rect.size);
         break;
     }
 
     case mir_surface_state_hidden:
     case mir_surface_state_minimized:
-        if (info.titlebar)
-            info.titlebar.hide();
-        surface->hide();
-        return info.state = value;
+        if (surface_info.titlebar)
+            surface_info.titlebar.hide();
+        surface_info.surface.hide();
+        return surface_info.state = value;
 
     default:
         break;
@@ -553,14 +551,14 @@ int me::CanonicalWindowManagerPolicy::handle_set_state(std::shared_ptr<ms::Surfa
     // TODO It is rather simplistic to move a tree WRT the top_left of the root
     // TODO when resizing. But for more sophistication we would need to encode
     // TODO some sensible layout rules.
-    move_tree(surface, movement);
+    move_tree(surface_info.surface, movement);
 
-    info.state = value;
+    surface_info.state = value;
 
-    if (info.is_visible())
-        surface->show();
+    if (surface_info.is_visible())
+        surface_info.surface.show();
 
-    return info.state;
+    return surface_info.state;
 }
 
 void me::CanonicalWindowManagerPolicy::drag(Point cursor)
@@ -759,7 +757,7 @@ void me::CanonicalWindowManagerPolicy::toggle(MirSurfaceState state)
         if (info.state == state)
             state = mir_surface_state_restored;
 
-        auto const value = handle_set_state(surface, MirSurfaceState(state));
+        auto const value = handle_set_state(info, MirSurfaceState(state));
         surface->configure(mir_surface_attrib_state, value);
     }
 }
