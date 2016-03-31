@@ -52,11 +52,7 @@ struct SurfaceInfo
 
     static bool needs_titlebar(MirSurfaceType type);
 
-    void constrain_resize(
-        geometry::Point& requested_pos,
-        geometry::Size& requested_size,
-        const bool left_resize,
-        const bool top_resize) const;
+    void constrain_resize(geometry::Point& requested_pos, geometry::Size& requested_size) const;
 
     Surface surface;
 

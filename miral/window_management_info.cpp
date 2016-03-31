@@ -260,12 +260,11 @@ void mir::al::SurfaceInfo::paint_titlebar(int intensity)
     stream_painter->paint(intensity);
 }
 
-void ma::SurfaceInfo::constrain_resize(
-    Point& requested_pos,
-    Size& requested_size,
-    bool const left_resize,
-    bool const top_resize) const
+void ma::SurfaceInfo::constrain_resize(Point& requested_pos, Size& requested_size) const
 {
+    bool const left_resize = requested_pos.x != surface.top_left().x;
+    bool const top_resize  = requested_pos.y != surface.top_left().y;
+
     Point new_pos = requested_pos;
     Size new_size = requested_size;
 

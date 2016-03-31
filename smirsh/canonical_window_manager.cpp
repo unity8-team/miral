@@ -383,11 +383,7 @@ void me::CanonicalWindowManagerPolicyCopy::handle_modify_surface(
 
         auto top_left = surface->top_left();
 
-        surface_info.constrain_resize(
-            top_left,
-            new_size,
-            false,
-            false);
+        surface_info.constrain_resize(top_left, new_size);
 
         apply_resize(surface, surface_info.titlebar, top_left, new_size);
     }
@@ -866,10 +862,9 @@ bool me::CanonicalWindowManagerPolicyCopy::resize(std::shared_ptr<ms::Surface> c
 
     Point new_pos = top_left + left_resize*delta.dx + top_resize*delta.dy;
 
-
     auto const& surface_info = tools->info_for(surface);
 
-    surface_info.constrain_resize(new_pos, new_size, left_resize, top_resize);
+    surface_info.constrain_resize(new_pos, new_size);
 
     apply_resize(surface, surface_info.titlebar, new_pos, new_size);
 
