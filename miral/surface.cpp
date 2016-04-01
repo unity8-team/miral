@@ -197,6 +197,18 @@ auto miral::Surface::input_bounds() const
     return {};
 }
 
+auto miral::Surface::input_area_contains(mir::geometry::Point const& point) const
+-> bool
+{
+    if (self)
+    {
+        if (auto const surface = self->surface.lock())
+            return surface->input_area_contains(point);
+    }
+
+    return false;
+}
+
 void miral::Surface::rename(std::string const& name)
 {
     if (!self) return;

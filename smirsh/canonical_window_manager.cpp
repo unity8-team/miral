@@ -951,13 +951,13 @@ auto me::CanonicalWindowManagerPolicy::active_surface() const
     return Surface{};
 }
 
-bool me::CanonicalWindowManagerPolicy::resize(std::shared_ptr<ms::Surface> const& surface, Point cursor, Point old_cursor)
+bool me::CanonicalWindowManagerPolicy::resize(Surface const& surface, Point cursor, Point old_cursor)
 {
-    if (!surface || !surface->input_area_contains(old_cursor))
+    if (!surface || !surface.input_area_contains(old_cursor))
         return false;
 
-    auto const top_left = surface->top_left();
-    Rectangle const old_pos{top_left, surface->size()};
+    auto const top_left = surface.top_left();
+    Rectangle const old_pos{top_left, surface.size()};
 
     auto anchor = top_left;
 

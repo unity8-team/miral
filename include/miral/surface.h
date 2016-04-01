@@ -50,6 +50,7 @@ public:
     auto session()      const -> std::shared_ptr<mir::scene::Session>;
     auto surface_id()   const -> mir::frontend::SurfaceId;
     auto input_bounds() const -> mir::geometry::Rectangle;
+    auto input_area_contains(mir::geometry::Point const& point) const -> bool;
 
     // Indicates that the Surface isn't null
     operator bool() const;

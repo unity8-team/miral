@@ -559,7 +559,7 @@ void me::TilingWindowManagerPolicy::fit_to_new_tile(ms::Surface& surface, Rectan
 
 void me::TilingWindowManagerPolicy::drag(SurfaceInfo surface_info, Point to, Point from, Rectangle bounds)
 {
-    if (surface_info.surface && surface_info.surface.input_bounds().contains(from))
+    if (surface_info.surface && surface_info.surface.input_area_contains(from))
     {
         auto movement = to - from;
 
