@@ -106,8 +106,6 @@ private:
 
     geometry::Point old_cursor{};
 };
-
-using TilingWindowManager = WindowManagerBuilder<TilingWindowManagerPolicy>;
 }
 }
 

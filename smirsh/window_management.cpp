@@ -23,90 +23,25 @@
 
 #include "mir/abnormal_exit.h"
 #include "mir/server.h"
-#include "mir/input/composite_event_filter.h"
 #include "mir/options/option.h"
-#include "mir/scene/session.h"
-#include "mir/scene/surface_creation_parameters.h"
-#include "mir/shell/display_layout.h"
 #include "mir/shell/system_compositor_window_manager.h"
 
 namespace me = mir::examples;
-namespace mf = mir::frontend;
-namespace mg = mir::graphics;
-namespace mi = mir::input;
-namespace ms = mir::scene;
 namespace msh = mir::shell;
-using namespace mir::geometry;
 
 // Demonstrate introducing a window management strategy
 namespace
 {
 char const* const wm_option = "window-manager";
-char const* const wm_description = "window management strategy [{tiling|fullscreen|canonical|system-compositor}]";
+char const* const wm_description = "window management strategy [{canonical|tiling|system-compositor}]";
 
 char const* const wm_tiling = "tiling";
-char const* const wm_fullscreen = "fullscreen";
 char const* const wm_canonical = "canonical";
 char const* const wm_system_compositor = "system-compositor";
-
-// Very simple - make every surface fullscreen
-class FullscreenWindowManagerPolicy  : public me::WindowManagementPolicy
-{
-public:
-    FullscreenWindowManagerPolicy(me::WindowManagerTools* const /*tools*/, std::shared_ptr<msh::DisplayLayout> const& display_layout) :
-        display_layout{display_layout} {}
-
-    void handle_session_info_updated(SessionInfoMap& /*session_info*/, Rectangles const& /*displays*/) {}
-
-    void handle_displays_updated(SessionInfoMap& /*session_info*/, Rectangles const& /*displays*/) {}
-
-    auto handle_place_new_surface(
-        std::shared_ptr<ms::Session> const& /*session*/,
-        ms::SurfaceCreationParameters const& request_parameters)
-    -> ms::SurfaceCreationParameters
-    {
-        auto placed_parameters = request_parameters;
-
-        Rectangle rect{request_parameters.top_left, request_parameters.size};
-        display_layout->size_to_output(rect);
-        placed_parameters.size = rect.size;
-
-        return placed_parameters;
-    }
-    void handle_modify_surface(mir::al::SurfaceInfo&, msh::SurfaceSpecification const&) override
-    {
-    }
-
-    void handle_new_surface(mir::al::SurfaceInfo& /*surface_info*/) override
-    {
-    }
-
-    void handle_delete_surface(mir::al::SurfaceInfo& surface_info) override
-        { surface_info.surface.destroy_surface(); }
-
-    auto handle_set_state(mir::al::SurfaceInfo& /*surface_info*/, MirSurfaceState value) -> MirSurfaceState
-        { return value; }
-
-    bool handle_keyboard_event(MirKeyboardEvent const* /*event*/) { return false; }
-
-    bool handle_touch_event(MirTouchEvent const* /*event*/) { return false; }
-
-    bool handle_pointer_event(MirPointerEvent const* /*event*/) { return false; }
-
-    void handle_raise_surface(mir::al::SurfaceInfo& /*surface_info*/)
-    {
-    }
-
-    void generate_decorations_for(mir::al::SurfaceInfo& /*surface_info*/) override
-    {
-    }
-private:
-    std::shared_ptr<msh::DisplayLayout> const display_layout;
-};
 }
 
-using FullscreenWindowManager = me::WindowManagerBuilder<FullscreenWindowManagerPolicy>;
 using CanonicalWindowManager = me::WindowManagerBuilder<me::CanonicalWindowManagerPolicy>;
+using TilingWindowManager = me::WindowManagerBuilder<me::TilingWindowManagerPolicy>;
 
 void me::window_manager_option(Server& server)
 {
@@ -121,10 +56,6 @@ void me::window_manager_option(Server& server)
             if (selection == wm_tiling)
             {
                 return std::make_shared<TilingWindowManager>(focus_controller);
-            }
-            else if (selection == wm_fullscreen)
-            {
-                return std::make_shared<FullscreenWindowManager>(focus_controller, server.the_shell_display_layout());
             }
             else if (selection == wm_canonical)
             {
