@@ -98,7 +98,7 @@ private:
 
     static void constrained_move(std::shared_ptr<scene::Surface> const& surface, geometry::Displacement& movement, geometry::Rectangle const& bounds);
 
-    auto select_active_surface(std::shared_ptr<scene::Session> const& session, Surface const& surface) -> Surface;
+    auto select_active_surface(Surface const& surface) -> Surface;
 
     WindowManagerTools* const tools;
 

@@ -63,7 +63,7 @@ void me::TilingWindowManagerPolicy::click(Point cursor)
 {
     auto const session = session_under(cursor);
     auto const surface = tools->surface_at(cursor);
-    select_active_surface(session, surface);
+    select_active_surface(surface);
 }
 
 void me::TilingWindowManagerPolicy::handle_session_info_updated(Rectangles const& displays)
@@ -82,7 +82,7 @@ void me::TilingWindowManagerPolicy::resize(Point cursor)
     {
         if (session == session_under(old_cursor))
         {
-            if (auto const surface = select_active_surface(session, tools->surface_at(old_cursor)))
+            if (auto const surface = select_active_surface(tools->surface_at(old_cursor)))
             {
                 resize(surface, cursor, old_cursor, tile_for(tools->info_for(session)));
             }
@@ -173,8 +173,8 @@ void me::TilingWindowManagerPolicy::handle_new_surface(SurfaceInfo& surface_info
     {
         std::shared_ptr<scene::Surface> const scene_surface = surface;
         scene_surface->add_observer(std::make_shared<shell::SurfaceReadyObserver>(
-            [this, surface](std::shared_ptr<scene::Session> const& session, std::shared_ptr<scene::Surface> const& /*surface*/)
-                { select_active_surface(session, surface); },
+            [this, surface](std::shared_ptr<scene::Session> const&, std::shared_ptr<scene::Surface> const&)
+                { select_active_surface(surface); },
             session,
             scene_surface));
     }
@@ -223,7 +223,7 @@ void me::TilingWindowManagerPolicy::handle_delete_surface(SurfaceInfo& surface_i
     if (surfaces.empty() && session == tools->focused_session())
     {
         tools->focus_next_session();
-        select_active_surface(tools->focused_session(), tools->focused_surface());
+        select_active_surface(tools->focused_surface());
     }
 }
 
@@ -289,7 +289,7 @@ void me::TilingWindowManagerPolicy::drag(Point cursor)
     {
         if (session == session_under(old_cursor))
         {
-            if (auto const surface = select_active_surface(session, tools->surface_at(old_cursor)))
+            if (auto const surface = select_active_surface(tools->surface_at(old_cursor)))
             {
                 drag(tools->info_for(surface), cursor, old_cursor, tile_for(tools->info_for(session)));
             }
@@ -299,7 +299,7 @@ void me::TilingWindowManagerPolicy::drag(Point cursor)
 
 void me::TilingWindowManagerPolicy::handle_raise_surface(SurfaceInfo& surface_info)
 {
-    select_active_surface(surface_info.surface.session(), surface_info.surface);
+    select_active_surface(surface_info.surface);
 }
 
 bool me::TilingWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* event)
@@ -355,7 +355,7 @@ bool me::TilingWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const
             scan_code == KEY_TAB)
     {
         tools->focus_next_session();
-        select_active_surface(tools->focused_session(), tools->focused_surface());
+        select_active_surface(tools->focused_surface());
 
         return true;
     }
@@ -368,7 +368,7 @@ bool me::TilingWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const
             if (auto const app = tools->focused_session())
                 if (auto const surface = app.surface_after(prev))
                 {
-                    select_active_surface(app, tools->info_for(surface).surface);
+                    select_active_surface(tools->info_for(surface).surface);
                 }
         }
 
@@ -628,8 +628,7 @@ void me::TilingWindowManagerPolicy::resize(std::shared_ptr<ms::Surface> surface,
     }
 }
 
-auto me::TilingWindowManagerPolicy::select_active_surface(
-    std::shared_ptr<ms::Session> const& session, Surface const& surface) -> Surface
+auto me::TilingWindowManagerPolicy::select_active_surface(Surface const& surface) -> Surface
 {
     if (!surface)
     {
@@ -649,7 +648,7 @@ auto me::TilingWindowManagerPolicy::select_active_surface(
     {
         // Cannot have input focus - try the parent
         if (auto const parent = info_for.parent)
-            return select_active_surface(session, parent);
+            return select_active_surface(parent);
 
         return {};
     }
