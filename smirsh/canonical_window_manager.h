@@ -93,7 +93,7 @@ private:
 
     // "Mir and Unity: Surfaces, input, and displays (v0.3)" talks about active
     //  *window*,but Mir really only understands surfaces
-    void select_active_surface(std::shared_ptr<scene::Surface> const& surface);
+    void select_active_surface(Surface const& surface);
     auto active_surface() const -> Surface;
 
     bool resize(std::shared_ptr<scene::Surface> const& surface, geometry::Point cursor, geometry::Point old_cursor);

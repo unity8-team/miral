@@ -390,7 +390,7 @@ void me::CanonicalWindowManagerPolicy::generate_decorations_for(SurfaceInfo& sur
 
 void me::CanonicalWindowManagerPolicy::handle_new_surface(SurfaceInfo& surface_info)
 {
-    std::shared_ptr<scene::Surface> const surface = surface_info.surface;
+    auto const surface = surface_info.surface;
     auto const session = surface_info.surface.session();
 
     if (auto const parent = surface_info.parent)
@@ -402,14 +402,16 @@ void me::CanonicalWindowManagerPolicy::handle_new_surface(SurfaceInfo& surface_i
 
     if (surface_info.can_be_active())
     {
-        surface->add_observer(std::make_shared<shell::SurfaceReadyObserver>(
-            [this](std::shared_ptr<scene::Session> const& /*session*/,
-                   std::shared_ptr<scene::Surface> const& surface)
+        std::shared_ptr<scene::Surface> const scene_surface = surface;
+
+        scene_surface->add_observer(std::make_shared<shell::SurfaceReadyObserver>(
+            [this, surface](std::shared_ptr<scene::Session> const& /*session*/,
+                   std::shared_ptr<scene::Surface> const& /*surface*/)
                 {
                     select_active_surface(surface);
                 },
             session,
-            surface));
+            scene_surface));
     }
 
     if (surface_info.state == mir_surface_state_fullscreen)
@@ -882,7 +884,7 @@ void me::CanonicalWindowManagerPolicy::toggle(MirSurfaceState state)
     }
 }
 
-void me::CanonicalWindowManagerPolicy::select_active_surface(std::shared_ptr<ms::Surface> const& surface)
+void me::CanonicalWindowManagerPolicy::select_active_surface(Surface const& surface)
 {
     if (surface == active_surface_)
         return;
