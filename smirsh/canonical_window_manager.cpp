@@ -923,7 +923,7 @@ void me::CanonicalWindowManagerPolicy::select_active_surface(std::shared_ptr<ms:
             titlebar->paint_titlebar(0xFF);
         }
         tools->set_focus_to(info_for.surface);
-        tools->raise_tree(surface);
+        tools->raise_tree(info_for.surface);
         active_surface_ = surface;
     }
     else

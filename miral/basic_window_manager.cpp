@@ -295,7 +295,7 @@ auto ma::BasicWindowManager::active_display()
     return result;
 }
 
-void ma::BasicWindowManager::raise_tree(std::shared_ptr<scene::Surface> const& root)
+void ma::BasicWindowManager::raise_tree(Surface const& root)
 {
     SurfaceSet surfaces;
     std::function<void(std::weak_ptr<scene::Surface> const& surface)> const add_children =

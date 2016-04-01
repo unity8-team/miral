@@ -81,7 +81,7 @@ public:
 
     virtual void forget(Surface const& surface) = 0;
 
-    virtual void raise_tree(std::shared_ptr<scene::Surface> const& root) = 0;
+    virtual void raise_tree(Surface const& root) = 0;
 
     virtual ~WindowManagerTools() = default;
     WindowManagerTools() = default;
@@ -170,7 +170,7 @@ public:
 
     auto active_display() -> geometry::Rectangle const override;
 
-    void raise_tree(std::shared_ptr<scene::Surface> const& root) override;
+    void raise_tree(Surface const& root) override;
 
 private:
     using SurfaceInfoMap = std::map<std::weak_ptr<scene::Surface>, SurfaceInfo, std::owner_less<std::weak_ptr<scene::Surface>>>;
