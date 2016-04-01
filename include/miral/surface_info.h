@@ -67,7 +67,7 @@ struct SurfaceInfo
     mir::optional_value<mir::shell::SurfaceAspectRatio> max_aspect;
     mir::optional_value<mir::graphics::DisplayConfigurationOutputId> output_id;
 
-    /// This can be ised by client code to store window manager specific information
+    /// This can be used by client code to store window manager specific information
     std::shared_ptr<void> userdata;
 };
 }

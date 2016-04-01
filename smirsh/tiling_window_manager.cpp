@@ -34,6 +34,24 @@ namespace ms = mir::scene;
 namespace mf = mir::frontend;
 using namespace mir::geometry;
 
+namespace
+{
+struct TilingWindowManagerPolicyData
+{
+    Rectangle tile;
+};
+
+inline Rectangle& tile_for(mir::al::SessionInfo& session_info)
+{
+    return std::static_pointer_cast<TilingWindowManagerPolicyData>(session_info.userdata)->tile;
+}
+
+inline Rectangle const& tile_for(mir::al::SessionInfo const& session_info)
+{
+    return std::static_pointer_cast<TilingWindowManagerPolicyData>(session_info.userdata)->tile;
+}
+}
+
 // Demonstrate implementing a simple tiling algorithm
 
 me::TilingWindowManagerPolicy::TilingWindowManagerPolicy(WindowManagerTools* const tools) :
@@ -66,7 +84,7 @@ void me::TilingWindowManagerPolicy::resize(Point cursor)
         {
             if (auto const surface = select_active_surface(session, tools->surface_at(old_cursor)))
             {
-                resize(surface, cursor, old_cursor, tools->info_for(session).tile);
+                resize(surface, cursor, old_cursor, tile_for(tools->info_for(session)));
             }
         }
     }
@@ -79,7 +97,7 @@ auto me::TilingWindowManagerPolicy::handle_place_new_surface(
 {
     auto parameters = request_parameters;
 
-    Rectangle const& tile = tools->info_for(session).tile;
+    Rectangle const& tile = tile_for(tools->info_for(session));
     parameters.top_left = parameters.top_left + (tile.top_left - Point{0, 0});
 
     if (auto const parent = parameters.parent.lock())
@@ -233,7 +251,7 @@ auto me::TilingWindowManagerPolicy::handle_set_state(SurfaceInfo& surface_info, 
         return surface_info.state;
     }
 
-    auto const& tile = tools->info_for(surface_info.surface.session()).tile;
+    auto const& tile = tile_for(tools->info_for(surface_info.surface.session()));
 
     switch (value)
     {
@@ -272,7 +290,7 @@ void me::TilingWindowManagerPolicy::drag(Point cursor)
         {
             if (auto const surface = select_active_surface(session, tools->surface_at(old_cursor)))
             {
-                drag(surface, cursor, old_cursor, tools->info_for(session).tile);
+                drag(surface, cursor, old_cursor, tile_for(tools->info_for(session)));
             }
         }
     }
@@ -461,7 +479,7 @@ void me::TilingWindowManagerPolicy::toggle(MirSurfaceState state)
 
 std::shared_ptr<ms::Session> me::TilingWindowManagerPolicy::session_under(Point position)
 {
-    return tools->find_session([&](SessionInfo const& info) { return info.tile.contains(position);});
+    return tools->find_session([&](SessionInfo const& info) { return tile_for(info).contains(position);});
 }
 
 void me::TilingWindowManagerPolicy::update_tiles(
@@ -481,16 +499,21 @@ void me::TilingWindowManagerPolicy::update_tiles(
 
     for (auto& info : session_info)
     {
+        if (!info.second.userdata)
+            info.second.userdata = std::make_shared<TilingWindowManagerPolicyData>();
+
+        auto& tile = tile_for(info.second);
+
         auto const x = (total_width*index)/sessions;
         ++index;
         auto const dx = (total_width*index)/sessions - x;
 
-        auto const old_tile = info.second.tile;
+        auto const old_tile = tile;
         Rectangle const new_tile{{x, 0}, {dx, total_height}};
 
         update_surfaces(info.first, old_tile, new_tile);
 
-        info.second.tile = new_tile;
+        tile = new_tile;
     }
 }
 

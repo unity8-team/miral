@@ -21,8 +21,6 @@
 
 #include "miral/surface.h"
 
-#include "mir/geometry/rectangles.h"
-
 #include <vector>
 
 namespace miral { class Surface; }
@@ -38,9 +36,8 @@ struct SessionInfo
 {
     std::vector<std::weak_ptr<scene::Surface>> surfaces;
 
-    // This is only used by the TilingWindowManagerPolicy,
-    // perhaps we need a more extensible mechanism. (std::experimental::any?)
-    geometry::Rectangle tile;
+    /// This can be used by client code to store window manager specific information
+    std::shared_ptr<void> userdata;
 };
 }
 }
