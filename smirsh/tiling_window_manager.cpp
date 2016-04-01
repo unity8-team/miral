@@ -257,22 +257,22 @@ auto me::TilingWindowManagerPolicy::handle_set_state(SurfaceInfo& surface_info, 
     {
     case mir_surface_state_restored:
         surface_info.surface.resize(surface_info.restore_rect.size);
-        drag(surface_info.surface, surface_info.restore_rect.top_left, surface_info.surface.top_left(), tile);
+        drag(surface_info, surface_info.restore_rect.top_left, surface_info.surface.top_left(), tile);
         break;
 
     case mir_surface_state_maximized:
         surface_info.surface.resize(tile.size);
-        drag(surface_info.surface, tile.top_left, surface_info.surface.top_left(), tile);
+        drag(surface_info, tile.top_left, surface_info.surface.top_left(), tile);
         break;
 
     case mir_surface_state_horizmaximized:
         surface_info.surface.resize({tile.size.width, surface_info.restore_rect.size.height});
-        drag(surface_info.surface, {tile.top_left.x, surface_info.restore_rect.top_left.y}, surface_info.surface.top_left(), tile);
+        drag(surface_info, {tile.top_left.x, surface_info.restore_rect.top_left.y}, surface_info.surface.top_left(), tile);
         break;
 
     case mir_surface_state_vertmaximized:
         surface_info.surface.resize({surface_info.restore_rect.size.width, tile.size.height});
-        drag(surface_info.surface, {surface_info.restore_rect.top_left.x, tile.top_left.y}, surface_info.surface.top_left(), tile);
+        drag(surface_info, {surface_info.restore_rect.top_left.x, tile.top_left.y}, surface_info.surface.top_left(), tile);
         break;
 
     default:
@@ -290,7 +290,7 @@ void me::TilingWindowManagerPolicy::drag(Point cursor)
         {
             if (auto const surface = select_active_surface(session, tools->surface_at(old_cursor)))
             {
-                drag(surface, cursor, old_cursor, tile_for(tools->info_for(session)));
+                drag(tools->info_for(surface), cursor, old_cursor, tile_for(tools->info_for(session)));
             }
         }
     }
@@ -556,15 +556,15 @@ void me::TilingWindowManagerPolicy::fit_to_new_tile(ms::Surface& surface, Rectan
     surface.resize({width, height});
 }
 
-void me::TilingWindowManagerPolicy::drag(std::shared_ptr<ms::Surface> surface, Point to, Point from, Rectangle bounds)
+void me::TilingWindowManagerPolicy::drag(SurfaceInfo surface_info, Point to, Point from, Rectangle bounds)
 {
-    if (surface && surface->input_area_contains(from))
+    if (surface_info.surface && surface_info.surface.input_bounds().contains(from))
     {
         auto movement = to - from;
 
-        constrained_move(surface, movement, bounds);
+        constrained_move(surface_info.surface, movement, bounds);
 
-        for (auto const& child: tools->info_for(surface).children)
+        for (auto const& child: surface_info.children)
         {
             auto move = movement;
             constrained_move(child, move, bounds);
