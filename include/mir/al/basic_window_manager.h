@@ -20,6 +20,7 @@
 #define MIR_ABSTRACTION_BASIC_WINDOW_MANAGER_H_
 
 #include "miral/window_management_policy.h"
+#include "miral/window_manager_tools.h"
 #include "miral/surface_info.h"
 #include "miral/session.h"
 #include "miral/session_info.h"
@@ -43,50 +44,7 @@ using ::miral::Session;
 using ::miral::SurfaceInfo;
 using ::miral::SessionInfo;
 using ::miral::WindowManagementPolicy;
-
-/// The interface through which the policy instructs the controller.
-/// These functions assume that the BasicWindowManager data structures can be accessed freely.
-/// I.e. should only be invoked by the policy handle_... methods (where any necessary locks are held).
-class WindowManagerTools
-{
-public:
-    virtual auto build_surface(std::shared_ptr<scene::Session> const& session, scene::SurfaceCreationParameters const& parameters)
-    -> SurfaceInfo& = 0;
-
-    virtual auto count_sessions() const -> unsigned int = 0;
-
-    virtual void for_each_session(std::function<void(SessionInfo& info)> const& functor) = 0;
-
-    virtual auto find_session(std::function<bool(SessionInfo const& info)> const& predicate)
-    -> Session = 0;
-
-    virtual auto info_for(std::weak_ptr<scene::Session> const& session) const -> SessionInfo& = 0;
-
-    virtual auto info_for(std::weak_ptr<scene::Surface> const& surface) const -> SurfaceInfo& = 0;
-
-    virtual auto info_for(Surface const& surface) const -> SurfaceInfo& = 0;
-
-    virtual auto focused_session() const -> Session = 0;
-
-    virtual auto focused_surface() const -> Surface = 0;
-
-    virtual void focus_next_session() = 0;
-
-    virtual void set_focus_to(Surface const& surface) = 0;
-
-    virtual auto surface_at(geometry::Point cursor) const -> Surface = 0;
-
-    virtual auto active_display() -> geometry::Rectangle const = 0;
-
-    virtual void forget(Surface const& surface) = 0;
-
-    virtual void raise_tree(Surface const& root) = 0;
-
-    virtual ~WindowManagerTools() = default;
-    WindowManagerTools() = default;
-    WindowManagerTools(WindowManagerTools const&) = delete;
-    WindowManagerTools& operator=(WindowManagerTools const&) = delete;
-};
+using ::miral::WindowManagerTools;
 
 /// A policy based window manager.
 /// This takes care of the management of any meta implementation held for the sessions and surfaces.

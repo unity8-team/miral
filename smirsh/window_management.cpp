@@ -21,6 +21,8 @@
 #include "tiling_window_manager.h"
 #include "canonical_window_manager.h"
 
+#include "mir/al/basic_window_manager.h"
+
 #include "mir/abnormal_exit.h"
 #include "mir/server.h"
 #include "mir/options/option.h"
@@ -40,8 +42,8 @@ char const* const wm_canonical = "canonical";
 char const* const wm_system_compositor = "system-compositor";
 }
 
-using CanonicalWindowManager = me::WindowManagerBuilder<me::CanonicalWindowManagerPolicy>;
-using TilingWindowManager = me::WindowManagerBuilder<me::TilingWindowManagerPolicy>;
+using CanonicalWindowManager = mir::al::WindowManagerBuilder<me::CanonicalWindowManagerPolicy>;
+using TilingWindowManager = mir::al::WindowManagerBuilder<me::TilingWindowManagerPolicy>;
 
 void me::window_manager_option(Server& server)
 {

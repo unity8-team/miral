@@ -17,6 +17,7 @@
  */
 
 #include "canonical_window_manager.h"
+#include "miral/session.h"
 
 #include "mir/graphics/buffer.h"
 #include "mir/scene/session.h"

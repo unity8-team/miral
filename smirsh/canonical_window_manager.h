@@ -19,9 +19,10 @@
 #ifndef MIR_EXAMPLE_CANONICAL_WINDOW_MANAGER_H_
 #define MIR_EXAMPLE_CANONICAL_WINDOW_MANAGER_H_
 
-#include "mir/al/basic_window_manager.h"
+#include "miral/window_management_policy.h"
+#include "miral/window_manager_tools.h"
 
-#include "mir/geometry/displacement.h"
+#include <mir/geometry/displacement.h>
 
 #include <atomic>
 #include <set>
@@ -33,7 +34,7 @@ namespace mir
 namespace shell { class DisplayLayout; }
 namespace examples
 {
-using namespace mir::al;
+using namespace miral;
 
 // standard window management algorithm:
 //  o Switch apps: tap or click on the corresponding tile

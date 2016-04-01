@@ -23,18 +23,18 @@
 
 namespace mir
 {
-namespace al { class WindowManagerTools; }
 namespace scene { class Session; }
 }
 
 namespace miral
 {
 class Surface;
+class WindowManagerTools;
 
 class Session
 {
 public:
-    explicit Session(mir::al::WindowManagerTools const* tools, std::weak_ptr<mir::scene::Session> const& scene_session) :
+    explicit Session(WindowManagerTools const* tools, std::weak_ptr<mir::scene::Session> const& scene_session) :
         tools(tools), scene_session{scene_session} {}
 
     auto process_id() const      -> pid_t;
@@ -46,7 +46,7 @@ public:
     operator std::shared_ptr<mir::scene::Session>() const { return scene_session.lock(); }
 
 private:
-    mir::al::WindowManagerTools const* tools;
+    WindowManagerTools const* tools;
     std::weak_ptr<mir::scene::Session> scene_session;
     friend bool operator==(Session const& lhs, Session const& rhs);
     friend bool operator==(std::shared_ptr<mir::scene::Session> const& lhs, Session const& rhs);

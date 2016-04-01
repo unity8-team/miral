@@ -19,7 +19,8 @@
 #ifndef MIR_EXAMPLE_TILING_WINDOW_MANAGER_H_
 #define MIR_EXAMPLE_TILING_WINDOW_MANAGER_H_
 
-#include "mir/al/basic_window_manager.h"
+#include "miral/window_management_policy.h"
+#include "miral/window_manager_tools.h"
 
 // Demonstrate implementing a simple tiling algorithm
 
@@ -27,7 +28,7 @@ namespace mir
 {
 namespace examples
 {
-using namespace mir::al;
+using namespace miral;
 
 // simple tiling algorithm:
 //  o Switch apps: tap or click on the corresponding tile

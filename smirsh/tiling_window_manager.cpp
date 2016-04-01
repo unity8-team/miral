@@ -17,6 +17,7 @@
  */
 
 #include "tiling_window_manager.h"
+#include "miral/session.h"
 
 #include "mir/scene/session.h"
 #include "mir/scene/surface.h"
@@ -41,12 +42,12 @@ struct TilingWindowManagerPolicyData
     Rectangle tile;
 };
 
-inline Rectangle& tile_for(mir::al::SessionInfo& session_info)
+inline Rectangle& tile_for(miral::SessionInfo& session_info)
 {
     return std::static_pointer_cast<TilingWindowManagerPolicyData>(session_info.userdata)->tile;
 }
 
-inline Rectangle const& tile_for(mir::al::SessionInfo const& session_info)
+inline Rectangle const& tile_for(miral::SessionInfo const& session_info)
 {
     return std::static_pointer_cast<TilingWindowManagerPolicyData>(session_info.userdata)->tile;
 }
