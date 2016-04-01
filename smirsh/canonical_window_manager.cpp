@@ -870,7 +870,7 @@ bool me::CanonicalWindowManagerPolicy::handle_pointer_event(MirPointerEvent cons
 
 void me::CanonicalWindowManagerPolicy::toggle(MirSurfaceState state)
 {
-    if (auto const surface = active_surface())
+    if (auto surface = active_surface())
     {
         auto& info = tools->info_for(surface);
 
@@ -878,18 +878,18 @@ void me::CanonicalWindowManagerPolicy::toggle(MirSurfaceState state)
             state = mir_surface_state_restored;
 
         auto const value = handle_set_state(info, MirSurfaceState(state));
-        surface->configure(mir_surface_attrib_state, value);
+        surface.configure(mir_surface_attrib_state, value);
     }
 }
 
 void me::CanonicalWindowManagerPolicy::select_active_surface(std::shared_ptr<ms::Surface> const& surface)
 {
-    if (surface == active_surface_.lock())
+    if (surface == active_surface_)
         return;
 
     if (!surface)
     {
-        if (auto const active_surface = active_surface_.lock())
+        if (auto const active_surface = active_surface_)
         {
             auto& info = tools->info_for(active_surface);
             if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(info.userdata))
@@ -898,7 +898,7 @@ void me::CanonicalWindowManagerPolicy::select_active_surface(std::shared_ptr<ms:
             }
         }
 
-        if (active_surface_.lock())
+        if (active_surface_)
             tools->set_focus_to({});
 
         active_surface_.reset();
@@ -909,7 +909,7 @@ void me::CanonicalWindowManagerPolicy::select_active_surface(std::shared_ptr<ms:
 
     if (info_for.can_be_active())
     {
-        if (auto const active_surface = active_surface_.lock())
+        if (auto const active_surface = active_surface_)
         {
             auto& info = tools->info_for(active_surface);
             if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(info.userdata))
@@ -924,7 +924,7 @@ void me::CanonicalWindowManagerPolicy::select_active_surface(std::shared_ptr<ms:
         }
         tools->set_focus_to(info_for.surface);
         tools->raise_tree(info_for.surface);
-        active_surface_ = surface;
+        active_surface_ = info_for.surface;
     }
     else
     {
@@ -935,9 +935,9 @@ void me::CanonicalWindowManagerPolicy::select_active_surface(std::shared_ptr<ms:
 }
 
 auto me::CanonicalWindowManagerPolicy::active_surface() const
--> std::shared_ptr<ms::Surface>
+-> Surface
 {
-    if (auto const surface = active_surface_.lock())
+    if (auto const surface = active_surface_)
         return surface;
 
     if (auto const session = tools->focused_session())
@@ -946,7 +946,7 @@ auto me::CanonicalWindowManagerPolicy::active_surface() const
             return surface;
     }
 
-    return std::shared_ptr<ms::Surface>{};
+    return Surface{};
 }
 
 bool me::CanonicalWindowManagerPolicy::resize(std::shared_ptr<ms::Surface> const& surface, Point cursor, Point old_cursor)

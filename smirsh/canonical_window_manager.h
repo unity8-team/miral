@@ -94,7 +94,7 @@ private:
     // "Mir and Unity: Surfaces, input, and displays (v0.3)" talks about active
     //  *window*,but Mir really only understands surfaces
     void select_active_surface(std::shared_ptr<scene::Surface> const& surface);
-    auto active_surface() const -> std::shared_ptr<scene::Surface>;
+    auto active_surface() const -> Surface;
 
     bool resize(std::shared_ptr<scene::Surface> const& surface, geometry::Point cursor, geometry::Point old_cursor);
     bool drag(std::shared_ptr<scene::Surface> surface, geometry::Point to, geometry::Point from, geometry::Rectangle bounds);
@@ -106,7 +106,7 @@ private:
 
     geometry::Rectangle display_area;
     geometry::Point old_cursor{};
-    std::weak_ptr<scene::Surface> active_surface_;
+    Surface active_surface_;
     using FullscreenSurfaces = std::set<Surface>;
 
     FullscreenSurfaces fullscreen_surfaces;
