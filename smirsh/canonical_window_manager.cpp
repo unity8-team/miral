@@ -1003,14 +1003,14 @@ void me::CanonicalWindowManagerPolicy::apply_resize(SurfaceInfo& surface_info, P
     move_tree(surface_info, new_pos-surface_info.surface.top_left());
 }
 
-bool me::CanonicalWindowManagerPolicy::drag(std::shared_ptr<ms::Surface> surface, Point to, Point from, Rectangle /*bounds*/)
+bool me::CanonicalWindowManagerPolicy::drag(Surface surface, Point to, Point from, Rectangle /*bounds*/)
 {
     if (!surface)
         return false;
 
     auto& surface_info = tools->info_for(surface);
 
-    if (!surface->input_area_contains(from) &&
+    if (!surface.input_area_contains(from) &&
         !std::static_pointer_cast<CanonicalWindowManagementPolicyData>(surface_info.userdata))
         return false;
 
