@@ -159,23 +159,24 @@ void me::TilingWindowManagerPolicy::generate_decorations_for(SurfaceInfo& /*surf
 
 void me::TilingWindowManagerPolicy::handle_new_surface(SurfaceInfo& surface_info)
 {
-    std::shared_ptr<scene::Surface> const surface = surface_info.surface;
-    auto const session = surface_info.surface.session();
+    auto const surface = surface_info.surface;
+    auto const session = surface.session();
 
-    tools->info_for(session).surfaces.push_back(surface_info.surface);
+    tools->info_for(session).surfaces.push_back(surface);
 
     if (auto const parent = surface_info.parent)
     {
-        tools->info_for(parent).children.push_back(surface_info.surface);
+        tools->info_for(parent).children.push_back(surface);
     }
 
     if (surface_info.can_be_active())
     {
-        surface->add_observer(std::make_shared<shell::SurfaceReadyObserver>(
-            [this](std::shared_ptr<scene::Session> const& session, std::shared_ptr<scene::Surface> const& surface)
+        std::shared_ptr<scene::Surface> const scene_surface = surface;
+        scene_surface->add_observer(std::make_shared<shell::SurfaceReadyObserver>(
+            [this, surface](std::shared_ptr<scene::Session> const& session, std::shared_ptr<scene::Surface> const& /*surface*/)
                 { select_active_surface(session, surface); },
             session,
-            surface));
+            scene_surface));
     }
 }
 
@@ -367,7 +368,7 @@ bool me::TilingWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const
             if (auto const app = tools->focused_session())
                 if (auto const surface = app->surface_after(prev))
                 {
-                    select_active_surface(app, surface);
+                    select_active_surface(app, tools->info_for(surface).surface);
                 }
         }
 
@@ -627,7 +628,8 @@ void me::TilingWindowManagerPolicy::resize(std::shared_ptr<ms::Surface> surface,
     }
 }
 
-std::shared_ptr<ms::Surface> me::TilingWindowManagerPolicy::select_active_surface(std::shared_ptr<ms::Session> const& session, std::shared_ptr<scene::Surface> const& surface)
+std::shared_ptr<ms::Surface> me::TilingWindowManagerPolicy::select_active_surface(
+    std::shared_ptr<ms::Session> const& session, Surface const& surface)
 {
     if (!surface)
     {
