@@ -58,7 +58,7 @@ public:
     virtual void for_each_session(std::function<void(SessionInfo& info)> const& functor) = 0;
 
     virtual auto find_session(std::function<bool(SessionInfo const& info)> const& predicate)
-    -> std::shared_ptr<scene::Session> = 0;
+    -> Session = 0;
 
     virtual auto info_for(std::weak_ptr<scene::Session> const& session) const -> SessionInfo& = 0;
 
@@ -150,7 +150,7 @@ public:
     void for_each_session(std::function<void(SessionInfo& info)> const& functor) override;
 
     auto find_session(std::function<bool(SessionInfo const& info)> const& predicate)
-    -> std::shared_ptr<scene::Session> override;
+    -> Session override;
 
     auto info_for(std::weak_ptr<scene::Session> const& session) const -> SessionInfo& override;
 

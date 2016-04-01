@@ -82,7 +82,7 @@ private:
     void drag(geometry::Point cursor);
     void toggle(MirSurfaceState state);
 
-    std::shared_ptr<scene::Session> session_under(geometry::Point position);
+    Session session_under(geometry::Point position);
 
     void update_tiles(geometry::Rectangles const& displays);
 
@@ -96,7 +96,7 @@ private:
 
     static void resize(Surface surface, geometry::Point cursor, geometry::Point old_cursor, geometry::Rectangle bounds);
 
-    static void constrained_move(std::shared_ptr<scene::Surface> const& surface, geometry::Displacement& movement, geometry::Rectangle const& bounds);
+    static void constrained_move(Surface surface, geometry::Displacement& movement, geometry::Rectangle const& bounds);
 
     auto select_active_surface(Surface const& surface) -> Surface;
 

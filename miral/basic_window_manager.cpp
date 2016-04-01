@@ -186,17 +186,17 @@ void ma::BasicWindowManager::for_each_session(std::function<void(SessionInfo& in
 }
 
 auto ma::BasicWindowManager::find_session(std::function<bool(SessionInfo const& info)> const& predicate)
--> std::shared_ptr<scene::Session>
+-> Session
 {
     for(auto& info : session_info)
     {
         if (predicate(info.second))
         {
-            return info.first.lock();
+            return Session{this, info.first};
         }
     }
 
-    return std::shared_ptr<scene::Session>{};
+    return Session{this, {}};
 }
 
 auto ma::BasicWindowManager::info_for(std::weak_ptr<scene::Session> const& session) const

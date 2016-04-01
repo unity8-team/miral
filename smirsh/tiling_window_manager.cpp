@@ -478,7 +478,8 @@ void me::TilingWindowManagerPolicy::toggle(MirSurfaceState state)
     }
 }
 
-std::shared_ptr<ms::Session> me::TilingWindowManagerPolicy::session_under(Point position)
+auto me::TilingWindowManagerPolicy::session_under(Point position)
+-> Session
 {
     return tools->find_session([&](SessionInfo const& info) { return tile_for(info).contains(position);});
 }
@@ -574,12 +575,12 @@ void me::TilingWindowManagerPolicy::drag(SurfaceInfo surface_info, Point to, Poi
 }
 
 void me::TilingWindowManagerPolicy::constrained_move(
-    std::shared_ptr<scene::Surface> const& surface,
+    Surface surface,
     Displacement& movement,
     Rectangle const& bounds)
 {
-    auto const top_left = surface->top_left();
-    auto const surface_size = surface->size();
+    auto const top_left = surface.top_left();
+    auto const surface_size = surface.size();
     auto const bottom_right = top_left + as_displacement(surface_size);
 
     if (movement.dx < DeltaX{0})
@@ -594,9 +595,9 @@ void me::TilingWindowManagerPolicy::constrained_move(
     if (movement.dy > DeltaY{0})
             movement.dy = std::min(movement.dy, (bounds.bottom_right() - bottom_right).dy);
 
-    auto new_pos = surface->top_left() + movement;
+    auto new_pos = surface.top_left() + movement;
 
-    surface->move_to(new_pos);
+    surface.move_to(new_pos);
 }
 
 void me::TilingWindowManagerPolicy::resize(Surface surface, Point cursor, Point old_cursor, Rectangle bounds)
