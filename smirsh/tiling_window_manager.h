@@ -94,7 +94,7 @@ private:
 
     void drag(SurfaceInfo surface_info, geometry::Point to, geometry::Point from, geometry::Rectangle bounds);
 
-    static void resize(std::shared_ptr<scene::Surface> surface, geometry::Point cursor, geometry::Point old_cursor, geometry::Rectangle bounds);
+    static void resize(Surface surface, geometry::Point cursor, geometry::Point old_cursor, geometry::Rectangle bounds);
 
     static void constrained_move(std::shared_ptr<scene::Surface> const& surface, geometry::Displacement& movement, geometry::Rectangle const& bounds);
 

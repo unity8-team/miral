@@ -599,11 +599,11 @@ void me::TilingWindowManagerPolicy::constrained_move(
     surface->move_to(new_pos);
 }
 
-void me::TilingWindowManagerPolicy::resize(std::shared_ptr<ms::Surface> surface, Point cursor, Point old_cursor, Rectangle bounds)
+void me::TilingWindowManagerPolicy::resize(Surface surface, Point cursor, Point old_cursor, Rectangle bounds)
 {
-    if (surface && surface->input_area_contains(old_cursor))
+    if (surface && surface.input_area_contains(old_cursor))
     {
-        auto const top_left = surface->top_left();
+        auto const top_left = surface.top_left();
 
         auto const old_displacement = old_cursor - top_left;
         auto const new_displacement = cursor - top_left;
@@ -613,7 +613,7 @@ void me::TilingWindowManagerPolicy::resize(std::shared_ptr<ms::Surface> surface,
 
         if (scale_x <= 0.0f || scale_y <= 0.0f) return;
 
-        auto const old_size = surface->size();
+        auto const old_size = surface.size();
         Size new_size{scale_x*old_size.width, scale_y*old_size.height};
 
         auto const size_limits = as_size(bounds.bottom_right() - top_left);
@@ -624,7 +624,7 @@ void me::TilingWindowManagerPolicy::resize(std::shared_ptr<ms::Surface> surface,
         if (new_size.height > size_limits.height)
             new_size.height = size_limits.height;
 
-        surface->resize(new_size);
+        surface.resize(new_size);
     }
 }
 
