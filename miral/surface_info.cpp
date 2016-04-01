@@ -16,21 +16,20 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#include "mir/al/window_management_info.h"
+#include "miral/surface_info.h"
 
 #include "mir/scene/surface.h"
 #include "mir/scene/surface_creation_parameters.h"
 
 #include <atomic>
 
-namespace ma = mir::al;
 namespace ms = mir::scene;
 namespace mg = mir::graphics;
 using namespace mir::geometry;
 
-ma::SurfaceInfo::SurfaceInfo(
+miral::SurfaceInfo::SurfaceInfo(
     Surface const& surface,
-    scene::SurfaceCreationParameters const& params) :
+    ms::SurfaceCreationParameters const& params) :
     surface{surface},
     type{surface.type()},
     state{surface.state()},
@@ -48,7 +47,7 @@ ma::SurfaceInfo::SurfaceInfo(
         output_id = params.output_id;
 }
 
-bool ma::SurfaceInfo::can_be_active() const
+bool miral::SurfaceInfo::can_be_active() const
 {
     switch (type)
     {
@@ -69,7 +68,7 @@ bool ma::SurfaceInfo::can_be_active() const
     }
 }
 
-bool ma::SurfaceInfo::must_have_parent() const
+bool miral::SurfaceInfo::must_have_parent() const
 {
     switch (type)
     {
@@ -84,7 +83,7 @@ bool ma::SurfaceInfo::must_have_parent() const
     }
 }
 
-bool ma::SurfaceInfo::can_morph_to(MirSurfaceType new_type) const
+bool miral::SurfaceInfo::can_morph_to(MirSurfaceType new_type) const
 {
     switch (new_type)
     {
@@ -126,7 +125,7 @@ bool ma::SurfaceInfo::can_morph_to(MirSurfaceType new_type) const
     return false;
 }
 
-bool ma::SurfaceInfo::must_not_have_parent() const
+bool miral::SurfaceInfo::must_not_have_parent() const
 {
     switch (type)
     {
@@ -139,7 +138,7 @@ bool ma::SurfaceInfo::must_not_have_parent() const
     }
 }
 
-bool ma::SurfaceInfo::is_visible() const
+bool miral::SurfaceInfo::is_visible() const
 {
     switch (state)
     {
@@ -151,7 +150,7 @@ bool ma::SurfaceInfo::is_visible() const
     }
     return true;
 }
-void ma::SurfaceInfo::constrain_resize(Point& requested_pos, Size& requested_size) const
+void miral::SurfaceInfo::constrain_resize(Point& requested_pos, Size& requested_size) const
 {
     bool const left_resize = requested_pos.x != surface.top_left().x;
     bool const top_resize  = requested_pos.y != surface.top_left().y;
@@ -276,7 +275,7 @@ void ma::SurfaceInfo::constrain_resize(Point& requested_pos, Size& requested_siz
     requested_size = new_size;
 }
 
-bool ma::SurfaceInfo::needs_titlebar(MirSurfaceType type)
+bool miral::SurfaceInfo::needs_titlebar(MirSurfaceType type)
 {
     switch (type)
     {

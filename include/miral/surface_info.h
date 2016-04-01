@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015-2016 Canonical Ltd.
+ * Copyright © 2016 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3,
@@ -16,8 +16,8 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#ifndef MIR_ABSTRACTION_WINDOW_MANAGEMENT_INFO_H
-#define MIR_ABSTRACTION_WINDOW_MANAGEMENT_INFO_H
+#ifndef MIRAL_SURFACE_INFO_H
+#define MIRAL_SURFACE_INFO_H
 
 #include "miral/surface.h"
 
@@ -25,20 +25,16 @@
 #include "mir/optional_value.h"
 #include "mir/shell/surface_specification.h"
 
-#include <vector>
-
-namespace miral { class Surface; }
-
 namespace mir
 {
 namespace scene { class Session; class SurfaceCreationParameters; }
-namespace al
-{
-using ::miral::Surface;
+}
 
+namespace miral
+{
 struct SurfaceInfo
 {
-    SurfaceInfo(Surface const& surface, scene::SurfaceCreationParameters const& params);
+    SurfaceInfo(Surface const& surface, mir::scene::SurfaceCreationParameters const& params);
 
     bool can_be_active() const;
 
@@ -52,38 +48,28 @@ struct SurfaceInfo
 
     static bool needs_titlebar(MirSurfaceType type);
 
-    void constrain_resize(geometry::Point& requested_pos, geometry::Size& requested_size) const;
+    void constrain_resize(mir::geometry::Point& requested_pos, mir::geometry::Size& requested_size) const;
 
     Surface surface;
 
     MirSurfaceType type;
     MirSurfaceState state;
-    geometry::Rectangle restore_rect;
+    mir::geometry::Rectangle restore_rect;
     Surface parent;
     std::vector <Surface> children;
-    geometry::Width min_width;
-    geometry::Height min_height;
-    geometry::Width max_width;
-    geometry::Height max_height;
-    mir::optional_value<geometry::DeltaX> width_inc;
-    mir::optional_value<geometry::DeltaY> height_inc;
-    mir::optional_value<shell::SurfaceAspectRatio> min_aspect;
-    mir::optional_value<shell::SurfaceAspectRatio> max_aspect;
-    mir::optional_value<graphics::DisplayConfigurationOutputId> output_id;
+    mir::geometry::Width min_width;
+    mir::geometry::Height min_height;
+    mir::geometry::Width max_width;
+    mir::geometry::Height max_height;
+    mir::optional_value<mir::geometry::DeltaX> width_inc;
+    mir::optional_value<mir::geometry::DeltaY> height_inc;
+    mir::optional_value<mir::shell::SurfaceAspectRatio> min_aspect;
+    mir::optional_value<mir::shell::SurfaceAspectRatio> max_aspect;
+    mir::optional_value<mir::graphics::DisplayConfigurationOutputId> output_id;
 
     /// This can be ised by client code to store window manager specific information
     std::shared_ptr<void> userdata;
 };
-
-struct SessionInfo
-{
-    std::vector<std::weak_ptr<scene::Surface>> surfaces;
-
-    // This is only used by the TilingWindowManagerPolicy,
-    // perhaps we need a more extensible mechanism. (std::experimental::any?)
-    geometry::Rectangle tile;
-};
-}
 }
 
-#endif //MIR_ABSTRACTION_WINDOW_MANAGEMENT_INFO_H
+#endif //MIRAL_SURFACE_INFO_H

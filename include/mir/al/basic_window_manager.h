@@ -19,7 +19,8 @@
 #ifndef MIR_ABSTRACTION_BASIC_WINDOW_MANAGER_H_
 #define MIR_ABSTRACTION_BASIC_WINDOW_MANAGER_H_
 
-#include "mir/al/window_management_info.h"
+#include "miral/surface_info.h"
+#include "mir/al/session_info.h"
 
 #include "mir/geometry/rectangles.h"
 #include "mir/shell/abstract_shell.h"
@@ -35,6 +36,7 @@ namespace mir
 namespace al
 {
 using shell::SurfaceSet;
+using ::miral::SurfaceInfo;
 
 /// The interface through which the policy instructs the controller.
 /// These functions assume that the BasicWindowManager data structures can be accessed freely.
