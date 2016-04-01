@@ -669,7 +669,7 @@ auto me::CanonicalWindowManagerPolicy::handle_set_state(SurfaceInfo& surface_inf
     // TODO It is rather simplistic to move a tree WRT the top_left of the root
     // TODO when resizing. But for more sophistication we would need to encode
     // TODO some sensible layout rules.
-    move_tree(surface_info.surface, movement);
+    move_tree(surface_info, movement);
 
     surface_info.state = value;
 
@@ -998,7 +998,7 @@ void me::CanonicalWindowManagerPolicy::apply_resize(SurfaceInfo& surface_info, P
 
     surface_info.surface.resize(new_size);
 
-    move_tree(surface_info.surface, new_pos-surface_info.surface.top_left());
+    move_tree(surface_info, new_pos-surface_info.surface.top_left());
 }
 
 bool me::CanonicalWindowManagerPolicy::drag(std::shared_ptr<ms::Surface> surface, Point to, Point from, Rectangle /*bounds*/)
@@ -1006,7 +1006,7 @@ bool me::CanonicalWindowManagerPolicy::drag(std::shared_ptr<ms::Surface> surface
     if (!surface)
         return false;
 
-    auto const& surface_info = tools->info_for(surface);
+    auto& surface_info = tools->info_for(surface);
 
     if (!surface->input_area_contains(from) &&
         !std::static_pointer_cast<CanonicalWindowManagementPolicyData>(surface_info.userdata))
@@ -1042,17 +1042,17 @@ bool me::CanonicalWindowManagerPolicy::drag(std::shared_ptr<ms::Surface> surface
         return true;
     }
 
-    move_tree(surface, movement);
+    move_tree(surface_info, movement);
 
     return true;
 }
 
-void me::CanonicalWindowManagerPolicy::move_tree(std::shared_ptr<ms::Surface> const& root, Displacement movement) const
+void me::CanonicalWindowManagerPolicy::move_tree(SurfaceInfo& root, Displacement movement) const
 {
-    root->move_to(root->top_left() + movement);
+    root.surface.move_to(root.surface.top_left() + movement);
 
-    for (auto const& child: tools->info_for(root).children)
+    for (auto const& child: root.children)
     {
-        move_tree(child, movement);
+        move_tree(tools->info_for(child), movement);
     }
 }
