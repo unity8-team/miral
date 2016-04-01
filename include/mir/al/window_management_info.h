@@ -61,8 +61,6 @@ struct SurfaceInfo
     geometry::Rectangle restore_rect;
     Surface parent;
     std::vector <Surface> children;
-    Surface titlebar;
-    bool is_titlebar = false;
     geometry::Width min_width;
     geometry::Height min_height;
     geometry::Width max_width;
@@ -73,15 +71,8 @@ struct SurfaceInfo
     mir::optional_value<shell::SurfaceAspectRatio> max_aspect;
     mir::optional_value<graphics::DisplayConfigurationOutputId> output_id;
 
-    void paint_titlebar(int intensity);
-
-private:
-
-    struct StreamPainter;
-    struct AllocatingPainter;
-    struct SwappingPainter;
-
-    std::shared_ptr <StreamPainter> stream_painter;
+    /// This can be ised by client code to store window manager specific information
+    std::shared_ptr<void> userdata;
 };
 
 struct SessionInfo

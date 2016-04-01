@@ -21,8 +21,6 @@
 #include "mir/scene/surface.h"
 #include "mir/scene/surface_creation_parameters.h"
 
-#include "mir/graphics/buffer.h"
-
 #include <atomic>
 
 namespace ma = mir::al;
@@ -153,112 +151,6 @@ bool ma::SurfaceInfo::is_visible() const
     }
     return true;
 }
-
-struct mir::al::SurfaceInfo::StreamPainter
-{
-    virtual void paint(int) = 0;
-    virtual ~StreamPainter() = default;
-    StreamPainter() = default;
-    StreamPainter(StreamPainter const&) = delete;
-    StreamPainter& operator=(StreamPainter const&) = delete;
-};
-
-struct mir::al::SurfaceInfo::SwappingPainter
-    : mir::al::SurfaceInfo::StreamPainter
-{
-    SwappingPainter(std::shared_ptr<frontend::BufferStream> const& buffer_stream) :
-        buffer_stream{buffer_stream}, buffer{nullptr}
-    {
-        swap_buffers();
-    }
-
-    void swap_buffers()
-    {
-        auto const callback = [this](mir::graphics::Buffer* new_buffer)
-            {
-                buffer.store(new_buffer);
-            };
-
-        buffer_stream->swap_buffers(buffer, callback);
-    }
-
-    void paint(int intensity) override
-    {
-        if (auto const buf = buffer.load())
-        {
-            auto const format = buffer_stream->pixel_format();
-            auto const sz = buf->size().height.as_int() *
-                            buf->size().width.as_int() * MIR_BYTES_PER_PIXEL(format);
-            std::vector<unsigned char> pixels(sz, intensity);
-            buf->write(pixels.data(), sz);
-            swap_buffers();
-        }
-    }
-
-    std::shared_ptr<frontend::BufferStream> const buffer_stream;
-    std::atomic<graphics::Buffer*> buffer;
-};
-
-struct mir::al::SurfaceInfo::AllocatingPainter
-    : mir::al::SurfaceInfo::StreamPainter
-{
-    AllocatingPainter(std::shared_ptr<frontend::BufferStream> const& buffer_stream, Size size) :
-        buffer_stream(buffer_stream),
-        properties({
-            size,
-            buffer_stream->pixel_format(),
-            mg::BufferUsage::software
-        }),
-        front_buffer(buffer_stream->allocate_buffer(properties)),
-        back_buffer(buffer_stream->allocate_buffer(properties))
-    {
-    }
-
-    void paint(int intensity) override
-    {
-        buffer_stream->with_buffer(back_buffer,
-            [this, intensity](graphics::Buffer& buffer)
-            {
-                auto const format = buffer.pixel_format();
-                auto const sz = buffer.size().height.as_int() *
-                                buffer.size().width.as_int() * MIR_BYTES_PER_PIXEL(format);
-                std::vector<unsigned char> pixels(sz, intensity);
-                buffer.write(pixels.data(), sz);
-                buffer_stream->swap_buffers(&buffer, [](mg::Buffer*){});
-            });
-        std::swap(front_buffer, back_buffer);
-    }
-
-    ~AllocatingPainter()
-    {
-        buffer_stream->remove_buffer(front_buffer);
-        buffer_stream->remove_buffer(back_buffer);
-    }
-
-    std::shared_ptr<frontend::BufferStream> const buffer_stream;
-    mg::BufferProperties properties;
-    mg::BufferID front_buffer; 
-    mg::BufferID back_buffer; 
-};
-
-void mir::al::SurfaceInfo::paint_titlebar(int intensity)
-{
-    if (!stream_painter)
-    {
-        auto stream = std::shared_ptr<mir::scene::Surface>(surface)->primary_buffer_stream();
-        try
-        {
-            stream_painter = std::make_shared<AllocatingPainter>(stream, surface.size());
-        }
-        catch (...)
-        {
-            stream_painter = std::make_shared<SwappingPainter>(stream);
-        }
-    }
-
-    stream_painter->paint(intensity);
-}
-
 void ma::SurfaceInfo::constrain_resize(Point& requested_pos, Size& requested_size) const
 {
     bool const left_resize = requested_pos.x != surface.top_left().x;

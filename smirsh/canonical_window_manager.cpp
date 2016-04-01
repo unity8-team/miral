@@ -18,6 +18,7 @@
 
 #include "canonical_window_manager.h"
 
+#include "mir/graphics/buffer.h"
 #include "mir/scene/session.h"
 #include "mir/scene/surface.h"
 #include "mir/scene/surface_creation_parameters.h"
@@ -49,6 +50,128 @@ Point titlebar_position_for_window(Point window_position)
         window_position.y - DeltaY(title_bar_height)
     };
 }
+
+class CanonicalWindowManagementPolicyData
+{
+public:
+    CanonicalWindowManagementPolicyData(miral::Surface surface) : surface{surface} {}
+    void paint_titlebar(int intensity);
+
+    miral::Surface surface;
+
+private:
+    struct StreamPainter;
+    struct AllocatingPainter;
+    struct SwappingPainter;
+
+    std::shared_ptr <StreamPainter> stream_painter;
+};
+}
+
+
+struct CanonicalWindowManagementPolicyData::StreamPainter
+{
+    virtual void paint(int) = 0;
+    virtual ~StreamPainter() = default;
+    StreamPainter() = default;
+    StreamPainter(StreamPainter const&) = delete;
+    StreamPainter& operator=(StreamPainter const&) = delete;
+};
+
+struct CanonicalWindowManagementPolicyData::SwappingPainter
+    : CanonicalWindowManagementPolicyData::StreamPainter
+{
+    SwappingPainter(std::shared_ptr<mir::frontend::BufferStream> const& buffer_stream) :
+        buffer_stream{buffer_stream}, buffer{nullptr}
+    {
+        swap_buffers();
+    }
+
+    void swap_buffers()
+    {
+        auto const callback = [this](mir::graphics::Buffer* new_buffer)
+            {
+            buffer.store(new_buffer);
+            };
+
+        buffer_stream->swap_buffers(buffer, callback);
+    }
+
+    void paint(int intensity) override
+    {
+        if (auto const buf = buffer.load())
+        {
+            auto const format = buffer_stream->pixel_format();
+            auto const sz = buf->size().height.as_int() *
+                            buf->size().width.as_int() * MIR_BYTES_PER_PIXEL(format);
+            std::vector<unsigned char> pixels(sz, intensity);
+            buf->write(pixels.data(), sz);
+            swap_buffers();
+        }
+    }
+
+    std::shared_ptr<mir::frontend::BufferStream> const buffer_stream;
+    std::atomic<mir::graphics::Buffer*> buffer;
+};
+
+struct CanonicalWindowManagementPolicyData::AllocatingPainter
+    : CanonicalWindowManagementPolicyData::StreamPainter
+{
+    AllocatingPainter(std::shared_ptr<mir::frontend::BufferStream> const& buffer_stream, Size size) :
+        buffer_stream(buffer_stream),
+        properties({
+                       size,
+                       buffer_stream->pixel_format(),
+                       mir::graphics::BufferUsage::software
+                   }),
+        front_buffer(buffer_stream->allocate_buffer(properties)),
+        back_buffer(buffer_stream->allocate_buffer(properties))
+    {
+    }
+
+    void paint(int intensity) override
+    {
+        buffer_stream->with_buffer(back_buffer,
+                                   [this, intensity](mir::graphics::Buffer& buffer)
+                                       {
+                                       auto const format = buffer.pixel_format();
+                                       auto const sz = buffer.size().height.as_int() *
+                                                       buffer.size().width.as_int() * MIR_BYTES_PER_PIXEL(format);
+                                       std::vector<unsigned char> pixels(sz, intensity);
+                                       buffer.write(pixels.data(), sz);
+                                       buffer_stream->swap_buffers(&buffer, [](mir::graphics::Buffer*){});
+                                       });
+        std::swap(front_buffer, back_buffer);
+    }
+
+    ~AllocatingPainter()
+    {
+        buffer_stream->remove_buffer(front_buffer);
+        buffer_stream->remove_buffer(back_buffer);
+    }
+
+    std::shared_ptr<mir::frontend::BufferStream> const buffer_stream;
+    mir::graphics::BufferProperties properties;
+    mir::graphics::BufferID front_buffer;
+    mir::graphics::BufferID back_buffer;
+};
+
+void CanonicalWindowManagementPolicyData::paint_titlebar(int intensity)
+{
+    if (!stream_painter)
+    {
+        auto stream = std::shared_ptr<mir::scene::Surface>(surface)->primary_buffer_stream();
+        try
+        {
+            stream_painter = std::make_shared<AllocatingPainter>(stream, surface.size());
+        }
+        catch (...)
+        {
+            stream_painter = std::make_shared<SwappingPainter>(stream);
+        }
+    }
+
+    stream_painter->paint(intensity);
 }
 
 me::CanonicalWindowManagerPolicy::CanonicalWindowManagerPolicy(
@@ -258,10 +381,10 @@ void me::CanonicalWindowManagerPolicy::generate_decorations_for(SurfaceInfo& sur
 
     auto& titlebar_info = tools->build_surface(surface.session(), params);
     titlebar_info.surface.set_alpha(0.9);
-    titlebar_info.is_titlebar = true;
     titlebar_info.parent = surface;
 
-    surface_info.titlebar = titlebar_info.surface;
+    auto data = std::make_shared<CanonicalWindowManagementPolicyData>(titlebar_info.surface);
+    surface_info.userdata = data;
     surface_info.children.push_back(titlebar_info.surface);
 }
 
@@ -412,10 +535,10 @@ void me::CanonicalWindowManagerPolicy::handle_delete_surface(SurfaceInfo& surfac
 
     surface_info.surface.destroy_surface();
 
-    if (surface_info.titlebar)
+    if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(surface_info.userdata))
     {
-        surface_info.titlebar.destroy_surface();
-        tools->forget(surface_info.titlebar);
+        titlebar->surface.destroy_surface();
+        tools->forget(titlebar->surface);
     }
 
     auto& surfaces = tools->info_for(session).surfaces;
@@ -483,35 +606,35 @@ auto me::CanonicalWindowManagerPolicy::handle_set_state(SurfaceInfo& surface_inf
     case mir_surface_state_restored:
         movement = surface_info.restore_rect.top_left - old_pos;
         surface_info.surface.resize(surface_info.restore_rect.size);
-        if (surface_info.titlebar)
+        if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(surface_info.userdata))
         {
-            surface_info.titlebar.resize(titlebar_size_for_window(surface_info.restore_rect.size));
-            surface_info.titlebar.show();
+            titlebar->surface.resize(titlebar_size_for_window(surface_info.restore_rect.size));
+            titlebar->surface.show();
         }
         break;
 
     case mir_surface_state_maximized:
         movement = display_area.top_left - old_pos;
         surface_info.surface.resize(display_area.size);
-        if (surface_info.titlebar)
-            surface_info.titlebar.hide();
+        if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(surface_info.userdata))
+            titlebar->surface.hide();
         break;
 
     case mir_surface_state_horizmaximized:
         movement = Point{display_area.top_left.x, surface_info.restore_rect.top_left.y} - old_pos;
         surface_info.surface.resize({display_area.size.width, surface_info.restore_rect.size.height});
-        if (surface_info.titlebar)
+        if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(surface_info.userdata))
         {
-            surface_info.titlebar.resize(titlebar_size_for_window({display_area.size.width, surface_info.restore_rect.size.height}));
-            surface_info.titlebar.show();
+            titlebar->surface.resize(titlebar_size_for_window({display_area.size.width, surface_info.restore_rect.size.height}));
+            titlebar->surface.show();
         }
         break;
 
     case mir_surface_state_vertmaximized:
         movement = Point{surface_info.restore_rect.top_left.x, display_area.top_left.y} - old_pos;
         surface_info.surface.resize({surface_info.restore_rect.size.width, display_area.size.height});
-        if (surface_info.titlebar)
-            surface_info.titlebar.hide();
+        if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(surface_info.userdata))
+            titlebar->surface.hide();
         break;
 
     case mir_surface_state_fullscreen:
@@ -534,8 +657,8 @@ auto me::CanonicalWindowManagerPolicy::handle_set_state(SurfaceInfo& surface_inf
 
     case mir_surface_state_hidden:
     case mir_surface_state_minimized:
-        if (surface_info.titlebar)
-            surface_info.titlebar.hide();
+        if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(surface_info.userdata))
+            titlebar->surface.hide();
         surface_info.surface.hide();
         return surface_info.state = value;
 
@@ -726,12 +849,16 @@ bool me::CanonicalWindowManagerPolicy::handle_pointer_event(MirPointerEvent cons
     {
         if (mir_pointer_event_button_state(event, mir_pointer_button_primary))
         {
+            // TODO this is a rather roundabout way to detect a titlebar
             if (auto const possible_titlebar = tools->surface_at(old_cursor))
             {
-                if (tools->info_for(possible_titlebar).is_titlebar)
+                if (auto const parent = tools->info_for(possible_titlebar).parent)
                 {
-                    drag(cursor);
-                    consumes_event = true;
+                    if (std::static_pointer_cast<CanonicalWindowManagementPolicyData>(tools->info_for(parent).userdata))
+                    {
+                        drag(cursor);
+                        consumes_event = true;
+                    }
                 }
             }
         }
@@ -765,9 +892,9 @@ void me::CanonicalWindowManagerPolicy::select_active_surface(std::shared_ptr<ms:
         if (auto const active_surface = active_surface_.lock())
         {
             auto& info = tools->info_for(active_surface);
-            if (info.titlebar)
+            if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(info.userdata))
             {
-                tools->info_for(info.titlebar).paint_titlebar(0x3F);
+                titlebar->paint_titlebar(0x3F);
             }
         }
 
@@ -785,15 +912,15 @@ void me::CanonicalWindowManagerPolicy::select_active_surface(std::shared_ptr<ms:
         if (auto const active_surface = active_surface_.lock())
         {
             auto& info = tools->info_for(active_surface);
-            if (info.titlebar)
+            if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(info.userdata))
             {
-                tools->info_for(info.titlebar).paint_titlebar(0x3F);
+                titlebar->paint_titlebar(0x3F);
             }
         }
         auto& info = tools->info_for(surface);
-        if (info.titlebar)
+        if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(info.userdata))
         {
-            tools->info_for(info.titlebar).paint_titlebar(0xFF);
+            titlebar->paint_titlebar(0xFF);
         }
         tools->set_focus_to(info_for.surface);
         tools->raise_tree(surface);
@@ -866,8 +993,8 @@ void me::CanonicalWindowManagerPolicy::apply_resize(SurfaceInfo& surface_info, P
 {
     surface_info.constrain_resize(new_pos, new_size);
 
-    if (surface_info.titlebar)
-        surface_info.titlebar.resize({new_size.width, Height{title_bar_height}});
+    if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(surface_info.userdata))
+        titlebar->surface.resize({new_size.width, Height{title_bar_height}});
 
     surface_info.surface.resize(new_size);
 
@@ -879,14 +1006,17 @@ bool me::CanonicalWindowManagerPolicy::drag(std::shared_ptr<ms::Surface> surface
     if (!surface)
         return false;
 
-    if (!surface->input_area_contains(from) && !tools->info_for(surface).titlebar)
+    auto const& surface_info = tools->info_for(surface);
+
+    if (!surface->input_area_contains(from) &&
+        !std::static_pointer_cast<CanonicalWindowManagementPolicyData>(surface_info.userdata))
         return false;
 
     auto movement = to - from;
 
     // placeholder - constrain onscreen
 
-    switch (tools->info_for(surface).state)
+    switch (surface_info.state)
     {
     case mir_surface_state_restored:
         break;
