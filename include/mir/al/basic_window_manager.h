@@ -19,6 +19,7 @@
 #ifndef MIR_ABSTRACTION_BASIC_WINDOW_MANAGER_H_
 #define MIR_ABSTRACTION_BASIC_WINDOW_MANAGER_H_
 
+#include "miral/window_management_policy.h"
 #include "miral/surface_info.h"
 #include "miral/session_info.h"
 
@@ -39,6 +40,7 @@ using shell::SurfaceSet;
 using ::miral::Surface;
 using ::miral::SurfaceInfo;
 using ::miral::SessionInfo;
+using ::miral::WindowManagementPolicy;
 
 /// The interface through which the policy instructs the controller.
 /// These functions assume that the BasicWindowManager data structures can be accessed freely.
@@ -46,9 +48,6 @@ using ::miral::SessionInfo;
 class WindowManagerTools
 {
 public:
-    using SurfaceInfoMap = std::map<std::weak_ptr<scene::Surface>, SurfaceInfo, std::owner_less<std::weak_ptr<scene::Surface>>>;
-    using SessionInfoMap = std::map<std::weak_ptr<scene::Session>, SessionInfo, std::owner_less<std::weak_ptr<scene::Session>>>;
-
     virtual auto build_surface(std::shared_ptr<scene::Session> const& session, scene::SurfaceCreationParameters const& parameters)
     -> SurfaceInfo& = 0;
 
@@ -88,45 +87,6 @@ public:
     WindowManagerTools& operator=(WindowManagerTools const&) = delete;
 };
 
-class WindowManagementPolicy
-{
-public:
-    using SessionInfoMap = typename WindowManagerTools::SessionInfoMap;
-    using SurfaceInfoMap = typename WindowManagerTools::SurfaceInfoMap;
-
-    virtual void handle_session_info_updated(SessionInfoMap& session_info, geometry::Rectangles const& displays) = 0;
-
-    virtual void handle_displays_updated(SessionInfoMap& session_info, geometry::Rectangles const& displays) = 0;
-
-    virtual auto handle_place_new_surface(
-        std::shared_ptr<scene::Session> const& session,
-        scene::SurfaceCreationParameters const& request_parameters)
-        -> scene::SurfaceCreationParameters = 0;
-
-    virtual void handle_new_surface(SurfaceInfo& surface_info) = 0;
-
-    virtual void handle_modify_surface(SurfaceInfo& surface_info, shell::SurfaceSpecification const& modifications) = 0;
-
-    virtual void handle_delete_surface(SurfaceInfo& surface_info) = 0;
-
-    virtual auto handle_set_state(SurfaceInfo& surface_info, MirSurfaceState value) -> MirSurfaceState = 0;
-
-    virtual void generate_decorations_for(SurfaceInfo& surface_info) = 0;
-
-    virtual bool handle_keyboard_event(MirKeyboardEvent const* event) = 0;
-
-    virtual bool handle_touch_event(MirTouchEvent const* event) = 0;
-
-    virtual bool handle_pointer_event(MirPointerEvent const* event) = 0;
-
-    virtual void handle_raise_surface(SurfaceInfo& surface_info) = 0;
-
-    virtual ~WindowManagementPolicy() = default;
-    WindowManagementPolicy() = default;
-    WindowManagementPolicy(WindowManagementPolicy const&) = delete;
-    WindowManagementPolicy& operator=(WindowManagementPolicy const&) = delete;
-};
-
 /// A policy based window manager.
 /// This takes care of the management of any meta implementation held for the sessions and surfaces.
 class BasicWindowManager : public virtual shell::WindowManager,
@@ -138,9 +98,6 @@ protected:
         std::unique_ptr<WindowManagementPolicy> policy);
 
 public:
-    using typename WindowManagerTools::SurfaceInfoMap;
-    using typename WindowManagerTools::SessionInfoMap;
-
     auto build_surface(std::shared_ptr<scene::Session> const& session, scene::SurfaceCreationParameters const& parameters)
     -> SurfaceInfo& override;
 
@@ -214,6 +171,9 @@ public:
     void raise_tree(std::shared_ptr<scene::Surface> const& root) override;
 
 private:
+    using SurfaceInfoMap = std::map<std::weak_ptr<scene::Surface>, SurfaceInfo, std::owner_less<std::weak_ptr<scene::Surface>>>;
+    using SessionInfoMap = std::map<std::weak_ptr<scene::Session>, SessionInfo, std::owner_less<std::weak_ptr<scene::Session>>>;
+
     shell::FocusController* const focus_controller;
     std::unique_ptr<WindowManagementPolicy> const policy;
 

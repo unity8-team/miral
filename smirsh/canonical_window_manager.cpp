@@ -188,11 +188,11 @@ void me::CanonicalWindowManagerPolicy::click(Point cursor)
         select_active_surface(surface);
 }
 
-void me::CanonicalWindowManagerPolicy::handle_session_info_updated(SessionInfoMap& /*session_info*/, Rectangles const& /*displays*/)
+void me::CanonicalWindowManagerPolicy::handle_session_info_updated(Rectangles const& /*displays*/)
 {
 }
 
-void me::CanonicalWindowManagerPolicy::handle_displays_updated(SessionInfoMap& /*session_info*/, Rectangles const& displays)
+void me::CanonicalWindowManagerPolicy::handle_displays_updated(Rectangles const& displays)
 {
     display_area = displays.bounding_rectangle();
 

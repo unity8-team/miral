@@ -66,12 +66,12 @@ void me::TilingWindowManagerPolicy::click(Point cursor)
     select_active_surface(session, surface);
 }
 
-void me::TilingWindowManagerPolicy::handle_session_info_updated(SessionInfoMap& /*session_info*/, Rectangles const& displays)
+void me::TilingWindowManagerPolicy::handle_session_info_updated(Rectangles const& displays)
 {
     update_tiles(displays);
 }
 
-void me::TilingWindowManagerPolicy::handle_displays_updated(SessionInfoMap& /*session_info*/, Rectangles const& displays)
+void me::TilingWindowManagerPolicy::handle_displays_updated(Rectangles const& displays)
 {
     update_tiles(displays);
 }

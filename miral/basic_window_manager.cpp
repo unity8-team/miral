@@ -48,14 +48,14 @@ void ma::BasicWindowManager::add_session(std::shared_ptr<scene::Session> const& 
 {
     std::lock_guard<decltype(mutex)> lock(mutex);
     session_info[session] = SessionInfo();
-    policy->handle_session_info_updated(session_info, displays);
+    policy->handle_session_info_updated(displays);
 }
 
 void ma::BasicWindowManager::remove_session(std::shared_ptr<scene::Session> const& session)
 {
     std::lock_guard<decltype(mutex)> lock(mutex);
     session_info.erase(session);
-    policy->handle_session_info_updated(session_info, displays);
+    policy->handle_session_info_updated(displays);
 }
 
 auto ma::BasicWindowManager::add_surface(
@@ -105,14 +105,14 @@ void ma::BasicWindowManager::add_display(geometry::Rectangle const& area)
 {
     std::lock_guard<decltype(mutex)> lock(mutex);
     displays.add(area);
-    policy->handle_displays_updated(session_info, displays);
+    policy->handle_displays_updated(displays);
 }
 
 void ma::BasicWindowManager::remove_display(geometry::Rectangle const& area)
 {
     std::lock_guard<decltype(mutex)> lock(mutex);
     displays.remove(area);
-    policy->handle_displays_updated(session_info, displays);
+    policy->handle_displays_updated(displays);
 }
 
 bool ma::BasicWindowManager::handle_keyboard_event(MirKeyboardEvent const* event)

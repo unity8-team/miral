@@ -51,9 +51,9 @@ public:
         WindowManagerTools* const tools,
         std::shared_ptr<shell::DisplayLayout> const& display_layout);
 
-    void handle_session_info_updated(SessionInfoMap& session_info, geometry::Rectangles const& displays);
+    void handle_session_info_updated(geometry::Rectangles const& displays) override;
 
-    void handle_displays_updated(SessionInfoMap& session_info, geometry::Rectangles const& displays);
+    void handle_displays_updated(geometry::Rectangles const& displays) override;
 
     auto handle_place_new_surface(
         std::shared_ptr<scene::Session> const& session,
