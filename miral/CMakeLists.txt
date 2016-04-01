@@ -5,6 +5,7 @@ add_library(miral SHARED
     runner.cpp                        ${CMAKE_SOURCE_DIR}/include/miral/runner.h
     display_configuration_option.cpp  ${CMAKE_SOURCE_DIR}/include/miral/display_configuration_option.h
     input_event_filter.cpp            input_event_filter.h
+    ${CMAKE_SOURCE_DIR}/include/miral/session_info.h
 )
 
 target_link_libraries(miral

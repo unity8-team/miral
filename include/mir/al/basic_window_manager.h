@@ -52,6 +52,10 @@ public:
     virtual auto build_surface(std::shared_ptr<scene::Session> const& session, scene::SurfaceCreationParameters const& parameters)
     -> SurfaceInfo& = 0;
 
+    virtual auto count_sessions() const -> unsigned int = 0;
+
+    virtual void for_each_session(std::function<void(SessionInfo& info)> const& functor) = 0;
+
     virtual auto find_session(std::function<bool(SessionInfo const& info)> const& predicate)
     -> std::shared_ptr<scene::Session> = 0;
 
@@ -181,6 +185,10 @@ public:
         std::shared_ptr<scene::Surface> const& surface,
         MirSurfaceAttrib attrib,
         int value) override;
+
+    auto count_sessions() const -> unsigned int override;
+
+    void for_each_session(std::function<void(SessionInfo& info)> const& functor) override;
 
     auto find_session(std::function<bool(SessionInfo const& info)> const& predicate)
     -> std::shared_ptr<scene::Session> override;

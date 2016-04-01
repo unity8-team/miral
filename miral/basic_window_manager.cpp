@@ -170,19 +170,34 @@ int ma::BasicWindowManager::set_surface_attribute(
     }
 }
 
+auto ma::BasicWindowManager::count_sessions() const
+-> unsigned int
+{
+    return session_info.size();
+}
+
+
+void ma::BasicWindowManager::for_each_session(std::function<void(SessionInfo& info)> const& functor)
+{
+    for(auto& info : session_info)
+    {
+        functor(info.second);
+    }
+}
+
 auto ma::BasicWindowManager::find_session(std::function<bool(SessionInfo const& info)> const& predicate)
 -> std::shared_ptr<scene::Session>
+{
+    for(auto& info : session_info)
     {
-        for(auto& info : session_info)
+        if (predicate(info.second))
         {
-            if (predicate(info.second))
-            {
-                return info.first.lock();
-            }
+            return info.first.lock();
         }
-
-        return std::shared_ptr<scene::Session>{};
     }
+
+    return std::shared_ptr<scene::Session>{};
+}
 
 auto ma::BasicWindowManager::info_for(std::weak_ptr<scene::Session> const& session) const
 -> SessionInfo&

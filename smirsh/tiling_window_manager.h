@@ -84,11 +84,9 @@ private:
 
     std::shared_ptr<scene::Session> session_under(geometry::Point position);
 
-    void update_tiles(
-        SessionInfoMap& session_info,
-        geometry::Rectangles const& displays);
+    void update_tiles(geometry::Rectangles const& displays);
 
-    void update_surfaces(std::weak_ptr<scene::Session> const& session, geometry::Rectangle const& old_tile, geometry::Rectangle const& new_tile);
+    void update_surfaces(SessionInfo& info, geometry::Rectangle const& old_tile, geometry::Rectangle const& new_tile);
 
     static void clip_to_tile(scene::SurfaceCreationParameters& parameters, geometry::Rectangle const& tile);
 

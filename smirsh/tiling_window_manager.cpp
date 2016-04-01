@@ -66,14 +66,14 @@ void me::TilingWindowManagerPolicy::click(Point cursor)
     select_active_surface(session, surface);
 }
 
-void me::TilingWindowManagerPolicy::handle_session_info_updated(SessionInfoMap& session_info, Rectangles const& displays)
+void me::TilingWindowManagerPolicy::handle_session_info_updated(SessionInfoMap& /*session_info*/, Rectangles const& displays)
 {
-    update_tiles(session_info, displays);
+    update_tiles(displays);
 }
 
-void me::TilingWindowManagerPolicy::handle_displays_updated(SessionInfoMap& session_info, Rectangles const& displays)
+void me::TilingWindowManagerPolicy::handle_displays_updated(SessionInfoMap& /*session_info*/, Rectangles const& displays)
 {
-    update_tiles(session_info, displays);
+    update_tiles(displays);
 }
 
 void me::TilingWindowManagerPolicy::resize(Point cursor)
@@ -482,13 +482,11 @@ std::shared_ptr<ms::Session> me::TilingWindowManagerPolicy::session_under(Point 
     return tools->find_session([&](SessionInfo const& info) { return tile_for(info).contains(position);});
 }
 
-void me::TilingWindowManagerPolicy::update_tiles(
-    SessionInfoMap& session_info,
-    Rectangles const& displays)
+void me::TilingWindowManagerPolicy::update_tiles(Rectangles const& displays)
 {
-    if (session_info.size() < 1 || displays.size() < 1) return;
+    auto const sessions = tools->count_sessions();
 
-    auto const sessions = session_info.size();
+    if (sessions < 1 || displays.size() < 1) return;
 
     auto const bounding_rect = displays.bounding_rectangle();
 
@@ -497,12 +495,12 @@ void me::TilingWindowManagerPolicy::update_tiles(
 
     auto index = 0;
 
-    for (auto& info : session_info)
+    tools->for_each_session([&](SessionInfo& info)
     {
-        if (!info.second.userdata)
-            info.second.userdata = std::make_shared<TilingWindowManagerPolicyData>();
+        if (!info.userdata)
+            info.userdata = std::make_shared<TilingWindowManagerPolicyData>();
 
-        auto& tile = tile_for(info.second);
+        auto& tile = tile_for(info);
 
         auto const x = (total_width*index)/sessions;
         ++index;
@@ -511,16 +509,15 @@ void me::TilingWindowManagerPolicy::update_tiles(
         auto const old_tile = tile;
         Rectangle const new_tile{{x, 0}, {dx, total_height}};
 
-        update_surfaces(info.first, old_tile, new_tile);
+        update_surfaces(info, old_tile, new_tile);
 
         tile = new_tile;
-    }
+    });
 }
 
-void me::TilingWindowManagerPolicy::update_surfaces(std::weak_ptr<ms::Session> const& session, Rectangle const& old_tile, Rectangle const& new_tile)
+void me::TilingWindowManagerPolicy::update_surfaces(SessionInfo& info, Rectangle const& old_tile, Rectangle const& new_tile)
 {
     auto displacement = new_tile.top_left - old_tile.top_left;
-    auto& info = tools->info_for(session);
 
     for (auto const& ps : info.surfaces)
     {
