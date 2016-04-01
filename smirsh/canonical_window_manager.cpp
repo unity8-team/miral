@@ -515,7 +515,7 @@ void me::CanonicalWindowManagerPolicy::handle_modify_surface(
 void me::CanonicalWindowManagerPolicy::handle_delete_surface(SurfaceInfo& surface_info)
 {
     std::shared_ptr<ms::Session> const session{surface_info.surface.session()};
-    auto const& surface{surface_info.surface};
+    auto& surface{surface_info.surface};
 
     fullscreen_surfaces.erase(surface);
 
@@ -533,8 +533,6 @@ void me::CanonicalWindowManagerPolicy::handle_delete_surface(SurfaceInfo& surfac
         }
     }
 
-    surface_info.surface.destroy_surface();
-
     if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(surface_info.userdata))
     {
         titlebar->surface.destroy_surface();
@@ -551,6 +549,8 @@ void me::CanonicalWindowManagerPolicy::handle_delete_surface(SurfaceInfo& surfac
             break;
         }
     }
+
+    surface.destroy_surface();
 
     if (surfaces.empty() && session == tools->focused_session())
     {
