@@ -62,7 +62,6 @@ public:
 
     virtual auto info_for(std::weak_ptr<scene::Session> const& session) const -> SessionInfo& = 0;
 
-    //TODO remove this overload
     virtual auto info_for(std::weak_ptr<scene::Surface> const& surface) const -> SurfaceInfo& = 0;
 
     virtual auto info_for(Surface const& surface) const -> SurfaceInfo& = 0;
