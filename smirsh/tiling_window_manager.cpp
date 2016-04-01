@@ -335,13 +335,13 @@ bool me::TilingWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const
             switch (modifiers & modifier_mask)
             {
             case mir_input_event_modifier_alt:
-                kill(session->process_id(), SIGTERM);
+                kill(session.process_id(), SIGTERM);
                 return true;
 
             case mir_input_event_modifier_ctrl:
-                if (auto const surf = session->default_surface())
+                if (auto const surf = session.default_surface())
                 {
-                    surf->request_client_surface_close();
+                    surf.request_client_surface_close();
                     return true;
                 }
 
@@ -366,7 +366,7 @@ bool me::TilingWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const
         if (auto const prev = tools->focused_surface())
         {
             if (auto const app = tools->focused_session())
-                if (auto const surface = app->surface_after(prev))
+                if (auto const surface = app.surface_after(prev))
                 {
                     select_active_surface(app, tools->info_for(surface).surface);
                 }
@@ -467,13 +467,13 @@ void me::TilingWindowManagerPolicy::toggle(MirSurfaceState state)
 {
     if (auto const session = tools->focused_session())
     {
-        if (auto const surface = session->default_surface())
+        if (auto surface = session.default_surface())
         {
-            if (surface->state() == state)
+            if (surface.state() == state)
                 state = mir_surface_state_restored;
 
             auto const value = handle_set_state(tools->info_for(surface), state);
-            surface->configure(mir_surface_attrib_state, value);
+            surface.configure(mir_surface_attrib_state, value);
         }
     }
 }

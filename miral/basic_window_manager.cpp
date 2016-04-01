@@ -218,9 +218,9 @@ auto ma::BasicWindowManager::info_for(Surface const& surface) const
 }
 
 auto ma::BasicWindowManager::focused_session() const
--> std::shared_ptr<scene::Session>
+-> Session
 {
-    return focus_controller->focused_session();
+    return Session{this, focus_controller->focused_session() };
 }
 
 auto ma::BasicWindowManager::focused_surface() const

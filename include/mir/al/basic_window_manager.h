@@ -21,6 +21,7 @@
 
 #include "miral/window_management_policy.h"
 #include "miral/surface_info.h"
+#include "miral/session.h"
 #include "miral/session_info.h"
 
 #include "mir/geometry/rectangles.h"
@@ -38,6 +39,7 @@ namespace al
 {
 using shell::SurfaceSet;
 using ::miral::Surface;
+using ::miral::Session;
 using ::miral::SurfaceInfo;
 using ::miral::SessionInfo;
 using ::miral::WindowManagementPolicy;
@@ -65,7 +67,7 @@ public:
 
     virtual auto info_for(Surface const& surface) const -> SurfaceInfo& = 0;
 
-    virtual std::shared_ptr<scene::Session> focused_session() const = 0;
+    virtual auto focused_session() const -> Session = 0;
 
     virtual auto focused_surface() const -> Surface = 0;
 
@@ -156,7 +158,7 @@ public:
 
     auto info_for(Surface const& surface) const -> SurfaceInfo& override;
 
-    std::shared_ptr<scene::Session> focused_session() const override;
+    auto focused_session() const -> Session override;
 
     auto focused_surface() const -> Surface override;
 

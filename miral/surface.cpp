@@ -102,6 +102,20 @@ void miral::Surface::reset()
     self.reset();
 }
 
+void miral::Surface::configure(MirSurfaceAttrib attrib, int value)
+{
+    if (!self) return;
+    if (auto const surface = self->surface.lock())
+        surface->configure(attrib, value);
+}
+
+void miral::Surface::request_client_surface_close() const
+{
+    if (!self) return;
+    if (auto const surface = self->surface.lock())
+        surface->request_client_surface_close();
+}
+
 auto miral::Surface::type() const
 -> MirSurfaceType
 {
@@ -198,5 +212,3 @@ bool miral::operator==(Surface const& lhs, std::shared_ptr<mir::scene::Surface> 
 {
     return rhs == lhs;
 }
-
-

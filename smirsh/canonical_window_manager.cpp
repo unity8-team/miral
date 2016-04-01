@@ -723,13 +723,13 @@ bool me::CanonicalWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent co
             switch (modifiers)
             {
             case mir_input_event_modifier_alt:
-                kill(session->process_id(), SIGTERM);
+                kill(session.process_id(), SIGTERM);
                 return true;
 
             case mir_input_event_modifier_ctrl:
-                if (auto const surf = session->default_surface())
+                if (auto const surf = session.default_surface())
                 {
-                    surf->request_client_surface_close();
+                    surf.request_client_surface_close();
                     return true;
                 }
 
@@ -755,7 +755,7 @@ bool me::CanonicalWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent co
         if (auto const prev = tools->focused_surface())
         {
             if (auto const app = tools->focused_session())
-                select_active_surface(app->surface_after(prev));
+                select_active_surface(app.surface_after(prev));
         }
 
         return true;
@@ -942,7 +942,7 @@ auto me::CanonicalWindowManagerPolicy::active_surface() const
 
     if (auto const session = tools->focused_session())
     {
-        if (auto const surface = session->default_surface())
+        if (auto const surface = session.default_surface())
             return surface;
     }
 

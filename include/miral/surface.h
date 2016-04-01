@@ -59,9 +59,12 @@ public:
     void show();
     void hide();
     void rename(std::string const& name);
+    void configure(MirSurfaceAttrib attrib, int value);
 
     void destroy_surface();
     void reset();
+
+    void request_client_surface_close() const;
 
     // TODO remove this conversion which is convenient to maintain stable intermediate forms
     operator std::weak_ptr<mir::scene::Surface>() const;

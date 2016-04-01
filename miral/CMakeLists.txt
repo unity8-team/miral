@@ -7,7 +7,7 @@ add_library(miral SHARED
     input_event_filter.cpp            input_event_filter.h
     ${CMAKE_SOURCE_DIR}/include/miral/session_info.h
     ${CMAKE_SOURCE_DIR}/include/miral/window_management_policy.h
-)
+        session.cpp ../include/miral/session.h)
 
 target_link_libraries(miral
     ${MIRSERVER_LDFLAGS}
