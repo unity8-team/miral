@@ -60,6 +60,7 @@ public:
     void hide();
     void rename(std::string const& name);
     void configure(MirSurfaceAttrib attrib, int value);
+    void move_to(mir::geometry::Point top_left);
 
     void destroy_surface();
     void reset();

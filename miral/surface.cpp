@@ -109,6 +109,13 @@ void miral::Surface::configure(MirSurfaceAttrib attrib, int value)
         surface->configure(attrib, value);
 }
 
+void miral::Surface::move_to(mir::geometry::Point top_left)
+{
+    if (!self) return;
+    if (auto const surface = self->surface.lock())
+        surface->move_to(top_left);
+}
+
 void miral::Surface::request_client_surface_close() const
 {
     if (!self) return;

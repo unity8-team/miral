@@ -18,7 +18,7 @@
 
 #include "miral/session.h"
 #include "miral/surface.h"
-#include "mir/al/basic_window_manager.h" // TODO extract WindowManagerTools
+#include "mir/al/basic_window_manager.h"
 
 #include "mir/scene/session.h"
 

@@ -628,8 +628,8 @@ void me::TilingWindowManagerPolicy::resize(std::shared_ptr<ms::Surface> surface,
     }
 }
 
-std::shared_ptr<ms::Surface> me::TilingWindowManagerPolicy::select_active_surface(
-    std::shared_ptr<ms::Session> const& session, Surface const& surface)
+auto me::TilingWindowManagerPolicy::select_active_surface(
+    std::shared_ptr<ms::Session> const& session, Surface const& surface) -> Surface
 {
     if (!surface)
     {

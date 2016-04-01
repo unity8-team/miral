@@ -196,16 +196,16 @@ void me::CanonicalWindowManagerPolicy::handle_displays_updated(Rectangles const&
 {
     display_area = displays.bounding_rectangle();
 
-    for (auto const weak_surface : fullscreen_surfaces)
+    for (auto surface : fullscreen_surfaces)
     {
-        if (auto const surface = weak_surface.lock())
+        if (surface)
         {
-            auto const& info = tools->info_for(weak_surface);
-            Rectangle rect{surface->top_left(), surface->size()};
+            auto const& info = tools->info_for(surface);
+            Rectangle rect{surface.top_left(), surface.size()};
 
             display_layout->place_in_output(info.output_id.value(), rect);
-            surface->move_to(rect.top_left);
-            surface->resize(rect.size);
+            surface.move_to(rect.top_left);
+            surface.resize(rect.size);
         }
     }
 }
@@ -413,7 +413,7 @@ void me::CanonicalWindowManagerPolicy::handle_new_surface(SurfaceInfo& surface_i
     }
 
     if (surface_info.state == mir_surface_state_fullscreen)
-        fullscreen_surfaces.insert(surface);
+        fullscreen_surfaces.insert(surface_info.surface);
 }
 
 void me::CanonicalWindowManagerPolicy::handle_modify_surface(
@@ -515,7 +515,7 @@ void me::CanonicalWindowManagerPolicy::handle_modify_surface(
 void me::CanonicalWindowManagerPolicy::handle_delete_surface(SurfaceInfo& surface_info)
 {
     std::shared_ptr<ms::Session> const session{surface_info.surface.session()};
-    std::shared_ptr<ms::Surface> const surface{surface_info.surface};
+    auto const& surface{surface_info.surface};
 
     fullscreen_surfaces.erase(surface);
 

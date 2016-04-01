@@ -107,7 +107,7 @@ private:
     geometry::Rectangle display_area;
     geometry::Point old_cursor{};
     std::weak_ptr<scene::Surface> active_surface_;
-    using FullscreenSurfaces = std::set<std::weak_ptr<scene::Surface>, std::owner_less<std::weak_ptr<scene::Surface>>>;
+    using FullscreenSurfaces = std::set<Surface>;
 
     FullscreenSurfaces fullscreen_surfaces;
 };
