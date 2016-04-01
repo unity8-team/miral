@@ -398,7 +398,7 @@ void me::CanonicalWindowManagerPolicy::handle_new_surface(SurfaceInfo& surface_i
         tools->info_for(parent).children.push_back(surface_info.surface);
     }
 
-    tools->info_for(session).surfaces.push_back(surface);
+    tools->info_for(session).surfaces.push_back(surface_info.surface);
 
     if (surface_info.can_be_active())
     {
@@ -545,7 +545,7 @@ void me::CanonicalWindowManagerPolicy::handle_delete_surface(SurfaceInfo& surfac
 
     for (auto i = begin(surfaces); i != end(surfaces); ++i)
     {
-        if (surface == i->lock())
+        if (surface == *i)
         {
             surfaces.erase(i);
             break;

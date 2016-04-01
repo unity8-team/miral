@@ -162,7 +162,7 @@ void me::TilingWindowManagerPolicy::handle_new_surface(SurfaceInfo& surface_info
     std::shared_ptr<scene::Surface> const surface = surface_info.surface;
     auto const session = surface_info.surface.session();
 
-    tools->info_for(session).surfaces.push_back(surface);
+    tools->info_for(session).surfaces.push_back(surface_info.surface);
 
     if (auto const parent = surface_info.parent)
     {
@@ -210,7 +210,7 @@ void me::TilingWindowManagerPolicy::handle_delete_surface(SurfaceInfo& surface_i
 
     for (auto i = begin(surfaces); i != end(surfaces); ++i)
     {
-        if (surface == i->lock())
+        if (surface == *i)
         {
             surfaces.erase(i);
             break;
@@ -524,7 +524,7 @@ void me::TilingWindowManagerPolicy::update_surfaces(std::weak_ptr<ms::Session> c
 
     for (auto const& ps : info.surfaces)
     {
-        if (auto const surface = ps.lock())
+        if (std::shared_ptr<mir::scene::Surface> const surface = ps)
         {
             auto const old_pos = surface->top_left();
             surface->move_to(old_pos + displacement);

@@ -16,30 +16,28 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#ifndef MIR_ABSTRACTION_WINDOW_MANAGEMENT_INFO_H
-#define MIR_ABSTRACTION_WINDOW_MANAGEMENT_INFO_H
+#ifndef MIRAL_SESSION_INFO_H
+#define MIRAL_SESSION_INFO_H
 
 #include "miral/surface.h"
 
 #include <vector>
 
-namespace miral { class Surface; }
 
 namespace mir
 {
 namespace scene { class Session; class SurfaceCreationParameters; }
-namespace al
-{
-using ::miral::Surface;
+}
 
+namespace miral
+{
 struct SessionInfo
 {
-    std::vector<std::weak_ptr<scene::Surface>> surfaces;
+    std::vector<Surface> surfaces;
 
     /// This can be used by client code to store window manager specific information
     std::shared_ptr<void> userdata;
 };
 }
-}
 
-#endif //MIR_ABSTRACTION_WINDOW_MANAGEMENT_INFO_H
+#endif //MIRAL_SESSION_INFO_H
