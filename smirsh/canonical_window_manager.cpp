@@ -17,6 +17,7 @@
  */
 
 #include "canonical_window_manager.h"
+#include "canonical_window_management_policy_data.h"
 
 #include "miral/session.h"
 #include "miral/window_manager_tools.h"
@@ -27,9 +28,8 @@
 #include <linux/input.h>
 #include <csignal>
 
-namespace me = mir::examples;
 namespace ms = mir::scene;
-using namespace mir::geometry;
+using namespace miral;
 
 // Based on "Mir and Unity: Surfaces, input, and displays (v0.3)"
 
@@ -48,40 +48,24 @@ Point titlebar_position_for_window(Point window_position)
         window_position.y - DeltaY(title_bar_height)
     };
 }
-
-class CanonicalWindowManagementPolicyData
-{
-public:
-    CanonicalWindowManagementPolicyData(miral::Surface surface) : surface{surface} {}
-    void paint_titlebar(int intensity);
-
-    miral::Surface surface;
-
-private:
-    struct StreamPainter;
-    struct AllocatingPainter;
-    struct SwappingPainter;
-
-    std::shared_ptr <StreamPainter> stream_painter;
-};
 }
 
-me::CanonicalWindowManagerPolicy::CanonicalWindowManagerPolicy(WindowManagerTools* const tools) :
+CanonicalWindowManagerPolicy::CanonicalWindowManagerPolicy(WindowManagerTools* const tools) :
     tools{tools}
 {
 }
 
-void me::CanonicalWindowManagerPolicy::click(Point cursor)
+void CanonicalWindowManagerPolicy::click(Point cursor)
 {
     if (auto const surface = tools->surface_at(cursor))
         select_active_surface(surface);
 }
 
-void me::CanonicalWindowManagerPolicy::handle_session_info_updated(Rectangles const& /*displays*/)
+void CanonicalWindowManagerPolicy::handle_session_info_updated(Rectangles const& /*displays*/)
 {
 }
 
-void me::CanonicalWindowManagerPolicy::handle_displays_updated(Rectangles const& displays)
+void CanonicalWindowManagerPolicy::handle_displays_updated(Rectangles const& displays)
 {
     display_area = displays.bounding_rectangle();
 
@@ -99,13 +83,13 @@ void me::CanonicalWindowManagerPolicy::handle_displays_updated(Rectangles const&
     }
 }
 
-void me::CanonicalWindowManagerPolicy::resize(Point cursor)
+void CanonicalWindowManagerPolicy::resize(Point cursor)
 {
     select_active_surface(tools->surface_at(old_cursor));
     resize(active_surface(), cursor, old_cursor);
 }
 
-auto me::CanonicalWindowManagerPolicy::handle_place_new_surface(
+auto CanonicalWindowManagerPolicy::handle_place_new_surface(
     SessionInfo const& session_info,
     ms::SurfaceCreationParameters const& request_parameters)
 -> ms::SurfaceCreationParameters
@@ -148,7 +132,7 @@ auto me::CanonicalWindowManagerPolicy::handle_place_new_surface(
 
                 parameters.top_left = default_surface.top_left() + offset;
 
-                geometry::Rectangle display_for_app{default_surface.top_left(), default_surface.size()};
+                Rectangle display_for_app{default_surface.top_left(), default_surface.size()};
 
                 tools->size_to_output(display_for_app);
 
@@ -255,7 +239,7 @@ auto me::CanonicalWindowManagerPolicy::handle_place_new_surface(
     return parameters;
 }
 
-void me::CanonicalWindowManagerPolicy::generate_decorations_for(SurfaceInfo& surface_info)
+void CanonicalWindowManagerPolicy::generate_decorations_for(SurfaceInfo& surface_info)
 {
     Surface const& surface = surface_info.surface;
 
@@ -280,7 +264,7 @@ void me::CanonicalWindowManagerPolicy::generate_decorations_for(SurfaceInfo& sur
     surface_info.children.push_back(titlebar_info.surface);
 }
 
-void me::CanonicalWindowManagerPolicy::handle_new_surface(SurfaceInfo& surface_info)
+void CanonicalWindowManagerPolicy::handle_new_surface(SurfaceInfo& surface_info)
 {
     auto const surface = surface_info.surface;
     auto const session = surface_info.surface.session();
@@ -296,17 +280,17 @@ void me::CanonicalWindowManagerPolicy::handle_new_surface(SurfaceInfo& surface_i
         fullscreen_surfaces.insert(surface_info.surface);
 }
 
-void me::CanonicalWindowManagerPolicy::handle_surface_ready(SurfaceInfo& surface_info)
+void CanonicalWindowManagerPolicy::handle_surface_ready(SurfaceInfo& surface_info)
 {
     select_active_surface(surface_info.surface);
 }
 
-void me::CanonicalWindowManagerPolicy::handle_modify_surface(
+void CanonicalWindowManagerPolicy::handle_modify_surface(
     SurfaceInfo& surface_info,
-    shell::SurfaceSpecification const& modifications)
+    mir::shell::SurfaceSpecification const& modifications)
 {
     auto surface_info_new = surface_info;
-    std::shared_ptr<scene::Surface> const surface{surface_info_new.surface};
+    std::shared_ptr<ms::Surface> const surface{surface_info_new.surface};
 
     if (modifications.parent.is_set())
         surface_info_new.parent = tools->info_for(modifications.parent.value()).surface;
@@ -395,7 +379,7 @@ void me::CanonicalWindowManagerPolicy::handle_modify_surface(
     }
 }
 
-void me::CanonicalWindowManagerPolicy::handle_delete_surface(SurfaceInfo& surface_info)
+void CanonicalWindowManagerPolicy::handle_delete_surface(SurfaceInfo& surface_info)
 {
     std::shared_ptr<ms::Session> const session{surface_info.surface.session()};
     auto& surface{surface_info.surface};
@@ -443,7 +427,7 @@ void me::CanonicalWindowManagerPolicy::handle_delete_surface(SurfaceInfo& surfac
     }
 }
 
-auto me::CanonicalWindowManagerPolicy::handle_set_state(SurfaceInfo& surface_info, MirSurfaceState value)
+auto CanonicalWindowManagerPolicy::handle_set_state(SurfaceInfo& surface_info, MirSurfaceState value)
 -> MirSurfaceState
 {
     switch (value)
@@ -562,18 +546,18 @@ auto me::CanonicalWindowManagerPolicy::handle_set_state(SurfaceInfo& surface_inf
     return surface_info.state;
 }
 
-void me::CanonicalWindowManagerPolicy::drag(Point cursor)
+void CanonicalWindowManagerPolicy::drag(Point cursor)
 {
     select_active_surface(tools->surface_at(old_cursor));
     drag(active_surface(), cursor, old_cursor, display_area);
 }
 
-void me::CanonicalWindowManagerPolicy::handle_raise_surface(SurfaceInfo& surface_info)
+void CanonicalWindowManagerPolicy::handle_raise_surface(SurfaceInfo& surface_info)
 {
     select_active_surface(surface_info.surface);
 }
 
-bool me::CanonicalWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* event)
+bool CanonicalWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* event)
 {
     auto const action = mir_keyboard_event_action(event);
     auto const scan_code = mir_keyboard_event_scan_code(event);
@@ -647,7 +631,7 @@ bool me::CanonicalWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent co
     return false;
 }
 
-bool me::CanonicalWindowManagerPolicy::handle_touch_event(MirTouchEvent const* event)
+bool CanonicalWindowManagerPolicy::handle_touch_event(MirTouchEvent const* event)
 {
     auto const count = mir_touch_event_point_count(event);
 
@@ -699,7 +683,7 @@ bool me::CanonicalWindowManagerPolicy::handle_touch_event(MirTouchEvent const* e
     return consumes_event;
 }
 
-bool me::CanonicalWindowManagerPolicy::handle_pointer_event(MirPointerEvent const* event)
+bool CanonicalWindowManagerPolicy::handle_pointer_event(MirPointerEvent const* event)
 {
     auto const action = mir_pointer_event_action(event);
     auto const modifiers = mir_pointer_event_modifiers(event) & modifier_mask;
@@ -751,7 +735,7 @@ bool me::CanonicalWindowManagerPolicy::handle_pointer_event(MirPointerEvent cons
     return consumes_event;
 }
 
-void me::CanonicalWindowManagerPolicy::toggle(MirSurfaceState state)
+void CanonicalWindowManagerPolicy::toggle(MirSurfaceState state)
 {
     if (auto surface = active_surface())
     {
@@ -765,7 +749,7 @@ void me::CanonicalWindowManagerPolicy::toggle(MirSurfaceState state)
     }
 }
 
-void me::CanonicalWindowManagerPolicy::select_active_surface(Surface const& surface)
+void CanonicalWindowManagerPolicy::select_active_surface(Surface const& surface)
 {
     if (surface == active_surface_)
         return;
@@ -817,7 +801,7 @@ void me::CanonicalWindowManagerPolicy::select_active_surface(Surface const& surf
     }
 }
 
-auto me::CanonicalWindowManagerPolicy::active_surface() const
+auto CanonicalWindowManagerPolicy::active_surface() const
 -> Surface
 {
     if (auto const surface = active_surface_)
@@ -832,7 +816,7 @@ auto me::CanonicalWindowManagerPolicy::active_surface() const
     return Surface{};
 }
 
-bool me::CanonicalWindowManagerPolicy::resize(Surface const& surface, Point cursor, Point old_cursor)
+bool CanonicalWindowManagerPolicy::resize(Surface const& surface, Point cursor, Point old_cursor)
 {
     if (!surface || !surface.input_area_contains(old_cursor))
         return false;
@@ -872,7 +856,7 @@ bool me::CanonicalWindowManagerPolicy::resize(Surface const& surface, Point curs
     return true;
 }
 
-void me::CanonicalWindowManagerPolicy::apply_resize(SurfaceInfo& surface_info, Point new_pos, Size new_size) const
+void CanonicalWindowManagerPolicy::apply_resize(SurfaceInfo& surface_info, Point new_pos, Size new_size) const
 {
     surface_info.constrain_resize(new_pos, new_size);
 
@@ -884,7 +868,7 @@ void me::CanonicalWindowManagerPolicy::apply_resize(SurfaceInfo& surface_info, P
     move_tree(surface_info, new_pos-surface_info.surface.top_left());
 }
 
-bool me::CanonicalWindowManagerPolicy::drag(Surface surface, Point to, Point from, Rectangle /*bounds*/)
+bool CanonicalWindowManagerPolicy::drag(Surface surface, Point to, Point from, Rectangle /*bounds*/)
 {
     if (!surface)
         return false;
@@ -930,7 +914,7 @@ bool me::CanonicalWindowManagerPolicy::drag(Surface surface, Point to, Point fro
     return true;
 }
 
-void me::CanonicalWindowManagerPolicy::move_tree(SurfaceInfo& root, Displacement movement) const
+void CanonicalWindowManagerPolicy::move_tree(SurfaceInfo& root, Displacement movement) const
 {
     root.surface.move_to(root.surface.top_left() + movement);
 
@@ -938,113 +922,4 @@ void me::CanonicalWindowManagerPolicy::move_tree(SurfaceInfo& root, Displacement
     {
         move_tree(tools->info_for(child), movement);
     }
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-// We need a better way to support painting stuff inside the window manager
-#include <mir/graphics/buffer.h>
-
-struct CanonicalWindowManagementPolicyData::StreamPainter
-{
-    virtual void paint(int) = 0;
-    virtual ~StreamPainter() = default;
-    StreamPainter() = default;
-    StreamPainter(StreamPainter const&) = delete;
-    StreamPainter& operator=(StreamPainter const&) = delete;
-};
-
-struct CanonicalWindowManagementPolicyData::SwappingPainter
-    : CanonicalWindowManagementPolicyData::StreamPainter
-{
-    SwappingPainter(std::shared_ptr<mir::frontend::BufferStream> const& buffer_stream) :
-        buffer_stream{buffer_stream}, buffer{nullptr}
-    {
-        swap_buffers();
-    }
-
-    void swap_buffers()
-    {
-        auto const callback = [this](mir::graphics::Buffer* new_buffer)
-            {
-            buffer.store(new_buffer);
-            };
-
-        buffer_stream->swap_buffers(buffer, callback);
-    }
-
-    void paint(int intensity) override
-    {
-        if (auto const buf = buffer.load())
-        {
-            auto const format = buffer_stream->pixel_format();
-            auto const sz = buf->size().height.as_int() *
-                            buf->size().width.as_int() * MIR_BYTES_PER_PIXEL(format);
-            std::vector<unsigned char> pixels(sz, intensity);
-            buf->write(pixels.data(), sz);
-            swap_buffers();
-        }
-    }
-
-    std::shared_ptr<mir::frontend::BufferStream> const buffer_stream;
-    std::atomic<mir::graphics::Buffer*> buffer;
-};
-
-struct CanonicalWindowManagementPolicyData::AllocatingPainter
-    : CanonicalWindowManagementPolicyData::StreamPainter
-{
-    AllocatingPainter(std::shared_ptr<mir::frontend::BufferStream> const& buffer_stream, Size size) :
-        buffer_stream(buffer_stream),
-        properties({
-                       size,
-                       buffer_stream->pixel_format(),
-                       mir::graphics::BufferUsage::software
-                   }),
-        front_buffer(buffer_stream->allocate_buffer(properties)),
-        back_buffer(buffer_stream->allocate_buffer(properties))
-    {
-    }
-
-    void paint(int intensity) override
-    {
-        buffer_stream->with_buffer(back_buffer,
-                                   [this, intensity](mir::graphics::Buffer& buffer)
-                                       {
-                                       auto const format = buffer.pixel_format();
-                                       auto const sz = buffer.size().height.as_int() *
-                                                       buffer.size().width.as_int() * MIR_BYTES_PER_PIXEL(format);
-                                       std::vector<unsigned char> pixels(sz, intensity);
-                                       buffer.write(pixels.data(), sz);
-                                       buffer_stream->swap_buffers(&buffer, [](mir::graphics::Buffer*){});
-                                       });
-        std::swap(front_buffer, back_buffer);
-    }
-
-    ~AllocatingPainter()
-    {
-        buffer_stream->remove_buffer(front_buffer);
-        buffer_stream->remove_buffer(back_buffer);
-    }
-
-    std::shared_ptr<mir::frontend::BufferStream> const buffer_stream;
-    mir::graphics::BufferProperties properties;
-    mir::graphics::BufferID front_buffer;
-    mir::graphics::BufferID back_buffer;
-};
-
-void CanonicalWindowManagementPolicyData::paint_titlebar(int intensity)
-{
-    if (!stream_painter)
-    {
-        auto stream = std::shared_ptr<mir::scene::Surface>(surface)->primary_buffer_stream();
-        try
-        {
-            stream_painter = std::make_shared<AllocatingPainter>(stream, surface.size());
-        }
-        catch (...)
-        {
-            stream_painter = std::make_shared<SwappingPainter>(stream);
-        }
-    }
-
-    stream_painter->paint(intensity);
 }

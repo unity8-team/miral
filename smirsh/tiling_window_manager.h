@@ -16,18 +16,14 @@
  * Authored By: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#ifndef MIR_EXAMPLE_TILING_WINDOW_MANAGER_H_
-#define MIR_EXAMPLE_TILING_WINDOW_MANAGER_H_
+#ifndef TILING_WINDOW_MANAGER_H_
+#define TILING_WINDOW_MANAGER_H_
 
 #include "miral/window_management_policy.h"
 
-// Demonstrate implementing a simple tiling algorithm
+using namespace mir::geometry;
 
-namespace mir
-{
-namespace examples
-{
-using namespace miral;
+// Demonstrate implementing a simple tiling algorithm
 
 // simple tiling algorithm:
 //  o Switch apps: tap or click on the corresponding tile
@@ -37,29 +33,29 @@ using namespace miral;
 //  o Maximize/restore current window (to tile height): Shift-F11
 //  o Maximize/restore current window (to tile width): Ctrl-F11
 //  o client requests to maximize, vertically maximize & restore
-class TilingWindowManagerPolicy : public WindowManagementPolicy
+class TilingWindowManagerPolicy : public miral::WindowManagementPolicy
 {
 public:
-    explicit TilingWindowManagerPolicy(WindowManagerTools* const tools);
+    explicit TilingWindowManagerPolicy(miral::WindowManagerTools* const tools);
 
-    void handle_session_info_updated(geometry::Rectangles const& displays) override;
+    void handle_session_info_updated(Rectangles const& displays) override;
 
-    void handle_displays_updated(geometry::Rectangles const& displays) override;
+    void handle_displays_updated(Rectangles const& displays) override;
 
     auto handle_place_new_surface(
-        SessionInfo const& session_info,
-        scene::SurfaceCreationParameters const& request_parameters)
-    -> scene::SurfaceCreationParameters override;
+        miral::SessionInfo const& session_info,
+        mir::scene::SurfaceCreationParameters const& request_parameters)
+    -> mir::scene::SurfaceCreationParameters override;
 
-    void handle_new_surface(SurfaceInfo& surface_info) override;
+    void handle_new_surface(miral::SurfaceInfo& surface_info) override;
 
-    void handle_surface_ready(SurfaceInfo& surface_info) override;
+    void handle_surface_ready(miral::SurfaceInfo& surface_info) override;
 
-    void handle_modify_surface(SurfaceInfo& surface_info, shell::SurfaceSpecification const& modifications) override;
+    void handle_modify_surface(miral::SurfaceInfo& surface_info, mir::shell::SurfaceSpecification const& modifications) override;
 
-    void handle_delete_surface(SurfaceInfo& surface_info) override;
+    void handle_delete_surface(miral::SurfaceInfo& surface_info) override;
 
-    auto handle_set_state(SurfaceInfo& surface_info, MirSurfaceState value) -> MirSurfaceState override;
+    auto handle_set_state(miral::SurfaceInfo& surface_info, MirSurfaceState value) -> MirSurfaceState override;
 
     bool handle_keyboard_event(MirKeyboardEvent const* event);
 
@@ -67,9 +63,9 @@ public:
 
     bool handle_pointer_event(MirPointerEvent const* event);
 
-    void handle_raise_surface(SurfaceInfo& surface_info) override;
+    void handle_raise_surface(miral::SurfaceInfo& surface_info) override;
 
-    void generate_decorations_for(SurfaceInfo& surface_info) override;
+    void generate_decorations_for(miral::SurfaceInfo& surface_info) override;
 
 private:
     static const int modifier_mask =
@@ -79,34 +75,32 @@ private:
         mir_input_event_modifier_ctrl |
         mir_input_event_modifier_meta;
 
-    void click(geometry::Point cursor);
-    void resize(geometry::Point cursor);
-    void drag(geometry::Point cursor);
+    void click(Point cursor);
+    void resize(Point cursor);
+    void drag(Point cursor);
     void toggle(MirSurfaceState state);
 
-    Session session_under(geometry::Point position);
+    miral::Session session_under(Point position);
 
-    void update_tiles(geometry::Rectangles const& displays);
+    void update_tiles(Rectangles const& displays);
 
-    void update_surfaces(SessionInfo& info, geometry::Rectangle const& old_tile, geometry::Rectangle const& new_tile);
+    void update_surfaces(miral::SessionInfo& info, Rectangle const& old_tile, Rectangle const& new_tile);
 
-    static void clip_to_tile(scene::SurfaceCreationParameters& parameters, geometry::Rectangle const& tile);
+    static void clip_to_tile(mir::scene::SurfaceCreationParameters& parameters, Rectangle const& tile);
 
-    static void fit_to_new_tile(scene::Surface& surface, geometry::Rectangle const& old_tile, geometry::Rectangle const& new_tile);
+    static void fit_to_new_tile(mir::scene::Surface& surface, Rectangle const& old_tile, Rectangle const& new_tile);
 
-    void drag(SurfaceInfo surface_info, geometry::Point to, geometry::Point from, geometry::Rectangle bounds);
+    void drag(miral::SurfaceInfo surface_info, Point to, Point from, Rectangle bounds);
 
-    static void resize(Surface surface, geometry::Point cursor, geometry::Point old_cursor, geometry::Rectangle bounds);
+    static void resize(miral::Surface surface, Point cursor, Point old_cursor, Rectangle bounds);
 
-    static void constrained_move(Surface surface, geometry::Displacement& movement, geometry::Rectangle const& bounds);
+    static void constrained_move(miral::Surface surface, Displacement& movement, Rectangle const& bounds);
 
-    auto select_active_surface(Surface const& surface) -> Surface;
+    auto select_active_surface(miral::Surface const& surface) -> miral::Surface;
 
-    WindowManagerTools* const tools;
+    miral::WindowManagerTools* const tools;
 
-    geometry::Point old_cursor{};
+    Point old_cursor{};
 };
-}
-}
 
-#endif /* MIR_EXAMPLE_TILING_WINDOW_MANAGER_H_ */
+#endif /* TILING_WINDOW_MANAGER_H_ */
