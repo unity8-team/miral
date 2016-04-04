@@ -23,7 +23,9 @@
 
 #include "mir/geometry/rectangles.h"
 #include "mir/optional_value.h"
-#include "mir/shell/surface_specification.h"
+
+// TODO remove scene::SurfaceCreationParameters from the interface
+#include <mir/scene/surface_creation_parameters.h>
 
 namespace mir
 {
@@ -32,6 +34,7 @@ namespace scene { class Session; class SurfaceCreationParameters; }
 
 namespace miral
 {
+// TODO "Opaquify SurfaceInfo to provide a stable API
 struct SurfaceInfo
 {
     SurfaceInfo(Surface const& surface, mir::scene::SurfaceCreationParameters const& params);

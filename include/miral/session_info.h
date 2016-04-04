@@ -24,13 +24,9 @@
 #include <vector>
 
 
-namespace mir
-{
-namespace scene { class Session; class SurfaceCreationParameters; }
-}
-
 namespace miral
 {
+// TODO "Opaquify SessionInfo to provide a stable API
 struct SessionInfo
 {
     std::vector<Surface> surfaces;
