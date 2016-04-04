@@ -19,11 +19,9 @@
 #include "tiling_window_manager.h"
 #include "miral/session.h"
 
-#include "mir/scene/session.h"
 #include "mir/scene/surface.h"
 #include "mir/scene/surface_creation_parameters.h"
 #include "mir/shell/surface_specification.h"
-#include "mir/shell/surface_stack.h"
 #include "mir/geometry/displacement.h"
 
 #include <linux/input.h>
@@ -91,13 +89,13 @@ void me::TilingWindowManagerPolicy::resize(Point cursor)
 }
 
 auto me::TilingWindowManagerPolicy::handle_place_new_surface(
-    std::shared_ptr<ms::Session> const& session,
+    SessionInfo const& session_info,
     ms::SurfaceCreationParameters const& request_parameters)
 -> ms::SurfaceCreationParameters
 {
     auto parameters = request_parameters;
 
-    Rectangle const& tile = tile_for(tools->info_for(session));
+    Rectangle const& tile = tile_for(session_info);
     parameters.top_left = parameters.top_left + (tile.top_left - Point{0, 0});
 
     if (auto const parent = parameters.parent.lock())

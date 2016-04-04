@@ -34,7 +34,7 @@ public:
     virtual void handle_displays_updated(mir::geometry::Rectangles const& displays) = 0;
 
     virtual auto handle_place_new_surface(
-        std::shared_ptr<mir::scene::Session> const& session,
+        SessionInfo const& session_info,
         mir::scene::SurfaceCreationParameters const& request_parameters)
         -> mir::scene::SurfaceCreationParameters = 0;
 

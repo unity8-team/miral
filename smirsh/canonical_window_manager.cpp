@@ -217,7 +217,7 @@ void me::CanonicalWindowManagerPolicy::resize(Point cursor)
 }
 
 auto me::CanonicalWindowManagerPolicy::handle_place_new_surface(
-    std::shared_ptr<ms::Session> const& session,
+    SessionInfo const& session_info,
     ms::SurfaceCreationParameters const& request_parameters)
 -> ms::SurfaceCreationParameters
 {
@@ -251,17 +251,20 @@ auto me::CanonicalWindowManagerPolicy::handle_place_new_surface(
     }
     else if (!parent) // No parent => client can't suggest positioning
     {
-        if (auto const default_surface = session->default_surface())
+        if (session_info.surfaces.size() > 0)
         {
-            static Displacement const offset{title_bar_height, title_bar_height};
+            if (auto const default_surface = session_info.surfaces[0])
+            {
+                static Displacement const offset{title_bar_height, title_bar_height};
 
-            parameters.top_left = default_surface->top_left() + offset;
+                parameters.top_left = default_surface.top_left() + offset;
 
-            geometry::Rectangle display_for_app{default_surface->top_left(), default_surface->size()};
+                geometry::Rectangle display_for_app{default_surface.top_left(), default_surface.size()};
 
-            display_layout->size_to_output(display_for_app);
+                display_layout->size_to_output(display_for_app);
 
-            positioned = display_for_app.overlaps(Rectangle{parameters.top_left, parameters.size});
+                positioned = display_for_app.overlaps(Rectangle{parameters.top_left, parameters.size});
+            }
         }
     }
 

@@ -48,7 +48,7 @@ public:
     void handle_displays_updated(geometry::Rectangles const& displays) override;
 
     auto handle_place_new_surface(
-        std::shared_ptr<scene::Session> const& session,
+        SessionInfo const& session_info,
         scene::SurfaceCreationParameters const& request_parameters)
     -> scene::SurfaceCreationParameters override;
 

@@ -68,7 +68,7 @@ auto ma::BasicWindowManager::add_surface(
     std::lock_guard<decltype(mutex)> lock(mutex);
     surface_builder = [build](std::shared_ptr<scene::Session> const& session, scene::SurfaceCreationParameters const& params)
         { return Surface{session, build(session, params)}; };
-    auto const placed_params = policy->handle_place_new_surface(session, params);
+    auto const placed_params = policy->handle_place_new_surface(info_for(session), params);
 
     auto& surface_info = build_surface(session, placed_params);
 
