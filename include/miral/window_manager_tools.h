@@ -73,6 +73,13 @@ public:
 
     virtual void raise_tree(Surface const& root) = 0;
 
+    virtual void clip_to_output(mir::geometry::Rectangle& rect) = 0;
+
+    virtual void size_to_output(mir::geometry::Rectangle& rect) = 0;
+
+    virtual bool place_in_output(mir::graphics::DisplayConfigurationOutputId id,
+                                 mir::geometry::Rectangle& rect) = 0;
+
     virtual ~WindowManagerTools() = default;
     WindowManagerTools() = default;
     WindowManagerTools(WindowManagerTools const&) = delete;

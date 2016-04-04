@@ -34,6 +34,7 @@
 
 namespace mir
 {
+namespace shell { class DisplayLayout; }
 
 /// This is based on mir/examples, but intended to move to miral after building the necessary abstractions
 namespace al
@@ -54,6 +55,7 @@ class BasicWindowManager : public virtual shell::WindowManager,
 protected:
     BasicWindowManager(
         shell::FocusController* focus_controller,
+        std::shared_ptr<shell::DisplayLayout> const& display_layout,
         std::unique_ptr<WindowManagementPolicy> policy);
 
 public:
@@ -129,11 +131,18 @@ public:
 
     void raise_tree(Surface const& root) override;
 
+    void clip_to_output(mir::geometry::Rectangle& rect) override;
+
+    void size_to_output(mir::geometry::Rectangle& rect) override;
+
+    bool place_in_output(mir::graphics::DisplayConfigurationOutputId id, mir::geometry::Rectangle& rect) override;
+
 private:
     using SurfaceInfoMap = std::map<std::weak_ptr<scene::Surface>, SurfaceInfo, std::owner_less<std::weak_ptr<scene::Surface>>>;
     using SessionInfoMap = std::map<std::weak_ptr<scene::Session>, SessionInfo, std::owner_less<std::weak_ptr<scene::Session>>>;
 
     shell::FocusController* const focus_controller;
+    std::shared_ptr<shell::DisplayLayout> const display_layout;
     std::unique_ptr<WindowManagementPolicy> const policy;
 
     std::mutex mutex;
@@ -162,9 +171,11 @@ public:
     template <typename... PolicyArgs>
     WindowManagerBuilder(
         shell::FocusController* focus_controller,
+        std::shared_ptr<shell::DisplayLayout> const& display_layout,
         PolicyArgs&&... policy_args) :
         BasicWindowManager(
             focus_controller,
+            display_layout,
             build_policy(std::forward<PolicyArgs>(policy_args)...))
     {
     }

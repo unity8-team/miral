@@ -19,10 +19,8 @@
 #include "canonical_window_manager.h"
 #include "miral/session.h"
 
-#include "mir/graphics/buffer.h"
 #include "mir/scene/surface.h"
 #include "mir/scene/surface_creation_parameters.h"
-#include "mir/shell/display_layout.h"
 
 #include <linux/input.h>
 #include <csignal>
@@ -67,117 +65,8 @@ private:
 };
 }
 
-
-struct CanonicalWindowManagementPolicyData::StreamPainter
-{
-    virtual void paint(int) = 0;
-    virtual ~StreamPainter() = default;
-    StreamPainter() = default;
-    StreamPainter(StreamPainter const&) = delete;
-    StreamPainter& operator=(StreamPainter const&) = delete;
-};
-
-struct CanonicalWindowManagementPolicyData::SwappingPainter
-    : CanonicalWindowManagementPolicyData::StreamPainter
-{
-    SwappingPainter(std::shared_ptr<mir::frontend::BufferStream> const& buffer_stream) :
-        buffer_stream{buffer_stream}, buffer{nullptr}
-    {
-        swap_buffers();
-    }
-
-    void swap_buffers()
-    {
-        auto const callback = [this](mir::graphics::Buffer* new_buffer)
-            {
-            buffer.store(new_buffer);
-            };
-
-        buffer_stream->swap_buffers(buffer, callback);
-    }
-
-    void paint(int intensity) override
-    {
-        if (auto const buf = buffer.load())
-        {
-            auto const format = buffer_stream->pixel_format();
-            auto const sz = buf->size().height.as_int() *
-                            buf->size().width.as_int() * MIR_BYTES_PER_PIXEL(format);
-            std::vector<unsigned char> pixels(sz, intensity);
-            buf->write(pixels.data(), sz);
-            swap_buffers();
-        }
-    }
-
-    std::shared_ptr<mir::frontend::BufferStream> const buffer_stream;
-    std::atomic<mir::graphics::Buffer*> buffer;
-};
-
-struct CanonicalWindowManagementPolicyData::AllocatingPainter
-    : CanonicalWindowManagementPolicyData::StreamPainter
-{
-    AllocatingPainter(std::shared_ptr<mir::frontend::BufferStream> const& buffer_stream, Size size) :
-        buffer_stream(buffer_stream),
-        properties({
-                       size,
-                       buffer_stream->pixel_format(),
-                       mir::graphics::BufferUsage::software
-                   }),
-        front_buffer(buffer_stream->allocate_buffer(properties)),
-        back_buffer(buffer_stream->allocate_buffer(properties))
-    {
-    }
-
-    void paint(int intensity) override
-    {
-        buffer_stream->with_buffer(back_buffer,
-                                   [this, intensity](mir::graphics::Buffer& buffer)
-                                       {
-                                       auto const format = buffer.pixel_format();
-                                       auto const sz = buffer.size().height.as_int() *
-                                                       buffer.size().width.as_int() * MIR_BYTES_PER_PIXEL(format);
-                                       std::vector<unsigned char> pixels(sz, intensity);
-                                       buffer.write(pixels.data(), sz);
-                                       buffer_stream->swap_buffers(&buffer, [](mir::graphics::Buffer*){});
-                                       });
-        std::swap(front_buffer, back_buffer);
-    }
-
-    ~AllocatingPainter()
-    {
-        buffer_stream->remove_buffer(front_buffer);
-        buffer_stream->remove_buffer(back_buffer);
-    }
-
-    std::shared_ptr<mir::frontend::BufferStream> const buffer_stream;
-    mir::graphics::BufferProperties properties;
-    mir::graphics::BufferID front_buffer;
-    mir::graphics::BufferID back_buffer;
-};
-
-void CanonicalWindowManagementPolicyData::paint_titlebar(int intensity)
-{
-    if (!stream_painter)
-    {
-        auto stream = std::shared_ptr<mir::scene::Surface>(surface)->primary_buffer_stream();
-        try
-        {
-            stream_painter = std::make_shared<AllocatingPainter>(stream, surface.size());
-        }
-        catch (...)
-        {
-            stream_painter = std::make_shared<SwappingPainter>(stream);
-        }
-    }
-
-    stream_painter->paint(intensity);
-}
-
-me::CanonicalWindowManagerPolicy::CanonicalWindowManagerPolicy(
-    WindowManagerTools* const tools,
-    std::shared_ptr<shell::DisplayLayout> const& display_layout) :
-    tools{tools},
-    display_layout{display_layout}
+me::CanonicalWindowManagerPolicy::CanonicalWindowManagerPolicy(WindowManagerTools* const tools) :
+    tools{tools}
 {
 }
 
@@ -202,7 +91,7 @@ void me::CanonicalWindowManagerPolicy::handle_displays_updated(Rectangles const&
             auto const& info = tools->info_for(surface);
             Rectangle rect{surface.top_left(), surface.size()};
 
-            display_layout->place_in_output(info.output_id.value(), rect);
+            tools->place_in_output(info.output_id.value(), rect);
             surface.move_to(rect.top_left);
             surface.resize(rect.size);
         }
@@ -242,7 +131,7 @@ auto me::CanonicalWindowManagerPolicy::handle_place_new_surface(
     if (parameters.output_id != mir::graphics::DisplayConfigurationOutputId{0})
     {
         Rectangle rect{parameters.top_left, parameters.size};
-        display_layout->place_in_output(parameters.output_id, rect);
+        tools->place_in_output(parameters.output_id, rect);
         parameters.top_left = rect.top_left;
         parameters.size = rect.size;
         parameters.state = mir_surface_state_fullscreen;
@@ -260,7 +149,7 @@ auto me::CanonicalWindowManagerPolicy::handle_place_new_surface(
 
                 geometry::Rectangle display_for_app{default_surface.top_left(), default_surface.size()};
 
-                display_layout->size_to_output(display_for_app);
+                tools->size_to_output(display_for_app);
 
                 positioned = display_for_app.overlaps(Rectangle{parameters.top_left, parameters.size});
             }
@@ -636,11 +525,11 @@ auto me::CanonicalWindowManagerPolicy::handle_set_state(SurfaceInfo& surface_inf
 
         if (surface_info.output_id.is_set())
         {
-            display_layout->place_in_output(surface_info.output_id.value(), rect);
+            tools->place_in_output(surface_info.output_id.value(), rect);
         }
         else
         {
-            display_layout->size_to_output(rect);
+            tools->size_to_output(rect);
         }
 
         movement = rect.top_left - old_pos;
@@ -1048,4 +937,113 @@ void me::CanonicalWindowManagerPolicy::move_tree(SurfaceInfo& root, Displacement
     {
         move_tree(tools->info_for(child), movement);
     }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+// We need a better way to support painting stuff inside the window manager
+#include "mir/graphics/buffer.h"
+
+struct CanonicalWindowManagementPolicyData::StreamPainter
+{
+    virtual void paint(int) = 0;
+    virtual ~StreamPainter() = default;
+    StreamPainter() = default;
+    StreamPainter(StreamPainter const&) = delete;
+    StreamPainter& operator=(StreamPainter const&) = delete;
+};
+
+struct CanonicalWindowManagementPolicyData::SwappingPainter
+    : CanonicalWindowManagementPolicyData::StreamPainter
+{
+    SwappingPainter(std::shared_ptr<mir::frontend::BufferStream> const& buffer_stream) :
+        buffer_stream{buffer_stream}, buffer{nullptr}
+    {
+        swap_buffers();
+    }
+
+    void swap_buffers()
+    {
+        auto const callback = [this](mir::graphics::Buffer* new_buffer)
+            {
+            buffer.store(new_buffer);
+            };
+
+        buffer_stream->swap_buffers(buffer, callback);
+    }
+
+    void paint(int intensity) override
+    {
+        if (auto const buf = buffer.load())
+        {
+            auto const format = buffer_stream->pixel_format();
+            auto const sz = buf->size().height.as_int() *
+                            buf->size().width.as_int() * MIR_BYTES_PER_PIXEL(format);
+            std::vector<unsigned char> pixels(sz, intensity);
+            buf->write(pixels.data(), sz);
+            swap_buffers();
+        }
+    }
+
+    std::shared_ptr<mir::frontend::BufferStream> const buffer_stream;
+    std::atomic<mir::graphics::Buffer*> buffer;
+};
+
+struct CanonicalWindowManagementPolicyData::AllocatingPainter
+    : CanonicalWindowManagementPolicyData::StreamPainter
+{
+    AllocatingPainter(std::shared_ptr<mir::frontend::BufferStream> const& buffer_stream, Size size) :
+        buffer_stream(buffer_stream),
+        properties({
+                       size,
+                       buffer_stream->pixel_format(),
+                       mir::graphics::BufferUsage::software
+                   }),
+        front_buffer(buffer_stream->allocate_buffer(properties)),
+        back_buffer(buffer_stream->allocate_buffer(properties))
+    {
+    }
+
+    void paint(int intensity) override
+    {
+        buffer_stream->with_buffer(back_buffer,
+                                   [this, intensity](mir::graphics::Buffer& buffer)
+                                       {
+                                       auto const format = buffer.pixel_format();
+                                       auto const sz = buffer.size().height.as_int() *
+                                                       buffer.size().width.as_int() * MIR_BYTES_PER_PIXEL(format);
+                                       std::vector<unsigned char> pixels(sz, intensity);
+                                       buffer.write(pixels.data(), sz);
+                                       buffer_stream->swap_buffers(&buffer, [](mir::graphics::Buffer*){});
+                                       });
+        std::swap(front_buffer, back_buffer);
+    }
+
+    ~AllocatingPainter()
+    {
+        buffer_stream->remove_buffer(front_buffer);
+        buffer_stream->remove_buffer(back_buffer);
+    }
+
+    std::shared_ptr<mir::frontend::BufferStream> const buffer_stream;
+    mir::graphics::BufferProperties properties;
+    mir::graphics::BufferID front_buffer;
+    mir::graphics::BufferID back_buffer;
+};
+
+void CanonicalWindowManagementPolicyData::paint_titlebar(int intensity)
+{
+    if (!stream_painter)
+    {
+        auto stream = std::shared_ptr<mir::scene::Surface>(surface)->primary_buffer_stream();
+        try
+        {
+            stream_painter = std::make_shared<AllocatingPainter>(stream, surface.size());
+        }
+        catch (...)
+        {
+            stream_painter = std::make_shared<SwappingPainter>(stream);
+        }
+    }
+
+    stream_painter->paint(intensity);
 }

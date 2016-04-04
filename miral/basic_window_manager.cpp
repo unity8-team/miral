@@ -18,17 +18,20 @@
 
 #include "mir/al/basic_window_manager.h"
 
-#include <mir/shell/surface_ready_observer.h>
 #include <mir/scene/session.h>
 #include <mir/scene/surface.h>
 #include <mir/scene/surface_creation_parameters.h>
+#include <mir/shell/display_layout.h>
+#include <mir/shell/surface_ready_observer.h>
 
 namespace ma = mir::al;
 
 ma::BasicWindowManager::BasicWindowManager(
     shell::FocusController* focus_controller,
+    std::shared_ptr<shell::DisplayLayout> const& display_layout,
     std::unique_ptr<WindowManagementPolicy> policy) :
     focus_controller(focus_controller),
+    display_layout(display_layout),
     policy(std::move(policy)),
     surface_builder([](std::shared_ptr<scene::Session> const&, scene::SurfaceCreationParameters const&) -> Surface
         { throw std::logic_error{"Can't create a surface yet"};})
@@ -357,4 +360,19 @@ void ma::BasicWindowManager::update_event_timestamp(MirTouchEvent const* tev)
             break;
         }
     }
+}
+
+void ma::BasicWindowManager::clip_to_output(mir::geometry::Rectangle& rect)
+{
+    display_layout->clip_to_output(rect);
+}
+
+void ma::BasicWindowManager::size_to_output(mir::geometry::Rectangle& rect)
+{
+    display_layout->size_to_output(rect);
+}
+
+bool ma::BasicWindowManager::place_in_output(mir::graphics::DisplayConfigurationOutputId id, mir::geometry::Rectangle& rect)
+{
+    return display_layout->place_in_output(id, rect);
 }

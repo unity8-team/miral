@@ -57,7 +57,7 @@ void me::window_manager_option(Server& server)
 
             if (selection == wm_tiling)
             {
-                return std::make_shared<TilingWindowManager>(focus_controller);
+                return std::make_shared<TilingWindowManager>(focus_controller, server.the_shell_display_layout());
             }
             else if (selection == wm_canonical)
             {

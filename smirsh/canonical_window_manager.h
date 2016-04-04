@@ -31,7 +31,6 @@
 
 namespace mir
 {
-namespace shell { class DisplayLayout; }
 namespace examples
 {
 using namespace miral;
@@ -49,8 +48,7 @@ class CanonicalWindowManagerPolicy  : public WindowManagementPolicy
 public:
 
     explicit CanonicalWindowManagerPolicy(
-        WindowManagerTools* const tools,
-        std::shared_ptr<shell::DisplayLayout> const& display_layout);
+        WindowManagerTools* const tools);
 
     void handle_session_info_updated(geometry::Rectangles const& displays) override;
 
@@ -105,7 +103,6 @@ private:
     void apply_resize(SurfaceInfo& surface_info, geometry::Point new_pos, geometry::Size new_size) const;
 
     WindowManagerTools* const tools;
-    std::shared_ptr<shell::DisplayLayout> const display_layout;
 
     geometry::Rectangle display_area;
     geometry::Point old_cursor{};
