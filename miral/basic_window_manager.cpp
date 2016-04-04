@@ -18,9 +18,10 @@
 
 #include "mir/al/basic_window_manager.h"
 
-#include "mir/scene/session.h"
-#include "mir/scene/surface.h"
-#include "mir/scene/surface_creation_parameters.h"
+#include <mir/shell/surface_ready_observer.h>
+#include <mir/scene/session.h>
+#include <mir/scene/surface.h>
+#include <mir/scene/surface_creation_parameters.h>
 
 namespace ma = mir::al;
 
@@ -69,12 +70,23 @@ auto ma::BasicWindowManager::add_surface(
         { return Surface{session, build(session, params)}; };
     auto const placed_params = policy->handle_place_new_surface(session, params);
 
-    auto& info = build_surface(session, placed_params);
+    auto& surface_info = build_surface(session, placed_params);
 
-    policy->handle_new_surface(info);
-    policy->generate_decorations_for(info);
+    policy->handle_new_surface(surface_info);
+    policy->generate_decorations_for(surface_info);
 
-    return info.surface.surface_id();
+    if (surface_info.can_be_active())
+    {
+        std::shared_ptr<scene::Surface> const scene_surface = surface_info.surface;
+        scene_surface->add_observer(std::make_shared<shell::SurfaceReadyObserver>(
+            [this, &surface_info](std::shared_ptr<scene::Session> const&, std::shared_ptr<scene::Surface> const&)
+                { policy->handle_surface_ready(surface_info); },
+            session,
+            scene_surface));
+    }
+
+
+    return surface_info.surface.surface_id();
 }
 
 void ma::BasicWindowManager::modify_surface(

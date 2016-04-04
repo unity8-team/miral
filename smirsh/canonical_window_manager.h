@@ -63,6 +63,8 @@ public:
 
     void handle_new_surface(SurfaceInfo& surface_info) override;
 
+    void handle_surface_ready(SurfaceInfo& surface_info) override;
+
     void handle_modify_surface(SurfaceInfo& surface_info, shell::SurfaceSpecification const& modifications) override;
 
     void handle_delete_surface(SurfaceInfo& surface_info) override;

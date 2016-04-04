@@ -23,7 +23,6 @@
 #include "mir/scene/session.h"
 #include "mir/scene/surface.h"
 #include "mir/scene/surface_creation_parameters.h"
-#include "mir/shell/surface_ready_observer.h"
 #include "mir/shell/display_layout.h"
 
 #include <linux/input.h>
@@ -401,22 +400,13 @@ void me::CanonicalWindowManagerPolicy::handle_new_surface(SurfaceInfo& surface_i
 
     tools->info_for(session).surfaces.push_back(surface_info.surface);
 
-    if (surface_info.can_be_active())
-    {
-        std::shared_ptr<scene::Surface> const scene_surface = surface;
-
-        scene_surface->add_observer(std::make_shared<shell::SurfaceReadyObserver>(
-            [this, surface](std::shared_ptr<scene::Session> const& /*session*/,
-                   std::shared_ptr<scene::Surface> const& /*surface*/)
-                {
-                    select_active_surface(surface);
-                },
-            session,
-            scene_surface));
-    }
-
     if (surface_info.state == mir_surface_state_fullscreen)
         fullscreen_surfaces.insert(surface_info.surface);
+}
+
+void me::CanonicalWindowManagerPolicy::handle_surface_ready(SurfaceInfo& surface_info)
+{
+    select_active_surface(surface_info.surface);
 }
 
 void me::CanonicalWindowManagerPolicy::handle_modify_surface(

@@ -40,6 +40,8 @@ public:
 
     virtual void handle_new_surface(SurfaceInfo& surface_info) = 0;
 
+    virtual void handle_surface_ready(SurfaceInfo& surface_info) = 0;
+
     virtual void handle_modify_surface(SurfaceInfo& surface_info, mir::shell::SurfaceSpecification const& modifications) = 0;
 
     virtual void handle_delete_surface(SurfaceInfo& surface_info) = 0;

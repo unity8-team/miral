@@ -24,7 +24,6 @@
 #include "mir/scene/surface_creation_parameters.h"
 #include "mir/shell/surface_specification.h"
 #include "mir/shell/surface_stack.h"
-#include "mir/shell/surface_ready_observer.h"
 #include "mir/geometry/displacement.h"
 
 #include <linux/input.h>
@@ -169,16 +168,11 @@ void me::TilingWindowManagerPolicy::handle_new_surface(SurfaceInfo& surface_info
     {
         tools->info_for(parent).children.push_back(surface);
     }
+}
 
-    if (surface_info.can_be_active())
-    {
-        std::shared_ptr<scene::Surface> const scene_surface = surface;
-        scene_surface->add_observer(std::make_shared<shell::SurfaceReadyObserver>(
-            [this, surface](std::shared_ptr<scene::Session> const&, std::shared_ptr<scene::Surface> const&)
-                { select_active_surface(surface); },
-            session,
-            scene_surface));
-    }
+void me::TilingWindowManagerPolicy::handle_surface_ready(SurfaceInfo& surface_info)
+{
+    select_active_surface(surface_info.surface);
 }
 
 void me::TilingWindowManagerPolicy::handle_modify_surface(
