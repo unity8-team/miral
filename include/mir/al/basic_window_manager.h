@@ -52,13 +52,12 @@ using ::miral::WindowManagerTools;
 class BasicWindowManager : public virtual shell::WindowManager,
     protected WindowManagerTools
 {
-protected:
+public:
     BasicWindowManager(
         shell::FocusController* focus_controller,
         std::shared_ptr<shell::DisplayLayout> const& display_layout,
-        std::unique_ptr<WindowManagementPolicy> policy);
+        std::unique_ptr<WindowManagementPolicy> (*build)(WindowManagerTools* tools));
 
-public:
     auto build_surface(std::shared_ptr<scene::Session> const& session, scene::SurfaceCreationParameters const& parameters)
     -> SurfaceInfo& override;
 
@@ -158,36 +157,6 @@ private:
     void update_event_timestamp(MirKeyboardEvent const* kev);
     void update_event_timestamp(MirPointerEvent const* pev);
     void update_event_timestamp(MirTouchEvent const* tev);
-};
-
-/// A policy based window manager. This exists to initialize BasicWindowManager and
-/// the WMPolicy (in an awkward manner).
-/// TODO revisit this initialization sequence.
-template<typename WMPolicy>
-class WindowManagerBuilder : public BasicWindowManager
-{
-public:
-
-    template <typename... PolicyArgs>
-    WindowManagerBuilder(
-        shell::FocusController* focus_controller,
-        std::shared_ptr<shell::DisplayLayout> const& display_layout,
-        PolicyArgs&&... policy_args) :
-        BasicWindowManager(
-            focus_controller,
-            display_layout,
-            build_policy(std::forward<PolicyArgs>(policy_args)...))
-    {
-    }
-
-private:
-    template <typename... PolicyArgs>
-    auto build_policy(PolicyArgs&&... policy_args)
-    -> std::unique_ptr<WMPolicy>
-    {
-        return std::unique_ptr<WMPolicy>(
-            new WMPolicy(this, std::forward<PolicyArgs>(policy_args)...));
-    }
 };
 }
 }

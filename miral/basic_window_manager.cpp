@@ -29,10 +29,10 @@ namespace ma = mir::al;
 ma::BasicWindowManager::BasicWindowManager(
     shell::FocusController* focus_controller,
     std::shared_ptr<shell::DisplayLayout> const& display_layout,
-    std::unique_ptr<WindowManagementPolicy> policy) :
+    std::unique_ptr<WindowManagementPolicy> (*build)(WindowManagerTools* tools)) :
     focus_controller(focus_controller),
     display_layout(display_layout),
-    policy(std::move(policy)),
+    policy(build(this)),
     surface_builder([](std::shared_ptr<scene::Session> const&, scene::SurfaceCreationParameters const&) -> Surface
         { throw std::logic_error{"Can't create a surface yet"};})
 {

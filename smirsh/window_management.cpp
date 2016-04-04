@@ -35,19 +35,35 @@ namespace msh = mir::shell;
 namespace
 {
 char const* const wm_option = "window-manager";
-char const* const wm_description = "window management strategy [{canonical|tiling|system-compositor}]";
-
-char const* const wm_tiling = "tiling";
-char const* const wm_canonical = "canonical";
 char const* const wm_system_compositor = "system-compositor";
-}
 
-using CanonicalWindowManager = mir::al::WindowManagerBuilder<me::CanonicalWindowManagerPolicy>;
-using TilingWindowManager = mir::al::WindowManagerBuilder<me::TilingWindowManagerPolicy>;
+struct WindowManagerOption
+{
+    std::string const name;
+    auto (*build)(miral::WindowManagerTools* tools) -> std::unique_ptr<miral::WindowManagementPolicy>;
+};
+
+WindowManagerOption options[] =
+    {
+        { "canonical", [](miral::WindowManagerTools* tools) -> std::unique_ptr<miral::WindowManagementPolicy>
+            { return std::make_unique<me::CanonicalWindowManagerPolicy>(tools); }
+        },
+        { "tiling",    [](miral::WindowManagerTools* tools) -> std::unique_ptr<miral::WindowManagementPolicy>
+            { return std::make_unique<me::TilingWindowManagerPolicy>(tools); }
+        }
+    };
+}
 
 void me::window_manager_option(Server& server)
 {
-    server.add_configuration_option(wm_option, wm_description, wm_canonical);
+    std::string description = "window management strategy [{";
+
+    for (auto const& option : ::options)
+        description += option.name + "|";
+
+    description += "system-compositor}]";
+
+    server.add_configuration_option(wm_option, description, ::options[0].name);
 
     server.override_the_window_manager_builder([&server](msh::FocusController* focus_controller)
         -> std::shared_ptr<msh::WindowManager>
@@ -55,15 +71,14 @@ void me::window_manager_option(Server& server)
             auto const options = server.get_options();
             auto const selection = options->get<std::string>(wm_option);
 
-            if (selection == wm_tiling)
-            {
-                return std::make_shared<TilingWindowManager>(focus_controller, server.the_shell_display_layout());
-            }
-            else if (selection == wm_canonical)
-            {
-                return std::make_shared<CanonicalWindowManager>(focus_controller, server.the_shell_display_layout());
-            }
-            else if (selection == wm_system_compositor)
+            for (auto const& option : ::options)
+                if (selection == option.name)
+                {
+                    return std::make_shared<mir::al::BasicWindowManager>
+                        (focus_controller, server.the_shell_display_layout(), option.build);
+                }
+
+            if (selection == wm_system_compositor)
             {
                 return std::make_shared<msh::SystemCompositorWindowManager>(
                     focus_controller,
