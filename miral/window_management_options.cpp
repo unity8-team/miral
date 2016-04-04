@@ -16,10 +16,7 @@
  * Authored By: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#include "window_management.h"
-
-#include "tiling_window_manager.h"
-#include "canonical_window_manager.h"
+#include "miral/window_management_options.h"
 
 #include "mir/al/basic_window_manager.h"
 
@@ -28,7 +25,6 @@
 #include "mir/options/option.h"
 #include "mir/shell/system_compositor_window_manager.h"
 
-namespace me = mir::examples;
 namespace msh = mir::shell;
 
 // Demonstrate introducing a window management strategy
@@ -36,53 +32,36 @@ namespace
 {
 char const* const wm_option = "window-manager";
 char const* const wm_system_compositor = "system-compositor";
-
-struct WindowManagerOption
-{
-    std::string const name;
-    auto (*build)(miral::WindowManagerTools* tools) -> std::unique_ptr<miral::WindowManagementPolicy>;
-};
-
-WindowManagerOption options[] =
-    {
-        { "canonical", [](miral::WindowManagerTools* tools) -> std::unique_ptr<miral::WindowManagementPolicy>
-            { return std::make_unique<me::CanonicalWindowManagerPolicy>(tools); }
-        },
-        { "tiling",    [](miral::WindowManagerTools* tools) -> std::unique_ptr<miral::WindowManagementPolicy>
-            { return std::make_unique<me::TilingWindowManagerPolicy>(tools); }
-        }
-    };
 }
 
-void me::window_manager_option(Server& server)
+void miral::WindowManagerOptions::operator()(mir::Server& server) const
 {
     std::string description = "window management strategy [{";
 
-    for (auto const& option : ::options)
+    for (auto const& option : policies)
         description += option.name + "|";
 
     description += "system-compositor}]";
 
-    server.add_configuration_option(wm_option, description, ::options[0].name);
+    server.add_configuration_option(wm_option, description, policies.begin()->name);
 
-    server.override_the_window_manager_builder([&server](msh::FocusController* focus_controller)
+    server.override_the_window_manager_builder([this, &server](msh::FocusController* focus_controller)
         -> std::shared_ptr<msh::WindowManager>
         {
             auto const options = server.get_options();
             auto const selection = options->get<std::string>(wm_option);
 
-            for (auto const& option : ::options)
+            auto const display_layout = server.the_shell_display_layout();
+
+            for (auto const& option : policies)
                 if (selection == option.name)
-                {
-                    return std::make_shared<mir::al::BasicWindowManager>
-                        (focus_controller, server.the_shell_display_layout(), option.build);
-                }
+                    return std::make_shared<mir::al::BasicWindowManager>(focus_controller, display_layout, option.build);
 
             if (selection == wm_system_compositor)
             {
                 return std::make_shared<msh::SystemCompositorWindowManager>(
                     focus_controller,
-                    server.the_shell_display_layout(),
+                    display_layout,
                     server.the_session_coordinator());
             }
 

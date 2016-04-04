@@ -16,10 +16,12 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#include "window_management.h"
+#include "tiling_window_manager.h"
+#include "canonical_window_manager.h"
 
 #include "miral/display_configuration_option.h"
 #include "miral/runner.h"
+#include "miral/window_management_options.h"
 
 namespace me = mir::examples;
 
@@ -27,9 +29,15 @@ int main(int argc, char const* argv[])
 {
     miral::MirRunner runner(argc, argv, "smirsh.config");
 
+    miral::WindowManagerOptions window_manager_options
+        {
+            miral::add_window_manager_policy<me::CanonicalWindowManagerPolicy>("canonical"),
+            miral::add_window_manager_policy<me::TilingWindowManagerPolicy>("tiling"),
+        };
+
     return runner.run_with(
         {
-            me::window_manager_option,
+            window_manager_options,
             miral::display_configuration_options
         });
 }
