@@ -53,7 +53,7 @@ void miral::Surface::set_alpha(float alpha)
 
 miral::Surface::operator bool() const
 {
-    return !!self;
+    return !!operator std::shared_ptr<mir::scene::Surface>();
 }
 
 miral::Surface::operator std::shared_ptr<mir::scene::Surface>() const
