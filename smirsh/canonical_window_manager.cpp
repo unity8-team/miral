@@ -383,7 +383,7 @@ void CanonicalWindowManagerPolicy::handle_modify_surface(
 
 void CanonicalWindowManagerPolicy::handle_delete_surface(SurfaceInfo& surface_info)
 {
-    std::shared_ptr<ms::Session> const session{surface_info.surface.session()};
+    auto const session{surface_info.surface.session()};
     auto& surface{surface_info.surface};
 
     fullscreen_surfaces.erase(surface);

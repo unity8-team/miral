@@ -181,8 +181,8 @@ void TilingWindowManagerPolicy::handle_modify_surface(
 
 void TilingWindowManagerPolicy::handle_delete_surface(SurfaceInfo& surface_info)
 {
-    std::shared_ptr<ms::Session> const session{surface_info.surface.session()};
-    std::shared_ptr<ms::Surface> const surface{surface_info.surface};
+    auto const session{surface_info.surface.session()};
+    auto const surface{surface_info.surface};
 
     if (auto const parent = surface_info.parent)
     {
