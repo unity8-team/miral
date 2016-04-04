@@ -20,7 +20,6 @@
 #include "miral/session.h"
 
 #include "mir/graphics/buffer.h"
-#include "mir/scene/session.h"
 #include "mir/scene/surface.h"
 #include "mir/scene/surface_creation_parameters.h"
 #include "mir/shell/display_layout.h"
@@ -474,9 +473,7 @@ void me::CanonicalWindowManagerPolicy::handle_modify_surface(
 
     if (modifications.streams.is_set())
     {
-        auto v = modifications.streams.value();
-        std::vector<shell::StreamSpecification> l (v.begin(), v.end());
-        surface_info_new.surface.session()->configure_streams(*surface, l);
+        surface_info_new.surface.configure_streams(modifications.streams.value());
     }
 
     if (modifications.input_shape.is_set())

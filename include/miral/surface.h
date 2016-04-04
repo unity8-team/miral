@@ -29,11 +29,18 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
-namespace mir { namespace scene { class Session; class Surface; }}
+namespace mir
+{
+namespace scene { class Session; class Surface; }
+namespace shell { class StreamSpecification; }
+}
 
 namespace miral
 {
+class Session;
+
 /// Handle class to manage a Mir surface. It may be null (e.g. default initialized) in which case
 ///
 class Surface
@@ -51,6 +58,7 @@ public:
     auto surface_id()   const -> mir::frontend::SurfaceId;
     auto input_bounds() const -> mir::geometry::Rectangle;
     auto input_area_contains(mir::geometry::Point const& point) const -> bool;
+    void configure_streams(std::vector<mir::shell::StreamSpecification> const& config);
 
     // Indicates that the Surface isn't null
     operator bool() const;

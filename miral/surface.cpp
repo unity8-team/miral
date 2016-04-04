@@ -209,6 +209,13 @@ auto miral::Surface::input_area_contains(mir::geometry::Point const& point) cons
     return false;
 }
 
+void miral::Surface::configure_streams(std::vector<mir::shell::StreamSpecification> const& config)
+{
+    if (!self) return;
+    if (auto const surface = self->surface.lock())
+        session()->configure_streams(*surface, config);
+}
+
 void miral::Surface::rename(std::string const& name)
 {
     if (!self) return;
