@@ -18,7 +18,7 @@
 
 #include "miral/window_management_options.h"
 
-#include "mir/al/basic_window_manager.h"
+#include "basic_window_manager.h"
 
 #include "mir/abnormal_exit.h"
 #include "mir/server.h"
@@ -55,7 +55,7 @@ void miral::WindowManagerOptions::operator()(mir::Server& server) const
 
             for (auto const& option : policies)
                 if (selection == option.name)
-                    return std::make_shared<mir::al::BasicWindowManager>(focus_controller, display_layout, option.build);
+                    return std::make_shared<BasicWindowManager>(focus_controller, display_layout, option.build);
 
             if (selection == wm_system_compositor)
             {

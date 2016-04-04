@@ -16,7 +16,7 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#include "mir/al/basic_window_manager.h"
+#include "basic_window_manager.h"
 
 #include <mir/scene/session.h>
 #include <mir/scene/surface.h>
@@ -24,9 +24,9 @@
 #include <mir/shell/display_layout.h>
 #include <mir/shell/surface_ready_observer.h>
 
-namespace ma = mir::al;
+using namespace mir;
 
-ma::BasicWindowManager::BasicWindowManager(
+miral::BasicWindowManager::BasicWindowManager(
     shell::FocusController* focus_controller,
     std::shared_ptr<shell::DisplayLayout> const& display_layout,
     std::unique_ptr<WindowManagementPolicy> (*build)(WindowManagerTools* tools)) :
@@ -38,7 +38,7 @@ ma::BasicWindowManager::BasicWindowManager(
 {
 }
 
-auto ma::BasicWindowManager::build_surface(std::shared_ptr<scene::Session> const& session, scene::SurfaceCreationParameters const& parameters)
+auto miral::BasicWindowManager::build_surface(std::shared_ptr<scene::Session> const& session, scene::SurfaceCreationParameters const& parameters)
 -> SurfaceInfo&
 {
     auto result = surface_builder(session, parameters);
@@ -48,21 +48,21 @@ auto ma::BasicWindowManager::build_surface(std::shared_ptr<scene::Session> const
     return info;
 }
 
-void ma::BasicWindowManager::add_session(std::shared_ptr<scene::Session> const& session)
+void miral::BasicWindowManager::add_session(std::shared_ptr<scene::Session> const& session)
 {
     std::lock_guard<decltype(mutex)> lock(mutex);
     session_info[session] = SessionInfo();
     policy->handle_session_info_updated(displays);
 }
 
-void ma::BasicWindowManager::remove_session(std::shared_ptr<scene::Session> const& session)
+void miral::BasicWindowManager::remove_session(std::shared_ptr<scene::Session> const& session)
 {
     std::lock_guard<decltype(mutex)> lock(mutex);
     session_info.erase(session);
     policy->handle_session_info_updated(displays);
 }
 
-auto ma::BasicWindowManager::add_surface(
+auto miral::BasicWindowManager::add_surface(
     std::shared_ptr<scene::Session> const& session,
     scene::SurfaceCreationParameters const& params,
     std::function<frontend::SurfaceId(std::shared_ptr<scene::Session> const& session, scene::SurfaceCreationParameters const& params)> const& build)
@@ -92,7 +92,7 @@ auto ma::BasicWindowManager::add_surface(
     return surface_info.surface.surface_id();
 }
 
-void ma::BasicWindowManager::modify_surface(
+void miral::BasicWindowManager::modify_surface(
     std::shared_ptr<scene::Session> const& /*session*/,
     std::shared_ptr<scene::Surface> const& surface,
     shell::SurfaceSpecification const& modifications)
@@ -101,7 +101,7 @@ void ma::BasicWindowManager::modify_surface(
     policy->handle_modify_surface(info_for(surface), modifications);
 }
 
-void ma::BasicWindowManager::remove_surface(
+void miral::BasicWindowManager::remove_surface(
     std::shared_ptr<scene::Session> const& /*session*/,
     std::weak_ptr<scene::Surface> const& surface)
 {
@@ -111,40 +111,40 @@ void ma::BasicWindowManager::remove_surface(
     surface_info.erase(surface);
 }
 
-void ma::BasicWindowManager::forget(Surface const& surface)
+void miral::BasicWindowManager::forget(Surface const& surface)
 {
     surface_info.erase(surface);
 }
 
-void ma::BasicWindowManager::add_display(geometry::Rectangle const& area)
+void miral::BasicWindowManager::add_display(geometry::Rectangle const& area)
 {
     std::lock_guard<decltype(mutex)> lock(mutex);
     displays.add(area);
     policy->handle_displays_updated(displays);
 }
 
-void ma::BasicWindowManager::remove_display(geometry::Rectangle const& area)
+void miral::BasicWindowManager::remove_display(geometry::Rectangle const& area)
 {
     std::lock_guard<decltype(mutex)> lock(mutex);
     displays.remove(area);
     policy->handle_displays_updated(displays);
 }
 
-bool ma::BasicWindowManager::handle_keyboard_event(MirKeyboardEvent const* event)
+bool miral::BasicWindowManager::handle_keyboard_event(MirKeyboardEvent const* event)
 {
     std::lock_guard<decltype(mutex)> lock(mutex);
     update_event_timestamp(event);
     return policy->handle_keyboard_event(event);
 }
 
-bool ma::BasicWindowManager::handle_touch_event(MirTouchEvent const* event)
+bool miral::BasicWindowManager::handle_touch_event(MirTouchEvent const* event)
 {
     std::lock_guard<decltype(mutex)> lock(mutex);
     update_event_timestamp(event);
     return policy->handle_touch_event(event);
 }
 
-bool ma::BasicWindowManager::handle_pointer_event(MirPointerEvent const* event)
+bool miral::BasicWindowManager::handle_pointer_event(MirPointerEvent const* event)
 {
     std::lock_guard<decltype(mutex)> lock(mutex);
     update_event_timestamp(event);
@@ -156,7 +156,7 @@ bool ma::BasicWindowManager::handle_pointer_event(MirPointerEvent const* event)
     return policy->handle_pointer_event(event);
 }
 
-void ma::BasicWindowManager::handle_raise_surface(
+void miral::BasicWindowManager::handle_raise_surface(
     std::shared_ptr<scene::Session> const& /*session*/,
     std::shared_ptr<scene::Surface> const& surface,
     uint64_t timestamp)
@@ -166,7 +166,7 @@ void ma::BasicWindowManager::handle_raise_surface(
         policy->handle_raise_surface(info_for(surface));
 }
 
-int ma::BasicWindowManager::set_surface_attribute(
+int miral::BasicWindowManager::set_surface_attribute(
     std::shared_ptr<scene::Session> const& /*session*/,
     std::shared_ptr<scene::Surface> const& surface,
     MirSurfaceAttrib attrib,
@@ -185,14 +185,14 @@ int ma::BasicWindowManager::set_surface_attribute(
     }
 }
 
-auto ma::BasicWindowManager::count_sessions() const
+auto miral::BasicWindowManager::count_sessions() const
 -> unsigned int
 {
     return session_info.size();
 }
 
 
-void ma::BasicWindowManager::for_each_session(std::function<void(SessionInfo& info)> const& functor)
+void miral::BasicWindowManager::for_each_session(std::function<void(SessionInfo& info)> const& functor)
 {
     for(auto& info : session_info)
     {
@@ -200,7 +200,7 @@ void ma::BasicWindowManager::for_each_session(std::function<void(SessionInfo& in
     }
 }
 
-auto ma::BasicWindowManager::find_session(std::function<bool(SessionInfo const& info)> const& predicate)
+auto miral::BasicWindowManager::find_session(std::function<bool(SessionInfo const& info)> const& predicate)
 -> Session
 {
     for(auto& info : session_info)
@@ -214,55 +214,55 @@ auto ma::BasicWindowManager::find_session(std::function<bool(SessionInfo const& 
     return Session{this, {}};
 }
 
-auto ma::BasicWindowManager::info_for(std::weak_ptr<scene::Session> const& session) const
+auto miral::BasicWindowManager::info_for(std::weak_ptr<scene::Session> const& session) const
 -> SessionInfo&
 {
     return const_cast<SessionInfo&>(session_info.at(session));
 }
 
-auto ma::BasicWindowManager::info_for(std::weak_ptr<scene::Surface> const& surface) const
+auto miral::BasicWindowManager::info_for(std::weak_ptr<scene::Surface> const& surface) const
 -> SurfaceInfo&
 {
     return const_cast<SurfaceInfo&>(surface_info.at(surface));
 }
 
-auto ma::BasicWindowManager::info_for(Surface const& surface) const
+auto miral::BasicWindowManager::info_for(Surface const& surface) const
 -> SurfaceInfo&
 {
     return info_for(std::weak_ptr<mir::scene::Surface>(surface));
 }
 
-auto ma::BasicWindowManager::focused_session() const
+auto miral::BasicWindowManager::focused_session() const
 -> Session
 {
     return Session{this, focus_controller->focused_session() };
 }
 
-auto ma::BasicWindowManager::focused_surface() const
+auto miral::BasicWindowManager::focused_surface() const
 -> Surface
 {
     auto focussed_surface = focus_controller->focused_surface();
     return focussed_surface ? info_for(focussed_surface).surface :Surface{};
 }
 
-void ma::BasicWindowManager::focus_next_session()
+void miral::BasicWindowManager::focus_next_session()
 {
     focus_controller->focus_next_session();
 }
 
-void ma::BasicWindowManager::set_focus_to(Surface const& surface)
+void miral::BasicWindowManager::set_focus_to(Surface const& surface)
 {
     focus_controller->set_focus_to(surface.session(), surface);
 }
 
-auto ma::BasicWindowManager::surface_at(geometry::Point cursor) const
+auto miral::BasicWindowManager::surface_at(geometry::Point cursor) const
 -> Surface
 {
     auto surface_at = focus_controller->surface_at(cursor);
     return surface_at ? info_for(surface_at).surface : Surface{};
 }
 
-auto ma::BasicWindowManager::active_display()
+auto miral::BasicWindowManager::active_display()
 -> geometry::Rectangle const
 {
     geometry::Rectangle result;
@@ -310,7 +310,7 @@ auto ma::BasicWindowManager::active_display()
     return result;
 }
 
-void ma::BasicWindowManager::raise_tree(Surface const& root)
+void miral::BasicWindowManager::raise_tree(Surface const& root)
 {
     SurfaceSet surfaces;
     std::function<void(std::weak_ptr<scene::Surface> const& surface)> const add_children =
@@ -328,13 +328,13 @@ void ma::BasicWindowManager::raise_tree(Surface const& root)
     focus_controller->raise(surfaces);
 }
 
-void ma::BasicWindowManager::update_event_timestamp(MirKeyboardEvent const* kev)
+void miral::BasicWindowManager::update_event_timestamp(MirKeyboardEvent const* kev)
 {
     auto iev = mir_keyboard_event_input_event(kev);
     last_input_event_timestamp = mir_input_event_get_event_time(iev);
 }
 
-void ma::BasicWindowManager::update_event_timestamp(MirPointerEvent const* pev)
+void miral::BasicWindowManager::update_event_timestamp(MirPointerEvent const* pev)
 {
     auto iev = mir_pointer_event_input_event(pev);
     auto pointer_action = mir_pointer_event_action(pev);
@@ -346,7 +346,7 @@ void ma::BasicWindowManager::update_event_timestamp(MirPointerEvent const* pev)
     }
 }
 
-void ma::BasicWindowManager::update_event_timestamp(MirTouchEvent const* tev)
+void miral::BasicWindowManager::update_event_timestamp(MirTouchEvent const* tev)
 {
     auto iev = mir_touch_event_input_event(tev);
     auto touch_count = mir_touch_event_point_count(tev);
@@ -362,17 +362,17 @@ void ma::BasicWindowManager::update_event_timestamp(MirTouchEvent const* tev)
     }
 }
 
-void ma::BasicWindowManager::clip_to_output(mir::geometry::Rectangle& rect)
+void miral::BasicWindowManager::clip_to_output(mir::geometry::Rectangle& rect)
 {
     display_layout->clip_to_output(rect);
 }
 
-void ma::BasicWindowManager::size_to_output(mir::geometry::Rectangle& rect)
+void miral::BasicWindowManager::size_to_output(mir::geometry::Rectangle& rect)
 {
     display_layout->size_to_output(rect);
 }
 
-bool ma::BasicWindowManager::place_in_output(mir::graphics::DisplayConfigurationOutputId id, mir::geometry::Rectangle& rect)
+bool miral::BasicWindowManager::place_in_output(mir::graphics::DisplayConfigurationOutputId id, mir::geometry::Rectangle& rect)
 {
     return display_layout->place_in_output(id, rect);
 }

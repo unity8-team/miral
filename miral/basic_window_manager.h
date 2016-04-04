@@ -35,56 +35,51 @@
 namespace mir
 {
 namespace shell { class DisplayLayout; }
+}
 
 /// This is based on mir/examples, but intended to move to miral after building the necessary abstractions
-namespace al
+namespace miral
 {
-using shell::SurfaceSet;
-using ::miral::Surface;
-using ::miral::Session;
-using ::miral::SurfaceInfo;
-using ::miral::SessionInfo;
-using ::miral::WindowManagementPolicy;
-using ::miral::WindowManagerTools;
+using mir::shell::SurfaceSet;
 
 /// A policy based window manager.
 /// This takes care of the management of any meta implementation held for the sessions and surfaces.
-class BasicWindowManager : public virtual shell::WindowManager,
+class BasicWindowManager : public virtual mir::shell::WindowManager,
     protected WindowManagerTools
 {
 public:
     BasicWindowManager(
-        shell::FocusController* focus_controller,
-        std::shared_ptr<shell::DisplayLayout> const& display_layout,
+        mir::shell::FocusController* focus_controller,
+        std::shared_ptr<mir::shell::DisplayLayout> const& display_layout,
         std::unique_ptr<WindowManagementPolicy> (*build)(WindowManagerTools* tools));
 
-    auto build_surface(std::shared_ptr<scene::Session> const& session, scene::SurfaceCreationParameters const& parameters)
+    auto build_surface(std::shared_ptr<mir::scene::Session> const& session, mir::scene::SurfaceCreationParameters const& parameters)
     -> SurfaceInfo& override;
 
-    void add_session(std::shared_ptr<scene::Session> const& session) override;
+    void add_session(std::shared_ptr<mir::scene::Session> const& session) override;
 
-    void remove_session(std::shared_ptr<scene::Session> const& session) override;
+    void remove_session(std::shared_ptr<mir::scene::Session> const& session) override;
 
     auto add_surface(
-        std::shared_ptr<scene::Session> const& session,
-        scene::SurfaceCreationParameters const& params,
-        std::function<frontend::SurfaceId(std::shared_ptr<scene::Session> const& session, scene::SurfaceCreationParameters const& params)> const& build)
-    -> frontend::SurfaceId override;
+        std::shared_ptr<mir::scene::Session> const& session,
+        mir::scene::SurfaceCreationParameters const& params,
+        std::function<mir::frontend::SurfaceId(std::shared_ptr<mir::scene::Session> const& session, mir::scene::SurfaceCreationParameters const& params)> const& build)
+    -> mir::frontend::SurfaceId override;
 
     void modify_surface(
-        std::shared_ptr<scene::Session> const& session,
-        std::shared_ptr<scene::Surface> const& surface,
-        shell::SurfaceSpecification const& modifications) override;
+        std::shared_ptr<mir::scene::Session> const& session,
+        std::shared_ptr<mir::scene::Surface> const& surface,
+        mir::shell::SurfaceSpecification const& modifications) override;
 
     void remove_surface(
-        std::shared_ptr<scene::Session> const& session,
-        std::weak_ptr<scene::Surface> const& surface) override;
+        std::shared_ptr<mir::scene::Session> const& session,
+        std::weak_ptr<mir::scene::Surface> const& surface) override;
 
     void forget(Surface const& surface) override;
 
-    void add_display(geometry::Rectangle const& area) override;
+    void add_display(mir::geometry::Rectangle const& area) override;
 
-    void remove_display(geometry::Rectangle const& area) override;
+    void remove_display(mir::geometry::Rectangle const& area) override;
 
     bool handle_keyboard_event(MirKeyboardEvent const* event) override;
 
@@ -93,13 +88,13 @@ public:
     bool handle_pointer_event(MirPointerEvent const* event) override;
 
     void handle_raise_surface(
-        std::shared_ptr<scene::Session> const& session,
-        std::shared_ptr<scene::Surface> const& surface,
+        std::shared_ptr<mir::scene::Session> const& session,
+        std::shared_ptr<mir::scene::Surface> const& surface,
         uint64_t timestamp) override;
 
     int set_surface_attribute(
-        std::shared_ptr<scene::Session> const& /*session*/,
-        std::shared_ptr<scene::Surface> const& surface,
+        std::shared_ptr<mir::scene::Session> const& /*session*/,
+        std::shared_ptr<mir::scene::Surface> const& surface,
         MirSurfaceAttrib attrib,
         int value) override;
 
@@ -110,9 +105,9 @@ public:
     auto find_session(std::function<bool(SessionInfo const& info)> const& predicate)
     -> Session override;
 
-    auto info_for(std::weak_ptr<scene::Session> const& session) const -> SessionInfo& override;
+    auto info_for(std::weak_ptr<mir::scene::Session> const& session) const -> SessionInfo& override;
 
-    auto info_for(std::weak_ptr<scene::Surface> const& surface) const -> SurfaceInfo& /*override*/;
+    auto info_for(std::weak_ptr<mir::scene::Surface> const& surface) const -> SurfaceInfo& /*override*/;
 
     auto info_for(Surface const& surface) const -> SurfaceInfo& override;
 
@@ -124,9 +119,9 @@ public:
 
     void set_focus_to(Surface const& surface) override;
 
-    auto surface_at(geometry::Point cursor) const -> Surface override;
+    auto surface_at(mir::geometry::Point cursor) const -> Surface override;
 
-    auto active_display() -> geometry::Rectangle const override;
+    auto active_display() -> mir::geometry::Rectangle const override;
 
     void raise_tree(Surface const& root) override;
 
@@ -137,28 +132,27 @@ public:
     bool place_in_output(mir::graphics::DisplayConfigurationOutputId id, mir::geometry::Rectangle& rect) override;
 
 private:
-    using SurfaceInfoMap = std::map<std::weak_ptr<scene::Surface>, SurfaceInfo, std::owner_less<std::weak_ptr<scene::Surface>>>;
-    using SessionInfoMap = std::map<std::weak_ptr<scene::Session>, SessionInfo, std::owner_less<std::weak_ptr<scene::Session>>>;
+    using SurfaceInfoMap = std::map<std::weak_ptr<mir::scene::Surface>, SurfaceInfo, std::owner_less<std::weak_ptr<mir::scene::Surface>>>;
+    using SessionInfoMap = std::map<std::weak_ptr<mir::scene::Session>, SessionInfo, std::owner_less<std::weak_ptr<mir::scene::Session>>>;
 
-    shell::FocusController* const focus_controller;
-    std::shared_ptr<shell::DisplayLayout> const display_layout;
+    mir::shell::FocusController* const focus_controller;
+    std::shared_ptr<mir::shell::DisplayLayout> const display_layout;
     std::unique_ptr<WindowManagementPolicy> const policy;
 
     std::mutex mutex;
     SessionInfoMap session_info;
     SurfaceInfoMap surface_info;
-    geometry::Rectangles displays;
-    geometry::Point cursor;
+    mir::geometry::Rectangles displays;
+    mir::geometry::Point cursor;
     uint64_t last_input_event_timestamp{0};
 
     // Cache the builder functor for the convenience of policies - this should become unnecessary
-    std::function<Surface(std::shared_ptr<scene::Session> const& session, scene::SurfaceCreationParameters const& params)> surface_builder;
+    std::function<Surface(std::shared_ptr<mir::scene::Session> const& session, mir::scene::SurfaceCreationParameters const& params)> surface_builder;
 
     void update_event_timestamp(MirKeyboardEvent const* kev);
     void update_event_timestamp(MirPointerEvent const* pev);
     void update_event_timestamp(MirTouchEvent const* tev);
 };
-}
 }
 
 #endif /* MIR_ABSTRACTION_BASIC_WINDOW_MANAGER_H_ */
