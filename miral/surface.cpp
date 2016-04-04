@@ -216,6 +216,13 @@ void miral::Surface::configure_streams(std::vector<mir::shell::StreamSpecificati
         session()->configure_streams(*surface, config);
 }
 
+void miral::Surface::set_input_region(std::vector<mir::geometry::Rectangle> const& input_rectangles)
+{
+    if (!self) return;
+    if (auto const surface = self->surface.lock())
+        surface->set_input_region(input_rectangles);
+}
+
 void miral::Surface::rename(std::string const& name)
 {
     if (!self) return;

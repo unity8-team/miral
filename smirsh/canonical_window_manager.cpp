@@ -22,7 +22,6 @@
 #include "miral/session.h"
 #include "miral/window_manager_tools.h"
 
-#include <mir/scene/surface.h>
 #include <mir/scene/surface_creation_parameters.h>
 
 #include <linux/input.h>
@@ -111,7 +110,7 @@ auto CanonicalWindowManagerPolicy::handle_place_new_surface(
 
     bool positioned = false;
 
-    auto const parent = parameters.parent.lock();
+    bool const has_parent{parameters.parent.lock()};
 
     if (parameters.output_id != mir::graphics::DisplayConfigurationOutputId{0})
     {
@@ -122,7 +121,7 @@ auto CanonicalWindowManagerPolicy::handle_place_new_surface(
         parameters.state = mir_surface_state_fullscreen;
         positioned = true;
     }
-    else if (!parent) // No parent => client can't suggest positioning
+    else if (!has_parent) // No parent => client can't suggest positioning
     {
         if (session_info.surfaces.size() > 0)
         {
@@ -141,11 +140,13 @@ auto CanonicalWindowManagerPolicy::handle_place_new_surface(
         }
     }
 
-    if (parent && parameters.aux_rect.is_set() && parameters.edge_attachment.is_set())
+    if (has_parent && parameters.aux_rect.is_set() && parameters.edge_attachment.is_set())
     {
+        auto parent = tools->info_for(parameters.parent).surface;
+
         auto const edge_attachment = parameters.edge_attachment.value();
         auto const aux_rect = parameters.aux_rect.value();
-        auto const parent_top_left = parent->top_left();
+        auto const parent_top_left = parent.top_left();
         auto const top_left = aux_rect.top_left     -Point{} + parent_top_left;
         auto const top_right= aux_rect.top_right()  -Point{} + parent_top_left;
         auto const bot_left = aux_rect.bottom_left()-Point{} + parent_top_left;
@@ -178,8 +179,9 @@ auto CanonicalWindowManagerPolicy::handle_place_new_surface(
             }
         }
     }
-    else if (parent)
+    else if (has_parent)
     {
+        auto parent = tools->info_for(parameters.parent).surface;
         //  o Otherwise, if the dialog is not the same as any previous dialog for the
         //    same parent window, and/or it does not have user-customized position:
         //      o It should be optically centered relative to its parent, unless this
@@ -187,10 +189,10 @@ auto CanonicalWindowManagerPolicy::handle_place_new_surface(
         //      o Otherwise, it should be cascaded vertically (but not horizontally)
         //        relative to its parent, unless, this would cause at least part of
         //        it to extend into shell space.
-        auto const parent_top_left = parent->top_left();
+        auto const parent_top_left = parent.top_left();
         auto const centred = parent_top_left
-             + 0.5*(as_displacement(parent->size()) - as_displacement(parameters.size))
-             - DeltaY{(parent->size().height.as_int()-height)/6};
+             + 0.5*(as_displacement(parent.size()) - as_displacement(parameters.size))
+             - DeltaY{(parent.size().height.as_int()-height)/6};
 
         parameters.top_left = centred;
         positioned = true;
@@ -290,7 +292,7 @@ void CanonicalWindowManagerPolicy::handle_modify_surface(
     mir::shell::SurfaceSpecification const& modifications)
 {
     auto surface_info_new = surface_info;
-    std::shared_ptr<ms::Surface> const surface{surface_info_new.surface};
+    auto surface{surface_info_new.surface};
 
     if (modifications.parent.is_set())
         surface_info_new.parent = tools->info_for(modifications.parent.value()).surface;
@@ -320,7 +322,7 @@ void CanonicalWindowManagerPolicy::handle_modify_surface(
                 throw std::runtime_error("Target surface type requires parent");
         }
 
-        surface->configure(mir_surface_attrib_type, new_type);
+        surface.configure(mir_surface_attrib_type, new_type);
     }
 
     #define COPY_IF_SET(field)\
@@ -343,7 +345,7 @@ void CanonicalWindowManagerPolicy::handle_modify_surface(
     std::swap(surface_info_new, surface_info);
 
     if (modifications.name.is_set())
-        surface->rename(modifications.name.value());
+        surface.rename(modifications.name.value());
 
     if (modifications.streams.is_set())
     {
@@ -352,12 +354,12 @@ void CanonicalWindowManagerPolicy::handle_modify_surface(
 
     if (modifications.input_shape.is_set())
     {
-        surface->set_input_region(modifications.input_shape.value());
+        surface.set_input_region(modifications.input_shape.value());
     }
 
     if (modifications.width.is_set() || modifications.height.is_set())
     {
-        auto new_size = surface->size();
+        auto new_size = surface.size();
 
         if (modifications.width.is_set())
             new_size.width = modifications.width.value();
@@ -365,7 +367,7 @@ void CanonicalWindowManagerPolicy::handle_modify_surface(
         if (modifications.height.is_set())
             new_size.height = modifications.height.value();
 
-        auto top_left = surface->top_left();
+        auto top_left = surface.top_left();
 
         surface_info.constrain_resize(top_left, new_size);
 
@@ -375,7 +377,7 @@ void CanonicalWindowManagerPolicy::handle_modify_surface(
     if (modifications.state.is_set())
     {
         auto const state = handle_set_state(surface_info, modifications.state.value());
-        surface->configure(mir_surface_attrib_state, state);
+        surface.configure(mir_surface_attrib_state, state);
     }
 }
 
