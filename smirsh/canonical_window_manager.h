@@ -20,7 +20,6 @@
 #define MIR_EXAMPLE_CANONICAL_WINDOW_MANAGER_H_
 
 #include "miral/window_management_policy.h"
-#include "miral/window_manager_tools.h"
 
 #include <mir/geometry/displacement.h>
 

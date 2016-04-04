@@ -17,12 +17,12 @@
  */
 
 #include "tiling_window_manager.h"
-#include "miral/session.h"
 
-#include "mir/scene/surface.h"
-#include "mir/scene/surface_creation_parameters.h"
-#include "mir/shell/surface_specification.h"
-#include "mir/geometry/displacement.h"
+#include "miral/session.h"
+#include "miral/window_manager_tools.h"
+
+#include <mir/scene/surface.h>
+#include <mir/scene/surface_creation_parameters.h>
 
 #include <linux/input.h>
 #include <csignal>

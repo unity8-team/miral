@@ -17,14 +17,15 @@
  */
 
 #include "canonical_window_manager.h"
-#include "miral/session.h"
 
-#include "mir/scene/surface.h"
-#include "mir/scene/surface_creation_parameters.h"
+#include "miral/session.h"
+#include "miral/window_manager_tools.h"
+
+#include <mir/scene/surface.h>
+#include <mir/scene/surface_creation_parameters.h>
 
 #include <linux/input.h>
 #include <csignal>
-#include <algorithm>
 
 namespace me = mir::examples;
 namespace ms = mir::scene;
@@ -941,7 +942,7 @@ void me::CanonicalWindowManagerPolicy::move_tree(SurfaceInfo& root, Displacement
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // We need a better way to support painting stuff inside the window manager
-#include "mir/graphics/buffer.h"
+#include <mir/graphics/buffer.h>
 
 struct CanonicalWindowManagementPolicyData::StreamPainter
 {
