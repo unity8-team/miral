@@ -88,9 +88,9 @@ private:
 
     static void clip_to_tile(mir::scene::SurfaceCreationParameters& parameters, Rectangle const& tile);
 
-    static void fit_to_new_tile(mir::scene::Surface& surface, Rectangle const& old_tile, Rectangle const& new_tile);
+    static void fit_to_new_tile(miral::Surface& surface, Rectangle const& old_tile, Rectangle const& new_tile);
 
-    void drag(miral::SurfaceInfo surface_info, Point to, Point from, Rectangle bounds);
+    void drag(miral::SurfaceInfo& surface_info, Point to, Point from, Rectangle bounds);
 
     static void resize(miral::Surface surface, Point cursor, Point old_cursor, Rectangle bounds);
 

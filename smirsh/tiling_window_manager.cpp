@@ -512,14 +512,14 @@ void TilingWindowManagerPolicy::update_surfaces(SessionInfo& info, Rectangle con
 {
     auto displacement = new_tile.top_left - old_tile.top_left;
 
-    for (auto const& ps : info.surfaces)
+    for (auto& surface : info.surfaces)
     {
-        if (std::shared_ptr<mir::scene::Surface> const surface = ps)
+        if (surface)
         {
-            auto const old_pos = surface->top_left();
-            surface->move_to(old_pos + displacement);
+            auto const old_pos = surface.top_left();
+            surface.move_to(old_pos + displacement);
 
-            fit_to_new_tile(*surface, old_tile, new_tile);
+            fit_to_new_tile(surface, old_tile, new_tile);
         }
     }
 }
@@ -534,7 +534,7 @@ void TilingWindowManagerPolicy::clip_to_tile(ms::SurfaceCreationParameters& para
     parameters.size = Size{width, height};
 }
 
-void TilingWindowManagerPolicy::fit_to_new_tile(ms::Surface& surface, Rectangle const& old_tile, Rectangle const& new_tile)
+void TilingWindowManagerPolicy::fit_to_new_tile(miral::Surface& surface, Rectangle const& old_tile, Rectangle const& new_tile)
 {
     auto const displacement = surface.top_left() - new_tile.top_left;
 
@@ -549,7 +549,7 @@ void TilingWindowManagerPolicy::fit_to_new_tile(ms::Surface& surface, Rectangle 
     surface.resize({width, height});
 }
 
-void TilingWindowManagerPolicy::drag(SurfaceInfo surface_info, Point to, Point from, Rectangle bounds)
+void TilingWindowManagerPolicy::drag(SurfaceInfo& surface_info, Point to, Point from, Rectangle bounds)
 {
     if (surface_info.surface && surface_info.surface.input_area_contains(from))
     {
