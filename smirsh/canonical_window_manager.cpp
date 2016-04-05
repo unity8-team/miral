@@ -22,8 +22,6 @@
 #include "miral/session.h"
 #include "miral/window_manager_tools.h"
 
-#include <mir/scene/surface_creation_parameters.h>
-
 #include <linux/input.h>
 #include <csignal>
 
@@ -592,7 +590,7 @@ bool CanonicalWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const*
             switch (modifiers)
             {
             case mir_input_event_modifier_alt:
-                kill(session.process_id(), SIGTERM);
+                session.kill(SIGTERM);
                 return true;
 
             case mir_input_event_modifier_ctrl:

@@ -22,11 +22,7 @@
 
 #include "mir/scene/session.h"
 
-auto miral::Session::process_id() const
--> pid_t
-{
-    return scene_session.lock()->process_id();
-}
+#include <csignal>
 
 auto miral::Session::default_surface() const
 -> Surface
@@ -38,6 +34,11 @@ auto miral::Session::surface_after(Surface const& surface) const
 -> Surface
 {
     return tools->info_for(scene_session.lock()->surface_after(surface)).surface;
+}
+
+auto miral::Session::kill(int sig) const -> int
+{
+    return ::kill(scene_session.lock()->process_id(), sig);
 }
 
 bool miral::operator==(Session const& lhs, Session const& rhs)
