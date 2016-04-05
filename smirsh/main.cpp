@@ -26,16 +26,18 @@
 
 int main(int argc, char const* argv[])
 {
-    miral::MirRunner runner(argc, argv, "smirsh.config");
+    using namespace miral;
+
+    MirRunner runner(argc, argv, "smirsh.config");
 
     return runner.run_with(
         {
-            miral::WindowManagerOptions
+            WindowManagerOptions
             {
-                miral::add_window_manager_policy<CanonicalWindowManagerPolicy>("canonical"),
-                miral::add_window_manager_policy<TilingWindowManagerPolicy>("tiling"),
+                add_window_manager_policy<CanonicalWindowManagerPolicy>("canonical"),
+                add_window_manager_policy<TilingWindowManagerPolicy>("tiling"),
             },
-            miral::display_configuration_options,
-            miral::QuitOnCtrlAltBkSp{}
+            display_configuration_options,
+            QuitOnCtrlAltBkSp{}
         });
 }
