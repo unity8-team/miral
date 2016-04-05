@@ -16,8 +16,6 @@ set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-z,defs -fuse-ld=gold
 
 include(FindPkgConfig)
 
-find_package(Boost COMPONENTS system filesystem REQUIRED)
-
 pkg_check_modules(MIRSERVER mirserver>=0.20 REQUIRED)
 pkg_check_modules(MIRCLIENT mirclient>=0.20 REQUIRED)
 pkg_check_modules(MIRRENDERERGLDEV mir-renderer-gl-dev>=0.20 REQUIRED)
@@ -26,7 +24,6 @@ include_directories(include
         SYSTEM ${MIRCOMMON_INCLUDE_DIRS}
         SYSTEM ${MIRSERVER_INCLUDE_DIRS}
         SYSTEM ${MIRRENDERERGLDEV_INCLUDE_DIRS}
-        SYSTEM ${Boost_INCLUDE_DIRS}
 )
 
 add_subdirectory(miral)

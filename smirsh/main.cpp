@@ -24,11 +24,17 @@
 #include "miral/window_management_options.h"
 #include "miral/quit_on_ctrl_alt_bksp.h"
 
-#include <boost/filesystem.hpp>
+namespace
+{
+inline auto filename(std::string path) -> std::string
+{
+    return path.substr(path.find('/')+1);
+}
+}
 
 int main(int argc, char const* argv[])
 {
-    auto const config_file = boost::filesystem::path(argv[0]).filename().string() + ".config";
+    auto const config_file = filename(argv[0]) + ".config";
 
     using namespace miral;
 
