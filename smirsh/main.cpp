@@ -28,9 +28,7 @@ int main(int argc, char const* argv[])
 {
     using namespace miral;
 
-    MirRunner runner(argc, argv);
-
-    return runner.run_with(
+    return MirRunner{argc, argv}.run_with(
         {
             WindowManagerOptions
             {
