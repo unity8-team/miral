@@ -21,6 +21,18 @@
 #include <mir/server.h>
 #include <mir/report_exception.h>
 
+namespace
+{
+inline auto filename(std::string path) -> std::string
+{
+    return path.substr(path.find('/')+1);
+}
+}
+
+miral::MirRunner::MirRunner(int argc, char const* argv[]) :
+    argc(argc), argv(argv), config_file(filename(argv[0]) + ".config")
+{
+}
 
 miral::MirRunner::MirRunner(int argc, char const* argv[], char const* config_file) :
     argc(argc), argv(argv), config_file{config_file}

@@ -24,21 +24,11 @@
 #include "miral/window_management_options.h"
 #include "miral/quit_on_ctrl_alt_bksp.h"
 
-namespace
-{
-inline auto filename(std::string path) -> std::string
-{
-    return path.substr(path.find('/')+1);
-}
-}
-
 int main(int argc, char const* argv[])
 {
-    auto const config_file = filename(argv[0]) + ".config";
-
     using namespace miral;
 
-    MirRunner runner(argc, argv, config_file.c_str());
+    MirRunner runner(argc, argv);
 
     return runner.run_with(
         {

@@ -21,6 +21,7 @@
 
 #include <functional>
 #include <initializer_list>
+#include <string>
 
 namespace mir { class Server; }
 
@@ -36,6 +37,7 @@ namespace miral
 class MirRunner
 {
 public:
+    MirRunner(int argc, char const* argv[]);
     MirRunner(int argc, char const* argv[], char const* config_file);
 
     auto run_with(std::initializer_list<std::function<void(::mir::Server&)>> options) -> int;
@@ -43,7 +45,7 @@ public:
 private:
     int const argc;
     char const** const argv;
-    char const* const config_file;
+    std::string const config_file;
 };
 }
 
