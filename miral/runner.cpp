@@ -25,7 +25,7 @@ namespace
 {
 inline auto filename(std::string path) -> std::string
 {
-    return path.substr(path.find('/')+1);
+    return path.substr(path.rfind('/')+1);
 }
 }
 
