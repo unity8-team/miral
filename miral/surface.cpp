@@ -102,11 +102,18 @@ void miral::Surface::reset()
     self.reset();
 }
 
-void miral::Surface::configure(MirSurfaceAttrib attrib, int value)
+void miral::Surface::set_state(MirSurfaceState state)
 {
     if (!self) return;
     if (auto const surface = self->surface.lock())
-        surface->configure(attrib, value);
+        surface->configure(mir_surface_attrib_state, state);
+}
+
+void miral::Surface::set_type(MirSurfaceType type)
+{
+    if (!self) return;
+    if (auto const surface = self->surface.lock())
+        surface->configure(mir_surface_attrib_type, type);
 }
 
 void miral::Surface::move_to(mir::geometry::Point top_left)

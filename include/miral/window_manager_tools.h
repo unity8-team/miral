@@ -19,6 +19,8 @@
 #ifndef MIRAL_WINDOW_MANAGER_TOOLS_H
 #define MIRAL_WINDOW_MANAGER_TOOLS_H
 
+#include <mir/graphics/display_configuration.h>
+
 #include <memory>
 
 namespace mir

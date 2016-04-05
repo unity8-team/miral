@@ -17,8 +17,8 @@
  */
 
 #include "miral/session.h"
-#include "miral/surface.h"
-#include "basic_window_manager.h"
+#include "miral/surface_info.h"
+#include "miral/window_manager_tools.h"
 
 #include "mir/scene/session.h"
 

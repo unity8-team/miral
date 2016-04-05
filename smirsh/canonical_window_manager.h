@@ -95,6 +95,7 @@ private:
     bool drag(miral::Surface surface, Point to, Point from, Rectangle bounds);
     void move_tree(miral::SurfaceInfo& root, Displacement movement) const;
     void apply_resize(miral::SurfaceInfo& surface_info, Point new_pos, Size new_size) const;
+    auto transform_set_state(miral::SurfaceInfo& surface_info, MirSurfaceState value) -> MirSurfaceState;
 
     miral::WindowManagerTools* const tools;
 

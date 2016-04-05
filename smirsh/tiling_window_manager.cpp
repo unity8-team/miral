@@ -219,6 +219,14 @@ void TilingWindowManagerPolicy::handle_delete_surface(SurfaceInfo& surface_info)
 auto TilingWindowManagerPolicy::handle_set_state(SurfaceInfo& surface_info, MirSurfaceState value)
 -> MirSurfaceState
 {
+    auto state = transform_set_state(surface_info, value);
+    surface_info.surface.set_state(state);
+    return state;
+}
+
+auto TilingWindowManagerPolicy::transform_set_state(SurfaceInfo& surface_info, MirSurfaceState value)
+-> MirSurfaceState
+{
     switch (value)
     {
     case mir_surface_state_restored:
@@ -461,8 +469,7 @@ void TilingWindowManagerPolicy::toggle(MirSurfaceState state)
             if (surface.state() == state)
                 state = mir_surface_state_restored;
 
-            auto const value = handle_set_state(tools->info_for(surface), state);
-            surface.configure(mir_surface_attrib_state, value);
+            handle_set_state(tools->info_for(surface), state);
         }
     }
 }

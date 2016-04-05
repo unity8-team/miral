@@ -68,9 +68,10 @@ public:
     void show();
     void hide();
     void rename(std::string const& name);
-    void configure(MirSurfaceAttrib attrib, int value);
     void move_to(mir::geometry::Point top_left);
     void set_input_region(std::vector<mir::geometry::Rectangle> const& input_rectangles);
+    void set_state(MirSurfaceState state);
+    void set_type(MirSurfaceType type);
 
     void destroy_surface();
     void reset();
