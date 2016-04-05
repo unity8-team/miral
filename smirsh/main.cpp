@@ -24,11 +24,15 @@
 #include "miral/window_management_options.h"
 #include "miral/quit_on_ctrl_alt_bksp.h"
 
+#include <boost/filesystem.hpp>
+
 int main(int argc, char const* argv[])
 {
+    auto const config_file = boost::filesystem::path(argv[0]).filename().string() + ".config";
+
     using namespace miral;
 
-    MirRunner runner(argc, argv, "smirsh.config");
+    MirRunner runner(argc, argv, config_file.c_str());
 
     return runner.run_with(
         {
