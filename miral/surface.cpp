@@ -18,8 +18,8 @@
 
 #include "miral/surface.h"
 
-#include "mir/scene/session.h"
-#include "mir/scene/surface.h"
+#include <mir/scene/session.h>
+#include <mir/scene/surface.h>
 
 struct miral::Surface::Self
 {

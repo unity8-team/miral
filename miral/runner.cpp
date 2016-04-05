@@ -18,10 +18,8 @@
 
 #include "miral/runner.h"
 
-#include "input_event_filter.h"
-
-#include "mir/server.h"
-#include "mir/report_exception.h"
+#include <mir/server.h>
+#include <mir/report_exception.h>
 
 
 miral::MirRunner::MirRunner(int argc, char const* argv[], char const* config_file) :
@@ -39,9 +37,6 @@ try
 
     for (auto& option : options)
         option(server);
-
-    // Create some input filters (we need to keep them or they deactivate)
-    auto const quit_filter = make_quit_filter_for(server);
 
     // Provide the command line and run the server
     server.set_command_line(argc, argv);

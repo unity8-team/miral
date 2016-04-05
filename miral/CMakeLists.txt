@@ -4,12 +4,13 @@ add_library(miral SHARED
     session.cpp                       ${CMAKE_SOURCE_DIR}/include/miral/session.h
     runner.cpp                        ${CMAKE_SOURCE_DIR}/include/miral/runner.h
     display_configuration_option.cpp  ${CMAKE_SOURCE_DIR}/include/miral/display_configuration_option.h
+    quit_on_ctrl_alt_bksp.cpp         ${CMAKE_SOURCE_DIR}/include/miral/quit_on_ctrl_alt_bksp.h
     window_management_options.cpp     ${CMAKE_SOURCE_DIR}/include/miral/window_management_options.h
     basic_window_manager.cpp          basic_window_manager.h
-    input_event_filter.cpp            input_event_filter.h
     ${CMAKE_SOURCE_DIR}/include/miral/session_info.h
     ${CMAKE_SOURCE_DIR}/include/miral/window_management_policy.h
-    ${CMAKE_SOURCE_DIR}/include/miral/window_manager_tools.h)
+    ${CMAKE_SOURCE_DIR}/include/miral/window_manager_tools.h
+)
 
 target_link_libraries(miral
     ${MIRSERVER_LDFLAGS}

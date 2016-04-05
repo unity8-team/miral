@@ -20,10 +20,10 @@
 
 #include "basic_window_manager.h"
 
-#include "mir/abnormal_exit.h"
-#include "mir/server.h"
-#include "mir/options/option.h"
-#include "mir/shell/system_compositor_window_manager.h"
+#include <mir/abnormal_exit.h>
+#include <mir/server.h>
+#include <mir/options/option.h>
+#include <mir/shell/system_compositor_window_manager.h>
 
 namespace msh = mir::shell;
 

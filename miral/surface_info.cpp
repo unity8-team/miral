@@ -18,8 +18,7 @@
 
 #include "miral/surface_info.h"
 
-#include "mir/scene/surface.h"
-#include "mir/scene/surface_creation_parameters.h"
+#include <mir/scene/surface.h>
 
 #include <atomic>
 

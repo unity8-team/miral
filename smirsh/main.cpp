@@ -22,20 +22,20 @@
 #include "miral/display_configuration_option.h"
 #include "miral/runner.h"
 #include "miral/window_management_options.h"
+#include "miral/quit_on_ctrl_alt_bksp.h"
 
 int main(int argc, char const* argv[])
 {
     miral::MirRunner runner(argc, argv, "smirsh.config");
 
-    miral::WindowManagerOptions window_manager_options
-        {
-            miral::add_window_manager_policy<CanonicalWindowManagerPolicy>("canonical"),
-            miral::add_window_manager_policy<TilingWindowManagerPolicy>("tiling"),
-        };
-
     return runner.run_with(
         {
-            window_manager_options,
-            miral::display_configuration_options
+            miral::WindowManagerOptions
+            {
+                miral::add_window_manager_policy<CanonicalWindowManagerPolicy>("canonical"),
+                miral::add_window_manager_policy<TilingWindowManagerPolicy>("tiling"),
+            },
+            miral::display_configuration_options,
+            miral::QuitOnCtrlAltBkSp{}
         });
 }

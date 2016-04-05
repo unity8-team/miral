@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014-2016 Canonical Ltd.
+ * Copyright © 2016 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3,
@@ -13,34 +13,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Authored By: Alan Griffiths <alan@octopull.co.uk>
+ * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#ifndef MIR_ABSTRACT_INPUT_EVENT_FILTER_H_
-#define MIR_ABSTRACT_INPUT_EVENT_FILTER_H_
+#ifndef MIRAL_QUITTER_H
+#define MIRAL_QUITTER_H
 
-#include "mir/input/event_filter.h"
-
-#include <functional>
 #include <memory>
 
 namespace mir { class Server; }
 
 namespace miral
 {
-class QuitFilter : public mir::input::EventFilter
+class QuitOnCtrlAltBkSp
 {
 public:
-    QuitFilter(std::function<void()> const& quit_action);
-
-    bool handle(MirEvent const& event) override;
+    void operator()(mir::Server& server);
 
 private:
-    std::function<void()> const quit_action;
+    class QuitFilter;
+    std::shared_ptr<QuitFilter> quit_filter;
 };
-
-// Set up a Ctrl+Alt+BkSp => quit
-auto make_quit_filter_for(mir::Server& server) -> std::shared_ptr<mir::input::EventFilter>;
 }
 
-#endif /* MIR_ABSTRACT_INPUT_EVENT_FILTER_H_ */
+#endif //MIRAL_QUITTER_H

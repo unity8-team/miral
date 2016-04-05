@@ -18,10 +18,10 @@
 
 #include "miral/display_configuration_option.h"
 
-#include "mir/graphics/default_display_configuration_policy.h"
-#include "mir/graphics/display_configuration.h"
-#include "mir/server.h"
-#include "mir/options/option.h"
+#include <mir/graphics/default_display_configuration_policy.h>
+#include <mir/graphics/display_configuration.h>
+#include <mir/options/option.h>
+#include <mir/server.h>
 
 namespace mg = mir::graphics;
 
