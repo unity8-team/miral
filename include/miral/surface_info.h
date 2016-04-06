@@ -29,7 +29,7 @@
 
 namespace mir
 {
-namespace scene { class Session; class SurfaceCreationParameters; }
+namespace scene { class Session; }
 }
 
 namespace miral

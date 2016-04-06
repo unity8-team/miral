@@ -57,11 +57,11 @@ public:
 
     auto handle_set_state(miral::SurfaceInfo& surface_info, MirSurfaceState value) -> MirSurfaceState override;
 
-    bool handle_keyboard_event(MirKeyboardEvent const* event);
+    bool handle_keyboard_event(MirKeyboardEvent const* event) override;
 
-    bool handle_touch_event(MirTouchEvent const* event);
+    bool handle_touch_event(MirTouchEvent const* event) override;
 
-    bool handle_pointer_event(MirPointerEvent const* event);
+    bool handle_pointer_event(MirPointerEvent const* event) override;
 
     void handle_raise_surface(miral::SurfaceInfo& surface_info) override;
 

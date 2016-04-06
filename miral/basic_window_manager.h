@@ -107,7 +107,7 @@ public:
 
     auto info_for(std::weak_ptr<mir::scene::Session> const& session) const -> SessionInfo& override;
 
-    auto info_for(std::weak_ptr<mir::scene::Surface> const& surface) const -> SurfaceInfo& /*override*/;
+    auto info_for(std::weak_ptr<mir::scene::Surface> const& surface) const -> SurfaceInfo& override;
 
     auto info_for(Surface const& surface) const -> SurfaceInfo& override;
 

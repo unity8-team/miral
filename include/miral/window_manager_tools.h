@@ -25,8 +25,7 @@
 
 namespace mir
 {
-namespace scene { class Session; class Surface; class SurfaceCreationParameters; }
-namespace geometry { class Rectangle; class Point; }
+namespace scene { class Session; class Surface; struct SurfaceCreationParameters; }
 }
 
 
@@ -34,8 +33,8 @@ namespace miral
 {
 class Surface;
 class Session;
-class SurfaceInfo;
-class SessionInfo;
+struct SurfaceInfo;
+struct SessionInfo;
 
 /// The interface through which the policy instructs the controller.
 /// These functions assume that the BasicWindowManager data structures can be accessed freely.
