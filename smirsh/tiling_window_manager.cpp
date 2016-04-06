@@ -179,8 +179,8 @@ void TilingWindowManagerPolicy::handle_modify_surface(
 
 void TilingWindowManagerPolicy::handle_delete_surface(SurfaceInfo& surface_info)
 {
-    auto const session{surface_info.surface.session()};
-    auto const surface{surface_info.surface};
+    auto const session = surface_info.surface.session();
+    auto const& surface = surface_info.surface;
 
     if (auto const parent = surface_info.parent)
     {

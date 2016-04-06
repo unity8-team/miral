@@ -290,7 +290,7 @@ void CanonicalWindowManagerPolicy::handle_modify_surface(
     mir::shell::SurfaceSpecification const& modifications)
 {
     auto surface_info_new = surface_info;
-    auto surface{surface_info_new.surface};
+    auto& surface = surface_info_new.surface;
 
     if (modifications.parent.is_set())
         surface_info_new.parent = tools->info_for(modifications.parent.value()).surface;
@@ -380,8 +380,8 @@ void CanonicalWindowManagerPolicy::handle_modify_surface(
 
 void CanonicalWindowManagerPolicy::handle_delete_surface(SurfaceInfo& surface_info)
 {
-    auto const session{surface_info.surface.session()};
-    auto& surface{surface_info.surface};
+    auto const& session = surface_info.surface.session();
+    auto& surface = surface_info.surface;
 
     fullscreen_surfaces.erase(surface);
 
