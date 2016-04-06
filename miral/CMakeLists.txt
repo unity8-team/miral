@@ -13,6 +13,8 @@ add_library(miral SHARED
 )
 
 target_link_libraries(miral
-    ${MIRSERVER_LDFLAGS}
-    ${MIRCLIENT_LDFLAGS}
+    PUBLIC
+        ${MIRCLIENT_LDFLAGS}
+#    PRIVATE TODO complete wrapping of libmirserver
+        ${MIRSERVER_LDFLAGS}
 )
