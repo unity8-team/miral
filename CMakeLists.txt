@@ -27,4 +27,4 @@ include_directories(include
 )
 
 add_subdirectory(miral)
-add_subdirectory(smirsh)
+add_subdirectory(miral-shell)
