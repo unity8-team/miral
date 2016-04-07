@@ -23,6 +23,7 @@
 #include "miral/runner.h"
 #include "miral/window_management_options.h"
 #include "miral/quit_on_ctrl_alt_bksp.h"
+#include "miral/status_bar.h"
 
 int main(int argc, char const* argv[])
 {
@@ -36,6 +37,7 @@ int main(int argc, char const* argv[])
                 add_window_manager_policy<TilingWindowManagerPolicy>("tiling"),
             },
             display_configuration_options,
-            QuitOnCtrlAltBkSp{}
+            QuitOnCtrlAltBkSp{},
+            StatusBar{}
         });
 }
