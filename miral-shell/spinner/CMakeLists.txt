@@ -56,6 +56,7 @@ add_library(miral-spinner STATIC
   eglspinner.cpp
   miregl.h
   miregl.cpp
+  splash.h
   ${CMAKE_CURRENT_BINARY_DIR}/spinner_logo.h
   ${CMAKE_CURRENT_BINARY_DIR}/spinner_glow.h
 )
