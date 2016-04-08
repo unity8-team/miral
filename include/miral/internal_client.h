@@ -23,10 +23,6 @@
 
 #include <functional>
 #include <memory>
-#include <thread>
-
-#include <condition_variable>
-#include <mutex>
 
 namespace mir { class Server; namespace scene { class Session; }}
 
@@ -43,11 +39,8 @@ public:
     void operator()(mir::Server& server);
 
 private:
-    std::function<void(MirConnection* connection)> const client_code;
-    std::thread thread;
     class Self;
     std::shared_ptr<Self> internal_client;
-    std::function<void(std::weak_ptr<mir::scene::Session> const session)> connect_notification;
 };
 }
 

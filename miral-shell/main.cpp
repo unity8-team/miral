@@ -35,8 +35,6 @@ int main(int argc, char const* argv[])
 {
     using namespace miral;
 
-    InternalClient client_runner{client_code, server_notification};
-
     return MirRunner{argc, argv}.run_with(
         {
             WindowManagerOptions
@@ -46,11 +44,13 @@ int main(int argc, char const* argv[])
             },
             display_configuration_options,
             QuitOnCtrlAltBkSp{},
-            [&client_runner](mir::Server& server) { client_runner(server); }
+            InternalClient{client_code, server_notification}
         });
 }
 
 #include <mir_toolkit/mir_client_library.h>
+
+#include <chrono>
 
 static void render_pattern(MirGraphicsRegion *region, uint32_t pf)
 {
