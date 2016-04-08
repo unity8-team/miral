@@ -22,8 +22,6 @@
 
 float mir_eglapp_background_opacity = 1.0f;
 
-static const char appname[] = "eglspinner";
-
 
 namespace
 {

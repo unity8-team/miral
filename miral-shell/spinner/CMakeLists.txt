@@ -16,6 +16,10 @@
 
 pkg_check_modules(GLIB REQUIRED glib-2.0)
 find_package(GLESv2 REQUIRED)
+find_package(PIL REQUIRED)
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-overlength-strings")
+
 
 function(png2header png header varname)
   add_custom_command(
