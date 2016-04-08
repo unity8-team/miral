@@ -28,6 +28,13 @@ namespace mir { class Server; namespace scene { class Session; }}
 
 namespace miral
 {
+/** Wrapper for running an internal Mir client session
+ *  \note client_code will be executed on its own thread, this must exit
+ *  \note connection_notification will be called on a worker thread and must not block
+ *
+ *  \param client_code              code implementing the internal client session
+ *  \param connection_notification  handler for registering the server-side session
+ */
 class InternalClient
 {
 public:

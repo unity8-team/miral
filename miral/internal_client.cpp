@@ -34,17 +34,15 @@ public:
     Self(std::function<void(MirConnection* connection)> client_code,
          std::function<void(std::weak_ptr<mir::scene::Session> const session)> connect_notification);
 
-    void init(mir::Server& server);
+    void run(mir::Server& server);
     ~Self();
-
-    void operator()();
 
 private:
     std::thread thread;
     std::mutex mutable mutex;
     std::condition_variable mutable cv;
     mir::Fd fd;
-    std::weak_ptr<mir::scene::Session> session_;
+    std::weak_ptr<mir::scene::Session> session;
     MirConnection* connection = nullptr;
     std::function<void(MirConnection* connection)> const client_code;
     std::function<void(std::weak_ptr<mir::scene::Session> const session)> connect_notification;
@@ -58,37 +56,34 @@ miral::InternalClient::Self::Self(
 {
 }
 
-void miral::InternalClient::Self::init(mir::Server& server)
+void miral::InternalClient::Self::run(mir::Server& server)
 {
-    fd = server.open_client_socket([this](std::shared_ptr<mir::frontend::Session> const& session)
+    fd = server.open_client_socket([this](std::shared_ptr<mir::frontend::Session> const& mf_session)
         {
             std::lock_guard<decltype(mutex)> lock_guard{mutex};
-            session_ = std::dynamic_pointer_cast<mir::scene::Session>(session);
+            session = std::dynamic_pointer_cast<mir::scene::Session>(mf_session);
             cv.notify_one();
-            connect_notification(session_);
+            connect_notification(session);
         });
 
     char connect_string[64] = {0};
     sprintf(connect_string, "fd://%d", fd.operator int());
 
     connection = mir_connect_sync(connect_string, "InternalClient");
-}
 
-void miral::InternalClient::Self::operator()()
-{
     std::unique_lock<decltype(mutex)> lock{mutex};
-
-    cv.wait(lock, [&] { return !!session_.lock(); });
+    cv.wait(lock, [&] { return !!session.lock(); });
 
     thread = std::thread{[this] { client_code(connection); }};
 }
 
 miral::InternalClient::Self::~Self()
 {
-    if (thread.joinable()) thread.join();
-
-    std::lock_guard<decltype(mutex)> lock_guard{mutex};
-    if (connection) mir_connection_release(connection);
+    if (thread.joinable())
+    {
+        thread.join();
+        mir_connection_release(connection);
+    }
 }
 
 miral::InternalClient::InternalClient(
@@ -104,12 +99,9 @@ void miral::InternalClient::operator()(mir::Server& server)
     {
         server.the_main_loop()->enqueue(this, [this, &server]
         {
-            internal_client->init(server);
-            (*internal_client)();
+            internal_client->run(server);
         });
     });
 }
 
-miral::InternalClient::~InternalClient()
-{
-}
+miral::InternalClient::~InternalClient() = default;
