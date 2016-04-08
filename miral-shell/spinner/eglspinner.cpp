@@ -21,6 +21,8 @@
 
 #include "../splash_screen.h"
 
+#include <chrono>
+
 #include "eglapp.h"
 #include "miregl.h"
 #include <assert.h>
@@ -28,9 +30,6 @@
 #include <string.h>
 #include <GLES2/gl2.h>
 #include <sys/stat.h>
-#if HAVE_PROPS
-#include <hybris/properties/properties.h>
-#endif
 #include <signal.h>
 
 #include "spinner_glow.h"
@@ -44,67 +43,6 @@
 #define DEFAULT_FILE     "/etc/ubuntu-touch-session.d/android.conf"
 #define FILE_BASE        "/etc/ubuntu-touch-session.d/"
 #define FILE_EXTENSION   ".conf"
-
-int get_gu ()
-{
-    int   gu           = 10; // use 10 as a default value
-    FILE* handle       = NULL;
-    int   i            = 0;
-    int   j            = 0;
-    int   len          = 0;
-    char  line[MAX_LENGTH];
-    char  filename[MAX_LENGTH];
-
-    // get name of file to read from
-    bzero ((void*) filename, MAX_LENGTH);
-    strcpy (filename, FILE_BASE);
-
-    struct stat buf;   
-    if (stat(DEFAULT_FILE, &buf) == 0)
-    {
-        strcpy (filename, DEFAULT_FILE);
-    }
-    else
-    {        
-#ifdef HAVE_PROPS
-        char const* defaultValue = "";
-        char  value[PROP_VALUE_MAX];
-        property_get (PROP_KEY, value, defaultValue);
-        strcat (filename, value);
-#endif
-        strcat (filename, FILE_EXTENSION);
-    }
-
-    // try to open it
-    handle = fopen ((const char*) filename, "r");
-    if (!handle)
-        return gu;
-
-    // read one line at a time
-    while (fgets (line, MAX_LENGTH, handle))
-    {
-        // strip line of whitespaces
-        i = 0;
-        j = 0;
-        len = (int) strlen (line);
-        while (i != len)
-        {
-            if (line[i] != ' ' && line[i] != '\t')
-                line[j++] = line[i];
-            i++;
-        }
-        line[j] = 0;
-
-        // parse the line for GU-value
-        if (!strncmp (line, VALUE_KEY, VALUE_KEY_LENGTH))
-            sscanf (line, VALUE_KEY"=%d", &gu);
-    }
-
-    // clean up
-    fclose (handle);
-
-    return gu;
-}
 
 static GLuint load_shader(const char *src, GLenum type)
 {
@@ -202,11 +140,10 @@ typedef struct _AnimationValues
     GLfloat fadeGlow;
 } AnimationValues;
 
-void
-updateAnimation (GTimer* timer, AnimationValues* anim)
+bool updateAnimation (GTimer* timer, AnimationValues* anim)
 {
     if (!timer || !anim)
-        return;
+        return false;
 
     //1.) 0.0   - 0.6:   logo fades in fully
     //2.) 0.0   - 6.0:   logo does one full spin 360°
@@ -230,19 +167,19 @@ updateAnimation (GTimer* timer, AnimationValues* anim)
     if (elapsed > 6.0f && elapsed < 6.833f)
         anim->fadeGlow += 1.2f * dt;
 
-    // Ignore the following three until we can synchronize with greeter
-
     // step 3.) background
-    //if (elapsed > 6.0f && elapsed < 6.833f)
-    //    anim->fadeBackground -= 0.6f * dt;
+    if (elapsed > 6.0f && elapsed < 6.833f)
+        anim->fadeBackground -= 0.6f * dt;
 
     // step 4.) background
-    //if (elapsed > 7.0f)
-    //    anim->fadeBackground -= 0.6f * dt;
+    if (elapsed > 7.0f)
+        anim->fadeBackground -= 0.6f * dt;
 
     // step 5.)
-    //if (elapsed > 6.833f)
-    //    anim->fadeLogo -= 1.6f * dt;
+    if (elapsed > 6.833f)
+        anim->fadeLogo -= 1.6f * dt;
+
+    return elapsed < 8.266f;
 }
 
 namespace
@@ -286,22 +223,6 @@ const char fShaderSrcLogo[] =
     "    col = col * uFadeLogo;                           \n"
     "    gl_FragColor = col;                              \n"
     "}                                                    \n";
-
-static volatile sig_atomic_t running = 0;
-
-static void shutdown(int signum)
-{
-    if (running)
-    {
-        running = 0;
-        printf("Signal %d received. Good night.\n", signum);
-    }
-}
-
-bool mir_eglapp_running()
-{
-    return running;
-}
 }
 
 void splash_screen(MirConnection* const connection)
@@ -320,11 +241,7 @@ try
 
     if (!surfaces.size()) return;
 
-    running = 1;
-    signal(SIGINT, shutdown);
-    signal(SIGTERM, shutdown);
-
-    double pixelSize = get_gu() * 11.18;
+    double pixelSize = 10 * 11.18;
     const GLfloat texCoordsSpinner[] =
     {
         -0.5f, 0.5f,
@@ -370,7 +287,7 @@ try
     AnimationValues anim = {0.0, 0.0, 1.0, 0.0, 0.0};
     GTimer* timer = g_timer_new();
 
-    while (mir_eglapp_running())
+    do
     {
         for (auto const& surface : surfaces)
             surface->paint([&](unsigned int width, unsigned int height)
@@ -410,10 +327,8 @@ try
                 glUniform1f(fadeLogo, anim.fadeLogo);
                 glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
             });
-
-        // update animation variable
-        updateAnimation(timer, &anim);
     }
+    while (updateAnimation(timer, &anim));
 
     glDeleteTextures(2, texture);
     g_timer_destroy (timer);

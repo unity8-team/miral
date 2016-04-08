@@ -78,7 +78,12 @@ void miral::InternalClient::Self::run(mir::Server& server)
     std::unique_lock<decltype(mutex)> lock{mutex};
     cv.wait(lock, [&] { return !!session.lock(); });
 
-    thread = std::thread{[this] { client_code(connection); }};
+    thread = std::thread{[this]
+        {
+            client_code(connection);
+            mir_connection_release(connection);
+            connection = nullptr;
+        }};
 }
 
 miral::InternalClient::Self::~Self()
@@ -86,7 +91,6 @@ miral::InternalClient::Self::~Self()
     if (thread.joinable())
     {
         thread.join();
-        mir_connection_release(connection);
     }
 }
 

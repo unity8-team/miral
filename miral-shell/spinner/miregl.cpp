@@ -243,5 +243,4 @@ MirEglApp::~MirEglApp()
         destroy_surface(dummy_surface);
     eglDestroyContext(egldisplay, eglctx);
     eglTerminate(egldisplay);
-    mir_connection_release(connection);
 }
