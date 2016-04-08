@@ -44,6 +44,6 @@ int main(int argc, char const* argv[])
             },
             display_configuration_options,
             QuitOnCtrlAltBkSp{},
-            InternalClient{splash_screen, server_notification}
+            InternalClient{"Intro", splash_screen, server_notification}
         });
 }

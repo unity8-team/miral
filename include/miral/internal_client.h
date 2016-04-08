@@ -23,6 +23,7 @@
 
 #include <functional>
 #include <memory>
+#include <string>
 
 namespace mir { class Server; namespace scene { class Session; }}
 
@@ -39,6 +40,7 @@ class InternalClient
 {
 public:
     explicit InternalClient(
+        std::string name,
         std::function<void(MirConnection* connection)> client_code,
         std::function<void(std::weak_ptr<mir::scene::Session> const session)> connect_notification);
     ~InternalClient();

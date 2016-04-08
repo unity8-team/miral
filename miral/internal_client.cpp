@@ -31,13 +31,15 @@
 class miral::InternalClient::Self
 {
 public:
-    Self(std::function<void(MirConnection* connection)> client_code,
+    Self(std::string name,
+         std::function<void(MirConnection* connection)> client_code,
          std::function<void(std::weak_ptr<mir::scene::Session> const session)> connect_notification);
 
     void run(mir::Server& server);
     ~Self();
 
 private:
+    std::string const name;
     std::thread thread;
     std::mutex mutable mutex;
     std::condition_variable mutable cv;
@@ -49,8 +51,10 @@ private:
 };
 
 miral::InternalClient::Self::Self(
+    std::string const name,
     std::function<void(MirConnection* connection)> client_code,
     std::function<void(std::weak_ptr<mir::scene::Session> const session)> connect_notification) :
+    name(name),
     client_code(std::move(client_code)),
     connect_notification(std::move(connect_notification))
 {
@@ -69,7 +73,7 @@ void miral::InternalClient::Self::run(mir::Server& server)
     char connect_string[64] = {0};
     sprintf(connect_string, "fd://%d", fd.operator int());
 
-    connection = mir_connect_sync(connect_string, "InternalClient");
+    connection = mir_connect_sync(connect_string, name.c_str());
 
     std::unique_lock<decltype(mutex)> lock{mutex};
     cv.wait(lock, [&] { return !!session.lock(); });
@@ -87,9 +91,10 @@ miral::InternalClient::Self::~Self()
 }
 
 miral::InternalClient::InternalClient(
+    std::string name,
     std::function<void(MirConnection* connection)> client_code,
     std::function<void(std::weak_ptr<mir::scene::Session> const session)> connect_notification) :
-    internal_client(std::make_shared<Self>(std::move(client_code), std::move(connect_notification)))
+    internal_client(std::make_shared<Self>(std::move(name), std::move(client_code), std::move(connect_notification)))
 {
 }
 
