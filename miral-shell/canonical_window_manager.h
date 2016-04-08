@@ -16,8 +16,8 @@
  * Authored By: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#ifndef CANONICAL_WINDOW_MANAGER_H_
-#define CANONICAL_WINDOW_MANAGER_H_
+#ifndef MIRAL_SHELL_CANONICAL_WINDOW_MANAGER_H_
+#define MIRAL_SHELL_CANONICAL_WINDOW_MANAGER_H_
 
 #include "miral/window_management_policy.h"
 
@@ -107,4 +107,4 @@ private:
     FullscreenSurfaces fullscreen_surfaces;
 };
 
-#endif /* CANONICAL_WINDOW_MANAGER_H_ */
+#endif /* MIRAL_SHELL_CANONICAL_WINDOW_MANAGER_H_ */

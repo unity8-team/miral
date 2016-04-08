@@ -24,7 +24,7 @@
 #include "miral/window_management_options.h"
 #include "miral/quit_on_ctrl_alt_bksp.h"
 #include "miral/internal_client.h"
-#include "splash_screen.h"
+#include "spinner/splash.h"
 
 namespace
 {
@@ -44,6 +44,6 @@ int main(int argc, char const* argv[])
             },
             display_configuration_options,
             QuitOnCtrlAltBkSp{},
-            InternalClient{"Intro", splash_screen, server_notification}
+            InternalClient{"Intro", spinner_splash, server_notification}
         });
 }

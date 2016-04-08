@@ -16,8 +16,8 @@
  * Authored By: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#ifndef TILING_WINDOW_MANAGER_H_
-#define TILING_WINDOW_MANAGER_H_
+#ifndef MIRAL_SHELL_TILING_WINDOW_MANAGER_H
+#define MIRAL_SHELL_TILING_WINDOW_MANAGER_H
 
 #include "miral/window_management_policy.h"
 
@@ -98,4 +98,4 @@ private:
     Point old_cursor{};
 };
 
-#endif /* TILING_WINDOW_MANAGER_H_ */
+#endif /* MIRAL_SHELL_TILING_WINDOW_MANAGER_H */

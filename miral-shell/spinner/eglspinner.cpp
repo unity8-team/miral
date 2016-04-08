@@ -19,7 +19,7 @@
  *          Kevin DuBois <kevin.dubois@canonical.com>
  */
 
-#include "../splash_screen.h"
+#include "splash.h"
 
 #include <chrono>
 
@@ -152,7 +152,8 @@ bool updateAnimation (GTimer* timer, AnimationValues* anim)
     //5.) 7.666 - 8.266: logo fades out fully
     //8.266..:       now spinner can be closed as all its elements are faded out
 
-    double elapsed = g_timer_elapsed (timer, NULL);
+    // Hacked to run three times as fast
+    double elapsed = 3*g_timer_elapsed (timer, NULL);
     double dt = elapsed - anim->lastTimeStamp;
     anim->lastTimeStamp = elapsed;
 
@@ -161,7 +162,7 @@ bool updateAnimation (GTimer* timer, AnimationValues* anim)
         anim->fadeLogo += 1.6f * dt;
 
     // step 2.)
-    anim->angle -= (0.017453292519943f * 360.0f / 6.0f) * dt;
+    anim->angle -= (0.017453292519943f * 360.0f / 18.0f) * dt;
 
     // step 3.) glow
     if (elapsed > 6.0f && elapsed < 6.833f)
@@ -171,9 +172,9 @@ bool updateAnimation (GTimer* timer, AnimationValues* anim)
     if (elapsed > 6.0f && elapsed < 6.833f)
         anim->fadeBackground -= 0.6f * dt;
 
-    // step 4.) background
+    // step 4.) glow
     if (elapsed > 7.0f)
-        anim->fadeBackground -= 0.6f * dt;
+        anim->fadeGlow -= 0.6f * dt;
 
     // step 5.)
     if (elapsed > 6.833f)
@@ -225,7 +226,7 @@ const char fShaderSrcLogo[] =
     "}                                                    \n";
 }
 
-void splash_screen(MirConnection* const connection)
+void spinner_splash(MirConnection* const connection)
 try
 {
     GLuint prog[2];
