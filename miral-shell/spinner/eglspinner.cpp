@@ -31,6 +31,7 @@
 #include <GLES2/gl2.h>
 #include <sys/stat.h>
 #include <signal.h>
+#include <atomic>
 
 #include "spinner_glow.h"
 #include "spinner_logo.h"
@@ -224,7 +225,15 @@ const char fShaderSrcLogo[] =
     "    col = col * uFadeLogo;                           \n"
     "    gl_FragColor = col;                              \n"
     "}                                                    \n";
+
+std::atomic<bool> dying{false};
+void lifecycle_event_callback(MirConnection* /*connection*/, MirLifecycleState state, void* context)
+{
+    if (state == mir_lifecycle_connection_lost)
+        static_cast<decltype(dying)*>(context)->store(true);
 }
+}
+
 
 void spinner_splash(MirConnection* const connection)
 try
@@ -238,6 +247,7 @@ try
     GLint aTexCoords[2];
     GLint sampler[2];
 
+    mir_connection_set_lifecycle_event_callback(connection, &lifecycle_event_callback, &dying);
     auto const surfaces = mir_eglapp_init(connection);
 
     if (!surfaces.size()) return;
@@ -328,6 +338,9 @@ try
                 glUniform1f(fadeLogo, anim.fadeLogo);
                 glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
             });
+
+        if (dying.load())
+            throw std::runtime_error("Server disconnected");
     }
     while (updateAnimation(timer, &anim));
 
