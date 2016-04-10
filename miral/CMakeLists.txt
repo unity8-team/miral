@@ -1,3 +1,7 @@
+pkg_check_modules(MIRSERVER mirserver>=0.20 REQUIRED)
+
+include_directories(include SYSTEM ${MIRSERVER_INCLUDE_DIRS})
+
 add_library(miral SHARED
     surface_info.cpp                  ${CMAKE_SOURCE_DIR}/include/miral/surface_info.h
     surface.cpp                       ${CMAKE_SOURCE_DIR}/include/miral/surface.h

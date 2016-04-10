@@ -1,5 +1,9 @@
 add_subdirectory(spinner)
 
+# TODO remove dependency on libmirserver-dev
+pkg_check_modules(MIRSERVER mirserver>=0.20 REQUIRED)
+include_directories(include SYSTEM ${MIRSERVER_INCLUDE_DIRS})
+
 add_executable(miral-shell
     main.cpp
     canonical_window_manager.cpp canonical_window_manager.h
