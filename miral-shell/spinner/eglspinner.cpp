@@ -171,8 +171,8 @@ bool updateAnimation (GTimer* timer, AnimationValues* anim)
         anim->fadeGlow += 1.2f * dt;
 
     // step 3.) background
-    if (elapsed > 6.0f && elapsed < 6.833f)
-        anim->fadeBackground -= 0.6f * dt;
+    if (elapsed > 0.6f && elapsed < 6.833f)
+        if (anim->fadeBackground > 0) anim->fadeBackground -= 0.3f * dt;
 
     // step 4.) glow
     if (elapsed > 7.0f)
