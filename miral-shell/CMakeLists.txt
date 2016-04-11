@@ -1,4 +1,5 @@
 add_subdirectory(spinner)
+add_subdirectory(desktop)
 
 add_executable(miral-shell
     main.cpp
@@ -9,3 +10,7 @@ add_executable(miral-shell
 )
 
 target_link_libraries(miral-shell miral miral-spinner)
+
+install(TARGETS miral-shell
+  DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
+)
