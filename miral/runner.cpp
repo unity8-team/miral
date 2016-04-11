@@ -46,7 +46,7 @@ miral::MirRunner::MirRunner(int argc, char const* argv[], char const* config_fil
 namespace
 {
 // TODO There ought to be a better, generic way to specify startup applications
-auto const gnome_terminal = "gnome-terminal";
+auto const gnome_terminal = "gnome-terminal-on-startup";
 
 void enable_startup_applications(::mir::Server& server)
 {
