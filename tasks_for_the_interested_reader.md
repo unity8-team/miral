@@ -45,6 +45,9 @@ additions to libmiral to expose additional Mir functionality.
    grey rectangles for titlebars. The "tiling" window does not offer them
    at all. They should contain the window title and sizing controls.
    
+ - Keyboard layouts. It should be possible to configure and use non-US keyboard
+   layouts.
+   
  - Better integration of startup animation. A short animation is played on
    startup. Ideally this should remain visible until a client is launched,
    fade out over the top of the client and resume when the last client exits.
