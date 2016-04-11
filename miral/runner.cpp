@@ -24,6 +24,7 @@
 
 #include <iostream>
 #include <cstring>
+#include <chrono>
 
 namespace
 {
@@ -53,7 +54,7 @@ void enable_startup_applications(::mir::Server& server)
     server.add_configuration_option(gnome_terminal, "launch gnome-terminal on startup", mir::OptionType::null);
 }
 
-void launch_gnome_terminal()
+void launch_gnome_terminal(std::string socket_file)
 {
     pid_t pid = fork();
 
@@ -64,6 +65,15 @@ void launch_gnome_terminal()
 
     if (pid == 0)
     {
+        auto const time_limit = std::chrono::steady_clock::now() + std::chrono::seconds(2);
+
+        do
+        {
+            if (access(socket_file.c_str(), F_OK) != -1)
+                break;
+        }
+        while (std::chrono::steady_clock::now() < time_limit);
+
         unsetenv("DISPLAY");                                // Discourage toolkits from using X11
         setenv("GDK_BACKEND", "mir", true);                 // configure GTK to use Mir
         setenv("QT_QPA_PLATFORM", "ubuntumirclient", true); // configure Qt to use Mir
@@ -81,7 +91,7 @@ void launch_startup_applications(::mir::Server& server)
 {
     if (auto const options = server.get_options())
         if (options->is_set(gnome_terminal))
-            launch_gnome_terminal();
+            launch_gnome_terminal(options->get<std::string>("file"));
 }
 }
 
