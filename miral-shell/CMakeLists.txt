@@ -1,5 +1,9 @@
 add_subdirectory(spinner)
 
+add_custom_target(miral-run ALL
+    cp ${CMAKE_CURRENT_SOURCE_DIR}/miral-run.sh ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/miral-run
+)
+
 # TODO remove dependency on libmirserver-dev
 pkg_check_modules(MIRSERVER mirserver>=0.20 REQUIRED)
 include_directories(include SYSTEM ${MIRSERVER_INCLUDE_DIRS})
