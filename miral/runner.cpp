@@ -71,7 +71,6 @@ void launch_gnome_terminal()
 
         char const* exec_args[] = { "gnome-terminal", "--app-id", "com.canonical.miral.Terminal", nullptr };
 
-        sleep(2);
         execvp(exec_args[0], const_cast<char*const*>(exec_args));
 
         throw std::logic_error(std::string("Failed to execute client (") + exec_args[0] + ") error: " + strerror(errno));

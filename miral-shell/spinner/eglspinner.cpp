@@ -32,6 +32,7 @@
 #include <sys/stat.h>
 #include <signal.h>
 #include <atomic>
+#include <mutex>
 
 #include "spinner_glow.h"
 #include "spinner_logo.h"
@@ -232,8 +233,23 @@ void lifecycle_event_callback(MirConnection* /*connection*/, MirLifecycleState s
     if (state == mir_lifecycle_connection_lost)
         static_cast<decltype(dying)*>(context)->store(true);
 }
+
+std::mutex spinner_session_mutex;
+std::weak_ptr<mir::scene::Session> spinner_session_weak;
 }
 
+void spinner_server_notification(std::weak_ptr<mir::scene::Session> const session)
+{
+    std::lock_guard<decltype(spinner_session_mutex)> lock{spinner_session_mutex};
+    spinner_session_weak = session;
+}
+
+auto spinner_session()
+-> std::shared_ptr<mir::scene::Session>
+{
+    std::lock_guard<decltype(spinner_session_mutex)> lock{spinner_session_mutex};
+    return spinner_session_weak.lock();
+}
 
 void spinner_splash(MirConnection* const connection)
 try

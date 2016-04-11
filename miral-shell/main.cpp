@@ -26,11 +26,6 @@
 #include "miral/quit_on_ctrl_alt_bksp.h"
 #include "miral/internal_client.h"
 
-namespace
-{
-void server_notification(std::weak_ptr<mir::scene::Session> const /*session*/) {}
-}
-
 int main(int argc, char const* argv[])
 {
     using namespace miral;
@@ -38,12 +33,12 @@ int main(int argc, char const* argv[])
     return MirRunner{argc, argv}.run_with(
         {
             WindowManagerOptions
-            {
-                add_window_manager_policy<CanonicalWindowManagerPolicy>("canonical"),
-                add_window_manager_policy<TilingWindowManagerPolicy>("tiling"),
-            },
+                {
+                    add_window_manager_policy<CanonicalWindowManagerPolicy>("canonical"),
+                    add_window_manager_policy<TilingWindowManagerPolicy>("tiling"),
+                },
             display_configuration_options,
             QuitOnCtrlAltBkSp{},
-            InternalClient{"Intro", spinner_splash, server_notification}
+            InternalClient{"Intro", spinner_splash, spinner_server_notification}
         });
 }

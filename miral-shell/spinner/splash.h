@@ -21,6 +21,12 @@
 
 #include <mir_toolkit/client_types.h>
 
+#include <memory>
+
+namespace mir { namespace scene { class Session; }}
+
 void spinner_splash(MirConnection* connection);
+void spinner_server_notification(std::weak_ptr<mir::scene::Session> const session);
+auto spinner_session() -> std::shared_ptr<mir::scene::Session>;
 
 #endif //MIRAL_SHELL_SPINNER_SPLASH_H

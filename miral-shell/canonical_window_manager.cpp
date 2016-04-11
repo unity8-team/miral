@@ -18,6 +18,7 @@
 
 #include "canonical_window_manager.h"
 #include "canonical_window_management_policy_data.h"
+#include "spinner/splash.h"
 
 #include "miral/session.h"
 #include "miral/window_manager_tools.h"
@@ -798,6 +799,15 @@ void CanonicalWindowManagerPolicy::select_active_surface(Surface const& surface)
         tools->set_focus_to(info_for.surface);
         tools->raise_tree(info_for.surface);
         active_surface_ = info_for.surface;
+
+        // Frig to force the spinner to the top
+        if (auto const spinner = spinner_session())
+        {
+            auto const& spinner_info = tools->info_for(spinner);
+
+            if (spinner_info.surfaces.size() > 0)
+                tools->raise_tree(spinner_info.surfaces[0]);
+        }
     }
     else
     {
