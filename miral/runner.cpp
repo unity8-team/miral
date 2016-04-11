@@ -103,6 +103,8 @@ try
     server.set_command_line(argc, argv);
     server.apply_settings();
 
+    // Has to be done after apply_settings() parses the command-line and
+    // before run() starts allocates resources and starts threads.
     launch_startup_applications(server);
 
     server.run();
