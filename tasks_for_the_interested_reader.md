@@ -64,6 +64,11 @@ additions to libmiral to expose additional Mir functionality.
   
  - Shadows, animations and other "effects".
  
+ - Titlebar toolkits. We shouldn't have both the server and client drawing
+   these (as can be seen with gnome-terminal).
+   
+ - Menu integration with toolkits. We should probably support dbus menus.
+   
  - Add virtual workspaces. A virtual workspace represents a group of surfaces
    that can be switched away from (hidden) or to (shown) in a single action.
    Each surface belongs in a single virtual workspace. A virtual workspace
