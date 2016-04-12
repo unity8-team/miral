@@ -27,8 +27,6 @@ public:
 
     EGLSurface create_surface(MirSurface* surface);
 
-    void release_current();
-
     void make_current(EGLSurface eglsurface) const;
 
     void swap_buffers(EGLSurface eglsurface) const;

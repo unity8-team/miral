@@ -361,11 +361,6 @@ void miral::BasicWindowManager::update_event_timestamp(MirTouchEvent const* tev)
     }
 }
 
-void miral::BasicWindowManager::clip_to_output(mir::geometry::Rectangle& rect)
-{
-    display_layout->clip_to_output(rect);
-}
-
 void miral::BasicWindowManager::size_to_output(mir::geometry::Rectangle& rect)
 {
     display_layout->size_to_output(rect);

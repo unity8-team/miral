@@ -125,8 +125,6 @@ public:
 
     void raise_tree(Surface const& root) override;
 
-    void clip_to_output(mir::geometry::Rectangle& rect) override;
-
     void size_to_output(mir::geometry::Rectangle& rect) override;
 
     bool place_in_output(mir::graphics::DisplayConfigurationOutputId id, mir::geometry::Rectangle& rect) override;
