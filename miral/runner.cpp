@@ -47,15 +47,16 @@ miral::MirRunner::MirRunner(int argc, char const* argv[], char const* config_fil
 
 namespace
 {
-// TODO There ought to be a better, generic way to specify startup applications
 auto const gnome_terminal = "gnome-terminal-on-startup";
+auto const startup_apps = "startup-apps";
 
 void enable_startup_applications(::mir::Server& server)
 {
     server.add_configuration_option(gnome_terminal, "launch gnome-terminal on startup", mir::OptionType::null);
+    server.add_configuration_option(startup_apps, "Colon separated list of startup apps", mir::OptionType::string);
 }
 
-void launch_gnome_terminal(std::string socket_file)
+void launch_startup_app(std::string socket_file, std::string app)
 {
     pid_t pid = fork();
 
@@ -84,6 +85,12 @@ void launch_gnome_terminal(std::string socket_file)
 
         char const* exec_args[] = { "gnome-terminal", "--app-id", "com.canonical.miral.Terminal", nullptr };
 
+        if (app != exec_args[0])
+        {
+            exec_args[0] = app.c_str();
+            exec_args[1] = nullptr;
+        }
+
         execvp(exec_args[0], const_cast<char*const*>(exec_args));
 
         throw std::logic_error(std::string("Failed to execute client (") + exec_args[0] + ") error: " + strerror(errno));
@@ -93,8 +100,28 @@ void launch_gnome_terminal(std::string socket_file)
 void launch_startup_applications(::mir::Server& server)
 {
     if (auto const options = server.get_options())
+    {
         if (options->is_set(gnome_terminal))
-            launch_gnome_terminal(options->get<std::string>("file"));
+        {
+            auto const socket_file = options->get<std::string>("file");
+            launch_startup_app(socket_file, "gnome-terminal");
+        }
+
+        if (options->is_set(startup_apps))
+        {
+            auto const socket_file = options->get<std::string>("file");
+            auto const value = options->get<std::string>(startup_apps);
+
+            for (auto i = begin(value); i != end(value); )
+            {
+                auto const j = find(i, end(value), ':');
+
+                launch_startup_app(socket_file, std::string{i, j});
+
+                if ((i = j) != end(value)) ++i;
+            }
+        }
+    }
 }
 }
 
