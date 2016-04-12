@@ -23,3 +23,7 @@ target_link_libraries(miral
 #    PRIVATE TODO complete wrapping of libmirserver
         ${MIRSERVER_LDFLAGS}
 )
+
+install(TARGETS miral
+    LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
+)

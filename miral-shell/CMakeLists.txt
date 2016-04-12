@@ -1,4 +1,5 @@
 add_subdirectory(spinner)
+add_subdirectory(desktop)
 
 add_custom_target(miral-run ALL
     cp ${CMAKE_CURRENT_SOURCE_DIR}/miral-run.sh ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/miral-run
@@ -16,3 +17,7 @@ add_executable(miral-shell
 )
 
 target_link_libraries(miral-shell miral miral-spinner)
+
+install(TARGETS miral-shell
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
+)
