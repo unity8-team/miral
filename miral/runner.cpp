@@ -79,7 +79,7 @@ void launch_startup_app(std::string socket_file, std::string app)
         setenv("QT_QPA_PLATFORM", "ubuntumirclient", true); // configure Qt to use Mir
         setenv("SDL_VIDEODRIVER", "mir", true);             // configure SDL to use Mir
 
-        // gnome-terminal is the (only know) special case
+        // gnome-terminal is the (only known) special case
         char const* exec_args[] = { "gnome-terminal", "--app-id", "com.canonical.miral.Terminal", nullptr };
 
         if (app != exec_args[0])
