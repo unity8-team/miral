@@ -21,5 +21,5 @@ target_link_libraries(miral
 )
 
 install(TARGETS miral
-  LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
+    LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
 )
