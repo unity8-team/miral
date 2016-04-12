@@ -47,12 +47,10 @@ miral::MirRunner::MirRunner(int argc, char const* argv[], char const* config_fil
 
 namespace
 {
-auto const gnome_terminal = "gnome-terminal-on-startup";
 auto const startup_apps = "startup-apps";
 
 void enable_startup_applications(::mir::Server& server)
 {
-    server.add_configuration_option(gnome_terminal, "launch gnome-terminal on startup", mir::OptionType::null);
     server.add_configuration_option(startup_apps, "Colon separated list of startup apps", mir::OptionType::string);
 }
 
@@ -101,12 +99,6 @@ void launch_startup_applications(::mir::Server& server)
 {
     if (auto const options = server.get_options())
     {
-        if (options->is_set(gnome_terminal))
-        {
-            auto const socket_file = options->get<std::string>("file");
-            launch_startup_app(socket_file, "gnome-terminal");
-        }
-
         if (options->is_set(startup_apps))
         {
             auto const socket_file = options->get<std::string>("file");
