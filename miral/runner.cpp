@@ -25,6 +25,7 @@
 #include <iostream>
 #include <cstring>
 #include <chrono>
+#include <thread>
 
 namespace
 {
@@ -69,8 +70,10 @@ void launch_gnome_terminal(std::string socket_file)
 
         do
         {
-            if (access(socket_file.c_str(), F_OK) != -1)
+            if (access(socket_file.c_str(), R_OK|W_OK) != -1)
                 break;
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
         while (std::chrono::steady_clock::now() < time_limit);
 

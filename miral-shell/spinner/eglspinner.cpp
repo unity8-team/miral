@@ -74,8 +74,8 @@ static GLuint load_shader(const char *src, GLenum type)
 //#define WARM_GREY       0.682352941f, 0.654901961f, 0.623529412f
 //#define COOL_GREY       0.2f,         0.2f,         0.2f
 //#define LIGHT_AUBERGINE 0.466666667f, 0.297297297f, 0.435294118f
-//#define DARK_AUBERGINE  0.17254902f,  0.0f,         0.117647059f
-#define BLACK           0.0f,         0.0f,         0.0f
+#define DARK_AUBERGINE  0.17254902f,  0.0f,         0.117647059f
+//#define BLACK           0.0f,         0.0f,         0.0f
 //#define WHITE           1.0f,         1.0f,         1.0f
 
 template <typename Image>
@@ -172,7 +172,7 @@ bool updateAnimation (GTimer* timer, AnimationValues* anim)
 
     // step 3.) background
     if (elapsed > 0.6f && elapsed < 6.833f)
-        if (anim->fadeBackground > 0) anim->fadeBackground -= 0.3f * dt;
+    { if (anim->fadeBackground > 0) anim->fadeBackground -= 0.15f * dt; else anim->fadeBackground = 0; }
 
     // step 4.) glow
     if (elapsed > 7.0f)
@@ -335,7 +335,10 @@ try
 
                 glViewport(0, 0, width, height);
 
-                glClearColor(BLACK, anim.fadeBackground);
+                GLfloat color[] = {DARK_AUBERGINE};
+                for (auto& c : color) { c*= anim.fadeBackground; }
+
+                glClearColor(color[0], color[1], color[2], anim.fadeBackground);
                 glClear(GL_COLOR_BUFFER_BIT);
 
                 // draw glow
