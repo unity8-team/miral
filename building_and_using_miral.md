@@ -33,10 +33,53 @@ graphics hardware and specify a VT to run in. For example:
 The miral-shell example is simple, don’t expect to see a sophisticated launcher
 by default. You can start mir apps from the command-line. For example:
  
-    $ GDK_BACKEND=mir gnome-terminal --app-id com.canonical.miral.Terminal
+    $ bin/miral-run gnome-terminal
     
-That’s right, the GDK toolkit runs on Mir and a lot of standard GTK applications
-will “just work”. (Those that assume the existence of an X11 server will have
-problems though.)
+That’s right, the GDK toolkit has a Mir backend. So a lot of standard GTK 
+applications will “just work”. (Those that assume the existence of an X11
+server will have problems though.)
 
 To exit from miral-shell type Ctrl-Alt-BkSp.
+
+
+Running applications on Miral
+-----------------------------
+
+Assuming you have a Mir server running, native Mir applications can be started
+from the command-line:
+
+    $ sudo apt-get install mir-demos
+    $ mir_demo_client_egltriangle
+
+Similarly, GTK+, Qt and SDL applications can be run with the miral-run script:
+ 
+    $ bin/miral-run gedit
+    $ bin/miral-run 7kaa
+
+
+Configuration options
+---------------------
+
+You can list the configuration options for miral-shell with "--help":
+
+    $ bin/miral-shell --help
+    
+Most of these options are inherited from Mir. These can be set on the command
+line, by environment variables or in a config file. For example, if you want to
+start the gnome-terminal when you run miral-shell you can:
+
+Set supply the option on the command line:
+
+    $ bin/miral-shell --startup-apps gnome-terminal
+    
+Set the corresponding MIR_SERVER_<option> environment variable:
+    
+    $ export MIR_SERVER_STARTUP_APPS=gnome-terminal
+    ...
+    $ bin/miral-shell
+    
+Create a miral-shell config file:
+
+    $ echo startup-apps=gnome-terminal > ~/.config/miral-shell.config
+    ...
+    $ bin/miral-shell
