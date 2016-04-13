@@ -35,11 +35,11 @@ by default. You can start mir apps from the command-line. For example:
  
     $ bin/miral-run gnome-terminal
     
-That’s right, the GDK toolkit has a Mir backend. So a lot of standard GTK 
-applications will “just work”. (Those that assume the existence of an X11
-server will have problems though.)
+That’s right, a lot of standard GTK+ applications will “just work” (the GDK
+toolkit has a Mir backend). Any that assume the existence of an X11 and bypass
+the toolkit my making X11 protocol calls will have problems though.
 
-To exit from miral-shell type Ctrl-Alt-BkSp.
+To exit from miral-shell press Ctrl-Alt-BkSp.
 
 
 Running applications on Miral
