@@ -108,4 +108,13 @@ for a better approach:
     top-level surface. The focussed tile is highlighted. Clicking on a title
     selects the corresponding surface.
     
-    
+Art Resource
+------------
+
+Anyone who is able to create and propose some examples to then pick from. We
+currently need:
+
+ - Default wallpaper
+
+ - Default icon (using ubuntu logo atm). Must be svg
+
