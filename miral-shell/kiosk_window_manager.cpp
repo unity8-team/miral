@@ -39,6 +39,8 @@ void KioskWindowManagerPolicy::handle_displays_updated(Rectangles const& /*displ
 {
 }
 
+#include <iostream>
+
 auto KioskWindowManagerPolicy::handle_place_new_surface(
     SessionInfo const& /*session_info*/,
     ms::SurfaceCreationParameters const& request_parameters)
@@ -48,6 +50,10 @@ auto KioskWindowManagerPolicy::handle_place_new_surface(
 
     Rectangle const active_display = tools->active_display();
     parameters.top_left = parameters.top_left + (active_display.top_left - Point{0, 0});
+
+    std::cerr << "DEBUG: request_parameters.name. . =" << request_parameters.name     << '\n';
+    std::cerr << "DEBUG: request_parameters.top_left=" << request_parameters.top_left << '\n';
+    std::cerr << "DEBUG: request_parameters.size. . =" << request_parameters.size     << '\n';
 
     if (parameters.parent.lock())
     {
@@ -102,6 +108,10 @@ auto KioskWindowManagerPolicy::handle_place_new_surface(
     {
         parameters.size = active_display.size;
     }
+
+    std::cerr << "DEBUG: parameters.name. . =" << parameters.name     << '\n';
+    std::cerr << "DEBUG: parameters.top_left=" << parameters.top_left << '\n';
+    std::cerr << "DEBUG: parameters.size. . =" << parameters.size     << '\n';
 
     return parameters;
 }

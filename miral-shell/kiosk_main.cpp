@@ -17,11 +17,18 @@
  */
 
 #include "kiosk_window_manager.h"
+#include "sw_splash.h"
 
-#include "miral/display_configuration_option.h"
 #include "miral/runner.h"
 #include "miral/window_management_options.h"
 #include "miral/internal_client.h"
+
+namespace
+{
+void splash_notification(std::weak_ptr<mir::scene::Session> const /*session*/)
+{
+}
+}
 
 int main(int argc, char const* argv[])
 {
@@ -33,7 +40,6 @@ int main(int argc, char const* argv[])
                 {
                     add_window_manager_policy<KioskWindowManagerPolicy>("kiosk"),
                 },
-            display_configuration_options/*,
-            InternalClient{"Intro", spinner_splash, spinner_server_notification}*/
+            InternalClient{"Intro", sw_splash, splash_notification}
         });
 }

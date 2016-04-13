@@ -14,7 +14,7 @@ pkg_check_modules(MIRSERVER mirserver>=0.20 REQUIRED)
 include_directories(include SYSTEM ${MIRSERVER_INCLUDE_DIRS})
 
 add_executable(miral-shell
-        shell_main.cpp
+    shell_main.cpp
     canonical_window_manager.cpp canonical_window_manager.h
     tiling_window_manager.cpp    tiling_window_manager.h
     canonical_window_management_policy_data.cpp canonical_window_management_policy_data.h
@@ -23,8 +23,9 @@ add_executable(miral-shell
 target_link_libraries(miral-shell miral miral-spinner)
 
 add_executable(miral-kiosk
-        kiosk_main.cpp
+    kiosk_main.cpp
     kiosk_window_manager.cpp    kiosk_window_manager.h
+    sw_splash.cpp               sw_splash.h
 )
 
 target_link_libraries(miral-kiosk miral miral-spinner)
