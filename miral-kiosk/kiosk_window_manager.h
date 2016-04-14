@@ -67,6 +67,7 @@ private:
 
     auto select_active_surface(miral::Surface const& surface) -> miral::Surface;
     auto transform_set_state(miral::SurfaceInfo& surface_info, MirSurfaceState value) -> MirSurfaceState;
+    void raise_internal_sessions() const;
 
     miral::WindowManagerTools* const tools;
 

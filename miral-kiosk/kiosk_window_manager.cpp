@@ -21,7 +21,11 @@
 #include "miral/session.h"
 #include "miral/window_manager_tools.h"
 
+#include "mir/scene/session.h"
+
 #include <linux/input.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 namespace ms = mir::scene;
 using namespace miral;
@@ -278,6 +282,9 @@ auto KioskWindowManagerPolicy::select_active_surface(Surface const& surface) -> 
     {
         tools->set_focus_to(info_for.surface);
         tools->raise_tree(surface);
+
+        raise_internal_sessions();
+
         return surface;
     }
     else
@@ -288,4 +295,25 @@ auto KioskWindowManagerPolicy::select_active_surface(Surface const& surface) -> 
 
         return {};
     }
+}
+
+void KioskWindowManagerPolicy::raise_internal_sessions() const
+{// Look for any internal sessions and raise its surface(s)
+    tools->for_each_session([this](SessionInfo const& session_info)
+        {
+            if (!session_info.surfaces.empty())
+            {
+                if (auto const& first_surface = session_info.surfaces[0])
+                {
+                    if (auto const scene_session = first_surface.session())
+                    {
+                        if (scene_session->process_id() == getpid())
+                        {
+                            for (auto const& s : session_info.surfaces)
+                                tools->raise_tree(s);
+                        }
+                    }
+                }
+            }
+        });
 }
