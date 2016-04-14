@@ -74,9 +74,9 @@ additions to libmiral to expose additional Mir functionality.
    
  - Add virtual workspaces. A virtual workspace represents a group of windows
    that can be switched away from (hidden) or to (shown) in a single action.
-   Each surface belongs in a single virtual workspace. A virtual workspace
+   Each window belongs in a single virtual workspace. A virtual workspace
    represents a group of windows that can be switched away from (hidden) or 
-   to (shown) in a single action. Each surface belongs in a single virtual
+   to (shown) in a single action. Each window belongs in a single virtual
    workspace.
 
 
@@ -91,22 +91,22 @@ for a better approach:
  
  - the tiling algorithm ought to lay windows out as follows:
  
-    - Single surface: takes up the whole screen
+    - Single window: takes up the whole screen
     
     - Two windows: The screen is split in two tiles of equal width (half the
-      screen’s width) and full height. Each surface is placed in a tile (left
-      or right), with the newest surface occupying the left tile.
+      screen’s width) and full height. Each window is placed in a tile (left
+      or right), with the newest window occupying the left tile.
       
     - Three or more windows: The screen is split in two tiles of equal width
-      and full height, as in the previous case. The newest surface occupies
+      and full height, as in the previous case. The newest window occupies
       the left tile. The right part is now further divided vertically into
       smaller tiles having equal height, to host the remaining windows, with
       older windows being closer to the bottom.
 
   - Add a titlebar to the top of the screen. The titlebar should be split evenly
     into horizontal blocks, one per tile. Each block containing the title of the
-    top-level surface. The focussed tile is highlighted. Clicking on a title
-    selects the corresponding surface.
+    top-level window. The focussed tile is highlighted. Clicking on a title
+    selects the corresponding window.
     
 Art Resource
 ------------
