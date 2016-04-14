@@ -264,9 +264,9 @@ try
     GLint sampler[2];
 
     mir_connection_set_lifecycle_event_callback(connection, &lifecycle_event_callback, &dying);
-    auto const surfaces = mir_eglapp_init(connection);
+    auto const windows = mir_eglapp_init(connection);
 
-    if (!surfaces.size()) return;
+    if (!windows.size()) return;
 
     double pixelSize = 10 * 11.18;
     const GLfloat texCoordsSpinner[] =
@@ -316,7 +316,7 @@ try
 
     do
     {
-        for (auto const& surface : surfaces)
+        for (auto const& surface : windows)
             surface->paint([&](unsigned int width, unsigned int height)
             {
                 GLfloat halfRealWidth = ((2.0 / width) * pixelSize) / 2.0;

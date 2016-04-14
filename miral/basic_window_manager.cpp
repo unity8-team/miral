@@ -311,20 +311,20 @@ auto miral::BasicWindowManager::active_display()
 
 void miral::BasicWindowManager::raise_tree(Window const& root)
 {
-    SurfaceSet surfaces;
+    SurfaceSet windows;
     std::function<void(std::weak_ptr<scene::Surface> const& surface)> const add_children =
         [&,this](std::weak_ptr<scene::Surface> const& surface)
             {
             auto const& info = info_for(surface);
-            surfaces.insert(begin(info.children), end(info.children));
+            windows.insert(begin(info.children), end(info.children));
             for (auto const& child : info.children)
                 add_children(child);
             };
 
-    surfaces.insert(root);
+    windows.insert(root);
     add_children(root);
 
-    focus_controller->raise(surfaces);
+    focus_controller->raise(windows);
 }
 
 void miral::BasicWindowManager::update_event_timestamp(MirKeyboardEvent const* kev)

@@ -72,10 +72,10 @@ additions to libmiral to expose additional Mir functionality.
    
  - Menu integration with toolkits. We should probably support dbus menus.
    
- - Add virtual workspaces. A virtual workspace represents a group of surfaces
+ - Add virtual workspaces. A virtual workspace represents a group of windows
    that can be switched away from (hidden) or to (shown) in a single action.
    Each surface belongs in a single virtual workspace. A virtual workspace
-   represents a group of surfaces that can be switched away from (hidden) or 
+   represents a group of windows that can be switched away from (hidden) or 
    to (shown) in a single action. Each surface belongs in a single virtual
    workspace.
 
@@ -87,21 +87,21 @@ This code was originally written to prove that different strategies are
 possible, without much consideration of being useful. Here are some suggestions
 for a better approach:
 
- - top level surfaces ought to fill the tile when created
+ - top level windows ought to fill the tile when created
  
- - the tiling algorithm ought to lay surfaces out as follows:
+ - the tiling algorithm ought to lay windows out as follows:
  
     - Single surface: takes up the whole screen
     
-    - Two surfaces: The screen is split in two tiles of equal width (half the
+    - Two windows: The screen is split in two tiles of equal width (half the
       screen’s width) and full height. Each surface is placed in a tile (left
       or right), with the newest surface occupying the left tile.
       
-    - Three or more surfaces: The screen is split in two tiles of equal width
+    - Three or more windows: The screen is split in two tiles of equal width
       and full height, as in the previous case. The newest surface occupies
       the left tile. The right part is now further divided vertically into
-      smaller tiles having equal height, to host the remaining surfaces, with
-      older surfaces being closer to the bottom.
+      smaller tiles having equal height, to host the remaining windows, with
+      older windows being closer to the bottom.
 
   - Add a titlebar to the top of the screen. The titlebar should be split evenly
     into horizontal blocks, one per tile. Each block containing the title of the

@@ -119,7 +119,7 @@ void KioskWindowManagerPolicy::handle_new_surface(WindowInfo& window_info)
     auto const window = window_info.window;
     auto const session = window.session();
 
-    tools->info_for(session).surfaces.push_back(window);
+    tools->info_for(session).windows.push_back(window);
 
     if (auto const parent = window_info.parent)
     {
@@ -159,20 +159,20 @@ void KioskWindowManagerPolicy::handle_delete_surface(WindowInfo& window_info)
         }
     }
 
-    auto& surfaces = tools->info_for(session).surfaces;
+    auto& windows = tools->info_for(session).windows;
 
-    for (auto i = begin(surfaces); i != end(surfaces); ++i)
+    for (auto i = begin(windows); i != end(windows); ++i)
     {
         if (window == *i)
         {
-            surfaces.erase(i);
+            windows.erase(i);
             break;
         }
     }
 
     window_info.window.destroy_surface();
 
-    if (surfaces.empty() && session == tools->focused_session())
+    if (windows.empty() && session == tools->focused_session())
     {
         tools->focus_next_session();
         select_active_surface(tools->focused_surface());
@@ -301,15 +301,15 @@ void KioskWindowManagerPolicy::raise_internal_sessions() const
 {// Look for any internal sessions and raise its window(s)
     tools->for_each_session([this](ApplicationInfo const& app_info)
         {
-            if (!app_info.surfaces.empty())
+            if (!app_info.windows.empty())
             {
-                if (auto const& first_surface = app_info.surfaces[0])
+                if (auto const& first_surface = app_info.windows[0])
                 {
                     if (auto const scene_session = first_surface.session())
                     {
                         if (scene_session->process_id() == getpid())
                         {
-                            for (auto const& s : app_info.surfaces)
+                            for (auto const& s : app_info.windows)
                                 tools->raise_tree(s);
                         }
                     }

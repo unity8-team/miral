@@ -86,10 +86,8 @@ private:
     void resize(Point cursor);
     void toggle(MirSurfaceState state);
 
-    // "Mir and Unity: Surfaces, input, and displays (v0.3)" talks about active
-    //  *window*,but Mir really only understands surfaces
-    void select_active_surface(miral::Window const& window);
-    auto active_surface() const -> miral::Window;
+    void select_active_window(miral::Window const& window);
+    auto active_window() const -> miral::Window;
 
     bool resize(miral::Window const& window, Point cursor, Point old_cursor);
     bool drag(miral::Window window, Point to, Point from, Rectangle bounds);
@@ -101,7 +99,7 @@ private:
 
     Rectangle display_area;
     Point old_cursor{};
-    miral::Window active_surface_;
+    miral::Window active_window_;
     using FullscreenSurfaces = std::set<miral::Window>;
 
     FullscreenSurfaces fullscreen_surfaces;

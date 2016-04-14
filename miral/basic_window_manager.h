@@ -43,7 +43,7 @@ namespace miral
 using mir::shell::SurfaceSet;
 
 /// A policy based window manager.
-/// This takes care of the management of any meta implementation held for the sessions and surfaces.
+/// This takes care of the management of any meta implementation held for the sessions and windows.
 class BasicWindowManager : public virtual mir::shell::WindowManager,
     protected WindowManagerTools
 {

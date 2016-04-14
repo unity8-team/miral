@@ -56,7 +56,7 @@ CanonicalWindowManagerPolicy::CanonicalWindowManagerPolicy(WindowManagerTools* c
 void CanonicalWindowManagerPolicy::click(Point cursor)
 {
     if (auto const window = tools->surface_at(cursor))
-        select_active_surface(window);
+        select_active_window(window);
 }
 
 void CanonicalWindowManagerPolicy::handle_app_info_updated(Rectangles const& /*displays*/)
@@ -83,8 +83,8 @@ void CanonicalWindowManagerPolicy::handle_displays_updated(Rectangles const& dis
 
 void CanonicalWindowManagerPolicy::resize(Point cursor)
 {
-    select_active_surface(tools->surface_at(old_cursor));
-    resize(active_surface(), cursor, old_cursor);
+    select_active_window(tools->surface_at(old_cursor));
+    resize(active_window(), cursor, old_cursor);
 }
 
 auto CanonicalWindowManagerPolicy::handle_place_new_surface(
@@ -122,9 +122,9 @@ auto CanonicalWindowManagerPolicy::handle_place_new_surface(
     }
     else if (!has_parent) // No parent => client can't suggest positioning
     {
-        if (app_info.surfaces.size() > 0)
+        if (app_info.windows.size() > 0)
         {
-            if (auto const default_surface = app_info.surfaces[0])
+            if (auto const default_surface = app_info.windows[0])
             {
                 static Displacement const offset{title_bar_height, title_bar_height};
 
@@ -275,7 +275,7 @@ void CanonicalWindowManagerPolicy::handle_new_surface(WindowInfo& window_info)
         tools->info_for(parent).children.push_back(window_info.window);
     }
 
-    tools->info_for(session).surfaces.push_back(window_info.window);
+    tools->info_for(session).windows.push_back(window_info.window);
 
     if (window_info.state == mir_surface_state_fullscreen)
         fullscreen_surfaces.insert(window_info.window);
@@ -283,7 +283,7 @@ void CanonicalWindowManagerPolicy::handle_new_surface(WindowInfo& window_info)
 
 void CanonicalWindowManagerPolicy::handle_surface_ready(WindowInfo& window_info)
 {
-    select_active_surface(window_info.window);
+    select_active_window(window_info.window);
 }
 
 void CanonicalWindowManagerPolicy::handle_modify_surface(
@@ -406,24 +406,24 @@ void CanonicalWindowManagerPolicy::handle_delete_surface(WindowInfo& window_info
         tools->forget(titlebar->window);
     }
 
-    auto& surfaces = tools->info_for(session).surfaces;
+    auto& windows = tools->info_for(session).windows;
 
-    for (auto i = begin(surfaces); i != end(surfaces); ++i)
+    for (auto i = begin(windows); i != end(windows); ++i)
     {
         if (window == *i)
         {
-            surfaces.erase(i);
+            windows.erase(i);
             break;
         }
     }
 
     window.destroy_surface();
 
-    if (surfaces.empty() && session == tools->focused_session())
+    if (windows.empty() && session == tools->focused_session())
     {
-        active_surface_.reset();
+        active_window_.reset();
         tools->focus_next_session();
-        select_active_surface(tools->focused_surface());
+        select_active_window(tools->focused_surface());
     }
 }
 
@@ -556,13 +556,13 @@ auto CanonicalWindowManagerPolicy::transform_set_state(WindowInfo& window_info, 
 
 void CanonicalWindowManagerPolicy::drag(Point cursor)
 {
-    select_active_surface(tools->surface_at(old_cursor));
-    drag(active_surface(), cursor, old_cursor, display_area);
+    select_active_window(tools->surface_at(old_cursor));
+    drag(active_window(), cursor, old_cursor, display_area);
 }
 
 void CanonicalWindowManagerPolicy::handle_raise_surface(WindowInfo& window_info)
 {
-    select_active_surface(window_info.window);
+    select_active_window(window_info.window);
 }
 
 bool CanonicalWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* event)
@@ -619,7 +619,7 @@ bool CanonicalWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const*
     {
         tools->focus_next_session();
         if (auto const window = tools->focused_surface())
-            select_active_surface(window);
+            select_active_window(window);
 
         return true;
     }
@@ -630,7 +630,7 @@ bool CanonicalWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const*
         if (auto const prev = tools->focused_surface())
         {
             if (auto const app = tools->focused_session())
-                select_active_surface(app.surface_after(prev));
+                select_active_window(app.surface_after(prev));
         }
 
         return true;
@@ -745,7 +745,7 @@ bool CanonicalWindowManagerPolicy::handle_pointer_event(MirPointerEvent const* e
 
 void CanonicalWindowManagerPolicy::toggle(MirSurfaceState state)
 {
-    if (auto window = active_surface())
+    if (auto window = active_window())
     {
         auto& info = tools->info_for(window);
 
@@ -756,14 +756,14 @@ void CanonicalWindowManagerPolicy::toggle(MirSurfaceState state)
     }
 }
 
-void CanonicalWindowManagerPolicy::select_active_surface(Window const& window)
+void CanonicalWindowManagerPolicy::select_active_window(Window const& window)
 {
-    if (window == active_surface_)
+    if (window == active_window_)
         return;
 
     if (!window)
     {
-        if (auto const active_surface = active_surface_)
+        if (auto const active_surface = active_window_)
         {
             auto& info = tools->info_for(active_surface);
             if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(info.userdata))
@@ -772,10 +772,10 @@ void CanonicalWindowManagerPolicy::select_active_surface(Window const& window)
             }
         }
 
-        if (active_surface_)
+        if (active_window_)
             tools->set_focus_to({});
 
-        active_surface_.reset();
+        active_window_.reset();
         return;
     }
 
@@ -783,7 +783,7 @@ void CanonicalWindowManagerPolicy::select_active_surface(Window const& window)
 
     if (info_for.can_be_active())
     {
-        if (auto const active_surface = active_surface_)
+        if (auto const active_surface = active_window_)
         {
             auto& info = tools->info_for(active_surface);
             if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(info.userdata))
@@ -798,29 +798,29 @@ void CanonicalWindowManagerPolicy::select_active_surface(Window const& window)
         }
         tools->set_focus_to(info_for.window);
         tools->raise_tree(info_for.window);
-        active_surface_ = info_for.window;
+        active_window_ = info_for.window;
 
         // Frig to force the spinner to the top
         if (auto const spinner = spinner_session())
         {
             auto const& spinner_info = tools->info_for(spinner);
 
-            if (spinner_info.surfaces.size() > 0)
-                tools->raise_tree(spinner_info.surfaces[0]);
+            if (spinner_info.windows.size() > 0)
+                tools->raise_tree(spinner_info.windows[0]);
         }
     }
     else
     {
         // Cannot have input focus - try the parent
         if (auto const parent = info_for.parent)
-            select_active_surface(parent);
+            select_active_window(parent);
     }
 }
 
-auto CanonicalWindowManagerPolicy::active_surface() const
+auto CanonicalWindowManagerPolicy::active_window() const
 -> Window
 {
-    if (auto const window = active_surface_)
+    if (auto const window = active_window_)
         return window;
 
     if (auto const session = tools->focused_session())

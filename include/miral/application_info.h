@@ -29,7 +29,7 @@ namespace miral
 // TODO "Opaquify ApplicationInfo to provide a stable API
 struct ApplicationInfo
 {
-    std::vector<Window> surfaces;
+    std::vector<Window> windows;
 
     /// This can be used by client code to store window manager specific information
     std::shared_ptr<void> userdata;

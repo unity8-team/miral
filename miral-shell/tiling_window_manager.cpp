@@ -156,7 +156,7 @@ void TilingWindowManagerPolicy::handle_new_surface(WindowInfo& window_info)
     auto const window = window_info.window;
     auto const session = window.session();
 
-    tools->info_for(session).surfaces.push_back(window);
+    tools->info_for(session).windows.push_back(window);
 
     if (auto const parent = window_info.parent)
     {
@@ -196,20 +196,20 @@ void TilingWindowManagerPolicy::handle_delete_surface(WindowInfo& window_info)
         }
     }
 
-    auto& surfaces = tools->info_for(session).surfaces;
+    auto& windows = tools->info_for(session).windows;
 
-    for (auto i = begin(surfaces); i != end(surfaces); ++i)
+    for (auto i = begin(windows); i != end(windows); ++i)
     {
         if (window == *i)
         {
-            surfaces.erase(i);
+            windows.erase(i);
             break;
         }
     }
 
     window_info.window.destroy_surface();
 
-    if (surfaces.empty() && session == tools->focused_session())
+    if (windows.empty() && session == tools->focused_session())
     {
         tools->focus_next_session();
         select_active_surface(tools->focused_surface());
@@ -517,7 +517,7 @@ void TilingWindowManagerPolicy::update_surfaces(ApplicationInfo& info, Rectangle
 {
     auto displacement = new_tile.top_left - old_tile.top_left;
 
-    for (auto& window : info.surfaces)
+    for (auto& window : info.windows)
     {
         if (window)
         {
