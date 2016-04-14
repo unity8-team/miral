@@ -422,7 +422,7 @@ void CanonicalWindowManagerPolicy::handle_delete_window(WindowInfo& window_info)
     if (windows.empty() && session == tools->focused_application())
     {
         active_window_.reset();
-        tools->focus_next_session();
+        tools->focus_next_application();
         select_active_window(tools->focused_window());
     }
 }
@@ -617,7 +617,7 @@ bool CanonicalWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const*
             modifiers == mir_input_event_modifier_alt &&
             scan_code == KEY_TAB)
     {
-        tools->focus_next_session();
+        tools->focus_next_application();
         if (auto const window = tools->focused_window())
             select_active_window(window);
 
@@ -630,7 +630,7 @@ bool CanonicalWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const*
         if (auto const prev = tools->focused_window())
         {
             if (auto const app = tools->focused_application())
-                select_active_window(app.surface_after(prev));
+                select_active_window(app.window_after(prev));
         }
 
         return true;

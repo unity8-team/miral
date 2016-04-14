@@ -211,7 +211,7 @@ void TilingWindowManagerPolicy::handle_delete_window(WindowInfo& window_info)
 
     if (windows.empty() && session == tools->focused_application())
     {
-        tools->focus_next_session();
+        tools->focus_next_application();
         select_active_window(tools->focused_window());
     }
 }
@@ -351,7 +351,7 @@ bool TilingWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* ev
             modifiers == mir_input_event_modifier_alt &&
             scan_code == KEY_TAB)
     {
-        tools->focus_next_session();
+        tools->focus_next_application();
         select_active_window(tools->focused_window());
 
         return true;
@@ -363,7 +363,7 @@ bool TilingWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* ev
         if (auto const prev = tools->focused_window())
         {
             if (auto const app = tools->focused_application())
-                if (auto const window = app.surface_after(prev))
+                if (auto const window = app.window_after(prev))
                 {
                     select_active_window(tools->info_for(window).window);
                 }

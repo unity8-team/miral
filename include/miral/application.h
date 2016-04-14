@@ -38,7 +38,7 @@ public:
         tools(tools), scene_session{scene_session} {}
 
     auto default_window() const -> Window;
-    auto surface_after(Window const& window) const   -> Window;
+    auto window_after(Window const& window) const   -> Window;
     auto kill(int sig) const -> int;
 
     operator bool() const { return !!scene_session.lock(); }

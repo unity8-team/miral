@@ -30,7 +30,7 @@ auto miral::Application::default_window() const
     return tools->info_for(scene_session.lock()->default_surface()).window;
 }
 
-auto miral::Application::surface_after(Window const& window) const
+auto miral::Application::window_after(Window const& window) const
 -> Window
 {
     return tools->info_for(scene_session.lock()->surface_after(window)).window;

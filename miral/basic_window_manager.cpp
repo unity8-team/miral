@@ -245,7 +245,7 @@ auto miral::BasicWindowManager::focused_window() const
     return focussed_surface ? info_for(focussed_surface).window :Window{};
 }
 
-void miral::BasicWindowManager::focus_next_session()
+void miral::BasicWindowManager::focus_next_application()
 {
     focus_controller->focus_next_session();
 }
