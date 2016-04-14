@@ -35,7 +35,7 @@ KioskWindowManagerPolicy::KioskWindowManagerPolicy(WindowManagerTools* const too
 {
 }
 
-void KioskWindowManagerPolicy::handle_session_info_updated(Rectangles const& /*displays*/)
+void KioskWindowManagerPolicy::handle_app_info_updated(Rectangles const& /*displays*/)
 {
 }
 
@@ -44,7 +44,7 @@ void KioskWindowManagerPolicy::handle_displays_updated(Rectangles const& /*displ
 }
 
 auto KioskWindowManagerPolicy::handle_place_new_surface(
-    ApplicationInfo const& /*session_info*/,
+    ApplicationInfo const& /*app_info*/,
     ms::SurfaceCreationParameters const& request_parameters)
 -> ms::SurfaceCreationParameters
 {
@@ -110,42 +110,42 @@ auto KioskWindowManagerPolicy::handle_place_new_surface(
     return parameters;
 }
 
-void KioskWindowManagerPolicy::generate_decorations_for(WindowInfo& /*surface_info*/)
+void KioskWindowManagerPolicy::generate_decorations_for(WindowInfo& /*window_info*/)
 {
 }
 
-void KioskWindowManagerPolicy::handle_new_surface(WindowInfo& surface_info)
+void KioskWindowManagerPolicy::handle_new_surface(WindowInfo& window_info)
 {
-    auto const surface = surface_info.surface;
+    auto const surface = window_info.surface;
     auto const session = surface.session();
 
     tools->info_for(session).surfaces.push_back(surface);
 
-    if (auto const parent = surface_info.parent)
+    if (auto const parent = window_info.parent)
     {
         tools->info_for(parent).children.push_back(surface);
     }
 }
 
-void KioskWindowManagerPolicy::handle_surface_ready(WindowInfo& surface_info)
+void KioskWindowManagerPolicy::handle_surface_ready(WindowInfo& window_info)
 {
-    select_active_surface(surface_info.surface);
+    select_active_surface(window_info.surface);
 }
 
 void KioskWindowManagerPolicy::handle_modify_surface(
-    WindowInfo& surface_info,
+    WindowInfo& window_info,
     mir::shell::SurfaceSpecification const& modifications)
 {
     if (modifications.name.is_set())
-        surface_info.surface.rename(modifications.name.value());
+        window_info.surface.rename(modifications.name.value());
 }
 
-void KioskWindowManagerPolicy::handle_delete_surface(WindowInfo& surface_info)
+void KioskWindowManagerPolicy::handle_delete_surface(WindowInfo& window_info)
 {
-    auto const session = surface_info.surface.session();
-    auto const& surface = surface_info.surface;
+    auto const session = window_info.surface.session();
+    auto const& surface = window_info.surface;
 
-    if (auto const parent = surface_info.parent)
+    if (auto const parent = window_info.parent)
     {
         auto& siblings = tools->info_for(parent).children;
 
@@ -170,7 +170,7 @@ void KioskWindowManagerPolicy::handle_delete_surface(WindowInfo& surface_info)
         }
     }
 
-    surface_info.surface.destroy_surface();
+    window_info.surface.destroy_surface();
 
     if (surfaces.empty() && session == tools->focused_session())
     {
@@ -179,23 +179,23 @@ void KioskWindowManagerPolicy::handle_delete_surface(WindowInfo& surface_info)
     }
 }
 
-auto KioskWindowManagerPolicy::handle_set_state(WindowInfo& surface_info, MirSurfaceState value)
+auto KioskWindowManagerPolicy::handle_set_state(WindowInfo& window_info, MirSurfaceState value)
 -> MirSurfaceState
 {
-    auto state = transform_set_state(surface_info, value);
-    surface_info.surface.set_state(state);
+    auto state = transform_set_state(window_info, value);
+    window_info.surface.set_state(state);
     return state;
 }
 
-auto KioskWindowManagerPolicy::transform_set_state(WindowInfo& surface_info, MirSurfaceState /*value*/)
+auto KioskWindowManagerPolicy::transform_set_state(WindowInfo& window_info, MirSurfaceState /*value*/)
 -> MirSurfaceState
 {
-    return surface_info.state;
+    return window_info.state;
 }
 
-void KioskWindowManagerPolicy::handle_raise_surface(WindowInfo& surface_info)
+void KioskWindowManagerPolicy::handle_raise_surface(WindowInfo& window_info)
 {
-    select_active_surface(surface_info.surface);
+    select_active_surface(window_info.surface);
 }
 
 bool KioskWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* event)
@@ -299,17 +299,17 @@ auto KioskWindowManagerPolicy::select_active_surface(Window const& surface) -> W
 
 void KioskWindowManagerPolicy::raise_internal_sessions() const
 {// Look for any internal sessions and raise its surface(s)
-    tools->for_each_session([this](ApplicationInfo const& session_info)
+    tools->for_each_session([this](ApplicationInfo const& app_info)
         {
-            if (!session_info.surfaces.empty())
+            if (!app_info.surfaces.empty())
             {
-                if (auto const& first_surface = session_info.surfaces[0])
+                if (auto const& first_surface = app_info.surfaces[0])
                 {
                     if (auto const scene_session = first_surface.session())
                     {
                         if (scene_session->process_id() == getpid())
                         {
-                            for (auto const& s : session_info.surfaces)
+                            for (auto const& s : app_info.surfaces)
                                 tools->raise_tree(s);
                         }
                     }

@@ -138,8 +138,8 @@ private:
     std::unique_ptr<WindowManagementPolicy> const policy;
 
     std::mutex mutex;
-    SessionInfoMap session_info;
-    SurfaceInfoMap surface_info;
+    SessionInfoMap app_info;
+    SurfaceInfoMap window_info;
     mir::geometry::Rectangles displays;
     mir::geometry::Point cursor;
     uint64_t last_input_event_timestamp{0};

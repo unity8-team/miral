@@ -44,24 +44,24 @@ public:
 
     explicit CanonicalWindowManagerPolicy(miral::WindowManagerTools* const tools);
 
-    void handle_session_info_updated(Rectangles const& displays) override;
+    void handle_app_info_updated(Rectangles const& displays) override;
 
     void handle_displays_updated(Rectangles const& displays) override;
 
     auto handle_place_new_surface(
-        miral::ApplicationInfo const& session_info,
+        miral::ApplicationInfo const& app_info,
         mir::scene::SurfaceCreationParameters const& request_parameters)
     -> mir::scene::SurfaceCreationParameters override;
 
-    void handle_new_surface(miral::WindowInfo& surface_info) override;
+    void handle_new_surface(miral::WindowInfo& window_info) override;
 
-    void handle_surface_ready(miral::WindowInfo& surface_info) override;
+    void handle_surface_ready(miral::WindowInfo& window_info) override;
 
-    void handle_modify_surface(miral::WindowInfo& surface_info, mir::shell::SurfaceSpecification const& modifications) override;
+    void handle_modify_surface(miral::WindowInfo& window_info, mir::shell::SurfaceSpecification const& modifications) override;
 
-    void handle_delete_surface(miral::WindowInfo& surface_info) override;
+    void handle_delete_surface(miral::WindowInfo& window_info) override;
 
-    auto handle_set_state(miral::WindowInfo& surface_info, MirSurfaceState value) -> MirSurfaceState override;
+    auto handle_set_state(miral::WindowInfo& window_info, MirSurfaceState value) -> MirSurfaceState override;
 
     bool handle_keyboard_event(MirKeyboardEvent const* event) override;
 
@@ -69,9 +69,9 @@ public:
 
     bool handle_pointer_event(MirPointerEvent const* event) override;
 
-    void handle_raise_surface(miral::WindowInfo& surface_info) override;
+    void handle_raise_surface(miral::WindowInfo& window_info) override;
 
-    void generate_decorations_for(miral::WindowInfo& surface_info) override;
+    void generate_decorations_for(miral::WindowInfo& window_info) override;
 
 private:
     static const int modifier_mask =
@@ -94,8 +94,8 @@ private:
     bool resize(miral::Window const& surface, Point cursor, Point old_cursor);
     bool drag(miral::Window surface, Point to, Point from, Rectangle bounds);
     void move_tree(miral::WindowInfo& root, Displacement movement) const;
-    void apply_resize(miral::WindowInfo& surface_info, Point new_pos, Size new_size) const;
-    auto transform_set_state(miral::WindowInfo& surface_info, MirSurfaceState value) -> MirSurfaceState;
+    void apply_resize(miral::WindowInfo& window_info, Point new_pos, Size new_size) const;
+    auto transform_set_state(miral::WindowInfo& window_info, MirSurfaceState value) -> MirSurfaceState;
 
     miral::WindowManagerTools* const tools;
 

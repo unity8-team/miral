@@ -42,7 +42,7 @@ auto miral::BasicWindowManager::build_surface(std::shared_ptr<scene::Session> co
 -> WindowInfo&
 {
     auto result = surface_builder(session, parameters);
-    auto& info = surface_info.emplace(result, WindowInfo{result, parameters}).first->second;
+    auto& info = window_info.emplace(result, WindowInfo{result, parameters}).first->second;
     if (auto const parent = parameters.parent.lock())
         info.parent = info_for(parent).surface;
     return info;
@@ -51,15 +51,15 @@ auto miral::BasicWindowManager::build_surface(std::shared_ptr<scene::Session> co
 void miral::BasicWindowManager::add_session(std::shared_ptr<scene::Session> const& session)
 {
     std::lock_guard<decltype(mutex)> lock(mutex);
-    session_info[session] = ApplicationInfo();
-    policy->handle_session_info_updated(displays);
+    app_info[session] = ApplicationInfo();
+    policy->handle_app_info_updated(displays);
 }
 
 void miral::BasicWindowManager::remove_session(std::shared_ptr<scene::Session> const& session)
 {
     std::lock_guard<decltype(mutex)> lock(mutex);
-    session_info.erase(session);
-    policy->handle_session_info_updated(displays);
+    app_info.erase(session);
+    policy->handle_app_info_updated(displays);
 }
 
 auto miral::BasicWindowManager::add_surface(
@@ -73,23 +73,23 @@ auto miral::BasicWindowManager::add_surface(
         { return Window{session, build(session, params)}; };
     auto const placed_params = policy->handle_place_new_surface(info_for(session), params);
 
-    auto& surface_info = build_surface(session, placed_params);
+    auto& window_info = build_surface(session, placed_params);
 
-    policy->handle_new_surface(surface_info);
-    policy->generate_decorations_for(surface_info);
+    policy->handle_new_surface(window_info);
+    policy->generate_decorations_for(window_info);
 
-    if (surface_info.can_be_active())
+    if (window_info.can_be_active())
     {
-        std::shared_ptr<scene::Surface> const scene_surface = surface_info.surface;
+        std::shared_ptr<scene::Surface> const scene_surface = window_info.surface;
         scene_surface->add_observer(std::make_shared<shell::SurfaceReadyObserver>(
-            [this, &surface_info](std::shared_ptr<scene::Session> const&, std::shared_ptr<scene::Surface> const&)
-                { policy->handle_surface_ready(surface_info); },
+            [this, &window_info](std::shared_ptr<scene::Session> const&, std::shared_ptr<scene::Surface> const&)
+                { policy->handle_surface_ready(window_info); },
             session,
             scene_surface));
     }
 
 
-    return surface_info.surface.surface_id();
+    return window_info.surface.surface_id();
 }
 
 void miral::BasicWindowManager::modify_surface(
@@ -108,12 +108,12 @@ void miral::BasicWindowManager::remove_surface(
     std::lock_guard<decltype(mutex)> lock(mutex);
     policy->handle_delete_surface(info_for(surface));
 
-    surface_info.erase(surface);
+    window_info.erase(surface);
 }
 
 void miral::BasicWindowManager::forget(Window const& surface)
 {
-    surface_info.erase(surface);
+    window_info.erase(surface);
 }
 
 void miral::BasicWindowManager::add_display(geometry::Rectangle const& area)
@@ -187,13 +187,13 @@ int miral::BasicWindowManager::set_surface_attribute(
 auto miral::BasicWindowManager::count_sessions() const
 -> unsigned int
 {
-    return session_info.size();
+    return app_info.size();
 }
 
 
 void miral::BasicWindowManager::for_each_session(std::function<void(ApplicationInfo& info)> const& functor)
 {
-    for(auto& info : session_info)
+    for(auto& info : app_info)
     {
         functor(info.second);
     }
@@ -202,7 +202,7 @@ void miral::BasicWindowManager::for_each_session(std::function<void(ApplicationI
 auto miral::BasicWindowManager::find_session(std::function<bool(ApplicationInfo const& info)> const& predicate)
 -> Application
 {
-    for(auto& info : session_info)
+    for(auto& info : app_info)
     {
         if (predicate(info.second))
         {
@@ -216,13 +216,13 @@ auto miral::BasicWindowManager::find_session(std::function<bool(ApplicationInfo 
 auto miral::BasicWindowManager::info_for(std::weak_ptr<scene::Session> const& session) const
 -> ApplicationInfo&
 {
-    return const_cast<ApplicationInfo&>(session_info.at(session));
+    return const_cast<ApplicationInfo&>(app_info.at(session));
 }
 
 auto miral::BasicWindowManager::info_for(std::weak_ptr<scene::Surface> const& surface) const
 -> WindowInfo&
 {
-    return const_cast<WindowInfo&>(surface_info.at(surface));
+    return const_cast<WindowInfo&>(window_info.at(surface));
 }
 
 auto miral::BasicWindowManager::info_for(Window const& surface) const
