@@ -54,9 +54,9 @@ TilingWindowManagerPolicy::TilingWindowManagerPolicy(WindowManagerTools* const t
 
 void TilingWindowManagerPolicy::click(Point cursor)
 {
-    auto const session = session_under(cursor);
+    auto const session = application_under(cursor);
     auto const window = tools->window_at(cursor);
-    select_active_surface(window);
+    select_active_window(window);
 }
 
 void TilingWindowManagerPolicy::handle_app_info_updated(Rectangles const& displays)
@@ -71,11 +71,11 @@ void TilingWindowManagerPolicy::handle_displays_updated(Rectangles const& displa
 
 void TilingWindowManagerPolicy::resize(Point cursor)
 {
-    if (auto const session = session_under(cursor))
+    if (auto const session = application_under(cursor))
     {
-        if (session == session_under(old_cursor))
+        if (session == application_under(old_cursor))
         {
-            if (auto const window = select_active_surface(tools->window_at(old_cursor)))
+            if (auto const window = select_active_window(tools->window_at(old_cursor)))
             {
                 resize(window, cursor, old_cursor, tile_for(tools->info_for(session)));
             }
@@ -166,7 +166,7 @@ void TilingWindowManagerPolicy::handle_new_window(WindowInfo& window_info)
 
 void TilingWindowManagerPolicy::handle_window_ready(WindowInfo& window_info)
 {
-    select_active_surface(window_info.window);
+    select_active_window(window_info.window);
 }
 
 void TilingWindowManagerPolicy::handle_modify_window(
@@ -212,7 +212,7 @@ void TilingWindowManagerPolicy::handle_delete_window(WindowInfo& window_info)
     if (windows.empty() && session == tools->focused_application())
     {
         tools->focus_next_session();
-        select_active_surface(tools->focused_window());
+        select_active_window(tools->focused_window());
     }
 }
 
@@ -282,11 +282,11 @@ auto TilingWindowManagerPolicy::transform_set_state(WindowInfo& window_info, Mir
 
 void TilingWindowManagerPolicy::drag(Point cursor)
 {
-    if (auto const session = session_under(cursor))
+    if (auto const session = application_under(cursor))
     {
-        if (session == session_under(old_cursor))
+        if (session == application_under(old_cursor))
         {
-            if (auto const window = select_active_surface(tools->window_at(old_cursor)))
+            if (auto const window = select_active_window(tools->window_at(old_cursor)))
             {
                 drag(tools->info_for(window), cursor, old_cursor, tile_for(tools->info_for(session)));
             }
@@ -296,7 +296,7 @@ void TilingWindowManagerPolicy::drag(Point cursor)
 
 void TilingWindowManagerPolicy::handle_raise_window(WindowInfo& window_info)
 {
-    select_active_surface(window_info.window);
+    select_active_window(window_info.window);
 }
 
 bool TilingWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* event)
@@ -336,9 +336,9 @@ bool TilingWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* ev
                 return true;
 
             case mir_input_event_modifier_ctrl:
-                if (auto const surf = session.default_surface())
+                if (auto const window = session.default_window())
                 {
-                    surf.request_client_surface_close();
+                    window.request_client_surface_close();
                     return true;
                 }
 
@@ -352,7 +352,7 @@ bool TilingWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* ev
             scan_code == KEY_TAB)
     {
         tools->focus_next_session();
-        select_active_surface(tools->focused_window());
+        select_active_window(tools->focused_window());
 
         return true;
     }
@@ -365,7 +365,7 @@ bool TilingWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* ev
             if (auto const app = tools->focused_application())
                 if (auto const window = app.surface_after(prev))
                 {
-                    select_active_surface(tools->info_for(window).window);
+                    select_active_window(tools->info_for(window).window);
                 }
         }
 
@@ -464,7 +464,7 @@ void TilingWindowManagerPolicy::toggle(MirSurfaceState state)
 {
     if (auto const session = tools->focused_application())
     {
-        if (auto window = session.default_surface())
+        if (auto window = session.default_window())
         {
             if (window.state() == state)
                 state = mir_surface_state_restored;
@@ -474,7 +474,7 @@ void TilingWindowManagerPolicy::toggle(MirSurfaceState state)
     }
 }
 
-auto TilingWindowManagerPolicy::session_under(Point position)
+auto TilingWindowManagerPolicy::application_under(Point position)
 -> Application
 {
     return tools->find_application([&](ApplicationInfo const& info) { return tile_for(info).contains(position);});
@@ -627,7 +627,7 @@ void TilingWindowManagerPolicy::resize(Window window, Point cursor, Point old_cu
     }
 }
 
-auto TilingWindowManagerPolicy::select_active_surface(Window const& window) -> Window
+auto TilingWindowManagerPolicy::select_active_window(Window const& window) -> Window
 {
     if (!window)
     {
@@ -647,7 +647,7 @@ auto TilingWindowManagerPolicy::select_active_surface(Window const& window) -> W
     {
         // Cannot have input focus - try the parent
         if (auto const parent = info_for.parent)
-            return select_active_surface(parent);
+            return select_active_window(parent);
 
         return {};
     }

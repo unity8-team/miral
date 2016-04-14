@@ -37,7 +37,7 @@ public:
     explicit Application(WindowManagerTools const* tools, std::weak_ptr<mir::scene::Session> const& scene_session) :
         tools(tools), scene_session{scene_session} {}
 
-    auto default_surface() const -> Window;
+    auto default_window() const -> Window;
     auto surface_after(Window const& window) const   -> Window;
     auto kill(int sig) const -> int;
 

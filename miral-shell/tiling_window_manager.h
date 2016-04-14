@@ -80,12 +80,12 @@ private:
     void drag(Point cursor);
     void toggle(MirSurfaceState state);
 
-    miral::Application session_under(Point position);
+    miral::Application application_under(Point position);
 
     void update_tiles(Rectangles const& displays);
     void update_surfaces(miral::ApplicationInfo& info, Rectangle const& old_tile, Rectangle const& new_tile);
     void drag(miral::WindowInfo& window_info, Point to, Point from, Rectangle bounds);
-    auto select_active_surface(miral::Window const& window) -> miral::Window;
+    auto select_active_window(miral::Window const& window) -> miral::Window;
     auto transform_set_state(miral::WindowInfo& window_info, MirSurfaceState value) -> MirSurfaceState;
 
     static void clip_to_tile(mir::scene::SurfaceCreationParameters& parameters, Rectangle const& tile);

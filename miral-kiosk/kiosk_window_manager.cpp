@@ -129,7 +129,7 @@ void KioskWindowManagerPolicy::handle_new_window(WindowInfo& window_info)
 
 void KioskWindowManagerPolicy::handle_window_ready(WindowInfo& window_info)
 {
-    select_active_surface(window_info.window);
+    select_active_window(window_info.window);
 }
 
 void KioskWindowManagerPolicy::handle_modify_window(
@@ -175,7 +175,7 @@ void KioskWindowManagerPolicy::handle_delete_window(WindowInfo& window_info)
     if (windows.empty() && session == tools->focused_application())
     {
         tools->focus_next_session();
-        select_active_surface(tools->focused_window());
+        select_active_window(tools->focused_window());
     }
 }
 
@@ -195,7 +195,7 @@ auto KioskWindowManagerPolicy::transform_set_state(WindowInfo& window_info, MirS
 
 void KioskWindowManagerPolicy::handle_raise_window(WindowInfo& window_info)
 {
-    select_active_surface(window_info.window);
+    select_active_window(window_info.window);
 }
 
 bool KioskWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* event)
@@ -209,7 +209,7 @@ bool KioskWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* eve
             scan_code == KEY_TAB)
     {
         tools->focus_next_session();
-        select_active_surface(tools->focused_window());
+        select_active_window(tools->focused_window());
 
         return true;
     }
@@ -222,7 +222,7 @@ bool KioskWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* eve
             if (auto const app = tools->focused_application())
                 if (auto const window = app.surface_after(prev))
                 {
-                    select_active_surface(tools->info_for(window).window);
+                    select_active_window(tools->info_for(window).window);
                 }
         }
 
@@ -261,14 +261,14 @@ bool KioskWindowManagerPolicy::handle_pointer_event(MirPointerEvent const* event
 
     if (action == mir_pointer_action_button_down)
     {
-        select_active_surface(tools->window_at(cursor));
+        select_active_window(tools->window_at(cursor));
     }
 
     old_cursor = cursor;
     return false;
 }
 
-auto KioskWindowManagerPolicy::select_active_surface(Window const& window) -> Window
+auto KioskWindowManagerPolicy::select_active_window(Window const& window) -> Window
 {
     if (!window)
     {
@@ -291,7 +291,7 @@ auto KioskWindowManagerPolicy::select_active_surface(Window const& window) -> Wi
     {
         // Cannot have input focus - try the parent
         if (auto const parent = info_for.parent)
-            return select_active_surface(parent);
+            return select_active_window(parent);
 
         return {};
     }

@@ -124,13 +124,13 @@ auto CanonicalWindowManagerPolicy::handle_place_new_surface(
     {
         if (app_info.windows.size() > 0)
         {
-            if (auto const default_surface = app_info.windows[0])
+            if (auto const default_window = app_info.windows[0])
             {
                 static Displacement const offset{title_bar_height, title_bar_height};
 
-                parameters.top_left = default_surface.top_left() + offset;
+                parameters.top_left = default_window.top_left() + offset;
 
-                Rectangle display_for_app{default_surface.top_left(), default_surface.size()};
+                Rectangle display_for_app{default_window.top_left(), default_window.size()};
 
                 tools->size_to_output(display_for_app);
 
@@ -602,9 +602,9 @@ bool CanonicalWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const*
                 return true;
 
             case mir_input_event_modifier_ctrl:
-                if (auto const surf = session.default_surface())
+                if (auto const window = session.default_window())
                 {
-                    surf.request_client_surface_close();
+                    window.request_client_surface_close();
                     return true;
                 }
 
@@ -825,7 +825,7 @@ auto CanonicalWindowManagerPolicy::active_window() const
 
     if (auto const session = tools->focused_application())
     {
-        if (auto const window = session.default_surface())
+        if (auto const window = session.default_window())
             return window;
     }
 
