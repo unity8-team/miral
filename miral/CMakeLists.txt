@@ -12,7 +12,7 @@ add_library(miral SHARED
     window_management_options.cpp     ${CMAKE_SOURCE_DIR}/include/miral/window_management_options.h
     internal_client.cpp               ${CMAKE_SOURCE_DIR}/include/miral/internal_client.h
     basic_window_manager.cpp          basic_window_manager.h
-    ${CMAKE_SOURCE_DIR}/include/miral/session_info.h
+    ${CMAKE_SOURCE_DIR}/include/miral/application_info.h
     ${CMAKE_SOURCE_DIR}/include/miral/window_management_policy.h
     ${CMAKE_SOURCE_DIR}/include/miral/window_manager_tools.h
 )
