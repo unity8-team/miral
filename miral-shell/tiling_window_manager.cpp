@@ -55,8 +55,8 @@ TilingWindowManagerPolicy::TilingWindowManagerPolicy(WindowManagerTools* const t
 void TilingWindowManagerPolicy::click(Point cursor)
 {
     auto const session = session_under(cursor);
-    auto const surface = tools->surface_at(cursor);
-    select_active_surface(surface);
+    auto const window = tools->surface_at(cursor);
+    select_active_surface(window);
 }
 
 void TilingWindowManagerPolicy::handle_app_info_updated(Rectangles const& displays)
@@ -75,9 +75,9 @@ void TilingWindowManagerPolicy::resize(Point cursor)
     {
         if (session == session_under(old_cursor))
         {
-            if (auto const surface = select_active_surface(tools->surface_at(old_cursor)))
+            if (auto const window = select_active_surface(tools->surface_at(old_cursor)))
             {
-                resize(surface, cursor, old_cursor, tile_for(tools->info_for(session)));
+                resize(window, cursor, old_cursor, tile_for(tools->info_for(session)));
             }
         }
     }
@@ -95,7 +95,7 @@ auto TilingWindowManagerPolicy::handle_place_new_surface(
 
     if (parameters.parent.lock())
     {
-        auto parent = tools->info_for(parameters.parent).surface;
+        auto parent = tools->info_for(parameters.parent).window;
         auto const width = parameters.size.width.as_int();
         auto const height = parameters.size.height.as_int();
 
@@ -153,20 +153,20 @@ void TilingWindowManagerPolicy::generate_decorations_for(WindowInfo& /*window_in
 
 void TilingWindowManagerPolicy::handle_new_surface(WindowInfo& window_info)
 {
-    auto const surface = window_info.surface;
-    auto const session = surface.session();
+    auto const window = window_info.window;
+    auto const session = window.session();
 
-    tools->info_for(session).surfaces.push_back(surface);
+    tools->info_for(session).surfaces.push_back(window);
 
     if (auto const parent = window_info.parent)
     {
-        tools->info_for(parent).children.push_back(surface);
+        tools->info_for(parent).children.push_back(window);
     }
 }
 
 void TilingWindowManagerPolicy::handle_surface_ready(WindowInfo& window_info)
 {
-    select_active_surface(window_info.surface);
+    select_active_surface(window_info.window);
 }
 
 void TilingWindowManagerPolicy::handle_modify_surface(
@@ -174,13 +174,13 @@ void TilingWindowManagerPolicy::handle_modify_surface(
     mir::shell::SurfaceSpecification const& modifications)
 {
     if (modifications.name.is_set())
-        window_info.surface.rename(modifications.name.value());
+        window_info.window.rename(modifications.name.value());
 }
 
 void TilingWindowManagerPolicy::handle_delete_surface(WindowInfo& window_info)
 {
-    auto const session = window_info.surface.session();
-    auto const& surface = window_info.surface;
+    auto const session = window_info.window.session();
+    auto const& window = window_info.window;
 
     if (auto const parent = window_info.parent)
     {
@@ -188,7 +188,7 @@ void TilingWindowManagerPolicy::handle_delete_surface(WindowInfo& window_info)
 
         for (auto i = begin(siblings); i != end(siblings); ++i)
         {
-            if (surface == *i)
+            if (window == *i)
             {
                 siblings.erase(i);
                 break;
@@ -200,14 +200,14 @@ void TilingWindowManagerPolicy::handle_delete_surface(WindowInfo& window_info)
 
     for (auto i = begin(surfaces); i != end(surfaces); ++i)
     {
-        if (surface == *i)
+        if (window == *i)
         {
             surfaces.erase(i);
             break;
         }
     }
 
-    window_info.surface.destroy_surface();
+    window_info.window.destroy_surface();
 
     if (surfaces.empty() && session == tools->focused_session())
     {
@@ -220,7 +220,7 @@ auto TilingWindowManagerPolicy::handle_set_state(WindowInfo& window_info, MirSur
 -> MirSurfaceState
 {
     auto state = transform_set_state(window_info, value);
-    window_info.surface.set_state(state);
+    window_info.window.set_state(state);
     return state;
 }
 
@@ -241,7 +241,7 @@ auto TilingWindowManagerPolicy::transform_set_state(WindowInfo& window_info, Mir
 
     if (window_info.state == mir_surface_state_restored)
     {
-        window_info.restore_rect = {window_info.surface.top_left(), window_info.surface.size()};
+        window_info.restore_rect = {window_info.window.top_left(), window_info.window.size()};
     }
 
     if (window_info.state == value)
@@ -249,28 +249,28 @@ auto TilingWindowManagerPolicy::transform_set_state(WindowInfo& window_info, Mir
         return window_info.state;
     }
 
-    auto const& tile = tile_for(tools->info_for(window_info.surface.session()));
+    auto const& tile = tile_for(tools->info_for(window_info.window.session()));
 
     switch (value)
     {
     case mir_surface_state_restored:
-        window_info.surface.resize(window_info.restore_rect.size);
-        drag(window_info, window_info.restore_rect.top_left, window_info.surface.top_left(), tile);
+        window_info.window.resize(window_info.restore_rect.size);
+        drag(window_info, window_info.restore_rect.top_left, window_info.window.top_left(), tile);
         break;
 
     case mir_surface_state_maximized:
-        window_info.surface.resize(tile.size);
-        drag(window_info, tile.top_left, window_info.surface.top_left(), tile);
+        window_info.window.resize(tile.size);
+        drag(window_info, tile.top_left, window_info.window.top_left(), tile);
         break;
 
     case mir_surface_state_horizmaximized:
-        window_info.surface.resize({tile.size.width, window_info.restore_rect.size.height});
-        drag(window_info, {tile.top_left.x, window_info.restore_rect.top_left.y}, window_info.surface.top_left(), tile);
+        window_info.window.resize({tile.size.width, window_info.restore_rect.size.height});
+        drag(window_info, {tile.top_left.x, window_info.restore_rect.top_left.y}, window_info.window.top_left(), tile);
         break;
 
     case mir_surface_state_vertmaximized:
-        window_info.surface.resize({window_info.restore_rect.size.width, tile.size.height});
-        drag(window_info, {window_info.restore_rect.top_left.x, tile.top_left.y}, window_info.surface.top_left(), tile);
+        window_info.window.resize({window_info.restore_rect.size.width, tile.size.height});
+        drag(window_info, {window_info.restore_rect.top_left.x, tile.top_left.y}, window_info.window.top_left(), tile);
         break;
 
     default:
@@ -286,9 +286,9 @@ void TilingWindowManagerPolicy::drag(Point cursor)
     {
         if (session == session_under(old_cursor))
         {
-            if (auto const surface = select_active_surface(tools->surface_at(old_cursor)))
+            if (auto const window = select_active_surface(tools->surface_at(old_cursor)))
             {
-                drag(tools->info_for(surface), cursor, old_cursor, tile_for(tools->info_for(session)));
+                drag(tools->info_for(window), cursor, old_cursor, tile_for(tools->info_for(session)));
             }
         }
     }
@@ -296,7 +296,7 @@ void TilingWindowManagerPolicy::drag(Point cursor)
 
 void TilingWindowManagerPolicy::handle_raise_surface(WindowInfo& window_info)
 {
-    select_active_surface(window_info.surface);
+    select_active_surface(window_info.window);
 }
 
 bool TilingWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* event)
@@ -363,9 +363,9 @@ bool TilingWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* ev
         if (auto const prev = tools->focused_surface())
         {
             if (auto const app = tools->focused_session())
-                if (auto const surface = app.surface_after(prev))
+                if (auto const window = app.surface_after(prev))
                 {
-                    select_active_surface(tools->info_for(surface).surface);
+                    select_active_surface(tools->info_for(window).window);
                 }
         }
 
@@ -464,12 +464,12 @@ void TilingWindowManagerPolicy::toggle(MirSurfaceState state)
 {
     if (auto const session = tools->focused_session())
     {
-        if (auto surface = session.default_surface())
+        if (auto window = session.default_surface())
         {
-            if (surface.state() == state)
+            if (window.state() == state)
                 state = mir_surface_state_restored;
 
-            handle_set_state(tools->info_for(surface), state);
+            handle_set_state(tools->info_for(window), state);
         }
     }
 }
@@ -517,14 +517,14 @@ void TilingWindowManagerPolicy::update_surfaces(ApplicationInfo& info, Rectangle
 {
     auto displacement = new_tile.top_left - old_tile.top_left;
 
-    for (auto& surface : info.surfaces)
+    for (auto& window : info.surfaces)
     {
-        if (surface)
+        if (window)
         {
-            auto const old_pos = surface.top_left();
-            surface.move_to(old_pos + displacement);
+            auto const old_pos = window.top_left();
+            window.move_to(old_pos + displacement);
 
-            fit_to_new_tile(surface, old_tile, new_tile);
+            fit_to_new_tile(window, old_tile, new_tile);
         }
     }
 }
@@ -539,28 +539,28 @@ void TilingWindowManagerPolicy::clip_to_tile(ms::SurfaceCreationParameters& para
     parameters.size = Size{width, height};
 }
 
-void TilingWindowManagerPolicy::fit_to_new_tile(miral::Window& surface, Rectangle const& old_tile, Rectangle const& new_tile)
+void TilingWindowManagerPolicy::fit_to_new_tile(miral::Window& window, Rectangle const& old_tile, Rectangle const& new_tile)
 {
-    auto const displacement = surface.top_left() - new_tile.top_left;
+    auto const displacement = window.top_left() - new_tile.top_left;
 
     // For now just scale if was filling width/height of tile
-    auto const old_size = surface.size();
+    auto const old_size = window.size();
     auto const scaled_width = old_size.width == old_tile.size.width ? new_tile.size.width : old_size.width;
     auto const scaled_height = old_size.height == old_tile.size.height ? new_tile.size.height : old_size.height;
 
     auto width = std::min(new_tile.size.width.as_int()-displacement.dx.as_int(), scaled_width.as_int());
     auto height = std::min(new_tile.size.height.as_int()-displacement.dy.as_int(), scaled_height.as_int());
 
-    surface.resize({width, height});
+    window.resize({width, height});
 }
 
 void TilingWindowManagerPolicy::drag(WindowInfo& window_info, Point to, Point from, Rectangle bounds)
 {
-    if (window_info.surface && window_info.surface.input_area_contains(from))
+    if (window_info.window && window_info.window.input_area_contains(from))
     {
         auto movement = to - from;
 
-        constrained_move(window_info.surface, movement, bounds);
+        constrained_move(window_info.window, movement, bounds);
 
         for (auto const& child: window_info.children)
         {
@@ -571,12 +571,12 @@ void TilingWindowManagerPolicy::drag(WindowInfo& window_info, Point to, Point fr
 }
 
 void TilingWindowManagerPolicy::constrained_move(
-    Window surface,
+    Window window,
     Displacement& movement,
     Rectangle const& bounds)
 {
-    auto const top_left = surface.top_left();
-    auto const surface_size = surface.size();
+    auto const top_left = window.top_left();
+    auto const surface_size = window.size();
     auto const bottom_right = top_left + as_displacement(surface_size);
 
     if (movement.dx < DeltaX{0})
@@ -591,16 +591,16 @@ void TilingWindowManagerPolicy::constrained_move(
     if (movement.dy > DeltaY{0})
             movement.dy = std::min(movement.dy, (bounds.bottom_right() - bottom_right).dy);
 
-    auto new_pos = surface.top_left() + movement;
+    auto new_pos = window.top_left() + movement;
 
-    surface.move_to(new_pos);
+    window.move_to(new_pos);
 }
 
-void TilingWindowManagerPolicy::resize(Window surface, Point cursor, Point old_cursor, Rectangle bounds)
+void TilingWindowManagerPolicy::resize(Window window, Point cursor, Point old_cursor, Rectangle bounds)
 {
-    if (surface && surface.input_area_contains(old_cursor))
+    if (window && window.input_area_contains(old_cursor))
     {
-        auto const top_left = surface.top_left();
+        auto const top_left = window.top_left();
 
         auto const old_displacement = old_cursor - top_left;
         auto const new_displacement = cursor - top_left;
@@ -610,7 +610,7 @@ void TilingWindowManagerPolicy::resize(Window surface, Point cursor, Point old_c
 
         if (scale_x <= 0.0f || scale_y <= 0.0f) return;
 
-        auto const old_size = surface.size();
+        auto const old_size = window.size();
         Size new_size{scale_x*old_size.width, scale_y*old_size.height};
 
         auto const size_limits = as_size(bounds.bottom_right() - top_left);
@@ -621,25 +621,25 @@ void TilingWindowManagerPolicy::resize(Window surface, Point cursor, Point old_c
         if (new_size.height > size_limits.height)
             new_size.height = size_limits.height;
 
-        surface.resize(new_size);
+        window.resize(new_size);
     }
 }
 
-auto TilingWindowManagerPolicy::select_active_surface(Window const& surface) -> Window
+auto TilingWindowManagerPolicy::select_active_surface(Window const& window) -> Window
 {
-    if (!surface)
+    if (!window)
     {
         tools->set_focus_to({});
-        return surface;
+        return window;
     }
 
-    auto const& info_for = tools->info_for(surface);
+    auto const& info_for = tools->info_for(window);
 
     if (info_for.can_be_active())
     {
-        tools->set_focus_to(info_for.surface);
-        tools->raise_tree(surface);
-        return surface;
+        tools->set_focus_to(info_for.window);
+        tools->raise_tree(window);
+        return window;
     }
     else
     {

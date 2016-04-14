@@ -118,10 +118,10 @@ void CanonicalWindowManagementPolicyData::paint_titlebar(int intensity)
 {
     if (!stream_painter)
     {
-        auto stream = std::shared_ptr<mir::scene::Surface>(surface)->primary_buffer_stream();
+        auto stream = std::shared_ptr<mir::scene::Surface>(window)->primary_buffer_stream();
         try
         {
-            stream_painter = std::make_shared<AllocatingPainter>(stream, surface.size());
+            stream_painter = std::make_shared<AllocatingPainter>(stream, window.size());
         }
         catch (...)
         {

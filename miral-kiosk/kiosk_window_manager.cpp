@@ -55,7 +55,7 @@ auto KioskWindowManagerPolicy::handle_place_new_surface(
 
     if (parameters.parent.lock())
     {
-        auto parent = tools->info_for(parameters.parent).surface;
+        auto parent = tools->info_for(parameters.parent).window;
         auto const width = parameters.size.width.as_int();
         auto const height = parameters.size.height.as_int();
 
@@ -116,20 +116,20 @@ void KioskWindowManagerPolicy::generate_decorations_for(WindowInfo& /*window_inf
 
 void KioskWindowManagerPolicy::handle_new_surface(WindowInfo& window_info)
 {
-    auto const surface = window_info.surface;
-    auto const session = surface.session();
+    auto const window = window_info.window;
+    auto const session = window.session();
 
-    tools->info_for(session).surfaces.push_back(surface);
+    tools->info_for(session).surfaces.push_back(window);
 
     if (auto const parent = window_info.parent)
     {
-        tools->info_for(parent).children.push_back(surface);
+        tools->info_for(parent).children.push_back(window);
     }
 }
 
 void KioskWindowManagerPolicy::handle_surface_ready(WindowInfo& window_info)
 {
-    select_active_surface(window_info.surface);
+    select_active_surface(window_info.window);
 }
 
 void KioskWindowManagerPolicy::handle_modify_surface(
@@ -137,13 +137,13 @@ void KioskWindowManagerPolicy::handle_modify_surface(
     mir::shell::SurfaceSpecification const& modifications)
 {
     if (modifications.name.is_set())
-        window_info.surface.rename(modifications.name.value());
+        window_info.window.rename(modifications.name.value());
 }
 
 void KioskWindowManagerPolicy::handle_delete_surface(WindowInfo& window_info)
 {
-    auto const session = window_info.surface.session();
-    auto const& surface = window_info.surface;
+    auto const session = window_info.window.session();
+    auto const& window = window_info.window;
 
     if (auto const parent = window_info.parent)
     {
@@ -151,7 +151,7 @@ void KioskWindowManagerPolicy::handle_delete_surface(WindowInfo& window_info)
 
         for (auto i = begin(siblings); i != end(siblings); ++i)
         {
-            if (surface == *i)
+            if (window == *i)
             {
                 siblings.erase(i);
                 break;
@@ -163,14 +163,14 @@ void KioskWindowManagerPolicy::handle_delete_surface(WindowInfo& window_info)
 
     for (auto i = begin(surfaces); i != end(surfaces); ++i)
     {
-        if (surface == *i)
+        if (window == *i)
         {
             surfaces.erase(i);
             break;
         }
     }
 
-    window_info.surface.destroy_surface();
+    window_info.window.destroy_surface();
 
     if (surfaces.empty() && session == tools->focused_session())
     {
@@ -183,7 +183,7 @@ auto KioskWindowManagerPolicy::handle_set_state(WindowInfo& window_info, MirSurf
 -> MirSurfaceState
 {
     auto state = transform_set_state(window_info, value);
-    window_info.surface.set_state(state);
+    window_info.window.set_state(state);
     return state;
 }
 
@@ -195,7 +195,7 @@ auto KioskWindowManagerPolicy::transform_set_state(WindowInfo& window_info, MirS
 
 void KioskWindowManagerPolicy::handle_raise_surface(WindowInfo& window_info)
 {
-    select_active_surface(window_info.surface);
+    select_active_surface(window_info.window);
 }
 
 bool KioskWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* event)
@@ -220,9 +220,9 @@ bool KioskWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* eve
         if (auto const prev = tools->focused_surface())
         {
             if (auto const app = tools->focused_session())
-                if (auto const surface = app.surface_after(prev))
+                if (auto const window = app.surface_after(prev))
                 {
-                    select_active_surface(tools->info_for(surface).surface);
+                    select_active_surface(tools->info_for(window).window);
                 }
         }
 
@@ -268,24 +268,24 @@ bool KioskWindowManagerPolicy::handle_pointer_event(MirPointerEvent const* event
     return false;
 }
 
-auto KioskWindowManagerPolicy::select_active_surface(Window const& surface) -> Window
+auto KioskWindowManagerPolicy::select_active_surface(Window const& window) -> Window
 {
-    if (!surface)
+    if (!window)
     {
         tools->set_focus_to({});
-        return surface;
+        return window;
     }
 
-    auto const& info_for = tools->info_for(surface);
+    auto const& info_for = tools->info_for(window);
 
     if (info_for.can_be_active())
     {
-        tools->set_focus_to(info_for.surface);
-        tools->raise_tree(surface);
+        tools->set_focus_to(info_for.window);
+        tools->raise_tree(window);
 
         raise_internal_sessions();
 
-        return surface;
+        return window;
     }
     else
     {
@@ -298,7 +298,7 @@ auto KioskWindowManagerPolicy::select_active_surface(Window const& surface) -> W
 }
 
 void KioskWindowManagerPolicy::raise_internal_sessions() const
-{// Look for any internal sessions and raise its surface(s)
+{// Look for any internal sessions and raise its window(s)
     tools->for_each_session([this](ApplicationInfo const& app_info)
         {
             if (!app_info.surfaces.empty())

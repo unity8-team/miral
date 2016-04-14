@@ -56,7 +56,7 @@ public:
 
     virtual auto info_for(std::weak_ptr<mir::scene::Surface> const& surface) const -> WindowInfo& = 0;
 
-    virtual auto info_for(Window const& surface) const -> WindowInfo& = 0;
+    virtual auto info_for(Window const& window) const -> WindowInfo& = 0;
 
     virtual auto focused_session() const -> Application = 0;
 
@@ -64,13 +64,13 @@ public:
 
     virtual void focus_next_session() = 0;
 
-    virtual void set_focus_to(Window const& surface) = 0;
+    virtual void set_focus_to(Window const& window) = 0;
 
     virtual auto surface_at(mir::geometry::Point cursor) const -> Window = 0;
 
     virtual auto active_display() -> mir::geometry::Rectangle const = 0;
 
-    virtual void forget(Window const& surface) = 0;
+    virtual void forget(Window const& window) = 0;
 
     virtual void raise_tree(Window const& root) = 0;
 

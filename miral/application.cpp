@@ -27,13 +27,13 @@
 auto miral::Application::default_surface() const
 -> Window
 {
-    return tools->info_for(scene_session.lock()->default_surface()).surface;
+    return tools->info_for(scene_session.lock()->default_surface()).window;
 }
 
-auto miral::Application::surface_after(Window const& surface) const
+auto miral::Application::surface_after(Window const& window) const
 -> Window
 {
-    return tools->info_for(scene_session.lock()->surface_after(surface)).surface;
+    return tools->info_for(scene_session.lock()->surface_after(window)).window;
 }
 
 auto miral::Application::kill(int sig) const -> int

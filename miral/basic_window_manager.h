@@ -75,7 +75,7 @@ public:
         std::shared_ptr<mir::scene::Session> const& session,
         std::weak_ptr<mir::scene::Surface> const& surface) override;
 
-    void forget(Window const& surface) override;
+    void forget(Window const& window) override;
 
     void add_display(mir::geometry::Rectangle const& area) override;
 
@@ -109,7 +109,7 @@ public:
 
     auto info_for(std::weak_ptr<mir::scene::Surface> const& surface) const -> WindowInfo& override;
 
-    auto info_for(Window const& surface) const -> WindowInfo& override;
+    auto info_for(Window const& window) const -> WindowInfo& override;
 
     auto focused_session() const -> Application override;
 
@@ -117,7 +117,7 @@ public:
 
     void focus_next_session() override;
 
-    void set_focus_to(Window const& surface) override;
+    void set_focus_to(Window const& window) override;
 
     auto surface_at(mir::geometry::Point cursor) const -> Window override;
 

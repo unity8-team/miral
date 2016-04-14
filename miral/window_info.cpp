@@ -27,12 +27,12 @@ namespace mg = mir::graphics;
 using namespace mir::geometry;
 
 miral::WindowInfo::WindowInfo(
-    Window const& surface,
+    Window const& window,
     ms::SurfaceCreationParameters const& params) :
-    surface{surface},
-    type{surface.type()},
-    state{surface.state()},
-    restore_rect{surface.top_left(), surface.size()},
+    window{window},
+    type{window.type()},
+    state{window.state()},
+    restore_rect{window.top_left(), window.size()},
     min_width{params.min_width.is_set() ? params.min_width.value()  : Width{}},
     min_height{params.min_height.is_set() ? params.min_height.value() : Height{}},
     max_width{params.max_width.is_set() ? params.max_width.value() : Width{std::numeric_limits<int>::max()}},
@@ -151,8 +151,8 @@ bool miral::WindowInfo::is_visible() const
 }
 void miral::WindowInfo::constrain_resize(Point& requested_pos, Size& requested_size) const
 {
-    bool const left_resize = requested_pos.x != surface.top_left().x;
-    bool const top_resize  = requested_pos.y != surface.top_left().y;
+    bool const left_resize = requested_pos.x != window.top_left().x;
+    bool const top_resize  = requested_pos.y != window.top_left().y;
 
     Point new_pos = requested_pos;
     Size new_size = requested_size;
@@ -244,29 +244,29 @@ void miral::WindowInfo::constrain_resize(Point& requested_pos, Size& requested_s
     case mir_surface_state_restored:
         break;
 
-        // "A vertically maximised surface is anchored to the top and bottom of
+        // "A vertically maximised window is anchored to the top and bottom of
         // the available workspace and can have any width."
     case mir_surface_state_vertmaximized:
-        new_pos.y = surface.top_left().y;
-        new_size.height = surface.size().height;
+        new_pos.y = window.top_left().y;
+        new_size.height = window.size().height;
         break;
 
-        // "A horizontally maximised surface is anchored to the left and right of
+        // "A horizontally maximised window is anchored to the left and right of
         // the available workspace and can have any height"
     case mir_surface_state_horizmaximized:
-        new_pos.x = surface.top_left().x;
-        new_size.width = surface.size().width;
+        new_pos.x = window.top_left().x;
+        new_size.width = window.size().width;
         break;
 
-        // "A maximised surface is anchored to the top, bottom, left and right of the
+        // "A maximised window is anchored to the top, bottom, left and right of the
         // available workspace. For example, if the launcher is always-visible then
-        // the left-edge of the surface is anchored to the right-edge of the launcher."
+        // the left-edge of the window is anchored to the right-edge of the launcher."
     case mir_surface_state_maximized:
     default:
-        new_pos.x = surface.top_left().x;
-        new_pos.y = surface.top_left().y;
-        new_size.width = surface.size().width;
-        new_size.height = surface.size().height;
+        new_pos.x = window.top_left().x;
+        new_pos.y = window.top_left().y;
+        new_size.width = window.size().width;
+        new_size.height = window.size().height;
         break;
     }
 

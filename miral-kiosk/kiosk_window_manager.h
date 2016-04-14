@@ -65,7 +65,7 @@ private:
         mir_input_event_modifier_ctrl |
         mir_input_event_modifier_meta;
 
-    auto select_active_surface(miral::Window const& surface) -> miral::Window;
+    auto select_active_surface(miral::Window const& window) -> miral::Window;
     auto transform_set_state(miral::WindowInfo& window_info, MirSurfaceState value) -> MirSurfaceState;
     void raise_internal_sessions() const;
 

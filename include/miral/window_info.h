@@ -37,7 +37,7 @@ namespace miral
 // TODO "Opaquify WindowInfo to provide a stable API
 struct WindowInfo
 {
-    WindowInfo(Window const& surface, mir::scene::SurfaceCreationParameters const& params);
+    WindowInfo(Window const& window, mir::scene::SurfaceCreationParameters const& params);
 
     bool can_be_active() const;
 
@@ -53,7 +53,7 @@ struct WindowInfo
 
     void constrain_resize(mir::geometry::Point& requested_pos, mir::geometry::Size& requested_size) const;
 
-    Window surface;
+    Window window;
 
     MirSurfaceType type;
     MirSurfaceState state;

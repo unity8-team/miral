@@ -88,11 +88,11 @@ private:
 
     // "Mir and Unity: Surfaces, input, and displays (v0.3)" talks about active
     //  *window*,but Mir really only understands surfaces
-    void select_active_surface(miral::Window const& surface);
+    void select_active_surface(miral::Window const& window);
     auto active_surface() const -> miral::Window;
 
-    bool resize(miral::Window const& surface, Point cursor, Point old_cursor);
-    bool drag(miral::Window surface, Point to, Point from, Rectangle bounds);
+    bool resize(miral::Window const& window, Point cursor, Point old_cursor);
+    bool drag(miral::Window window, Point to, Point from, Rectangle bounds);
     void move_tree(miral::WindowInfo& root, Displacement movement) const;
     void apply_resize(miral::WindowInfo& window_info, Point new_pos, Size new_size) const;
     auto transform_set_state(miral::WindowInfo& window_info, MirSurfaceState value) -> MirSurfaceState;

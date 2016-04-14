@@ -24,11 +24,11 @@
 class CanonicalWindowManagementPolicyData
 {
 public:
-    CanonicalWindowManagementPolicyData(miral::Window surface) : surface{surface} { }
+    CanonicalWindowManagementPolicyData(miral::Window window) : window{window} { }
 
     void paint_titlebar(int intensity);
 
-    miral::Window surface;
+    miral::Window window;
 
 private:
     struct StreamPainter;
