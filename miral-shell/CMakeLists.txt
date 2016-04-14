@@ -22,13 +22,6 @@ add_executable(miral-shell
 
 target_link_libraries(miral-shell miral miral-spinner)
 
-add_executable(miral-kiosk
-    kiosk_main.cpp
-    kiosk_window_manager.cpp    kiosk_window_manager.h
-    sw_splash.cpp               sw_splash.h
-)
-
-target_link_libraries(miral-kiosk miral miral-spinner)
-install(TARGETS miral-shell miral-kiosk
+install(TARGETS miral-shell
     DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
 )

@@ -27,3 +27,4 @@ include_directories(include SYSTEM ${MIRCOMMON_INCLUDE_DIRS})
 
 add_subdirectory(miral)
 add_subdirectory(miral-shell)
+add_subdirectory(miral-kiosk)
