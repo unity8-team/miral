@@ -73,8 +73,8 @@ static GLuint load_shader(const char *src, GLenum type)
 //#define ORANGE          0.866666667f, 0.282352941f, 0.141414141f
 //#define WARM_GREY       0.682352941f, 0.654901961f, 0.623529412f
 //#define COOL_GREY       0.2f,         0.2f,         0.2f
-//#define LIGHT_AUBERGINE 0.466666667f, 0.297297297f, 0.435294118f
-#define DARK_AUBERGINE  0.17254902f,  0.0f,         0.117647059f
+#define LIGHT_AUBERGINE 0.466666667f, 0.297297297f, 0.435294118f
+//#define DARK_AUBERGINE  0.17254902f,  0.0f,         0.117647059f
 //#define BLACK           0.0f,         0.0f,         0.0f
 //#define WHITE           1.0f,         1.0f,         1.0f
 
@@ -335,7 +335,7 @@ try
 
                 glViewport(0, 0, width, height);
 
-                GLfloat color[] = {DARK_AUBERGINE};
+                GLfloat color[] = {LIGHT_AUBERGINE};
                 for (auto& c : color) { c*= anim.fadeBackground; }
 
                 glClearColor(color[0], color[1], color[2], anim.fadeBackground);
