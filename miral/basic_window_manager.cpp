@@ -33,7 +33,7 @@ miral::BasicWindowManager::BasicWindowManager(
     focus_controller(focus_controller),
     display_layout(display_layout),
     policy(build(this)),
-    surface_builder([](std::shared_ptr<scene::Session> const&, scene::SurfaceCreationParameters const&) -> Surface
+    surface_builder([](std::shared_ptr<scene::Session> const&, scene::SurfaceCreationParameters const&) -> Window
         { throw std::logic_error{"Can't create a surface yet"};})
 {
 }
@@ -70,7 +70,7 @@ auto miral::BasicWindowManager::add_surface(
 {
     std::lock_guard<decltype(mutex)> lock(mutex);
     surface_builder = [build](std::shared_ptr<scene::Session> const& session, scene::SurfaceCreationParameters const& params)
-        { return Surface{session, build(session, params)}; };
+        { return Window{session, build(session, params)}; };
     auto const placed_params = policy->handle_place_new_surface(info_for(session), params);
 
     auto& surface_info = build_surface(session, placed_params);
@@ -111,7 +111,7 @@ void miral::BasicWindowManager::remove_surface(
     surface_info.erase(surface);
 }
 
-void miral::BasicWindowManager::forget(Surface const& surface)
+void miral::BasicWindowManager::forget(Window const& surface)
 {
     surface_info.erase(surface);
 }
@@ -225,7 +225,7 @@ auto miral::BasicWindowManager::info_for(std::weak_ptr<scene::Surface> const& su
     return const_cast<SurfaceInfo&>(surface_info.at(surface));
 }
 
-auto miral::BasicWindowManager::info_for(Surface const& surface) const
+auto miral::BasicWindowManager::info_for(Window const& surface) const
 -> SurfaceInfo&
 {
     return info_for(std::weak_ptr<mir::scene::Surface>(surface));
@@ -238,10 +238,10 @@ auto miral::BasicWindowManager::focused_session() const
 }
 
 auto miral::BasicWindowManager::focused_surface() const
--> Surface
+-> Window
 {
     auto focussed_surface = focus_controller->focused_surface();
-    return focussed_surface ? info_for(focussed_surface).surface :Surface{};
+    return focussed_surface ? info_for(focussed_surface).surface :Window{};
 }
 
 void miral::BasicWindowManager::focus_next_session()
@@ -249,16 +249,16 @@ void miral::BasicWindowManager::focus_next_session()
     focus_controller->focus_next_session();
 }
 
-void miral::BasicWindowManager::set_focus_to(Surface const& surface)
+void miral::BasicWindowManager::set_focus_to(Window const& surface)
 {
     focus_controller->set_focus_to(surface.session(), surface);
 }
 
 auto miral::BasicWindowManager::surface_at(geometry::Point cursor) const
--> Surface
+-> Window
 {
     auto surface_at = focus_controller->surface_at(cursor);
-    return surface_at ? info_for(surface_at).surface : Surface{};
+    return surface_at ? info_for(surface_at).surface : Window{};
 }
 
 auto miral::BasicWindowManager::active_display()
@@ -309,7 +309,7 @@ auto miral::BasicWindowManager::active_display()
     return result;
 }
 
-void miral::BasicWindowManager::raise_tree(Surface const& root)
+void miral::BasicWindowManager::raise_tree(Window const& root)
 {
     SurfaceSet surfaces;
     std::function<void(std::weak_ptr<scene::Surface> const& surface)> const add_children =

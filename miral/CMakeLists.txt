@@ -4,7 +4,7 @@ include_directories(include SYSTEM ${MIRSERVER_INCLUDE_DIRS})
 
 add_library(miral SHARED
     surface_info.cpp                  ${CMAKE_SOURCE_DIR}/include/miral/surface_info.h
-    surface.cpp                       ${CMAKE_SOURCE_DIR}/include/miral/surface.h
+    window.cpp                        ${CMAKE_SOURCE_DIR}/include/miral/window.h
     session.cpp                       ${CMAKE_SOURCE_DIR}/include/miral/session.h
     runner.cpp                        ${CMAKE_SOURCE_DIR}/include/miral/runner.h
     display_configuration_option.cpp  ${CMAKE_SOURCE_DIR}/include/miral/display_configuration_option.h

@@ -85,13 +85,13 @@ private:
     void update_tiles(Rectangles const& displays);
     void update_surfaces(miral::SessionInfo& info, Rectangle const& old_tile, Rectangle const& new_tile);
     void drag(miral::SurfaceInfo& surface_info, Point to, Point from, Rectangle bounds);
-    auto select_active_surface(miral::Surface const& surface) -> miral::Surface;
+    auto select_active_surface(miral::Window const& surface) -> miral::Window;
     auto transform_set_state(miral::SurfaceInfo& surface_info, MirSurfaceState value) -> MirSurfaceState;
 
     static void clip_to_tile(mir::scene::SurfaceCreationParameters& parameters, Rectangle const& tile);
-    static void fit_to_new_tile(miral::Surface& surface, Rectangle const& old_tile, Rectangle const& new_tile);
-    static void resize(miral::Surface surface, Point cursor, Point old_cursor, Rectangle bounds);
-    static void constrained_move(miral::Surface surface, Displacement& movement, Rectangle const& bounds);
+    static void fit_to_new_tile(miral::Window& surface, Rectangle const& old_tile, Rectangle const& new_tile);
+    static void resize(miral::Window surface, Point cursor, Point old_cursor, Rectangle bounds);
+    static void constrained_move(miral::Window surface, Displacement& movement, Rectangle const& bounds);
 
     miral::WindowManagerTools* const tools;
 

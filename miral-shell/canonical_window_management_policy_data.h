@@ -19,16 +19,16 @@
 #ifndef MIRAL_SHELL_CANONICAL_WINDOW_MANAGEMENT_POLICY_DATA_H
 #define MIRAL_SHELL_CANONICAL_WINDOW_MANAGEMENT_POLICY_DATA_H
 
-#include <miral/surface.h>
+#include <miral/window.h>
 
 class CanonicalWindowManagementPolicyData
 {
 public:
-    CanonicalWindowManagementPolicyData(miral::Surface surface) : surface{surface} { }
+    CanonicalWindowManagementPolicyData(miral::Window surface) : surface{surface} { }
 
     void paint_titlebar(int intensity);
 
-    miral::Surface surface;
+    miral::Window surface;
 
 private:
     struct StreamPainter;

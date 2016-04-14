@@ -16,12 +16,12 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#include "miral/surface.h"
+#include "miral/window.h"
 
 #include <mir/scene/session.h>
 #include <mir/scene/surface.h>
 
-struct miral::Surface::Self
+struct miral::Window::Self
 {
     Self(std::shared_ptr<mir::scene::Session> const& session, mir::frontend::SurfaceId surface);
 
@@ -30,66 +30,66 @@ struct miral::Surface::Self
     std::weak_ptr<mir::scene::Surface> const surface;
 };
 
-miral::Surface::Self::Self(std::shared_ptr<mir::scene::Session> const& session, mir::frontend::SurfaceId surface) :
+miral::Window::Self::Self(std::shared_ptr<mir::scene::Session> const& session, mir::frontend::SurfaceId surface) :
     id{surface}, session{session}, surface{session->surface(surface)} {}
 
-miral::Surface::Surface(std::shared_ptr<mir::scene::Session> const& session, mir::frontend::SurfaceId surface) :
+miral::Window::Window(std::shared_ptr<mir::scene::Session> const& session, mir::frontend::SurfaceId surface) :
     self{std::make_shared<Self>(session, surface)}
 {
 }
 
-miral::Surface::Surface()
+miral::Window::Window()
 {
 }
 
-miral::Surface::~Surface() = default;
+miral::Window::~Window() = default;
 
-void miral::Surface::set_alpha(float alpha)
+void miral::Window::set_alpha(float alpha)
 {
     if (!self) return;
     if (auto const surface = self->surface.lock())
         surface->set_alpha(alpha);
 }
 
-miral::Surface::operator bool() const
+miral::Window::operator bool() const
 {
     return !!operator std::shared_ptr<mir::scene::Surface>();
 }
 
-miral::Surface::operator std::shared_ptr<mir::scene::Surface>() const
+miral::Window::operator std::shared_ptr<mir::scene::Surface>() const
 {
     if (!self) return {};
     return self->surface.lock();
 }
 
-miral::Surface::operator std::weak_ptr<mir::scene::Surface>() const
+miral::Window::operator std::weak_ptr<mir::scene::Surface>() const
 {
     if (!self) return {};
     return self->surface;
 }
 
-void miral::Surface::resize(mir::geometry::Size const& size)
+void miral::Window::resize(mir::geometry::Size const& size)
 {
     if (!self) return;
     if (auto const surface = self->surface.lock())
         surface->resize(size);
 }
 
-void miral::Surface::show()
+void miral::Window::show()
 {
     if (!self) return;
     if (auto const surface = self->surface.lock())
         surface->show();
 }
 
-void miral::Surface::hide()
+void miral::Window::hide()
 {
     if (!self) return;
     if (auto const surface = self->surface.lock())
         surface->hide();
 }
 
-void miral::Surface::destroy_surface()
+void miral::Window::destroy_surface()
 {
     if (!self) return;
     if (auto const session = self->session.lock())
@@ -97,40 +97,40 @@ void miral::Surface::destroy_surface()
     self.reset();
 }
 
-void miral::Surface::reset()
+void miral::Window::reset()
 {
     self.reset();
 }
 
-void miral::Surface::set_state(MirSurfaceState state)
+void miral::Window::set_state(MirSurfaceState state)
 {
     if (!self) return;
     if (auto const surface = self->surface.lock())
         surface->configure(mir_surface_attrib_state, state);
 }
 
-void miral::Surface::set_type(MirSurfaceType type)
+void miral::Window::set_type(MirSurfaceType type)
 {
     if (!self) return;
     if (auto const surface = self->surface.lock())
         surface->configure(mir_surface_attrib_type, type);
 }
 
-void miral::Surface::move_to(mir::geometry::Point top_left)
+void miral::Window::move_to(mir::geometry::Point top_left)
 {
     if (!self) return;
     if (auto const surface = self->surface.lock())
         surface->move_to(top_left);
 }
 
-void miral::Surface::request_client_surface_close() const
+void miral::Window::request_client_surface_close() const
 {
     if (!self) return;
     if (auto const surface = self->surface.lock())
         surface->request_client_surface_close();
 }
 
-auto miral::Surface::type() const
+auto miral::Window::type() const
 -> MirSurfaceType
 {
     if (self)
@@ -142,7 +142,7 @@ auto miral::Surface::type() const
     return mir_surface_type_normal;
 }
 
-auto miral::Surface::state() const
+auto miral::Window::state() const
 -> MirSurfaceState
 {
     if (self)
@@ -154,7 +154,7 @@ auto miral::Surface::state() const
     return mir_surface_state_unknown;
 }
 
-auto miral::Surface::top_left() const
+auto miral::Window::top_left() const
 -> mir::geometry::Point
 {
     if (self)
@@ -166,7 +166,7 @@ auto miral::Surface::top_left() const
     return {};
 }
 
-auto miral::Surface::size() const
+auto miral::Window::size() const
 -> mir::geometry::Size
 {
     if (self)
@@ -178,21 +178,21 @@ auto miral::Surface::size() const
     return {};
 }
 
-auto miral::Surface::session() const
+auto miral::Window::session() const
 -> std::shared_ptr<mir::scene::Session>
 {
     if (!self) return {};
     return self->session.lock();
 }
 
-auto miral::Surface::surface_id() const
+auto miral::Window::surface_id() const
 -> mir::frontend::SurfaceId
 {
     if (!self) return {};
     return self->id;
 }
 
-auto miral::Surface::input_bounds() const
+auto miral::Window::input_bounds() const
 -> mir::geometry::Rectangle
 {
     if (self)
@@ -204,7 +204,7 @@ auto miral::Surface::input_bounds() const
     return {};
 }
 
-auto miral::Surface::input_area_contains(mir::geometry::Point const& point) const
+auto miral::Window::input_area_contains(mir::geometry::Point const& point) const
 -> bool
 {
     if (self)
@@ -216,39 +216,39 @@ auto miral::Surface::input_area_contains(mir::geometry::Point const& point) cons
     return false;
 }
 
-void miral::Surface::configure_streams(std::vector<mir::shell::StreamSpecification> const& config)
+void miral::Window::configure_streams(std::vector<mir::shell::StreamSpecification> const& config)
 {
     if (!self) return;
     if (auto const surface = self->surface.lock())
         session()->configure_streams(*surface, config);
 }
 
-void miral::Surface::set_input_region(std::vector<mir::geometry::Rectangle> const& input_rectangles)
+void miral::Window::set_input_region(std::vector<mir::geometry::Rectangle> const& input_rectangles)
 {
     if (!self) return;
     if (auto const surface = self->surface.lock())
         surface->set_input_region(input_rectangles);
 }
 
-void miral::Surface::rename(std::string const& name)
+void miral::Window::rename(std::string const& name)
 {
     if (!self) return;
     if (auto const surface = self->surface.lock())
         surface->rename(name);
 }
 
-bool miral::operator==(Surface const& lhs, Surface const& rhs)
+bool miral::operator==(Window const& lhs, Window const& rhs)
 {
     return lhs.self == rhs.self;
 }
 
-bool miral::operator==(std::shared_ptr<mir::scene::Surface> const& lhs, Surface const& rhs)
+bool miral::operator==(std::shared_ptr<mir::scene::Surface> const& lhs, Window const& rhs)
 {
     if (!rhs.self) return !lhs;
     return lhs == rhs.self->surface.lock();
 }
 
-bool miral::operator==(Surface const& lhs, std::shared_ptr<mir::scene::Surface> const& rhs)
+bool miral::operator==(Window const& lhs, std::shared_ptr<mir::scene::Surface> const& rhs)
 {
     return rhs == lhs;
 }

@@ -19,7 +19,7 @@
 #ifndef MIRAL_SURFACE_INFO_H
 #define MIRAL_SURFACE_INFO_H
 
-#include "miral/surface.h"
+#include "miral/window.h"
 
 #include "mir/geometry/rectangles.h"
 #include "mir/optional_value.h"
@@ -37,7 +37,7 @@ namespace miral
 // TODO "Opaquify SurfaceInfo to provide a stable API
 struct SurfaceInfo
 {
-    SurfaceInfo(Surface const& surface, mir::scene::SurfaceCreationParameters const& params);
+    SurfaceInfo(Window const& surface, mir::scene::SurfaceCreationParameters const& params);
 
     bool can_be_active() const;
 
@@ -53,13 +53,13 @@ struct SurfaceInfo
 
     void constrain_resize(mir::geometry::Point& requested_pos, mir::geometry::Size& requested_size) const;
 
-    Surface surface;
+    Window surface;
 
     MirSurfaceType type;
     MirSurfaceState state;
     mir::geometry::Rectangle restore_rect;
-    Surface parent;
-    std::vector <Surface> children;
+    Window parent;
+    std::vector <Window> children;
     mir::geometry::Width min_width;
     mir::geometry::Height min_height;
     mir::geometry::Width max_width;

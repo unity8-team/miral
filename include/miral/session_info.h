@@ -19,7 +19,7 @@
 #ifndef MIRAL_SESSION_INFO_H
 #define MIRAL_SESSION_INFO_H
 
-#include "miral/surface.h"
+#include "miral/window.h"
 
 #include <vector>
 
@@ -29,7 +29,7 @@ namespace miral
 // TODO "Opaquify SessionInfo to provide a stable API
 struct SessionInfo
 {
-    std::vector<Surface> surfaces;
+    std::vector<Window> surfaces;
 
     /// This can be used by client code to store window manager specific information
     std::shared_ptr<void> userdata;

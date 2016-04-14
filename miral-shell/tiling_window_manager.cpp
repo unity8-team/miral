@@ -539,7 +539,7 @@ void TilingWindowManagerPolicy::clip_to_tile(ms::SurfaceCreationParameters& para
     parameters.size = Size{width, height};
 }
 
-void TilingWindowManagerPolicy::fit_to_new_tile(miral::Surface& surface, Rectangle const& old_tile, Rectangle const& new_tile)
+void TilingWindowManagerPolicy::fit_to_new_tile(miral::Window& surface, Rectangle const& old_tile, Rectangle const& new_tile)
 {
     auto const displacement = surface.top_left() - new_tile.top_left;
 
@@ -571,7 +571,7 @@ void TilingWindowManagerPolicy::drag(SurfaceInfo& surface_info, Point to, Point 
 }
 
 void TilingWindowManagerPolicy::constrained_move(
-    Surface surface,
+    Window surface,
     Displacement& movement,
     Rectangle const& bounds)
 {
@@ -596,7 +596,7 @@ void TilingWindowManagerPolicy::constrained_move(
     surface.move_to(new_pos);
 }
 
-void TilingWindowManagerPolicy::resize(Surface surface, Point cursor, Point old_cursor, Rectangle bounds)
+void TilingWindowManagerPolicy::resize(Window surface, Point cursor, Point old_cursor, Rectangle bounds)
 {
     if (surface && surface.input_area_contains(old_cursor))
     {
@@ -625,7 +625,7 @@ void TilingWindowManagerPolicy::resize(Surface surface, Point cursor, Point old_
     }
 }
 
-auto TilingWindowManagerPolicy::select_active_surface(Surface const& surface) -> Surface
+auto TilingWindowManagerPolicy::select_active_surface(Window const& surface) -> Window
 {
     if (!surface)
     {

@@ -31,7 +31,7 @@ namespace scene { class Session; class Surface; struct SurfaceCreationParameters
 
 namespace miral
 {
-class Surface;
+class Window;
 class Session;
 struct SurfaceInfo;
 struct SessionInfo;
@@ -56,23 +56,23 @@ public:
 
     virtual auto info_for(std::weak_ptr<mir::scene::Surface> const& surface) const -> SurfaceInfo& = 0;
 
-    virtual auto info_for(Surface const& surface) const -> SurfaceInfo& = 0;
+    virtual auto info_for(Window const& surface) const -> SurfaceInfo& = 0;
 
     virtual auto focused_session() const -> Session = 0;
 
-    virtual auto focused_surface() const -> Surface = 0;
+    virtual auto focused_surface() const -> Window = 0;
 
     virtual void focus_next_session() = 0;
 
-    virtual void set_focus_to(Surface const& surface) = 0;
+    virtual void set_focus_to(Window const& surface) = 0;
 
-    virtual auto surface_at(mir::geometry::Point cursor) const -> Surface = 0;
+    virtual auto surface_at(mir::geometry::Point cursor) const -> Window = 0;
 
     virtual auto active_display() -> mir::geometry::Rectangle const = 0;
 
-    virtual void forget(Surface const& surface) = 0;
+    virtual void forget(Window const& surface) = 0;
 
-    virtual void raise_tree(Surface const& root) = 0;
+    virtual void raise_tree(Window const& root) = 0;
 
     virtual void size_to_output(mir::geometry::Rectangle& rect) = 0;
 

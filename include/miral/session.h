@@ -28,7 +28,7 @@ namespace scene { class Session; }
 
 namespace miral
 {
-class Surface;
+class Window;
 class WindowManagerTools;
 
 class Session
@@ -37,8 +37,8 @@ public:
     explicit Session(WindowManagerTools const* tools, std::weak_ptr<mir::scene::Session> const& scene_session) :
         tools(tools), scene_session{scene_session} {}
 
-    auto default_surface() const -> Surface;
-    auto surface_after(Surface const& surface) const   -> Surface;
+    auto default_surface() const -> Window;
+    auto surface_after(Window const& surface) const   -> Window;
     auto kill(int sig) const -> int;
 
     operator bool() const { return !!scene_session.lock(); }

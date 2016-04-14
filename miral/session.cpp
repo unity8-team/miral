@@ -25,13 +25,13 @@
 #include <csignal>
 
 auto miral::Session::default_surface() const
--> Surface
+-> Window
 {
     return tools->info_for(scene_session.lock()->default_surface()).surface;
 }
 
-auto miral::Session::surface_after(Surface const& surface) const
--> Surface
+auto miral::Session::surface_after(Window const& surface) const
+-> Window
 {
     return tools->info_for(scene_session.lock()->surface_after(surface)).surface;
 }

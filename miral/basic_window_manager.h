@@ -75,7 +75,7 @@ public:
         std::shared_ptr<mir::scene::Session> const& session,
         std::weak_ptr<mir::scene::Surface> const& surface) override;
 
-    void forget(Surface const& surface) override;
+    void forget(Window const& surface) override;
 
     void add_display(mir::geometry::Rectangle const& area) override;
 
@@ -109,21 +109,21 @@ public:
 
     auto info_for(std::weak_ptr<mir::scene::Surface> const& surface) const -> SurfaceInfo& override;
 
-    auto info_for(Surface const& surface) const -> SurfaceInfo& override;
+    auto info_for(Window const& surface) const -> SurfaceInfo& override;
 
     auto focused_session() const -> Session override;
 
-    auto focused_surface() const -> Surface override;
+    auto focused_surface() const -> Window override;
 
     void focus_next_session() override;
 
-    void set_focus_to(Surface const& surface) override;
+    void set_focus_to(Window const& surface) override;
 
-    auto surface_at(mir::geometry::Point cursor) const -> Surface override;
+    auto surface_at(mir::geometry::Point cursor) const -> Window override;
 
     auto active_display() -> mir::geometry::Rectangle const override;
 
-    void raise_tree(Surface const& root) override;
+    void raise_tree(Window const& root) override;
 
     void size_to_output(mir::geometry::Rectangle& rect) override;
 
@@ -145,7 +145,7 @@ private:
     uint64_t last_input_event_timestamp{0};
 
     // Cache the builder functor for the convenience of policies - this should become unnecessary
-    std::function<Surface(std::shared_ptr<mir::scene::Session> const& session, mir::scene::SurfaceCreationParameters const& params)> surface_builder;
+    std::function<Window(std::shared_ptr<mir::scene::Session> const& session, mir::scene::SurfaceCreationParameters const& params)> surface_builder;
 
     void update_event_timestamp(MirKeyboardEvent const* kev);
     void update_event_timestamp(MirPointerEvent const* pev);

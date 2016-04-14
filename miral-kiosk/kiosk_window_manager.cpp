@@ -268,7 +268,7 @@ bool KioskWindowManagerPolicy::handle_pointer_event(MirPointerEvent const* event
     return false;
 }
 
-auto KioskWindowManagerPolicy::select_active_surface(Surface const& surface) -> Surface
+auto KioskWindowManagerPolicy::select_active_surface(Window const& surface) -> Window
 {
     if (!surface)
     {

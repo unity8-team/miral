@@ -27,7 +27,7 @@ namespace mg = mir::graphics;
 using namespace mir::geometry;
 
 miral::SurfaceInfo::SurfaceInfo(
-    Surface const& surface,
+    Window const& surface,
     ms::SurfaceCreationParameters const& params) :
     surface{surface},
     type{surface.type()},

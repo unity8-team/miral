@@ -242,7 +242,7 @@ auto CanonicalWindowManagerPolicy::handle_place_new_surface(
 
 void CanonicalWindowManagerPolicy::generate_decorations_for(SurfaceInfo& surface_info)
 {
-    Surface const& surface = surface_info.surface;
+    Window const& surface = surface_info.surface;
 
     if (!SurfaceInfo::needs_titlebar(surface.type()))
         return;
@@ -756,7 +756,7 @@ void CanonicalWindowManagerPolicy::toggle(MirSurfaceState state)
     }
 }
 
-void CanonicalWindowManagerPolicy::select_active_surface(Surface const& surface)
+void CanonicalWindowManagerPolicy::select_active_surface(Window const& surface)
 {
     if (surface == active_surface_)
         return;
@@ -818,7 +818,7 @@ void CanonicalWindowManagerPolicy::select_active_surface(Surface const& surface)
 }
 
 auto CanonicalWindowManagerPolicy::active_surface() const
--> Surface
+-> Window
 {
     if (auto const surface = active_surface_)
         return surface;
@@ -829,10 +829,10 @@ auto CanonicalWindowManagerPolicy::active_surface() const
             return surface;
     }
 
-    return Surface{};
+    return Window{};
 }
 
-bool CanonicalWindowManagerPolicy::resize(Surface const& surface, Point cursor, Point old_cursor)
+bool CanonicalWindowManagerPolicy::resize(Window const& surface, Point cursor, Point old_cursor)
 {
     if (!surface || !surface.input_area_contains(old_cursor))
         return false;
@@ -884,7 +884,7 @@ void CanonicalWindowManagerPolicy::apply_resize(SurfaceInfo& surface_info, Point
     move_tree(surface_info, new_pos-surface_info.surface.top_left());
 }
 
-bool CanonicalWindowManagerPolicy::drag(Surface surface, Point to, Point from, Rectangle /*bounds*/)
+bool CanonicalWindowManagerPolicy::drag(Window surface, Point to, Point from, Rectangle /*bounds*/)
 {
     if (!surface)
         return false;

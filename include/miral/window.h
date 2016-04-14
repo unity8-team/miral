@@ -16,8 +16,8 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#ifndef MIRAL_SURFACE_H
-#define MIRAL_SURFACE_H
+#ifndef MIRAL_WINDOW_H
+#define MIRAL_WINDOW_H
 
 #include <mir_toolkit/common.h>
 #include <mir/geometry/point.h>
@@ -43,12 +43,12 @@ class Session;
 
 /// Handle class to manage a Mir surface. It may be null (e.g. default initialized) in which case
 ///
-class Surface
+class Window
 {
 public:
-    Surface();
-    Surface(std::shared_ptr <mir::scene::Session> const& session, mir::frontend::SurfaceId surface);
-    ~Surface();
+    Window();
+    Window(std::shared_ptr <mir::scene::Session> const& session, mir::frontend::SurfaceId surface);
+    ~Window();
 
     auto type()         const -> MirSurfaceType;
     auto state()        const -> MirSurfaceState;
@@ -60,7 +60,7 @@ public:
     auto input_area_contains(mir::geometry::Point const& point) const -> bool;
     void configure_streams(std::vector<mir::shell::StreamSpecification> const& config);
 
-    // Indicates that the Surface isn't null
+    // Indicates that the Window isn't null
     operator bool() const;
 
     void set_alpha(float alpha);
@@ -88,18 +88,18 @@ private:
     struct Self;
     std::shared_ptr <Self> self;
 
-    friend bool operator==(Surface const& lhs, Surface const& rhs);
-    friend bool operator==(std::shared_ptr<mir::scene::Surface> const& lhs, Surface const& rhs);
-    friend bool operator==(Surface const& lhs, std::shared_ptr<mir::scene::Surface> const& rhs);
+    friend bool operator==(Window const& lhs, Window const& rhs);
+    friend bool operator==(std::shared_ptr<mir::scene::Surface> const& lhs, Window const& rhs);
+    friend bool operator==(Window const& lhs, std::shared_ptr<mir::scene::Surface> const& rhs);
 };
 
-bool operator==(Surface const& lhs, Surface const& rhs);
-bool operator==(std::shared_ptr<mir::scene::Surface> const& lhs, Surface const& rhs);
-bool operator==(Surface const& lhs, std::shared_ptr<mir::scene::Surface> const& rhs);
+bool operator==(Window const& lhs, Window const& rhs);
+bool operator==(std::shared_ptr<mir::scene::Surface> const& lhs, Window const& rhs);
+bool operator==(Window const& lhs, std::shared_ptr<mir::scene::Surface> const& rhs);
 
-inline bool operator!=(Surface const& lhs, Surface const& rhs) { return !(lhs == rhs); }
-inline bool operator!=(std::shared_ptr<mir::scene::Surface> const& lhs, Surface const& rhs) { return !(lhs == rhs); }
-inline bool operator!=(Surface const& lhs, std::shared_ptr<mir::scene::Surface> const& rhs) { return !(lhs == rhs); }
+inline bool operator!=(Window const& lhs, Window const& rhs) { return !(lhs == rhs); }
+inline bool operator!=(std::shared_ptr<mir::scene::Surface> const& lhs, Window const& rhs) { return !(lhs == rhs); }
+inline bool operator!=(Window const& lhs, std::shared_ptr<mir::scene::Surface> const& rhs) { return !(lhs == rhs); }
 }
 
-#endif //MIRAL_SURFACE_H
+#endif //MIRAL_WINDOW_H
