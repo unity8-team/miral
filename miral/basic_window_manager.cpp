@@ -38,7 +38,8 @@ miral::BasicWindowManager::BasicWindowManager(
 {
 }
 
-auto miral::BasicWindowManager::build_surface(std::shared_ptr<scene::Session> const& session, scene::SurfaceCreationParameters const& parameters)
+auto miral::BasicWindowManager::build_window(
+    std::shared_ptr<scene::Session> const& session, scene::SurfaceCreationParameters const& parameters)
 -> WindowInfo&
 {
     auto result = surface_builder(session, parameters);
@@ -73,7 +74,7 @@ auto miral::BasicWindowManager::add_surface(
         { return Window{session, build(session, params)}; };
     auto const placed_params = policy->handle_place_new_surface(info_for(session), params);
 
-    auto& window_info = build_surface(session, placed_params);
+    auto& window_info = build_window(session, placed_params);
 
     policy->handle_new_window(window_info);
     policy->generate_decorations_for(window_info);
@@ -184,14 +185,14 @@ int miral::BasicWindowManager::set_surface_attribute(
     }
 }
 
-auto miral::BasicWindowManager::count_sessions() const
+auto miral::BasicWindowManager::count_applications() const
 -> unsigned int
 {
     return app_info.size();
 }
 
 
-void miral::BasicWindowManager::for_each_session(std::function<void(ApplicationInfo& info)> const& functor)
+void miral::BasicWindowManager::for_each_application(std::function<void(ApplicationInfo& info)> const& functor)
 {
     for(auto& info : app_info)
     {
@@ -199,7 +200,7 @@ void miral::BasicWindowManager::for_each_session(std::function<void(ApplicationI
     }
 }
 
-auto miral::BasicWindowManager::find_session(std::function<bool(ApplicationInfo const& info)> const& predicate)
+auto miral::BasicWindowManager::find_application(std::function<bool(ApplicationInfo const& info)> const& predicate)
 -> Application
 {
     for(auto& info : app_info)
@@ -231,13 +232,13 @@ auto miral::BasicWindowManager::info_for(Window const& window) const
     return info_for(std::weak_ptr<mir::scene::Surface>(window));
 }
 
-auto miral::BasicWindowManager::focused_session() const
+auto miral::BasicWindowManager::focused_application() const
 -> Application
 {
     return Application{this, focus_controller->focused_session() };
 }
 
-auto miral::BasicWindowManager::focused_surface() const
+auto miral::BasicWindowManager::focused_window() const
 -> Window
 {
     auto focussed_surface = focus_controller->focused_surface();
@@ -254,7 +255,7 @@ void miral::BasicWindowManager::set_focus_to(Window const& window)
     focus_controller->set_focus_to(window.session(), window);
 }
 
-auto miral::BasicWindowManager::surface_at(geometry::Point cursor) const
+auto miral::BasicWindowManager::window_at(geometry::Point cursor) const
 -> Window
 {
     auto surface_at = focus_controller->surface_at(cursor);
@@ -268,7 +269,7 @@ auto miral::BasicWindowManager::active_display()
 
     // 1. If a window has input focus, whichever display contains the largest
     //    proportion of the area of that window.
-    if (auto const window = focused_surface())
+    if (auto const window = focused_window())
     {
         auto const surface_rect = window.input_bounds();
         int max_overlap_area = -1;

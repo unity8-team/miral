@@ -55,7 +55,7 @@ TilingWindowManagerPolicy::TilingWindowManagerPolicy(WindowManagerTools* const t
 void TilingWindowManagerPolicy::click(Point cursor)
 {
     auto const session = session_under(cursor);
-    auto const window = tools->surface_at(cursor);
+    auto const window = tools->window_at(cursor);
     select_active_surface(window);
 }
 
@@ -75,7 +75,7 @@ void TilingWindowManagerPolicy::resize(Point cursor)
     {
         if (session == session_under(old_cursor))
         {
-            if (auto const window = select_active_surface(tools->surface_at(old_cursor)))
+            if (auto const window = select_active_surface(tools->window_at(old_cursor)))
             {
                 resize(window, cursor, old_cursor, tile_for(tools->info_for(session)));
             }
@@ -209,10 +209,10 @@ void TilingWindowManagerPolicy::handle_delete_window(WindowInfo& window_info)
 
     window_info.window.destroy_surface();
 
-    if (windows.empty() && session == tools->focused_session())
+    if (windows.empty() && session == tools->focused_application())
     {
         tools->focus_next_session();
-        select_active_surface(tools->focused_surface());
+        select_active_surface(tools->focused_window());
     }
 }
 
@@ -286,7 +286,7 @@ void TilingWindowManagerPolicy::drag(Point cursor)
     {
         if (session == session_under(old_cursor))
         {
-            if (auto const window = select_active_surface(tools->surface_at(old_cursor)))
+            if (auto const window = select_active_surface(tools->window_at(old_cursor)))
             {
                 drag(tools->info_for(window), cursor, old_cursor, tile_for(tools->info_for(session)));
             }
@@ -327,7 +327,7 @@ bool TilingWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* ev
     }
     else if (action == mir_keyboard_action_down && scan_code == KEY_F4)
     {
-        if (auto const session = tools->focused_session())
+        if (auto const session = tools->focused_application())
         {
             switch (modifiers & modifier_mask)
             {
@@ -352,7 +352,7 @@ bool TilingWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* ev
             scan_code == KEY_TAB)
     {
         tools->focus_next_session();
-        select_active_surface(tools->focused_surface());
+        select_active_surface(tools->focused_window());
 
         return true;
     }
@@ -360,9 +360,9 @@ bool TilingWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* ev
             modifiers == mir_input_event_modifier_alt &&
             scan_code == KEY_GRAVE)
     {
-        if (auto const prev = tools->focused_surface())
+        if (auto const prev = tools->focused_window())
         {
-            if (auto const app = tools->focused_session())
+            if (auto const app = tools->focused_application())
                 if (auto const window = app.surface_after(prev))
                 {
                     select_active_surface(tools->info_for(window).window);
@@ -462,7 +462,7 @@ bool TilingWindowManagerPolicy::handle_pointer_event(MirPointerEvent const* even
 
 void TilingWindowManagerPolicy::toggle(MirSurfaceState state)
 {
-    if (auto const session = tools->focused_session())
+    if (auto const session = tools->focused_application())
     {
         if (auto window = session.default_surface())
         {
@@ -477,12 +477,12 @@ void TilingWindowManagerPolicy::toggle(MirSurfaceState state)
 auto TilingWindowManagerPolicy::session_under(Point position)
 -> Application
 {
-    return tools->find_session([&](ApplicationInfo const& info) { return tile_for(info).contains(position);});
+    return tools->find_application([&](ApplicationInfo const& info) { return tile_for(info).contains(position);});
 }
 
 void TilingWindowManagerPolicy::update_tiles(Rectangles const& displays)
 {
-    auto const sessions = tools->count_sessions();
+    auto const sessions = tools->count_applications();
 
     if (sessions < 1 || displays.size() < 1) return;
 
@@ -493,24 +493,26 @@ void TilingWindowManagerPolicy::update_tiles(Rectangles const& displays)
 
     auto index = 0;
 
-    tools->for_each_session([&](ApplicationInfo& info)
-    {
-        if (!info.userdata)
-            info.userdata = std::make_shared<TilingWindowManagerPolicyData>();
+    tools->for_each_application(
+        [&](ApplicationInfo& info)
+            {
+            if (!info.userdata)
+                info.userdata = std::make_shared<TilingWindowManagerPolicyData>();
 
-        auto& tile = tile_for(info);
+            auto& tile = tile_for(info);
 
-        auto const x = (total_width*index)/sessions;
-        ++index;
-        auto const dx = (total_width*index)/sessions - x;
+            auto const x = (total_width * index) / sessions;
+            ++index;
+            auto const dx = (total_width * index) / sessions - x;
 
-        auto const old_tile = tile;
-        Rectangle const new_tile{{x, 0}, {dx, total_height}};
+            auto const old_tile = tile;
+            Rectangle const new_tile{{x,  0},
+                                     {dx, total_height}};
 
-        update_surfaces(info, old_tile, new_tile);
+            update_surfaces(info, old_tile, new_tile);
 
-        tile = new_tile;
-    });
+            tile = new_tile;
+            });
 }
 
 void TilingWindowManagerPolicy::update_surfaces(ApplicationInfo& info, Rectangle const& old_tile, Rectangle const& new_tile)

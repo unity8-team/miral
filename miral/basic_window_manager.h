@@ -53,7 +53,8 @@ public:
         std::shared_ptr<mir::shell::DisplayLayout> const& display_layout,
         std::unique_ptr<WindowManagementPolicy> (*build)(WindowManagerTools* tools));
 
-    auto build_surface(std::shared_ptr<mir::scene::Session> const& session, mir::scene::SurfaceCreationParameters const& parameters)
+    auto build_window(
+        std::shared_ptr<mir::scene::Session> const& session, mir::scene::SurfaceCreationParameters const& parameters)
     -> WindowInfo& override;
 
     void add_session(std::shared_ptr<mir::scene::Session> const& session) override;
@@ -98,11 +99,11 @@ public:
         MirSurfaceAttrib attrib,
         int value) override;
 
-    auto count_sessions() const -> unsigned int override;
+    auto count_applications() const -> unsigned int override;
 
-    void for_each_session(std::function<void(ApplicationInfo& info)> const& functor) override;
+    void for_each_application(std::function<void(ApplicationInfo& info)> const& functor) override;
 
-    auto find_session(std::function<bool(ApplicationInfo const& info)> const& predicate)
+    auto find_application(std::function<bool(ApplicationInfo const& info)> const& predicate)
     -> Application override;
 
     auto info_for(std::weak_ptr<mir::scene::Session> const& session) const -> ApplicationInfo& override;
@@ -111,15 +112,15 @@ public:
 
     auto info_for(Window const& window) const -> WindowInfo& override;
 
-    auto focused_session() const -> Application override;
+    auto focused_application() const -> Application override;
 
-    auto focused_surface() const -> Window override;
+    auto focused_window() const -> Window override;
 
     void focus_next_session() override;
 
     void set_focus_to(Window const& window) override;
 
-    auto surface_at(mir::geometry::Point cursor) const -> Window override;
+    auto window_at(mir::geometry::Point cursor) const -> Window override;
 
     auto active_display() -> mir::geometry::Rectangle const override;
 

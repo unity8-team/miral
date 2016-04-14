@@ -172,10 +172,10 @@ void KioskWindowManagerPolicy::handle_delete_window(WindowInfo& window_info)
 
     window_info.window.destroy_surface();
 
-    if (windows.empty() && session == tools->focused_session())
+    if (windows.empty() && session == tools->focused_application())
     {
         tools->focus_next_session();
-        select_active_surface(tools->focused_surface());
+        select_active_surface(tools->focused_window());
     }
 }
 
@@ -209,7 +209,7 @@ bool KioskWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* eve
             scan_code == KEY_TAB)
     {
         tools->focus_next_session();
-        select_active_surface(tools->focused_surface());
+        select_active_surface(tools->focused_window());
 
         return true;
     }
@@ -217,9 +217,9 @@ bool KioskWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* eve
             modifiers == mir_input_event_modifier_alt &&
             scan_code == KEY_GRAVE)
     {
-        if (auto const prev = tools->focused_surface())
+        if (auto const prev = tools->focused_window())
         {
-            if (auto const app = tools->focused_session())
+            if (auto const app = tools->focused_application())
                 if (auto const window = app.surface_after(prev))
                 {
                     select_active_surface(tools->info_for(window).window);
@@ -261,7 +261,7 @@ bool KioskWindowManagerPolicy::handle_pointer_event(MirPointerEvent const* event
 
     if (action == mir_pointer_action_button_down)
     {
-        select_active_surface(tools->surface_at(cursor));
+        select_active_surface(tools->window_at(cursor));
     }
 
     old_cursor = cursor;
@@ -299,8 +299,9 @@ auto KioskWindowManagerPolicy::select_active_surface(Window const& window) -> Wi
 
 void KioskWindowManagerPolicy::raise_internal_sessions() const
 {// Look for any internal sessions and raise its window(s)
-    tools->for_each_session([this](ApplicationInfo const& app_info)
-        {
+    tools->for_each_application(
+        [this](ApplicationInfo const& app_info)
+            {
             if (!app_info.windows.empty())
             {
                 if (auto const& first_surface = app_info.windows[0])
@@ -315,5 +316,5 @@ void KioskWindowManagerPolicy::raise_internal_sessions() const
                     }
                 }
             }
-        });
+            });
 }

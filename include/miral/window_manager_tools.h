@@ -42,40 +42,26 @@ struct ApplicationInfo;
 class WindowManagerTools
 {
 public:
-    virtual auto build_surface(std::shared_ptr<mir::scene::Session> const& session, mir::scene::SurfaceCreationParameters const& parameters)
-        -> WindowInfo& = 0;
-
-    virtual auto count_sessions() const -> unsigned int = 0;
-
-    virtual void for_each_session(std::function<void(ApplicationInfo& info)> const& functor) = 0;
-
-    virtual auto find_session(std::function<bool(ApplicationInfo const& info)> const& predicate)
+    virtual auto build_window(
+        std::shared_ptr<mir::scene::Session> const& session,
+        mir::scene::SurfaceCreationParameters const& parameters)
+    -> WindowInfo& = 0;
+    virtual auto count_applications() const -> unsigned int = 0;
+    virtual void for_each_application(std::function<void(ApplicationInfo& info)> const& functor) = 0;
+    virtual auto find_application(std::function<bool(ApplicationInfo const& info)> const& predicate)
     -> Application = 0;
-
     virtual auto info_for(std::weak_ptr<mir::scene::Session> const& session) const -> ApplicationInfo& = 0;
-
     virtual auto info_for(std::weak_ptr<mir::scene::Surface> const& surface) const -> WindowInfo& = 0;
-
     virtual auto info_for(Window const& window) const -> WindowInfo& = 0;
-
-    virtual auto focused_session() const -> Application = 0;
-
-    virtual auto focused_surface() const -> Window = 0;
-
+    virtual auto focused_application() const -> Application = 0;
+    virtual auto focused_window() const -> Window = 0;
     virtual void focus_next_session() = 0;
-
     virtual void set_focus_to(Window const& window) = 0;
-
-    virtual auto surface_at(mir::geometry::Point cursor) const -> Window = 0;
-
+    virtual auto window_at(mir::geometry::Point cursor) const -> Window = 0;
     virtual auto active_display() -> mir::geometry::Rectangle const = 0;
-
     virtual void forget(Window const& window) = 0;
-
     virtual void raise_tree(Window const& root) = 0;
-
     virtual void size_to_output(mir::geometry::Rectangle& rect) = 0;
-
     virtual bool place_in_output(mir::graphics::DisplayConfigurationOutputId id,
                                  mir::geometry::Rectangle& rect) = 0;
 

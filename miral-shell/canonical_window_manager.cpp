@@ -55,7 +55,7 @@ CanonicalWindowManagerPolicy::CanonicalWindowManagerPolicy(WindowManagerTools* c
 
 void CanonicalWindowManagerPolicy::click(Point cursor)
 {
-    if (auto const window = tools->surface_at(cursor))
+    if (auto const window = tools->window_at(cursor))
         select_active_window(window);
 }
 
@@ -83,7 +83,7 @@ void CanonicalWindowManagerPolicy::handle_displays_updated(Rectangles const& dis
 
 void CanonicalWindowManagerPolicy::resize(Point cursor)
 {
-    select_active_window(tools->surface_at(old_cursor));
+    select_active_window(tools->window_at(old_cursor));
     resize(active_window(), cursor, old_cursor);
 }
 
@@ -256,7 +256,7 @@ void CanonicalWindowManagerPolicy::generate_decorations_for(WindowInfo& window_i
         .of_position(titlebar_position_for_window(window.top_left()))
         .of_type(mir_surface_type_gloss);
 
-    auto& titlebar_info = tools->build_surface(window.session(), params);
+    auto& titlebar_info = tools->build_window(window.session(), params);
     titlebar_info.window.set_alpha(0.9);
     titlebar_info.parent = window;
 
@@ -419,11 +419,11 @@ void CanonicalWindowManagerPolicy::handle_delete_window(WindowInfo& window_info)
 
     window.destroy_surface();
 
-    if (windows.empty() && session == tools->focused_session())
+    if (windows.empty() && session == tools->focused_application())
     {
         active_window_.reset();
         tools->focus_next_session();
-        select_active_window(tools->focused_surface());
+        select_active_window(tools->focused_window());
     }
 }
 
@@ -556,7 +556,7 @@ auto CanonicalWindowManagerPolicy::transform_set_state(WindowInfo& window_info, 
 
 void CanonicalWindowManagerPolicy::drag(Point cursor)
 {
-    select_active_window(tools->surface_at(old_cursor));
+    select_active_window(tools->window_at(old_cursor));
     drag(active_window(), cursor, old_cursor, display_area);
 }
 
@@ -593,7 +593,7 @@ bool CanonicalWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const*
     }
     else if (action == mir_keyboard_action_down && scan_code == KEY_F4)
     {
-        if (auto const session = tools->focused_session())
+        if (auto const session = tools->focused_application())
         {
             switch (modifiers)
             {
@@ -618,7 +618,7 @@ bool CanonicalWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const*
             scan_code == KEY_TAB)
     {
         tools->focus_next_session();
-        if (auto const window = tools->focused_surface())
+        if (auto const window = tools->focused_window())
             select_active_window(window);
 
         return true;
@@ -627,9 +627,9 @@ bool CanonicalWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const*
             modifiers == mir_input_event_modifier_alt &&
             scan_code == KEY_GRAVE)
     {
-        if (auto const prev = tools->focused_surface())
+        if (auto const prev = tools->focused_window())
         {
-            if (auto const app = tools->focused_session())
+            if (auto const app = tools->focused_application())
                 select_active_window(app.surface_after(prev));
         }
 
@@ -725,7 +725,7 @@ bool CanonicalWindowManagerPolicy::handle_pointer_event(MirPointerEvent const* e
         if (mir_pointer_event_button_state(event, mir_pointer_button_primary))
         {
             // TODO this is a rather roundabout way to detect a titlebar
-            if (auto const possible_titlebar = tools->surface_at(old_cursor))
+            if (auto const possible_titlebar = tools->window_at(old_cursor))
             {
                 if (auto const parent = tools->info_for(possible_titlebar).parent)
                 {
@@ -823,7 +823,7 @@ auto CanonicalWindowManagerPolicy::active_window() const
     if (auto const window = active_window_)
         return window;
 
-    if (auto const session = tools->focused_session())
+    if (auto const session = tools->focused_application())
     {
         if (auto const window = session.default_surface())
             return window;
