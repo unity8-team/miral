@@ -23,7 +23,7 @@ include(FindPkgConfig)
 
 pkg_check_modules(MIRCLIENT mirclient>=0.20 REQUIRED)
 
-include_directories(include SYSTEM ${MIRCOMMON_INCLUDE_DIRS})
+include_directories(include ${MIRCLIENT_INCLUDE_DIRS})
 
 add_subdirectory(miral)
 add_subdirectory(miral-shell)
