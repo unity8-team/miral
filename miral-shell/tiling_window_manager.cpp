@@ -54,7 +54,7 @@ TilingWindowManagerPolicy::TilingWindowManagerPolicy(WindowManagerTools* const t
 
 void TilingWindowManagerPolicy::click(Point cursor)
 {
-    auto const session = application_under(cursor);
+    auto const application = application_under(cursor);
     auto const window = tools->window_at(cursor);
     select_active_window(window);
 }
@@ -71,13 +71,13 @@ void TilingWindowManagerPolicy::handle_displays_updated(Rectangles const& displa
 
 void TilingWindowManagerPolicy::resize(Point cursor)
 {
-    if (auto const session = application_under(cursor))
+    if (auto const application = application_under(cursor))
     {
-        if (session == application_under(old_cursor))
+        if (application == application_under(old_cursor))
         {
             if (auto const window = select_active_window(tools->window_at(old_cursor)))
             {
-                resize(window, cursor, old_cursor, tile_for(tools->info_for(session)));
+                resize(window, cursor, old_cursor, tile_for(tools->info_for(application)));
             }
         }
     }
@@ -282,13 +282,13 @@ auto TilingWindowManagerPolicy::transform_set_state(WindowInfo& window_info, Mir
 
 void TilingWindowManagerPolicy::drag(Point cursor)
 {
-    if (auto const session = application_under(cursor))
+    if (auto const application = application_under(cursor))
     {
-        if (session == application_under(old_cursor))
+        if (application == application_under(old_cursor))
         {
             if (auto const window = select_active_window(tools->window_at(old_cursor)))
             {
-                drag(tools->info_for(window), cursor, old_cursor, tile_for(tools->info_for(session)));
+                drag(tools->info_for(window), cursor, old_cursor, tile_for(tools->info_for(application)));
             }
         }
     }
@@ -327,16 +327,16 @@ bool TilingWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* ev
     }
     else if (action == mir_keyboard_action_down && scan_code == KEY_F4)
     {
-        if (auto const session = tools->focused_application())
+        if (auto const application = tools->focused_application())
         {
             switch (modifiers & modifier_mask)
             {
             case mir_input_event_modifier_alt:
-                session.kill(SIGTERM);
+                application.kill(SIGTERM);
                 return true;
 
             case mir_input_event_modifier_ctrl:
-                if (auto const window = session.default_window())
+                if (auto const window = application.default_window())
                 {
                     window.request_client_surface_close();
                     return true;
@@ -462,9 +462,9 @@ bool TilingWindowManagerPolicy::handle_pointer_event(MirPointerEvent const* even
 
 void TilingWindowManagerPolicy::toggle(MirSurfaceState state)
 {
-    if (auto const session = tools->focused_application())
+    if (auto const application = tools->focused_application())
     {
-        if (auto window = session.default_window())
+        if (auto window = application.default_window())
         {
             if (window.state() == state)
                 state = mir_surface_state_restored;

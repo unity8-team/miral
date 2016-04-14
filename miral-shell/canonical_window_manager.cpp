@@ -593,16 +593,16 @@ bool CanonicalWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const*
     }
     else if (action == mir_keyboard_action_down && scan_code == KEY_F4)
     {
-        if (auto const session = tools->focused_application())
+        if (auto const application = tools->focused_application())
         {
             switch (modifiers)
             {
             case mir_input_event_modifier_alt:
-                session.kill(SIGTERM);
+                application.kill(SIGTERM);
                 return true;
 
             case mir_input_event_modifier_ctrl:
-                if (auto const window = session.default_window())
+                if (auto const window = application.default_window())
                 {
                     window.request_client_surface_close();
                     return true;
@@ -823,9 +823,9 @@ auto CanonicalWindowManagerPolicy::active_window() const
     if (auto const window = active_window_)
         return window;
 
-    if (auto const session = tools->focused_application())
+    if (auto const application = tools->focused_application())
     {
-        if (auto const window = session.default_window())
+        if (auto const window = application.default_window())
             return window;
     }
 
