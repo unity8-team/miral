@@ -16,8 +16,8 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#ifndef MIRAL_SURFACE_INFO_H
-#define MIRAL_SURFACE_INFO_H
+#ifndef MIRAL_WINDOW_INFO_H
+#define MIRAL_WINDOW_INFO_H
 
 #include "miral/window.h"
 
@@ -34,10 +34,10 @@ namespace scene { class Session; }
 
 namespace miral
 {
-// TODO "Opaquify SurfaceInfo to provide a stable API
-struct SurfaceInfo
+// TODO "Opaquify WindowInfo to provide a stable API
+struct WindowInfo
 {
-    SurfaceInfo(Window const& surface, mir::scene::SurfaceCreationParameters const& params);
+    WindowInfo(Window const& surface, mir::scene::SurfaceCreationParameters const& params);
 
     bool can_be_active() const;
 
@@ -75,4 +75,4 @@ struct SurfaceInfo
 };
 }
 
-#endif //MIRAL_SURFACE_INFO_H
+#endif //MIRAL_WINDOW_INFO_H

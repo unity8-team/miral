@@ -47,15 +47,15 @@ public:
         mir::scene::SurfaceCreationParameters const& request_parameters)
     -> mir::scene::SurfaceCreationParameters override;
 
-    void handle_new_surface(miral::SurfaceInfo& surface_info) override;
+    void handle_new_surface(miral::WindowInfo& surface_info) override;
 
-    void handle_surface_ready(miral::SurfaceInfo& surface_info) override;
+    void handle_surface_ready(miral::WindowInfo& surface_info) override;
 
-    void handle_modify_surface(miral::SurfaceInfo& surface_info, mir::shell::SurfaceSpecification const& modifications) override;
+    void handle_modify_surface(miral::WindowInfo& surface_info, mir::shell::SurfaceSpecification const& modifications) override;
 
-    void handle_delete_surface(miral::SurfaceInfo& surface_info) override;
+    void handle_delete_surface(miral::WindowInfo& surface_info) override;
 
-    auto handle_set_state(miral::SurfaceInfo& surface_info, MirSurfaceState value) -> MirSurfaceState override;
+    auto handle_set_state(miral::WindowInfo& surface_info, MirSurfaceState value) -> MirSurfaceState override;
 
     bool handle_keyboard_event(MirKeyboardEvent const* event) override;
 
@@ -63,9 +63,9 @@ public:
 
     bool handle_pointer_event(MirPointerEvent const* event) override;
 
-    void handle_raise_surface(miral::SurfaceInfo& surface_info) override;
+    void handle_raise_surface(miral::WindowInfo& surface_info) override;
 
-    void generate_decorations_for(miral::SurfaceInfo& surface_info) override;
+    void generate_decorations_for(miral::WindowInfo& surface_info) override;
 
 private:
     static const int modifier_mask =
@@ -84,9 +84,9 @@ private:
 
     void update_tiles(Rectangles const& displays);
     void update_surfaces(miral::SessionInfo& info, Rectangle const& old_tile, Rectangle const& new_tile);
-    void drag(miral::SurfaceInfo& surface_info, Point to, Point from, Rectangle bounds);
+    void drag(miral::WindowInfo& surface_info, Point to, Point from, Rectangle bounds);
     auto select_active_surface(miral::Window const& surface) -> miral::Window;
-    auto transform_set_state(miral::SurfaceInfo& surface_info, MirSurfaceState value) -> MirSurfaceState;
+    auto transform_set_state(miral::WindowInfo& surface_info, MirSurfaceState value) -> MirSurfaceState;
 
     static void clip_to_tile(mir::scene::SurfaceCreationParameters& parameters, Rectangle const& tile);
     static void fit_to_new_tile(miral::Window& surface, Rectangle const& old_tile, Rectangle const& new_tile);

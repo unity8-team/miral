@@ -33,7 +33,7 @@ namespace miral
 {
 class Window;
 class Session;
-struct SurfaceInfo;
+struct WindowInfo;
 struct SessionInfo;
 
 /// The interface through which the policy instructs the controller.
@@ -43,7 +43,7 @@ class WindowManagerTools
 {
 public:
     virtual auto build_surface(std::shared_ptr<mir::scene::Session> const& session, mir::scene::SurfaceCreationParameters const& parameters)
-        -> SurfaceInfo& = 0;
+        -> WindowInfo& = 0;
 
     virtual auto count_sessions() const -> unsigned int = 0;
 
@@ -54,9 +54,9 @@ public:
 
     virtual auto info_for(std::weak_ptr<mir::scene::Session> const& session) const -> SessionInfo& = 0;
 
-    virtual auto info_for(std::weak_ptr<mir::scene::Surface> const& surface) const -> SurfaceInfo& = 0;
+    virtual auto info_for(std::weak_ptr<mir::scene::Surface> const& surface) const -> WindowInfo& = 0;
 
-    virtual auto info_for(Window const& surface) const -> SurfaceInfo& = 0;
+    virtual auto info_for(Window const& surface) const -> WindowInfo& = 0;
 
     virtual auto focused_session() const -> Session = 0;
 

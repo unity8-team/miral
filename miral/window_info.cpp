@@ -16,7 +16,7 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#include "miral/surface_info.h"
+#include "miral/window_info.h"
 
 #include <mir/scene/surface.h>
 
@@ -26,7 +26,7 @@ namespace ms = mir::scene;
 namespace mg = mir::graphics;
 using namespace mir::geometry;
 
-miral::SurfaceInfo::SurfaceInfo(
+miral::WindowInfo::WindowInfo(
     Window const& surface,
     ms::SurfaceCreationParameters const& params) :
     surface{surface},
@@ -46,7 +46,7 @@ miral::SurfaceInfo::SurfaceInfo(
         output_id = params.output_id;
 }
 
-bool miral::SurfaceInfo::can_be_active() const
+bool miral::WindowInfo::can_be_active() const
 {
     switch (type)
     {
@@ -67,7 +67,7 @@ bool miral::SurfaceInfo::can_be_active() const
     }
 }
 
-bool miral::SurfaceInfo::must_have_parent() const
+bool miral::WindowInfo::must_have_parent() const
 {
     switch (type)
     {
@@ -82,7 +82,7 @@ bool miral::SurfaceInfo::must_have_parent() const
     }
 }
 
-bool miral::SurfaceInfo::can_morph_to(MirSurfaceType new_type) const
+bool miral::WindowInfo::can_morph_to(MirSurfaceType new_type) const
 {
     switch (new_type)
     {
@@ -124,7 +124,7 @@ bool miral::SurfaceInfo::can_morph_to(MirSurfaceType new_type) const
     return false;
 }
 
-bool miral::SurfaceInfo::must_not_have_parent() const
+bool miral::WindowInfo::must_not_have_parent() const
 {
     switch (type)
     {
@@ -137,7 +137,7 @@ bool miral::SurfaceInfo::must_not_have_parent() const
     }
 }
 
-bool miral::SurfaceInfo::is_visible() const
+bool miral::WindowInfo::is_visible() const
 {
     switch (state)
     {
@@ -149,7 +149,7 @@ bool miral::SurfaceInfo::is_visible() const
     }
     return true;
 }
-void miral::SurfaceInfo::constrain_resize(Point& requested_pos, Size& requested_size) const
+void miral::WindowInfo::constrain_resize(Point& requested_pos, Size& requested_size) const
 {
     bool const left_resize = requested_pos.x != surface.top_left().x;
     bool const top_resize  = requested_pos.y != surface.top_left().y;
@@ -274,7 +274,7 @@ void miral::SurfaceInfo::constrain_resize(Point& requested_pos, Size& requested_
     requested_size = new_size;
 }
 
-bool miral::SurfaceInfo::needs_titlebar(MirSurfaceType type)
+bool miral::WindowInfo::needs_titlebar(MirSurfaceType type)
 {
     switch (type)
     {

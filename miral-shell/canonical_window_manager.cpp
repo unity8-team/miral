@@ -94,7 +94,7 @@ auto CanonicalWindowManagerPolicy::handle_place_new_surface(
 {
     auto parameters = request_parameters;
     auto surf_type = parameters.type.is_set() ? parameters.type.value() : mir_surface_type_normal;
-    bool const needs_titlebar = SurfaceInfo::needs_titlebar(surf_type);
+    bool const needs_titlebar = WindowInfo::needs_titlebar(surf_type);
 
     if (needs_titlebar)
         parameters.size.height = parameters.size.height + DeltaY{title_bar_height};
@@ -240,11 +240,11 @@ auto CanonicalWindowManagerPolicy::handle_place_new_surface(
     return parameters;
 }
 
-void CanonicalWindowManagerPolicy::generate_decorations_for(SurfaceInfo& surface_info)
+void CanonicalWindowManagerPolicy::generate_decorations_for(WindowInfo& surface_info)
 {
     Window const& surface = surface_info.surface;
 
-    if (!SurfaceInfo::needs_titlebar(surface.type()))
+    if (!WindowInfo::needs_titlebar(surface.type()))
         return;
 
     auto format = mir_pixel_format_xrgb_8888;
@@ -265,7 +265,7 @@ void CanonicalWindowManagerPolicy::generate_decorations_for(SurfaceInfo& surface
     surface_info.children.push_back(titlebar_info.surface);
 }
 
-void CanonicalWindowManagerPolicy::handle_new_surface(SurfaceInfo& surface_info)
+void CanonicalWindowManagerPolicy::handle_new_surface(WindowInfo& surface_info)
 {
     auto const surface = surface_info.surface;
     auto const session = surface_info.surface.session();
@@ -281,13 +281,13 @@ void CanonicalWindowManagerPolicy::handle_new_surface(SurfaceInfo& surface_info)
         fullscreen_surfaces.insert(surface_info.surface);
 }
 
-void CanonicalWindowManagerPolicy::handle_surface_ready(SurfaceInfo& surface_info)
+void CanonicalWindowManagerPolicy::handle_surface_ready(WindowInfo& surface_info)
 {
     select_active_surface(surface_info.surface);
 }
 
 void CanonicalWindowManagerPolicy::handle_modify_surface(
-    SurfaceInfo& surface_info,
+    WindowInfo& surface_info,
     mir::shell::SurfaceSpecification const& modifications)
 {
     auto surface_info_new = surface_info;
@@ -379,7 +379,7 @@ void CanonicalWindowManagerPolicy::handle_modify_surface(
     }
 }
 
-void CanonicalWindowManagerPolicy::handle_delete_surface(SurfaceInfo& surface_info)
+void CanonicalWindowManagerPolicy::handle_delete_surface(WindowInfo& surface_info)
 {
     auto const& session = surface_info.surface.session();
     auto& surface = surface_info.surface;
@@ -427,7 +427,7 @@ void CanonicalWindowManagerPolicy::handle_delete_surface(SurfaceInfo& surface_in
     }
 }
 
-auto CanonicalWindowManagerPolicy::handle_set_state(SurfaceInfo& surface_info, MirSurfaceState value)
+auto CanonicalWindowManagerPolicy::handle_set_state(WindowInfo& surface_info, MirSurfaceState value)
 -> MirSurfaceState
 {
     auto state = transform_set_state(surface_info, value);
@@ -435,7 +435,7 @@ auto CanonicalWindowManagerPolicy::handle_set_state(SurfaceInfo& surface_info, M
     return state;
 }
 
-auto CanonicalWindowManagerPolicy::transform_set_state(SurfaceInfo& surface_info, MirSurfaceState value)
+auto CanonicalWindowManagerPolicy::transform_set_state(WindowInfo& surface_info, MirSurfaceState value)
 -> MirSurfaceState
 {
     switch (value)
@@ -560,7 +560,7 @@ void CanonicalWindowManagerPolicy::drag(Point cursor)
     drag(active_surface(), cursor, old_cursor, display_area);
 }
 
-void CanonicalWindowManagerPolicy::handle_raise_surface(SurfaceInfo& surface_info)
+void CanonicalWindowManagerPolicy::handle_raise_surface(WindowInfo& surface_info)
 {
     select_active_surface(surface_info.surface);
 }
@@ -872,7 +872,7 @@ bool CanonicalWindowManagerPolicy::resize(Window const& surface, Point cursor, P
     return true;
 }
 
-void CanonicalWindowManagerPolicy::apply_resize(SurfaceInfo& surface_info, Point new_pos, Size new_size) const
+void CanonicalWindowManagerPolicy::apply_resize(WindowInfo& surface_info, Point new_pos, Size new_size) const
 {
     surface_info.constrain_resize(new_pos, new_size);
 
@@ -930,7 +930,7 @@ bool CanonicalWindowManagerPolicy::drag(Window surface, Point to, Point from, Re
     return true;
 }
 
-void CanonicalWindowManagerPolicy::move_tree(SurfaceInfo& root, Displacement movement) const
+void CanonicalWindowManagerPolicy::move_tree(WindowInfo& root, Displacement movement) const
 {
     root.surface.move_to(root.surface.top_left() + movement);
 

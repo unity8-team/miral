@@ -21,7 +21,7 @@
 
 #include "miral/window_management_policy.h"
 #include "miral/window_manager_tools.h"
-#include "miral/surface_info.h"
+#include "miral/window_info.h"
 #include "miral/session.h"
 #include "miral/session_info.h"
 
@@ -54,7 +54,7 @@ public:
         std::unique_ptr<WindowManagementPolicy> (*build)(WindowManagerTools* tools));
 
     auto build_surface(std::shared_ptr<mir::scene::Session> const& session, mir::scene::SurfaceCreationParameters const& parameters)
-    -> SurfaceInfo& override;
+    -> WindowInfo& override;
 
     void add_session(std::shared_ptr<mir::scene::Session> const& session) override;
 
@@ -107,9 +107,9 @@ public:
 
     auto info_for(std::weak_ptr<mir::scene::Session> const& session) const -> SessionInfo& override;
 
-    auto info_for(std::weak_ptr<mir::scene::Surface> const& surface) const -> SurfaceInfo& override;
+    auto info_for(std::weak_ptr<mir::scene::Surface> const& surface) const -> WindowInfo& override;
 
-    auto info_for(Window const& surface) const -> SurfaceInfo& override;
+    auto info_for(Window const& surface) const -> WindowInfo& override;
 
     auto focused_session() const -> Session override;
 
@@ -130,7 +130,7 @@ public:
     bool place_in_output(mir::graphics::DisplayConfigurationOutputId id, mir::geometry::Rectangle& rect) override;
 
 private:
-    using SurfaceInfoMap = std::map<std::weak_ptr<mir::scene::Surface>, SurfaceInfo, std::owner_less<std::weak_ptr<mir::scene::Surface>>>;
+    using SurfaceInfoMap = std::map<std::weak_ptr<mir::scene::Surface>, WindowInfo, std::owner_less<std::weak_ptr<mir::scene::Surface>>>;
     using SessionInfoMap = std::map<std::weak_ptr<mir::scene::Session>, SessionInfo, std::owner_less<std::weak_ptr<mir::scene::Session>>>;
 
     mir::shell::FocusController* const focus_controller;

@@ -110,11 +110,11 @@ auto KioskWindowManagerPolicy::handle_place_new_surface(
     return parameters;
 }
 
-void KioskWindowManagerPolicy::generate_decorations_for(SurfaceInfo& /*surface_info*/)
+void KioskWindowManagerPolicy::generate_decorations_for(WindowInfo& /*surface_info*/)
 {
 }
 
-void KioskWindowManagerPolicy::handle_new_surface(SurfaceInfo& surface_info)
+void KioskWindowManagerPolicy::handle_new_surface(WindowInfo& surface_info)
 {
     auto const surface = surface_info.surface;
     auto const session = surface.session();
@@ -127,20 +127,20 @@ void KioskWindowManagerPolicy::handle_new_surface(SurfaceInfo& surface_info)
     }
 }
 
-void KioskWindowManagerPolicy::handle_surface_ready(SurfaceInfo& surface_info)
+void KioskWindowManagerPolicy::handle_surface_ready(WindowInfo& surface_info)
 {
     select_active_surface(surface_info.surface);
 }
 
 void KioskWindowManagerPolicy::handle_modify_surface(
-    SurfaceInfo& surface_info,
+    WindowInfo& surface_info,
     mir::shell::SurfaceSpecification const& modifications)
 {
     if (modifications.name.is_set())
         surface_info.surface.rename(modifications.name.value());
 }
 
-void KioskWindowManagerPolicy::handle_delete_surface(SurfaceInfo& surface_info)
+void KioskWindowManagerPolicy::handle_delete_surface(WindowInfo& surface_info)
 {
     auto const session = surface_info.surface.session();
     auto const& surface = surface_info.surface;
@@ -179,7 +179,7 @@ void KioskWindowManagerPolicy::handle_delete_surface(SurfaceInfo& surface_info)
     }
 }
 
-auto KioskWindowManagerPolicy::handle_set_state(SurfaceInfo& surface_info, MirSurfaceState value)
+auto KioskWindowManagerPolicy::handle_set_state(WindowInfo& surface_info, MirSurfaceState value)
 -> MirSurfaceState
 {
     auto state = transform_set_state(surface_info, value);
@@ -187,13 +187,13 @@ auto KioskWindowManagerPolicy::handle_set_state(SurfaceInfo& surface_info, MirSu
     return state;
 }
 
-auto KioskWindowManagerPolicy::transform_set_state(SurfaceInfo& surface_info, MirSurfaceState /*value*/)
+auto KioskWindowManagerPolicy::transform_set_state(WindowInfo& surface_info, MirSurfaceState /*value*/)
 -> MirSurfaceState
 {
     return surface_info.state;
 }
 
-void KioskWindowManagerPolicy::handle_raise_surface(SurfaceInfo& surface_info)
+void KioskWindowManagerPolicy::handle_raise_surface(WindowInfo& surface_info)
 {
     select_active_surface(surface_info.surface);
 }

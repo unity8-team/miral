@@ -19,7 +19,7 @@
 #ifndef MIRAL_WINDOW_MANAGEMENT_POLICY_H
 #define MIRAL_WINDOW_MANAGEMENT_POLICY_H
 
-#include "miral/surface_info.h"
+#include "miral/window_info.h"
 #include "miral/session_info.h"
 
 #include <mir_toolkit/event.h>
@@ -38,17 +38,17 @@ public:
         mir::scene::SurfaceCreationParameters const& request_parameters)
         -> mir::scene::SurfaceCreationParameters = 0;
 
-    virtual void handle_new_surface(SurfaceInfo& surface_info) = 0;
+    virtual void handle_new_surface(WindowInfo& surface_info) = 0;
 
-    virtual void handle_surface_ready(SurfaceInfo& surface_info) = 0;
+    virtual void handle_surface_ready(WindowInfo& surface_info) = 0;
 
-    virtual void handle_modify_surface(SurfaceInfo& surface_info, mir::shell::SurfaceSpecification const& modifications) = 0;
+    virtual void handle_modify_surface(WindowInfo& surface_info, mir::shell::SurfaceSpecification const& modifications) = 0;
 
-    virtual void handle_delete_surface(SurfaceInfo& surface_info) = 0;
+    virtual void handle_delete_surface(WindowInfo& surface_info) = 0;
 
-    virtual auto handle_set_state(SurfaceInfo& surface_info, MirSurfaceState value) -> MirSurfaceState = 0;
+    virtual auto handle_set_state(WindowInfo& surface_info, MirSurfaceState value) -> MirSurfaceState = 0;
 
-    virtual void generate_decorations_for(SurfaceInfo& surface_info) = 0;
+    virtual void generate_decorations_for(WindowInfo& surface_info) = 0;
 
     virtual bool handle_keyboard_event(MirKeyboardEvent const* event) = 0;
 
@@ -56,7 +56,7 @@ public:
 
     virtual bool handle_pointer_event(MirPointerEvent const* event) = 0;
 
-    virtual void handle_raise_surface(SurfaceInfo& surface_info) = 0;
+    virtual void handle_raise_surface(WindowInfo& surface_info) = 0;
 
     virtual ~WindowManagementPolicy() = default;
     WindowManagementPolicy() = default;

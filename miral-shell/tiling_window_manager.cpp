@@ -147,11 +147,11 @@ auto TilingWindowManagerPolicy::handle_place_new_surface(
     return parameters;
 }
 
-void TilingWindowManagerPolicy::generate_decorations_for(SurfaceInfo& /*surface_info*/)
+void TilingWindowManagerPolicy::generate_decorations_for(WindowInfo& /*surface_info*/)
 {
 }
 
-void TilingWindowManagerPolicy::handle_new_surface(SurfaceInfo& surface_info)
+void TilingWindowManagerPolicy::handle_new_surface(WindowInfo& surface_info)
 {
     auto const surface = surface_info.surface;
     auto const session = surface.session();
@@ -164,20 +164,20 @@ void TilingWindowManagerPolicy::handle_new_surface(SurfaceInfo& surface_info)
     }
 }
 
-void TilingWindowManagerPolicy::handle_surface_ready(SurfaceInfo& surface_info)
+void TilingWindowManagerPolicy::handle_surface_ready(WindowInfo& surface_info)
 {
     select_active_surface(surface_info.surface);
 }
 
 void TilingWindowManagerPolicy::handle_modify_surface(
-    SurfaceInfo& surface_info,
+    WindowInfo& surface_info,
     mir::shell::SurfaceSpecification const& modifications)
 {
     if (modifications.name.is_set())
         surface_info.surface.rename(modifications.name.value());
 }
 
-void TilingWindowManagerPolicy::handle_delete_surface(SurfaceInfo& surface_info)
+void TilingWindowManagerPolicy::handle_delete_surface(WindowInfo& surface_info)
 {
     auto const session = surface_info.surface.session();
     auto const& surface = surface_info.surface;
@@ -216,7 +216,7 @@ void TilingWindowManagerPolicy::handle_delete_surface(SurfaceInfo& surface_info)
     }
 }
 
-auto TilingWindowManagerPolicy::handle_set_state(SurfaceInfo& surface_info, MirSurfaceState value)
+auto TilingWindowManagerPolicy::handle_set_state(WindowInfo& surface_info, MirSurfaceState value)
 -> MirSurfaceState
 {
     auto state = transform_set_state(surface_info, value);
@@ -224,7 +224,7 @@ auto TilingWindowManagerPolicy::handle_set_state(SurfaceInfo& surface_info, MirS
     return state;
 }
 
-auto TilingWindowManagerPolicy::transform_set_state(SurfaceInfo& surface_info, MirSurfaceState value)
+auto TilingWindowManagerPolicy::transform_set_state(WindowInfo& surface_info, MirSurfaceState value)
 -> MirSurfaceState
 {
     switch (value)
@@ -294,7 +294,7 @@ void TilingWindowManagerPolicy::drag(Point cursor)
     }
 }
 
-void TilingWindowManagerPolicy::handle_raise_surface(SurfaceInfo& surface_info)
+void TilingWindowManagerPolicy::handle_raise_surface(WindowInfo& surface_info)
 {
     select_active_surface(surface_info.surface);
 }
@@ -554,7 +554,7 @@ void TilingWindowManagerPolicy::fit_to_new_tile(miral::Window& surface, Rectangl
     surface.resize({width, height});
 }
 
-void TilingWindowManagerPolicy::drag(SurfaceInfo& surface_info, Point to, Point from, Rectangle bounds)
+void TilingWindowManagerPolicy::drag(WindowInfo& surface_info, Point to, Point from, Rectangle bounds)
 {
     if (surface_info.surface && surface_info.surface.input_area_contains(from))
     {

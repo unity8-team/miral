@@ -39,10 +39,10 @@ miral::BasicWindowManager::BasicWindowManager(
 }
 
 auto miral::BasicWindowManager::build_surface(std::shared_ptr<scene::Session> const& session, scene::SurfaceCreationParameters const& parameters)
--> SurfaceInfo&
+-> WindowInfo&
 {
     auto result = surface_builder(session, parameters);
-    auto& info = surface_info.emplace(result, SurfaceInfo{result, parameters}).first->second;
+    auto& info = surface_info.emplace(result, WindowInfo{result, parameters}).first->second;
     if (auto const parent = parameters.parent.lock())
         info.parent = info_for(parent).surface;
     return info;
@@ -220,13 +220,13 @@ auto miral::BasicWindowManager::info_for(std::weak_ptr<scene::Session> const& se
 }
 
 auto miral::BasicWindowManager::info_for(std::weak_ptr<scene::Surface> const& surface) const
--> SurfaceInfo&
+-> WindowInfo&
 {
-    return const_cast<SurfaceInfo&>(surface_info.at(surface));
+    return const_cast<WindowInfo&>(surface_info.at(surface));
 }
 
 auto miral::BasicWindowManager::info_for(Window const& surface) const
--> SurfaceInfo&
+-> WindowInfo&
 {
     return info_for(std::weak_ptr<mir::scene::Surface>(surface));
 }
