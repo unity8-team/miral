@@ -34,12 +34,12 @@ struct TilingWindowManagerPolicyData
     Rectangle tile;
 };
 
-inline Rectangle& tile_for(miral::SessionInfo& session_info)
+inline Rectangle& tile_for(miral::ApplicationInfo& session_info)
 {
     return std::static_pointer_cast<TilingWindowManagerPolicyData>(session_info.userdata)->tile;
 }
 
-inline Rectangle const& tile_for(miral::SessionInfo const& session_info)
+inline Rectangle const& tile_for(miral::ApplicationInfo const& session_info)
 {
     return std::static_pointer_cast<TilingWindowManagerPolicyData>(session_info.userdata)->tile;
 }
@@ -84,7 +84,7 @@ void TilingWindowManagerPolicy::resize(Point cursor)
 }
 
 auto TilingWindowManagerPolicy::handle_place_new_surface(
-    SessionInfo const& session_info,
+    ApplicationInfo const& session_info,
     ms::SurfaceCreationParameters const& request_parameters)
 -> ms::SurfaceCreationParameters
 {
@@ -477,7 +477,7 @@ void TilingWindowManagerPolicy::toggle(MirSurfaceState state)
 auto TilingWindowManagerPolicy::session_under(Point position)
 -> Application
 {
-    return tools->find_session([&](SessionInfo const& info) { return tile_for(info).contains(position);});
+    return tools->find_session([&](ApplicationInfo const& info) { return tile_for(info).contains(position);});
 }
 
 void TilingWindowManagerPolicy::update_tiles(Rectangles const& displays)
@@ -493,7 +493,7 @@ void TilingWindowManagerPolicy::update_tiles(Rectangles const& displays)
 
     auto index = 0;
 
-    tools->for_each_session([&](SessionInfo& info)
+    tools->for_each_session([&](ApplicationInfo& info)
     {
         if (!info.userdata)
             info.userdata = std::make_shared<TilingWindowManagerPolicyData>();
@@ -513,7 +513,7 @@ void TilingWindowManagerPolicy::update_tiles(Rectangles const& displays)
     });
 }
 
-void TilingWindowManagerPolicy::update_surfaces(SessionInfo& info, Rectangle const& old_tile, Rectangle const& new_tile)
+void TilingWindowManagerPolicy::update_surfaces(ApplicationInfo& info, Rectangle const& old_tile, Rectangle const& new_tile)
 {
     auto displacement = new_tile.top_left - old_tile.top_left;
 

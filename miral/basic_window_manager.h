@@ -23,7 +23,7 @@
 #include "miral/window_manager_tools.h"
 #include "miral/window_info.h"
 #include "miral/application.h"
-#include "miral/session_info.h"
+#include "miral/application_info.h"
 
 #include "mir/geometry/rectangles.h"
 #include "mir/shell/abstract_shell.h"
@@ -100,12 +100,12 @@ public:
 
     auto count_sessions() const -> unsigned int override;
 
-    void for_each_session(std::function<void(SessionInfo& info)> const& functor) override;
+    void for_each_session(std::function<void(ApplicationInfo& info)> const& functor) override;
 
-    auto find_session(std::function<bool(SessionInfo const& info)> const& predicate)
+    auto find_session(std::function<bool(ApplicationInfo const& info)> const& predicate)
     -> Application override;
 
-    auto info_for(std::weak_ptr<mir::scene::Session> const& session) const -> SessionInfo& override;
+    auto info_for(std::weak_ptr<mir::scene::Session> const& session) const -> ApplicationInfo& override;
 
     auto info_for(std::weak_ptr<mir::scene::Surface> const& surface) const -> WindowInfo& override;
 
@@ -131,7 +131,7 @@ public:
 
 private:
     using SurfaceInfoMap = std::map<std::weak_ptr<mir::scene::Surface>, WindowInfo, std::owner_less<std::weak_ptr<mir::scene::Surface>>>;
-    using SessionInfoMap = std::map<std::weak_ptr<mir::scene::Session>, SessionInfo, std::owner_less<std::weak_ptr<mir::scene::Session>>>;
+    using SessionInfoMap = std::map<std::weak_ptr<mir::scene::Session>, ApplicationInfo, std::owner_less<std::weak_ptr<mir::scene::Session>>>;
 
     mir::shell::FocusController* const focus_controller;
     std::shared_ptr<mir::shell::DisplayLayout> const display_layout;

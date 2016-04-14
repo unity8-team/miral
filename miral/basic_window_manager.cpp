@@ -51,7 +51,7 @@ auto miral::BasicWindowManager::build_surface(std::shared_ptr<scene::Session> co
 void miral::BasicWindowManager::add_session(std::shared_ptr<scene::Session> const& session)
 {
     std::lock_guard<decltype(mutex)> lock(mutex);
-    session_info[session] = SessionInfo();
+    session_info[session] = ApplicationInfo();
     policy->handle_session_info_updated(displays);
 }
 
@@ -191,7 +191,7 @@ auto miral::BasicWindowManager::count_sessions() const
 }
 
 
-void miral::BasicWindowManager::for_each_session(std::function<void(SessionInfo& info)> const& functor)
+void miral::BasicWindowManager::for_each_session(std::function<void(ApplicationInfo& info)> const& functor)
 {
     for(auto& info : session_info)
     {
@@ -199,7 +199,7 @@ void miral::BasicWindowManager::for_each_session(std::function<void(SessionInfo&
     }
 }
 
-auto miral::BasicWindowManager::find_session(std::function<bool(SessionInfo const& info)> const& predicate)
+auto miral::BasicWindowManager::find_session(std::function<bool(ApplicationInfo const& info)> const& predicate)
 -> Application
 {
     for(auto& info : session_info)
@@ -214,9 +214,9 @@ auto miral::BasicWindowManager::find_session(std::function<bool(SessionInfo cons
 }
 
 auto miral::BasicWindowManager::info_for(std::weak_ptr<scene::Session> const& session) const
--> SessionInfo&
+-> ApplicationInfo&
 {
-    return const_cast<SessionInfo&>(session_info.at(session));
+    return const_cast<ApplicationInfo&>(session_info.at(session));
 }
 
 auto miral::BasicWindowManager::info_for(std::weak_ptr<scene::Surface> const& surface) const

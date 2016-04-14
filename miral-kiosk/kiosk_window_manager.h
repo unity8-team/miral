@@ -33,7 +33,7 @@ public:
     void handle_displays_updated(Rectangles const& displays) override;
 
     auto handle_place_new_surface(
-        miral::SessionInfo const& session_info,
+        miral::ApplicationInfo const& session_info,
         mir::scene::SurfaceCreationParameters const& request_parameters)
     -> mir::scene::SurfaceCreationParameters override;
 

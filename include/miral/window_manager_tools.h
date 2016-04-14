@@ -34,7 +34,7 @@ namespace miral
 class Window;
 class Application;
 struct WindowInfo;
-struct SessionInfo;
+struct ApplicationInfo;
 
 /// The interface through which the policy instructs the controller.
 /// These functions assume that the BasicWindowManager data structures can be accessed freely.
@@ -47,12 +47,12 @@ public:
 
     virtual auto count_sessions() const -> unsigned int = 0;
 
-    virtual void for_each_session(std::function<void(SessionInfo& info)> const& functor) = 0;
+    virtual void for_each_session(std::function<void(ApplicationInfo& info)> const& functor) = 0;
 
-    virtual auto find_session(std::function<bool(SessionInfo const& info)> const& predicate)
+    virtual auto find_session(std::function<bool(ApplicationInfo const& info)> const& predicate)
     -> Application = 0;
 
-    virtual auto info_for(std::weak_ptr<mir::scene::Session> const& session) const -> SessionInfo& = 0;
+    virtual auto info_for(std::weak_ptr<mir::scene::Session> const& session) const -> ApplicationInfo& = 0;
 
     virtual auto info_for(std::weak_ptr<mir::scene::Surface> const& surface) const -> WindowInfo& = 0;
 

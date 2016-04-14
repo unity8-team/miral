@@ -44,7 +44,7 @@ void KioskWindowManagerPolicy::handle_displays_updated(Rectangles const& /*displ
 }
 
 auto KioskWindowManagerPolicy::handle_place_new_surface(
-    SessionInfo const& /*session_info*/,
+    ApplicationInfo const& /*session_info*/,
     ms::SurfaceCreationParameters const& request_parameters)
 -> ms::SurfaceCreationParameters
 {
@@ -299,7 +299,7 @@ auto KioskWindowManagerPolicy::select_active_surface(Window const& surface) -> W
 
 void KioskWindowManagerPolicy::raise_internal_sessions() const
 {// Look for any internal sessions and raise its surface(s)
-    tools->for_each_session([this](SessionInfo const& session_info)
+    tools->for_each_session([this](ApplicationInfo const& session_info)
         {
             if (!session_info.surfaces.empty())
             {

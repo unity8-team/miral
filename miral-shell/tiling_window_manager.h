@@ -43,7 +43,7 @@ public:
     void handle_displays_updated(Rectangles const& displays) override;
 
     auto handle_place_new_surface(
-        miral::SessionInfo const& session_info,
+        miral::ApplicationInfo const& session_info,
         mir::scene::SurfaceCreationParameters const& request_parameters)
     -> mir::scene::SurfaceCreationParameters override;
 
@@ -83,7 +83,7 @@ private:
     miral::Application session_under(Point position);
 
     void update_tiles(Rectangles const& displays);
-    void update_surfaces(miral::SessionInfo& info, Rectangle const& old_tile, Rectangle const& new_tile);
+    void update_surfaces(miral::ApplicationInfo& info, Rectangle const& old_tile, Rectangle const& new_tile);
     void drag(miral::WindowInfo& surface_info, Point to, Point from, Rectangle bounds);
     auto select_active_surface(miral::Window const& surface) -> miral::Window;
     auto transform_set_state(miral::WindowInfo& surface_info, MirSurfaceState value) -> MirSurfaceState;

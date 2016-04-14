@@ -16,8 +16,8 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#ifndef MIRAL_SESSION_INFO_H
-#define MIRAL_SESSION_INFO_H
+#ifndef MIRAL_APPLICATION_INFO_H
+#define MIRAL_APPLICATION_INFO_H
 
 #include "miral/window.h"
 
@@ -26,8 +26,8 @@
 
 namespace miral
 {
-// TODO "Opaquify SessionInfo to provide a stable API
-struct SessionInfo
+// TODO "Opaquify ApplicationInfo to provide a stable API
+struct ApplicationInfo
 {
     std::vector<Window> surfaces;
 
@@ -36,4 +36,4 @@ struct SessionInfo
 };
 }
 
-#endif //MIRAL_SESSION_INFO_H
+#endif //MIRAL_APPLICATION_INFO_H

@@ -20,7 +20,7 @@
 #define MIRAL_WINDOW_MANAGEMENT_POLICY_H
 
 #include "miral/window_info.h"
-#include "miral/session_info.h"
+#include "miral/application_info.h"
 
 #include <mir_toolkit/event.h>
 
@@ -34,7 +34,7 @@ public:
     virtual void handle_displays_updated(mir::geometry::Rectangles const& displays) = 0;
 
     virtual auto handle_place_new_surface(
-        SessionInfo const& session_info,
+        ApplicationInfo const& session_info,
         mir::scene::SurfaceCreationParameters const& request_parameters)
         -> mir::scene::SurfaceCreationParameters = 0;
 

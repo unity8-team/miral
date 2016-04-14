@@ -88,7 +88,7 @@ void CanonicalWindowManagerPolicy::resize(Point cursor)
 }
 
 auto CanonicalWindowManagerPolicy::handle_place_new_surface(
-    SessionInfo const& session_info,
+    ApplicationInfo const& session_info,
     ms::SurfaceCreationParameters const& request_parameters)
 -> ms::SurfaceCreationParameters
 {
