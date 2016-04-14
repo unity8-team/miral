@@ -265,7 +265,7 @@ void CanonicalWindowManagerPolicy::generate_decorations_for(WindowInfo& window_i
     window_info.children.push_back(titlebar_info.window);
 }
 
-void CanonicalWindowManagerPolicy::handle_new_surface(WindowInfo& window_info)
+void CanonicalWindowManagerPolicy::handle_new_window(WindowInfo& window_info)
 {
     auto const window = window_info.window;
     auto const session = window_info.window.session();
@@ -281,12 +281,12 @@ void CanonicalWindowManagerPolicy::handle_new_surface(WindowInfo& window_info)
         fullscreen_surfaces.insert(window_info.window);
 }
 
-void CanonicalWindowManagerPolicy::handle_surface_ready(WindowInfo& window_info)
+void CanonicalWindowManagerPolicy::handle_window_ready(WindowInfo& window_info)
 {
     select_active_window(window_info.window);
 }
 
-void CanonicalWindowManagerPolicy::handle_modify_surface(
+void CanonicalWindowManagerPolicy::handle_modify_window(
     WindowInfo& window_info,
     mir::shell::SurfaceSpecification const& modifications)
 {
@@ -379,7 +379,7 @@ void CanonicalWindowManagerPolicy::handle_modify_surface(
     }
 }
 
-void CanonicalWindowManagerPolicy::handle_delete_surface(WindowInfo& window_info)
+void CanonicalWindowManagerPolicy::handle_delete_window(WindowInfo& window_info)
 {
     auto const& session = window_info.window.session();
     auto& window = window_info.window;
@@ -560,7 +560,7 @@ void CanonicalWindowManagerPolicy::drag(Point cursor)
     drag(active_window(), cursor, old_cursor, display_area);
 }
 
-void CanonicalWindowManagerPolicy::handle_raise_surface(WindowInfo& window_info)
+void CanonicalWindowManagerPolicy::handle_raise_window(WindowInfo& window_info)
 {
     select_active_window(window_info.window);
 }

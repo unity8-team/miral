@@ -75,7 +75,7 @@ auto miral::BasicWindowManager::add_surface(
 
     auto& window_info = build_surface(session, placed_params);
 
-    policy->handle_new_surface(window_info);
+    policy->handle_new_window(window_info);
     policy->generate_decorations_for(window_info);
 
     if (window_info.can_be_active())
@@ -83,7 +83,7 @@ auto miral::BasicWindowManager::add_surface(
         std::shared_ptr<scene::Surface> const scene_surface = window_info.window;
         scene_surface->add_observer(std::make_shared<shell::SurfaceReadyObserver>(
             [this, &window_info](std::shared_ptr<scene::Session> const&, std::shared_ptr<scene::Surface> const&)
-                { policy->handle_surface_ready(window_info); },
+                { policy->handle_window_ready(window_info); },
             session,
             scene_surface));
     }
@@ -98,7 +98,7 @@ void miral::BasicWindowManager::modify_surface(
     shell::SurfaceSpecification const& modifications)
 {
     std::lock_guard<decltype(mutex)> lock(mutex);
-    policy->handle_modify_surface(info_for(surface), modifications);
+    policy->handle_modify_window(info_for(surface), modifications);
 }
 
 void miral::BasicWindowManager::remove_surface(
@@ -106,7 +106,7 @@ void miral::BasicWindowManager::remove_surface(
     std::weak_ptr<scene::Surface> const& surface)
 {
     std::lock_guard<decltype(mutex)> lock(mutex);
-    policy->handle_delete_surface(info_for(surface));
+    policy->handle_delete_window(info_for(surface));
 
     window_info.erase(surface);
 }
@@ -163,7 +163,7 @@ void miral::BasicWindowManager::handle_raise_surface(
 {
     std::lock_guard<decltype(mutex)> lock(mutex);
     if (timestamp >= last_input_event_timestamp)
-        policy->handle_raise_surface(info_for(surface));
+        policy->handle_raise_window(info_for(surface));
 }
 
 int miral::BasicWindowManager::set_surface_attribute(

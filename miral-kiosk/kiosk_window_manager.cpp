@@ -114,7 +114,7 @@ void KioskWindowManagerPolicy::generate_decorations_for(WindowInfo& /*window_inf
 {
 }
 
-void KioskWindowManagerPolicy::handle_new_surface(WindowInfo& window_info)
+void KioskWindowManagerPolicy::handle_new_window(WindowInfo& window_info)
 {
     auto const window = window_info.window;
     auto const session = window.session();
@@ -127,12 +127,12 @@ void KioskWindowManagerPolicy::handle_new_surface(WindowInfo& window_info)
     }
 }
 
-void KioskWindowManagerPolicy::handle_surface_ready(WindowInfo& window_info)
+void KioskWindowManagerPolicy::handle_window_ready(WindowInfo& window_info)
 {
     select_active_surface(window_info.window);
 }
 
-void KioskWindowManagerPolicy::handle_modify_surface(
+void KioskWindowManagerPolicy::handle_modify_window(
     WindowInfo& window_info,
     mir::shell::SurfaceSpecification const& modifications)
 {
@@ -140,7 +140,7 @@ void KioskWindowManagerPolicy::handle_modify_surface(
         window_info.window.rename(modifications.name.value());
 }
 
-void KioskWindowManagerPolicy::handle_delete_surface(WindowInfo& window_info)
+void KioskWindowManagerPolicy::handle_delete_window(WindowInfo& window_info)
 {
     auto const session = window_info.window.session();
     auto const& window = window_info.window;
@@ -193,7 +193,7 @@ auto KioskWindowManagerPolicy::transform_set_state(WindowInfo& window_info, MirS
     return window_info.state;
 }
 
-void KioskWindowManagerPolicy::handle_raise_surface(WindowInfo& window_info)
+void KioskWindowManagerPolicy::handle_raise_window(WindowInfo& window_info)
 {
     select_active_surface(window_info.window);
 }

@@ -151,7 +151,7 @@ void TilingWindowManagerPolicy::generate_decorations_for(WindowInfo& /*window_in
 {
 }
 
-void TilingWindowManagerPolicy::handle_new_surface(WindowInfo& window_info)
+void TilingWindowManagerPolicy::handle_new_window(WindowInfo& window_info)
 {
     auto const window = window_info.window;
     auto const session = window.session();
@@ -164,12 +164,12 @@ void TilingWindowManagerPolicy::handle_new_surface(WindowInfo& window_info)
     }
 }
 
-void TilingWindowManagerPolicy::handle_surface_ready(WindowInfo& window_info)
+void TilingWindowManagerPolicy::handle_window_ready(WindowInfo& window_info)
 {
     select_active_surface(window_info.window);
 }
 
-void TilingWindowManagerPolicy::handle_modify_surface(
+void TilingWindowManagerPolicy::handle_modify_window(
     WindowInfo& window_info,
     mir::shell::SurfaceSpecification const& modifications)
 {
@@ -177,7 +177,7 @@ void TilingWindowManagerPolicy::handle_modify_surface(
         window_info.window.rename(modifications.name.value());
 }
 
-void TilingWindowManagerPolicy::handle_delete_surface(WindowInfo& window_info)
+void TilingWindowManagerPolicy::handle_delete_window(WindowInfo& window_info)
 {
     auto const session = window_info.window.session();
     auto const& window = window_info.window;
@@ -294,7 +294,7 @@ void TilingWindowManagerPolicy::drag(Point cursor)
     }
 }
 
-void TilingWindowManagerPolicy::handle_raise_surface(WindowInfo& window_info)
+void TilingWindowManagerPolicy::handle_raise_window(WindowInfo& window_info)
 {
     select_active_surface(window_info.window);
 }

@@ -37,13 +37,13 @@ public:
         mir::scene::SurfaceCreationParameters const& request_parameters)
     -> mir::scene::SurfaceCreationParameters override;
 
-    void handle_new_surface(miral::WindowInfo& window_info) override;
+    void handle_new_window(miral::WindowInfo& window_info) override;
 
-    void handle_surface_ready(miral::WindowInfo& window_info) override;
+    void handle_window_ready(miral::WindowInfo& window_info) override;
 
-    void handle_modify_surface(miral::WindowInfo& window_info, mir::shell::SurfaceSpecification const& modifications) override;
+    void handle_modify_window(miral::WindowInfo& window_info, mir::shell::SurfaceSpecification const& modifications) override;
 
-    void handle_delete_surface(miral::WindowInfo& window_info) override;
+    void handle_delete_window(miral::WindowInfo& window_info) override;
 
     auto handle_set_state(miral::WindowInfo& window_info, MirSurfaceState value) -> MirSurfaceState override;
 
@@ -53,7 +53,7 @@ public:
 
     bool handle_pointer_event(MirPointerEvent const* event) override;
 
-    void handle_raise_surface(miral::WindowInfo& window_info) override;
+    void handle_raise_window(miral::WindowInfo& window_info) override;
 
     void generate_decorations_for(miral::WindowInfo& window_info) override;
 
