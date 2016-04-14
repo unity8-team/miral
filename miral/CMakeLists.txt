@@ -3,7 +3,7 @@ pkg_check_modules(MIRSERVER mirserver>=0.20 REQUIRED)
 include_directories(include SYSTEM ${MIRSERVER_INCLUDE_DIRS})
 
 add_library(miral SHARED
-    session.cpp                       ${CMAKE_SOURCE_DIR}/include/miral/session.h
+    application.cpp                   ${CMAKE_SOURCE_DIR}/include/miral/application.h
     runner.cpp                        ${CMAKE_SOURCE_DIR}/include/miral/runner.h
     display_configuration_option.cpp  ${CMAKE_SOURCE_DIR}/include/miral/display_configuration_option.h
     quit_on_ctrl_alt_bksp.cpp         ${CMAKE_SOURCE_DIR}/include/miral/quit_on_ctrl_alt_bksp.h

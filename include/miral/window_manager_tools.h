@@ -32,7 +32,7 @@ namespace scene { class Session; class Surface; struct SurfaceCreationParameters
 namespace miral
 {
 class Window;
-class Session;
+class Application;
 struct WindowInfo;
 struct SessionInfo;
 
@@ -50,7 +50,7 @@ public:
     virtual void for_each_session(std::function<void(SessionInfo& info)> const& functor) = 0;
 
     virtual auto find_session(std::function<bool(SessionInfo const& info)> const& predicate)
-    -> Session = 0;
+    -> Application = 0;
 
     virtual auto info_for(std::weak_ptr<mir::scene::Session> const& session) const -> SessionInfo& = 0;
 
@@ -58,7 +58,7 @@ public:
 
     virtual auto info_for(Window const& surface) const -> WindowInfo& = 0;
 
-    virtual auto focused_session() const -> Session = 0;
+    virtual auto focused_session() const -> Application = 0;
 
     virtual auto focused_surface() const -> Window = 0;
 

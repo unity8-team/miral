@@ -200,17 +200,17 @@ void miral::BasicWindowManager::for_each_session(std::function<void(SessionInfo&
 }
 
 auto miral::BasicWindowManager::find_session(std::function<bool(SessionInfo const& info)> const& predicate)
--> Session
+-> Application
 {
     for(auto& info : session_info)
     {
         if (predicate(info.second))
         {
-            return Session{this, info.first};
+            return Application{this, info.first};
         }
     }
 
-    return Session{this, {}};
+    return Application{this, {}};
 }
 
 auto miral::BasicWindowManager::info_for(std::weak_ptr<scene::Session> const& session) const
@@ -232,9 +232,9 @@ auto miral::BasicWindowManager::info_for(Window const& surface) const
 }
 
 auto miral::BasicWindowManager::focused_session() const
--> Session
+-> Application
 {
-    return Session{this, focus_controller->focused_session() };
+    return Application{this, focus_controller->focused_session() };
 }
 
 auto miral::BasicWindowManager::focused_surface() const

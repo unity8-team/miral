@@ -20,7 +20,7 @@
 #include "canonical_window_management_policy_data.h"
 #include "spinner/splash.h"
 
-#include "miral/session.h"
+#include "miral/application.h"
 #include "miral/window_manager_tools.h"
 
 #include <linux/input.h>

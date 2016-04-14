@@ -18,7 +18,7 @@
 
 #include "tiling_window_manager.h"
 
-#include "miral/session.h"
+#include "miral/application.h"
 #include "miral/window_manager_tools.h"
 
 #include <linux/input.h>
@@ -475,7 +475,7 @@ void TilingWindowManagerPolicy::toggle(MirSurfaceState state)
 }
 
 auto TilingWindowManagerPolicy::session_under(Point position)
--> Session
+-> Application
 {
     return tools->find_session([&](SessionInfo const& info) { return tile_for(info).contains(position);});
 }

@@ -16,8 +16,8 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#ifndef MIRAL_SESSION_H
-#define MIRAL_SESSION_H
+#ifndef MIRAL_APPLICATION_H
+#define MIRAL_APPLICATION_H
 
 #include <memory>
 
@@ -31,10 +31,10 @@ namespace miral
 class Window;
 class WindowManagerTools;
 
-class Session
+class Application
 {
 public:
-    explicit Session(WindowManagerTools const* tools, std::weak_ptr<mir::scene::Session> const& scene_session) :
+    explicit Application(WindowManagerTools const* tools, std::weak_ptr<mir::scene::Session> const& scene_session) :
         tools(tools), scene_session{scene_session} {}
 
     auto default_surface() const -> Window;
@@ -48,18 +48,18 @@ public:
 private:
     WindowManagerTools const* tools;
     std::weak_ptr<mir::scene::Session> scene_session;
-    friend bool operator==(Session const& lhs, Session const& rhs);
-    friend bool operator==(std::shared_ptr<mir::scene::Session> const& lhs, Session const& rhs);
-    friend bool operator==(Session const& lhs, std::shared_ptr<mir::scene::Session> const& rhs);
+    friend bool operator==(Application const& lhs, Application const& rhs);
+    friend bool operator==(std::shared_ptr<mir::scene::Session> const& lhs, Application const& rhs);
+    friend bool operator==(Application const& lhs, std::shared_ptr<mir::scene::Session> const& rhs);
 };
 
-bool operator==(Session const& lhs, Session const& rhs);
-bool operator==(std::shared_ptr<mir::scene::Session> const& lhs, Session const& rhs);
-bool operator==(Session const& lhs, std::shared_ptr<mir::scene::Session> const& rhs);
+bool operator==(Application const& lhs, Application const& rhs);
+bool operator==(std::shared_ptr<mir::scene::Session> const& lhs, Application const& rhs);
+bool operator==(Application const& lhs, Application const& rhs);
 
-inline bool operator!=(Session const& lhs, Session const& rhs) { return !(lhs == rhs); }
-inline bool operator!=(std::shared_ptr<mir::scene::Session> const& lhs, Session const& rhs) { return !(lhs == rhs); }
-inline bool operator!=(Session const& lhs, std::shared_ptr<mir::scene::Session> const& rhs) { return !(lhs == rhs); }
+inline bool operator!=(Application const& lhs, Application const& rhs) { return !(lhs == rhs); }
+inline bool operator!=(std::shared_ptr<mir::scene::Session> const& lhs, Application const& rhs) { return !(lhs == rhs); }
+inline bool operator!=(Application const& lhs, std::shared_ptr<mir::scene::Session> const& rhs) { return !(lhs == rhs); }
 }
 
-#endif //MIRAL_SESSION_H
+#endif //MIRAL_APPLICATION_H

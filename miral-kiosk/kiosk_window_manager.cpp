@@ -18,7 +18,7 @@
 
 #include "kiosk_window_manager.h"
 
-#include "miral/session.h"
+#include "miral/application.h"
 #include "miral/window_manager_tools.h"
 
 #include "mir/scene/session.h"

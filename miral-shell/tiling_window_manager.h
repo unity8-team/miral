@@ -80,7 +80,7 @@ private:
     void drag(Point cursor);
     void toggle(MirSurfaceState state);
 
-    miral::Session session_under(Point position);
+    miral::Application session_under(Point position);
 
     void update_tiles(Rectangles const& displays);
     void update_surfaces(miral::SessionInfo& info, Rectangle const& old_tile, Rectangle const& new_tile);

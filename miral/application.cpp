@@ -16,7 +16,7 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#include "miral/session.h"
+#include "miral/application.h"
 #include "miral/window_info.h"
 #include "miral/window_manager_tools.h"
 
@@ -24,34 +24,34 @@
 
 #include <csignal>
 
-auto miral::Session::default_surface() const
+auto miral::Application::default_surface() const
 -> Window
 {
     return tools->info_for(scene_session.lock()->default_surface()).surface;
 }
 
-auto miral::Session::surface_after(Window const& surface) const
+auto miral::Application::surface_after(Window const& surface) const
 -> Window
 {
     return tools->info_for(scene_session.lock()->surface_after(surface)).surface;
 }
 
-auto miral::Session::kill(int sig) const -> int
+auto miral::Application::kill(int sig) const -> int
 {
     return ::kill(scene_session.lock()->process_id(), sig);
 }
 
-bool miral::operator==(Session const& lhs, Session const& rhs)
+bool miral::operator==(Application const& lhs, Application const& rhs)
 {
     return !lhs.scene_session.owner_before(rhs.scene_session) && !rhs.scene_session.owner_before(lhs.scene_session);
 }
 
-bool miral::operator==(std::shared_ptr<mir::scene::Session> const& lhs, Session const& rhs)
+bool miral::operator==(std::shared_ptr<mir::scene::Session> const& lhs, Application const& rhs)
 {
     return !lhs.owner_before(rhs.scene_session) && !rhs.scene_session.owner_before(lhs);
 }
 
-bool miral::operator==(Session const& lhs, std::shared_ptr<mir::scene::Session> const& rhs)
+bool miral::operator==(Application const& lhs, std::shared_ptr<mir::scene::Session> const& rhs)
 {
     return rhs == lhs;
 }

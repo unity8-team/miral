@@ -22,7 +22,7 @@
 #include "miral/window_management_policy.h"
 #include "miral/window_manager_tools.h"
 #include "miral/window_info.h"
-#include "miral/session.h"
+#include "miral/application.h"
 #include "miral/session_info.h"
 
 #include "mir/geometry/rectangles.h"
@@ -103,7 +103,7 @@ public:
     void for_each_session(std::function<void(SessionInfo& info)> const& functor) override;
 
     auto find_session(std::function<bool(SessionInfo const& info)> const& predicate)
-    -> Session override;
+    -> Application override;
 
     auto info_for(std::weak_ptr<mir::scene::Session> const& session) const -> SessionInfo& override;
 
@@ -111,7 +111,7 @@ public:
 
     auto info_for(Window const& surface) const -> WindowInfo& override;
 
-    auto focused_session() const -> Session override;
+    auto focused_session() const -> Application override;
 
     auto focused_surface() const -> Window override;
 
