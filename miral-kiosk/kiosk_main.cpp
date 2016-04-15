@@ -23,23 +23,32 @@
 #include "miral/window_management_options.h"
 #include "miral/internal_client.h"
 
-namespace
+struct Splash
 {
-void splash_notification(std::weak_ptr<mir::scene::Session> const /*session*/)
-{
-}
-}
+    void splash_notification(std::weak_ptr<mir::scene::Session> const session)
+    {
+        splash_session = session;
+    }
+
+    std::weak_ptr<mir::scene::Session> splash_session;
+
+    Splash() = default;
+    Splash(Splash const&) = delete;
+};
 
 int main(int argc, char const* argv[])
 {
     using namespace miral;
 
+    Splash splash;
+
     return MirRunner{argc, argv}.run_with(
         {
             WindowManagerOptions
                 {
-                    add_window_manager_policy<KioskWindowManagerPolicy>("kiosk"),
+                    add_window_manager_policy<KioskWindowManagerPolicy>("kiosk", splash),
                 },
-            InternalClient{"Intro", sw_splash, splash_notification}
+            InternalClient{"Intro", sw_splash, [&] (std::weak_ptr<mir::scene::Session> const session)
+                { splash.splash_notification(session); }}
         });
 }

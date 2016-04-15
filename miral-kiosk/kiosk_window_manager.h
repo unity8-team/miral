@@ -23,10 +23,16 @@
 
 using namespace mir::geometry;
 
+struct Splash;
+
 class KioskWindowManagerPolicy : public miral::WindowManagementPolicy
 {
 public:
     explicit KioskWindowManagerPolicy(miral::WindowManagerTools* const tools);
+
+    KioskWindowManagerPolicy(miral::WindowManagerTools* const tools, Splash const&) :
+        KioskWindowManagerPolicy(tools) {}
+
 
     void handle_app_info_updated(Rectangles const& displays) override;
 
