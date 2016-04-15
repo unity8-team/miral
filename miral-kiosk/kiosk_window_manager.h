@@ -69,7 +69,7 @@ private:
 
     auto select_active_window(miral::Window const& window) -> miral::Window;
     auto transform_set_state(miral::WindowInfo& window_info, MirSurfaceState value) -> MirSurfaceState;
-    void raise_internal_sessions() const;
+    void raise_splash_session() const;
 
     miral::WindowManagerTools* const tools;
 
