@@ -21,8 +21,8 @@
 
 #include "miral/window.h"
 
-#include "mir/geometry/rectangles.h"
-#include "mir/optional_value.h"
+#include <mir/geometry/rectangles.h>
+#include <mir/optional_value.h>
 
 // TODO remove shell::SurfaceSpecification & scene::SurfaceCreationParameters/SurfaceAspectRatio &
 // mir::graphics::DisplayConfigurationOutputId from the interface
