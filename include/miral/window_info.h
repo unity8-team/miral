@@ -24,12 +24,14 @@
 #include "mir/geometry/rectangles.h"
 #include "mir/optional_value.h"
 
-// TODO remove scene::SurfaceCreationParameters from the interface
+// TODO remove shell::SurfaceSpecification & scene::SurfaceCreationParameters/SurfaceAspectRatio &
+// mir::graphics::DisplayConfigurationOutputId from the interface
 #include <mir/scene/surface_creation_parameters.h>
 
 namespace mir
 {
-namespace scene { class Session; }
+namespace scene { class Session; struct SurfaceCreationParameters; }
+namespace shell { struct SurfaceSpecification; }
 }
 
 namespace miral

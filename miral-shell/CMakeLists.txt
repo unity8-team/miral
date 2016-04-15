@@ -20,7 +20,12 @@ add_executable(miral-shell
     canonical_window_management_policy_data.cpp canonical_window_management_policy_data.h
 )
 
-target_link_libraries(miral-shell miral miral-spinner)
+target_link_libraries(miral-shell
+    miral-spinner
+    miral
+    # TODO remove dependency on libmirserver-dev
+    ${MIRSERVER_LDFLAGS}
+)
 
 install(TARGETS miral-shell
     DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
