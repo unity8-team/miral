@@ -30,15 +30,17 @@ int main(int argc, char const* argv[])
 {
     using namespace miral;
 
+    SpinnerSplash spinner;
+
     return MirRunner{argc, argv}.run_with(
         {
             WindowManagerOptions
                 {
-                    add_window_manager_policy<CanonicalWindowManagerPolicy>("canonical"),
+                    add_window_manager_policy<CanonicalWindowManagerPolicy>("canonical", spinner),
                     add_window_manager_policy<TilingWindowManagerPolicy>("tiling"),
                 },
             display_configuration_options,
             QuitOnCtrlAltBkSp{},
-            InternalClient{"Intro", spinner_splash, spinner_server_notification}
+            InternalClient{"Intro", spinner}
         });
 }

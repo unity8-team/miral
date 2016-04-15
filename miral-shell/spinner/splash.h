@@ -25,8 +25,21 @@
 
 namespace mir { namespace scene { class Session; }}
 
-void spinner_splash(MirConnection* connection);
-void spinner_server_notification(std::weak_ptr<mir::scene::Session> const session);
-auto spinner_session() -> std::shared_ptr<mir::scene::Session>;
+namespace mir { class Server; namespace scene { class Session; }}
+
+class SpinnerSplash
+{
+public:
+    SpinnerSplash();
+    ~SpinnerSplash();
+
+    void operator()(MirConnection* connection);
+    void operator()(std::weak_ptr<mir::scene::Session> const session);
+    auto session() const -> std::shared_ptr<mir::scene::Session>;
+
+private:
+    struct Self;
+    std::shared_ptr<Self> const self;
+};
 
 #endif //MIRAL_SHELL_SPINNER_SPLASH_H

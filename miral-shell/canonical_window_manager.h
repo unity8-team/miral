@@ -19,6 +19,8 @@
 #ifndef MIRAL_SHELL_CANONICAL_WINDOW_MANAGER_H_
 #define MIRAL_SHELL_CANONICAL_WINDOW_MANAGER_H_
 
+#include "spinner/splash.h"
+
 #include "miral/window_management_policy.h"
 
 #include <mir/geometry/displacement.h>
@@ -42,7 +44,7 @@ class CanonicalWindowManagerPolicy  : public miral::WindowManagementPolicy
 {
 public:
 
-    explicit CanonicalWindowManagerPolicy(miral::WindowManagerTools* const tools);
+    explicit CanonicalWindowManagerPolicy(miral::WindowManagerTools* const tools, SpinnerSplash const& spinner);
 
     void handle_app_info_updated(Rectangles const& displays) override;
 
@@ -96,6 +98,7 @@ private:
     auto transform_set_state(miral::WindowInfo& window_info, MirSurfaceState value) -> MirSurfaceState;
 
     miral::WindowManagerTools* const tools;
+    SpinnerSplash const spinner;
 
     Rectangle display_area;
     Point old_cursor{};
