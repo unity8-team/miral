@@ -62,11 +62,11 @@ MirPixelFormat find_8888_format(MirConnection* connection)
 auto create_surface(MirConnection* connection, MirPixelFormat pixel_format) -> MirSurface*
 {
 
-    MirSurfaceSpec* spec =
-        mir_connection_create_spec_for_normal_surface(connection, 640, 480, pixel_format);
+    auto* spec = mir_connection_create_spec_for_normal_surface(connection, 0, 0, pixel_format);
 
     mir_surface_spec_set_name(spec, "splash");
     mir_surface_spec_set_buffer_usage(spec, mir_buffer_usage_software);
+    mir_surface_spec_set_fullscreen_on_output(spec, 0);
 
     auto const surface = mir_surface_create_sync(spec);
     mir_surface_spec_release(spec);
@@ -97,6 +97,8 @@ struct SwSplash::Self
 };
 
 SwSplash::SwSplash() : self{std::make_shared<Self>()} {}
+
+SwSplash::~SwSplash() = default;
 
 void SwSplash::operator()(std::weak_ptr<mir::scene::Session> const session)
 {
