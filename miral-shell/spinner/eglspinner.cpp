@@ -245,7 +245,7 @@ SpinnerSplash::SpinnerSplash() : self{std::make_shared<Self>()} {}
 
 SpinnerSplash::~SpinnerSplash() = default;
 
-void SpinnerSplash::operator()(std::weak_ptr<mir::scene::Session> const session)
+void SpinnerSplash::operator()(std::weak_ptr<mir::scene::Session> const& session)
 {
     std::lock_guard<decltype(self->mutex)> lock{self->mutex};
     self->session = session;

@@ -33,7 +33,7 @@ public:
     ~SwSplash();
 
     void operator()(MirConnection* connection);
-    void operator()(std::weak_ptr<mir::scene::Session> const session);
+    void operator()(std::weak_ptr<mir::scene::Session> const& session);
     auto session() const -> std::weak_ptr<mir::scene::Session>;
 
 private:

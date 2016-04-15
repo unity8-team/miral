@@ -30,7 +30,7 @@ int main(int argc, char const* argv[])
 
     return MirRunner{argc, argv}.run_with(
         {
-            WindowManagerOptions{ add_window_manager_policy<KioskWindowManagerPolicy>("kiosk", splash), },
-            InternalClient{"Intro", splash }
+            WindowManagerOptions{add_window_manager_policy<KioskWindowManagerPolicy>("kiosk", splash)},
+            InternalClient{"Intro", splash}
         });
 }

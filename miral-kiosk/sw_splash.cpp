@@ -100,7 +100,7 @@ SwSplash::SwSplash() : self{std::make_shared<Self>()} {}
 
 SwSplash::~SwSplash() = default;
 
-void SwSplash::operator()(std::weak_ptr<mir::scene::Session> const session)
+void SwSplash::operator()(std::weak_ptr<mir::scene::Session> const& session)
 {
     std::lock_guard<decltype(self->mutex)> lock{self->mutex};
     self->session = session;
