@@ -21,7 +21,23 @@
 
 #include <mir_toolkit/client_types.h>
 
-void sw_splash(MirConnection* connection);
+#include <memory>
 
+namespace mir { class Server; namespace scene { class Session; }}
+
+class SwSplash
+{
+public:
+    SwSplash();
+
+    void operator()(MirConnection* connection);
+
+    void operator()(std::weak_ptr<mir::scene::Session> const session);
+    auto session() const -> std::weak_ptr<mir::scene::Session>;
+
+private:
+    struct Self;
+    std::shared_ptr<Self> const self;
+};
 
 #endif //MIRAL_SHELL_SW_SPLASH_H

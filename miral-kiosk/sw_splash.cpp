@@ -25,6 +25,7 @@
 #include <chrono>
 #include <cstring>
 #include <thread>
+#include <mutex>
 
 namespace
 {
@@ -89,7 +90,27 @@ void render_pattern(MirGraphicsRegion *region, uint8_t pattern[])
 }
 }
 
-void sw_splash(MirConnection* connection)
+struct SwSplash::Self
+{
+    std::mutex mutex;
+    std::weak_ptr<mir::scene::Session> session;
+};
+
+SwSplash::SwSplash() : self{std::make_shared<Self>()} {}
+
+void SwSplash::operator()(std::weak_ptr<mir::scene::Session> const session)
+{
+    std::lock_guard<decltype(self->mutex)> lock{self->mutex};
+    self->session = session;
+}
+
+auto SwSplash::session() const -> std::weak_ptr<mir::scene::Session>
+{
+    std::lock_guard<decltype(self->mutex)> lock{self->mutex};
+    return self->session;
+}
+
+void SwSplash::operator()(MirConnection* connection)
 {
     MirPixelFormat pixel_format = find_8888_format(connection);
 
