@@ -25,6 +25,7 @@
 #include <chrono>
 #include <cstring>
 #include <thread>
+#include <mutex>
 
 namespace
 {
@@ -61,11 +62,11 @@ MirPixelFormat find_8888_format(MirConnection* connection)
 auto create_surface(MirConnection* connection, MirPixelFormat pixel_format) -> MirSurface*
 {
 
-    MirSurfaceSpec* spec =
-        mir_connection_create_spec_for_normal_surface(connection, 640, 480, pixel_format);
+    auto* spec = mir_connection_create_spec_for_normal_surface(connection, 0, 0, pixel_format);
 
     mir_surface_spec_set_name(spec, "splash");
     mir_surface_spec_set_buffer_usage(spec, mir_buffer_usage_software);
+    mir_surface_spec_set_fullscreen_on_output(spec, 0);
 
     auto const surface = mir_surface_create_sync(spec);
     mir_surface_spec_release(spec);
@@ -89,7 +90,29 @@ void render_pattern(MirGraphicsRegion *region, uint8_t pattern[])
 }
 }
 
-void sw_splash(MirConnection* connection)
+struct SwSplash::Self
+{
+    std::mutex mutex;
+    std::weak_ptr<mir::scene::Session> session;
+};
+
+SwSplash::SwSplash() : self{std::make_shared<Self>()} {}
+
+SwSplash::~SwSplash() = default;
+
+void SwSplash::operator()(std::weak_ptr<mir::scene::Session> const& session)
+{
+    std::lock_guard<decltype(self->mutex)> lock{self->mutex};
+    self->session = session;
+}
+
+auto SwSplash::session() const -> std::weak_ptr<mir::scene::Session>
+{
+    std::lock_guard<decltype(self->mutex)> lock{self->mutex};
+    return self->session;
+}
+
+void SwSplash::operator()(MirConnection* connection)
 {
     MirPixelFormat pixel_format = find_8888_format(connection);
 

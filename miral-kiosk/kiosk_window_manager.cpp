@@ -21,17 +21,14 @@
 #include "miral/application.h"
 #include "miral/window_manager_tools.h"
 
-#include "mir/scene/session.h"
-
 #include <linux/input.h>
-#include <sys/types.h>
-#include <unistd.h>
 
 namespace ms = mir::scene;
 using namespace miral;
 
-KioskWindowManagerPolicy::KioskWindowManagerPolicy(WindowManagerTools* const tools) :
-    tools{tools}
+KioskWindowManagerPolicy::KioskWindowManagerPolicy(WindowManagerTools* const tools, SwSplash const& splash) :
+    tools{tools},
+    splash{splash}
 {
 }
 
@@ -283,7 +280,7 @@ auto KioskWindowManagerPolicy::select_active_window(Window const& window) -> Win
         tools->set_focus_to(info_for.window);
         tools->raise_tree(window);
 
-        raise_internal_sessions();
+        raise_splash_session();
 
         return window;
     }
@@ -297,24 +294,13 @@ auto KioskWindowManagerPolicy::select_active_window(Window const& window) -> Win
     }
 }
 
-void KioskWindowManagerPolicy::raise_internal_sessions() const
-{// Look for any internal sessions and raise its window(s)
-    tools->for_each_application(
-        [this](ApplicationInfo const& app_info)
-            {
-            if (!app_info.windows.empty())
-            {
-                if (auto const& first_surface = app_info.windows[0])
-                {
-                    if (auto const scene_session = first_surface.session())
-                    {
-                        if (scene_session->process_id() == getpid())
-                        {
-                            for (auto const& s : app_info.windows)
-                                tools->raise_tree(s);
-                        }
-                    }
-                }
-            }
-            });
+void KioskWindowManagerPolicy::raise_splash_session() const
+{
+    if (auto session = splash.session().lock())
+    {
+        auto const& app_info = tools->info_for(session);
+
+        for (auto const& s : app_info.windows)
+            tools->raise_tree(s);
+    }
 }

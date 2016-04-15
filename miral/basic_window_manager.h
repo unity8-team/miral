@@ -41,6 +41,8 @@ namespace shell { class DisplayLayout; }
 namespace miral
 {
 using mir::shell::SurfaceSet;
+using WindowManagementPolicyBuilder =
+    std::function<std::unique_ptr<miral::WindowManagementPolicy>(miral::WindowManagerTools* tools)>;
 
 /// A policy based window manager.
 /// This takes care of the management of any meta implementation held for the sessions and windows.
@@ -51,7 +53,7 @@ public:
     BasicWindowManager(
         mir::shell::FocusController* focus_controller,
         std::shared_ptr<mir::shell::DisplayLayout> const& display_layout,
-        std::unique_ptr<WindowManagementPolicy> (*build)(WindowManagerTools* tools));
+        WindowManagementPolicyBuilder const& build);
 
     auto build_window(
         std::shared_ptr<mir::scene::Session> const& session, mir::scene::SurfaceCreationParameters const& parameters)

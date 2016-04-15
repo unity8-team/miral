@@ -19,6 +19,8 @@
 #ifndef MIRAL_KIOSK_WINDOW_MANAGER_H
 #define MIRAL_KIOSK_WINDOW_MANAGER_H
 
+#include "sw_splash.h"
+
 #include "miral/window_management_policy.h"
 
 using namespace mir::geometry;
@@ -26,7 +28,7 @@ using namespace mir::geometry;
 class KioskWindowManagerPolicy : public miral::WindowManagementPolicy
 {
 public:
-    explicit KioskWindowManagerPolicy(miral::WindowManagerTools* const tools);
+    KioskWindowManagerPolicy(miral::WindowManagerTools* const tools, SwSplash const&);
 
     void handle_app_info_updated(Rectangles const& displays) override;
 
@@ -67,11 +69,13 @@ private:
 
     auto select_active_window(miral::Window const& window) -> miral::Window;
     auto transform_set_state(miral::WindowInfo& window_info, MirSurfaceState value) -> MirSurfaceState;
-    void raise_internal_sessions() const;
+    void raise_splash_session() const;
 
     miral::WindowManagerTools* const tools;
 
     Point old_cursor{};
+
+    SwSplash const splash;
 };
 
 #endif /* MIRAL_KIOSK_WINDOW_MANAGER_H */
