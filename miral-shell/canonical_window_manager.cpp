@@ -48,8 +48,8 @@ Point titlebar_position_for_window(Point window_position)
 }
 }
 
-CanonicalWindowManagerPolicy::CanonicalWindowManagerPolicy(WindowManagerTools* const tools) :
-    tools{tools}
+CanonicalWindowManagerPolicy::CanonicalWindowManagerPolicy(WindowManagerTools* const tools, SpinnerSplash const& spinner) :
+    tools{tools}, spinner{spinner}
 {
 }
 
@@ -801,9 +801,9 @@ void CanonicalWindowManagerPolicy::select_active_window(Window const& window)
         active_window_ = info_for.window;
 
         // Frig to force the spinner to the top
-        if (auto const spinner = spinner_session())
+        if (auto const spinner_session = spinner.session())
         {
-            auto const& spinner_info = tools->info_for(spinner);
+            auto const& spinner_info = tools->info_for(spinner_session);
 
             if (spinner_info.windows.size() > 0)
                 tools->raise_tree(spinner_info.windows[0]);

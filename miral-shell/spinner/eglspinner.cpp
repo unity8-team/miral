@@ -233,25 +233,32 @@ void lifecycle_event_callback(MirConnection* /*connection*/, MirLifecycleState s
     if (state == mir_lifecycle_connection_lost)
         static_cast<decltype(dying)*>(context)->store(true);
 }
-
-std::mutex spinner_session_mutex;
-std::weak_ptr<mir::scene::Session> spinner_session_weak;
 }
 
-void spinner_server_notification(std::weak_ptr<mir::scene::Session> const session)
+struct SpinnerSplash::Self
 {
-    std::lock_guard<decltype(spinner_session_mutex)> lock{spinner_session_mutex};
-    spinner_session_weak = session;
+    std::mutex mutex;
+    std::weak_ptr<mir::scene::Session> session;
+};
+
+SpinnerSplash::SpinnerSplash() : self{std::make_shared<Self>()} {}
+
+SpinnerSplash::~SpinnerSplash() = default;
+
+void SpinnerSplash::operator()(std::weak_ptr<mir::scene::Session> const& session)
+{
+    std::lock_guard<decltype(self->mutex)> lock{self->mutex};
+    self->session = session;
 }
 
-auto spinner_session()
+auto SpinnerSplash::session() const
 -> std::shared_ptr<mir::scene::Session>
 {
-    std::lock_guard<decltype(spinner_session_mutex)> lock{spinner_session_mutex};
-    return spinner_session_weak.lock();
+    std::lock_guard<decltype(self->mutex)> lock{self->mutex};
+    return self->session.lock();
 }
 
-void spinner_splash(MirConnection* const connection)
+void SpinnerSplash::operator()(MirConnection* const connection)
 try
 {
     GLuint prog[2];

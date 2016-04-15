@@ -43,6 +43,11 @@ public:
         std::string name,
         std::function<void(MirConnection* connection)> client_code,
         std::function<void(std::weak_ptr<mir::scene::Session> const session)> connect_notification);
+
+    template <typename ClientObject>
+    explicit InternalClient(std::string name, ClientObject const& client_object) :
+        InternalClient(name, client_object, client_object) {}
+
     ~InternalClient();
 
     void operator()(mir::Server& server);
