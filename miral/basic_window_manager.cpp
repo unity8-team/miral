@@ -29,7 +29,7 @@ using namespace mir;
 miral::BasicWindowManager::BasicWindowManager(
     shell::FocusController* focus_controller,
     std::shared_ptr<shell::DisplayLayout> const& display_layout,
-    std::unique_ptr<WindowManagementPolicy> (*build)(WindowManagerTools* tools)) :
+    WindowManagementPolicyBuilder const& build) :
     focus_controller(focus_controller),
     display_layout(display_layout),
     policy(build(this)),

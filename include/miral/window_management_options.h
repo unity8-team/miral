@@ -19,6 +19,7 @@
 #ifndef MIRAL_WINDOW_MANAGEMENT_OPTIONS_H_
 #define MIRAL_WINDOW_MANAGEMENT_OPTIONS_H_
 
+#include <functional>
 #include <memory>
 #include <string>
 #include <vector>
@@ -33,10 +34,13 @@ namespace miral
 class WindowManagerTools;
 class WindowManagementPolicy;
 
+using WindowManagementPolicyBuilder =
+    std::function<std::unique_ptr<miral::WindowManagementPolicy>(miral::WindowManagerTools* tools)>;
+
 struct WindowManagerOption
 {
     std::string const name;
-    auto (*const build)(miral::WindowManagerTools* tools) -> std::unique_ptr<miral::WindowManagementPolicy>;
+    WindowManagementPolicyBuilder const build;
 };
 
 template<typename Policy>
