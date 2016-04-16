@@ -25,7 +25,7 @@
 
 namespace mir
 {
-namespace scene { class Session; class Surface; struct SurfaceCreationParameters; }
+namespace scene { class Session; class Surface; }
 }
 
 
@@ -35,6 +35,7 @@ class Window;
 class Application;
 struct WindowInfo;
 struct ApplicationInfo;
+class WindowSpecification;
 
 /// The interface through which the policy instructs the controller.
 /// These functions assume that the BasicWindowManager data structures can be accessed freely.
@@ -44,7 +45,7 @@ class WindowManagerTools
 public:
     virtual auto build_window(
         std::shared_ptr<mir::scene::Session> const& session,
-        mir::scene::SurfaceCreationParameters const& parameters)
+        WindowSpecification const& parameters)
     -> WindowInfo& = 0;
     virtual auto count_applications() const -> unsigned int = 0;
     virtual void for_each_application(std::function<void(ApplicationInfo& info)> const& functor) = 0;

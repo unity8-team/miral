@@ -56,7 +56,7 @@ public:
         WindowManagementPolicyBuilder const& build);
 
     auto build_window(
-        std::shared_ptr<mir::scene::Session> const& session, mir::scene::SurfaceCreationParameters const& parameters)
+        std::shared_ptr<mir::scene::Session> const& session, WindowSpecification const& spec)
     -> WindowInfo& override;
 
     void add_session(std::shared_ptr<mir::scene::Session> const& session) override;

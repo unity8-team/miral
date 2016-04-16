@@ -40,9 +40,12 @@ miral::BasicWindowManager::BasicWindowManager(
 }
 
 auto miral::BasicWindowManager::build_window(
-    std::shared_ptr<scene::Session> const& session, scene::SurfaceCreationParameters const& parameters)
+    std::shared_ptr<scene::Session> const& session, WindowSpecification const& spec)
 -> WindowInfo&
 {
+    scene::SurfaceCreationParameters parameters;
+    spec.update(parameters);
+
     auto result = surface_builder(session, parameters);
     auto& info = window_info.emplace(result, WindowInfo{result, parameters}).first->second;
     if (auto const parent = parameters.parent.lock())
@@ -75,10 +78,8 @@ auto miral::BasicWindowManager::add_surface(
         { return Window{session, build(session, params)}; };
 
     auto const spec = policy->handle_place_new_surface(info_for(session), params);
-    scene::SurfaceCreationParameters placed_params;
-    spec.update(placed_params);
 
-    auto& window_info = build_window(session, placed_params);
+    auto& window_info = build_window(session, spec);
 
     policy->handle_new_window(window_info);
     policy->generate_decorations_for(window_info);
