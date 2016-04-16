@@ -16,9 +16,10 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
+#include "miral/window_specification.h"
+
 #include <mir/shell/surface_specification.h>
 #include <mir/scene/surface_creation_parameters.h>
-#include "miral/window_specification.h"
 
 struct miral::WindowSpecification::Self
 {

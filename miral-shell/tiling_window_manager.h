@@ -19,7 +19,6 @@
 #ifndef MIRAL_SHELL_TILING_WINDOW_MANAGER_H
 #define MIRAL_SHELL_TILING_WINDOW_MANAGER_H
 
-#include <miral/window_specification.h>
 #include "miral/window_management_policy.h"
 
 using namespace mir::geometry;
