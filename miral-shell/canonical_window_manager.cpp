@@ -22,6 +22,7 @@
 
 #include "miral/application.h"
 #include "miral/window_manager_tools.h"
+#include "miral/window_specification.h"
 
 #include <linux/input.h>
 #include <csignal>
@@ -87,37 +88,38 @@ void CanonicalWindowManagerPolicy::resize(Point cursor)
     resize(active_window(), cursor, old_cursor);
 }
 
+
 auto CanonicalWindowManagerPolicy::handle_place_new_surface(
-    ApplicationInfo const& app_info,
-    ms::SurfaceCreationParameters const& request_parameters)
--> ms::SurfaceCreationParameters
+    miral::ApplicationInfo const& app_info,
+    miral::WindowSpecification const& request_parameters)
+    -> miral::WindowSpecification
 {
     auto parameters = request_parameters;
-    auto surf_type = parameters.type.is_set() ? parameters.type.value() : mir_surface_type_normal;
+    auto surf_type = parameters.type().is_set() ? parameters.type().value() : mir_surface_type_normal;
     bool const needs_titlebar = WindowInfo::needs_titlebar(surf_type);
 
     if (needs_titlebar)
-        parameters.size.height = parameters.size.height + DeltaY{title_bar_height};
+        parameters.size() = Size{parameters.size().value().width, parameters.size().value().height + DeltaY{title_bar_height}};
 
-    if (!parameters.state.is_set())
-        parameters.state = mir_surface_state_restored;
+    if (!parameters.state().is_set())
+        parameters.state() = mir_surface_state_restored;
 
     auto const active_display = tools->active_display();
 
-    auto const width = parameters.size.width.as_int();
-    auto const height = parameters.size.height.as_int();
+    auto const width = parameters.size().value().width.as_int();
+    auto const height = parameters.size().value().height.as_int();
 
     bool positioned = false;
 
-    bool const has_parent{parameters.parent.lock()};
+    bool const has_parent{parameters.parent().is_set() && parameters.parent().value().lock()};
 
-    if (parameters.output_id != mir::graphics::DisplayConfigurationOutputId{0})
+    if (parameters.output_id().value() != 0)
     {
-        Rectangle rect{parameters.top_left, parameters.size};
-        tools->place_in_output(parameters.output_id, rect);
-        parameters.top_left = rect.top_left;
-        parameters.size = rect.size;
-        parameters.state = mir_surface_state_fullscreen;
+        Rectangle rect{parameters.top_left().value(), parameters.size().value()};
+        tools->place_in_output(mir::graphics::DisplayConfigurationOutputId{parameters.output_id().value()}, rect);
+        parameters.top_left() = rect.top_left;
+        parameters.size() = rect.size;
+        parameters.state() = mir_surface_state_fullscreen;
         positioned = true;
     }
     else if (!has_parent) // No parent => client can't suggest positioning
@@ -128,23 +130,23 @@ auto CanonicalWindowManagerPolicy::handle_place_new_surface(
             {
                 static Displacement const offset{title_bar_height, title_bar_height};
 
-                parameters.top_left = default_window.top_left() + offset;
+                parameters.top_left() = default_window.top_left() + offset;
 
                 Rectangle display_for_app{default_window.top_left(), default_window.size()};
 
                 tools->size_to_output(display_for_app);
 
-                positioned = display_for_app.overlaps(Rectangle{parameters.top_left, parameters.size});
+                positioned = display_for_app.overlaps(Rectangle{parameters.top_left().value(), parameters.size().value()});
             }
         }
     }
 
-    if (has_parent && parameters.aux_rect.is_set() && parameters.edge_attachment.is_set())
+    if (has_parent && parameters.aux_rect().is_set() && parameters.edge_attachment().is_set())
     {
-        auto parent = tools->info_for(parameters.parent).window;
+        auto parent = tools->info_for(parameters.parent().value()).window;
 
-        auto const edge_attachment = parameters.edge_attachment.value();
-        auto const aux_rect = parameters.aux_rect.value();
+        auto const edge_attachment = parameters.edge_attachment().value();
+        auto const aux_rect = parameters.aux_rect().value();
         auto const parent_top_left = parent.top_left();
         auto const top_left = aux_rect.top_left     -Point{} + parent_top_left;
         auto const top_right= aux_rect.top_right()  -Point{} + parent_top_left;
@@ -154,12 +156,12 @@ auto CanonicalWindowManagerPolicy::handle_place_new_surface(
         {
             if (active_display.contains(top_right + Displacement{width, height}))
             {
-                parameters.top_left = top_right;
+                parameters.top_left() = top_right;
                 positioned = true;
             }
             else if (active_display.contains(top_left + Displacement{-width, height}))
             {
-                parameters.top_left = top_left + Displacement{-width, 0};
+                parameters.top_left() = top_left + Displacement{-width, 0};
                 positioned = true;
             }
         }
@@ -168,19 +170,19 @@ auto CanonicalWindowManagerPolicy::handle_place_new_surface(
         {
             if (active_display.contains(bot_left + Displacement{width, height}))
             {
-                parameters.top_left = bot_left;
+                parameters.top_left() = bot_left;
                 positioned = true;
             }
             else if (active_display.contains(top_left + Displacement{width, -height}))
             {
-                parameters.top_left = top_left + Displacement{0, -height};
+                parameters.top_left() = top_left + Displacement{0, -height};
                 positioned = true;
             }
         }
     }
     else if (has_parent)
     {
-        auto parent = tools->info_for(parameters.parent).window;
+        auto parent = tools->info_for(parameters.parent().value()).window;
         //  o Otherwise, if the dialog is not the same as any previous dialog for the
         //    same parent window, and/or it does not have user-customized position:
         //      o It should be optically centered relative to its parent, unless this
@@ -190,53 +192,65 @@ auto CanonicalWindowManagerPolicy::handle_place_new_surface(
         //        it to extend into shell space.
         auto const parent_top_left = parent.top_left();
         auto const centred = parent_top_left
-             + 0.5*(as_displacement(parent.size()) - as_displacement(parameters.size))
-             - DeltaY{(parent.size().height.as_int()-height)/6};
+                             + 0.5*(as_displacement(parent.size()) - as_displacement(parameters.size().value()))
+                             - DeltaY{(parent.size().height.as_int()-height)/6};
 
-        parameters.top_left = centred;
+        parameters.top_left() = centred;
         positioned = true;
     }
 
     if (!positioned)
     {
-        auto const centred = active_display.top_left
-            + 0.5*(as_displacement(active_display.size) - as_displacement(parameters.size))
-            - DeltaY{(active_display.size.height.as_int()-height)/6};
+        auto centred = active_display.top_left
+                             + 0.5*(as_displacement(active_display.size) - as_displacement(parameters.size().value()))
+                             - DeltaY{(active_display.size.height.as_int()-height)/6};
 
-        switch (parameters.state.value())
+        switch (parameters.state().value())
         {
         case mir_surface_state_fullscreen:
         case mir_surface_state_maximized:
-            parameters.top_left = active_display.top_left;
-            parameters.size = active_display.size;
+            parameters.top_left() = active_display.top_left;
+            parameters.size() = active_display.size;
             break;
 
         case mir_surface_state_vertmaximized:
-            parameters.top_left = centred;
-            parameters.top_left.y = active_display.top_left.y;
-            parameters.size.height = active_display.size.height;
+            centred.y = active_display.top_left.y;
+            parameters.top_left() = centred;
+            parameters.size() = Size{parameters.size().value().width, active_display.size.height};
             break;
 
         case mir_surface_state_horizmaximized:
-            parameters.top_left = centred;
-            parameters.top_left.x = active_display.top_left.x;
-            parameters.size.width = active_display.size.width;
+            centred.x = active_display.top_left.x;
+            parameters.top_left() = centred;
+            parameters.size() = Size{active_display.size.width, parameters.size().value().height};
             break;
 
         default:
-            parameters.top_left = centred;
+            parameters.top_left() = centred;
         }
 
-        if (parameters.top_left.y < display_area.top_left.y)
-            parameters.top_left.y = display_area.top_left.y;
+        if (parameters.top_left().value().y < display_area.top_left.y)
+            parameters.top_left() = Point{parameters.top_left().value().x, display_area.top_left.y};
     }
 
-    if (parameters.state != mir_surface_state_fullscreen && needs_titlebar)
+    if (parameters.state().value() != mir_surface_state_fullscreen && needs_titlebar)
     {
-        parameters.top_left.y = parameters.top_left.y + DeltaY{title_bar_height};
-        parameters.size.height = parameters.size.height - DeltaY{title_bar_height};
+        parameters.top_left() = Point{parameters.top_left().value().x, parameters.top_left().value().y + DeltaY{title_bar_height}};
+        parameters.size() = Size{parameters.size().value().width, parameters.size().value().height - DeltaY{title_bar_height}};
     }
 
+    return parameters;
+}
+
+auto CanonicalWindowManagerPolicy::handle_place_new_surface(
+    ApplicationInfo const& app_info,
+    ms::SurfaceCreationParameters const& request_parameters)
+-> ms::SurfaceCreationParameters
+{
+    auto parameters = request_parameters;
+    WindowSpecification spec{parameters};
+    spec = handle_place_new_surface(app_info, spec);
+    spec.update(parameters);
     return parameters;
 }
 
