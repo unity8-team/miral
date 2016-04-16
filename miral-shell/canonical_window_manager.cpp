@@ -250,13 +250,13 @@ void CanonicalWindowManagerPolicy::generate_decorations_for(WindowInfo& window_i
         return;
 
     auto format = mir_pixel_format_xrgb_8888;
-    ms::SurfaceCreationParameters params;
-    params.of_size(titlebar_size_for_window(window.size()))
-        .of_name("decoration")
-        .of_pixel_format(format)
-        .of_buffer_usage(mir::graphics::BufferUsage::software)
-        .of_position(titlebar_position_for_window(window.top_left()))
-        .of_type(mir_surface_type_gloss);
+    WindowSpecification params;
+    params.size() = titlebar_size_for_window(window.size());
+    params.name() = "decoration";
+    params.pixel_format() = format;
+    params.buffer_usage() = WindowSpecification::BufferUsage::software;
+    params.top_left() = titlebar_position_for_window(window.top_left());
+    params.type() = mir_surface_type_gloss;
 
     auto& titlebar_info = tools->build_window(window.session(), params);
     titlebar_info.window.set_alpha(0.9);
