@@ -68,10 +68,17 @@ public:
     };
 
     WindowSpecification();
+//    WindowSpecification(WindowSpecification const& that);
+//    auto operator=(WindowSpecification const& that) => WindowSpecification&;
+
     WindowSpecification(mir::shell::SurfaceSpecification const& spec);
+    auto operator=(mir::shell::SurfaceSpecification const& spec) -> WindowSpecification&;
+    void update(mir::shell::SurfaceSpecification& spec) const;
+
     WindowSpecification(mir::scene::SurfaceCreationParameters const& params);
-    WindowSpecification(WindowSpecification const& that);
-    WindowSpecification& operator=(WindowSpecification const& that);
+    auto operator=(mir::scene::SurfaceCreationParameters const& params) -> WindowSpecification&;
+    void update(mir::scene::SurfaceCreationParameters& params) const;
+
     ~WindowSpecification();
 
     auto top_left() const -> mir::optional_value<Point>;
@@ -126,7 +133,7 @@ public:
 
 private:
     struct Self;
-    std::shared_ptr<Self> self;
+    std::unique_ptr<Self> self;
 };
 }
 
