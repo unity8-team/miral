@@ -59,7 +59,7 @@ public:
 
     void handle_window_ready(miral::WindowInfo& window_info) override;
 
-    void handle_modify_window(miral::WindowInfo& window_info, mir::shell::SurfaceSpecification const& modifications) override;
+    void handle_modify_window(miral::WindowInfo& window_info, miral::WindowSpecification const& modifications) override;
 
     void handle_delete_window(miral::WindowInfo& window_info) override;
 

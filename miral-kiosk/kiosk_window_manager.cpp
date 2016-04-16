@@ -131,11 +131,11 @@ void KioskWindowManagerPolicy::handle_window_ready(WindowInfo& window_info)
 }
 
 void KioskWindowManagerPolicy::handle_modify_window(
-    WindowInfo& window_info,
-    mir::shell::SurfaceSpecification const& modifications)
+    miral::WindowInfo& window_info,
+    miral::WindowSpecification const& modifications)
 {
-    if (modifications.name.is_set())
-        window_info.window.rename(modifications.name.value());
+    if (modifications.name().is_set())
+        window_info.window.rename(modifications.name().value());
 }
 
 void KioskWindowManagerPolicy::handle_delete_window(WindowInfo& window_info)

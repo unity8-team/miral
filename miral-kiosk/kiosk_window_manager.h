@@ -19,6 +19,7 @@
 #ifndef MIRAL_KIOSK_WINDOW_MANAGER_H
 #define MIRAL_KIOSK_WINDOW_MANAGER_H
 
+#include <miral/window_specification.h>
 #include "sw_splash.h"
 
 #include "miral/window_management_policy.h"
@@ -43,7 +44,7 @@ public:
 
     void handle_window_ready(miral::WindowInfo& window_info) override;
 
-    void handle_modify_window(miral::WindowInfo& window_info, mir::shell::SurfaceSpecification const& modifications) override;
+    void handle_modify_window(miral::WindowInfo& window_info, miral::WindowSpecification const& modifications);
 
     void handle_delete_window(miral::WindowInfo& window_info) override;
 

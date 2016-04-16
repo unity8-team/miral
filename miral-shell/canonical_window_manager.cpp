@@ -290,18 +290,18 @@ void CanonicalWindowManagerPolicy::handle_window_ready(WindowInfo& window_info)
 
 void CanonicalWindowManagerPolicy::handle_modify_window(
     WindowInfo& window_info,
-    mir::shell::SurfaceSpecification const& modifications)
+    WindowSpecification const& modifications)
 {
     auto window_info_new = window_info;
     auto& window = window_info_new.window;
 
-    if (modifications.parent.is_set())
-        window_info_new.parent = tools->info_for(modifications.parent.value()).window;
+    if (modifications.parent().is_set())
+        window_info_new.parent = tools->info_for(modifications.parent().value()).window;
 
-    if (modifications.type.is_set() &&
-        window_info_new.type != modifications.type.value())
+    if (modifications.type().is_set() &&
+        window_info_new.type != modifications.type().value())
     {
-        auto const new_type = modifications.type.value();
+        auto const new_type = modifications.type().value();
 
         if (!window_info_new.can_morph_to(new_type))
         {
@@ -312,7 +312,7 @@ void CanonicalWindowManagerPolicy::handle_modify_window(
 
         if (window_info_new.must_not_have_parent())
         {
-            if (modifications.parent.is_set())
+            if (modifications.parent().is_set())
                 throw std::runtime_error("Target window type does not support parent");
 
             window_info_new.parent.reset();
@@ -326,9 +326,9 @@ void CanonicalWindowManagerPolicy::handle_modify_window(
         window.set_type(new_type);
     }
 
-    #define COPY_IF_SET(field)\
-        if (modifications.field.is_set())\
-            window_info_new.field = modifications.field.value()
+#define COPY_IF_SET(field)\
+        if (modifications.field().is_set())\
+            window_info_new.field = modifications.field().value()
 
     COPY_IF_SET(min_width);
     COPY_IF_SET(min_height);
@@ -337,36 +337,46 @@ void CanonicalWindowManagerPolicy::handle_modify_window(
     COPY_IF_SET(min_width);
     COPY_IF_SET(width_inc);
     COPY_IF_SET(height_inc);
-    COPY_IF_SET(min_aspect);
-    COPY_IF_SET(max_aspect);
-    COPY_IF_SET(output_id);
+//    COPY_IF_SET(min_aspect);
+//    COPY_IF_SET(max_aspect);
+//    COPY_IF_SET(output_id);
 
-    #undef COPY_IF_SET
+#undef COPY_IF_SET
+
+    if (modifications.min_aspect().is_set()) 
+        window_info_new.min_aspect = mir::shell::SurfaceAspectRatio{modifications.min_aspect().value().width, modifications.min_aspect().value().height};
+
+    if (modifications.max_aspect().is_set())
+        window_info_new.max_aspect = mir::shell::SurfaceAspectRatio{modifications.max_aspect().value().width, modifications.max_aspect().value().height};
+
+    if (modifications.output_id().is_set())
+        window_info_new.output_id = static_cast<mir::graphics::DisplayConfigurationOutputId>(modifications.output_id().value());
 
     std::swap(window_info_new, window_info);
 
-    if (modifications.name.is_set())
-        window.rename(modifications.name.value());
+    if (modifications.name().is_set())
+        window.rename(modifications.name().value());
 
-    if (modifications.streams.is_set())
+    if (modifications.streams().is_set())
     {
-        window_info_new.window.configure_streams(modifications.streams.value());
+        auto const& source = modifications.streams().value();
+        std::vector<mir::shell::StreamSpecification> dest;
+        dest.reserve(source.size());
+
+        for (auto const& stream : source)
+            dest.push_back(mir::shell::StreamSpecification{mir::frontend::BufferStreamId{stream.stream_id.as_value()}, stream.displacement});
+
+        window_info_new.window.configure_streams(dest);
     }
 
-    if (modifications.input_shape.is_set())
+    if (modifications.input_shape().is_set())
     {
-        window.set_input_region(modifications.input_shape.value());
+        window.set_input_region(modifications.input_shape().value());
     }
 
-    if (modifications.width.is_set() || modifications.height.is_set())
+    if (modifications.size().is_set())
     {
-        auto new_size = window.size();
-
-        if (modifications.width.is_set())
-            new_size.width = modifications.width.value();
-
-        if (modifications.height.is_set())
-            new_size.height = modifications.height.value();
+        auto new_size = modifications.size().value();
 
         auto top_left = window.top_left();
 
@@ -375,9 +385,9 @@ void CanonicalWindowManagerPolicy::handle_modify_window(
         apply_resize(window_info, top_left, new_size);
     }
 
-    if (modifications.state.is_set())
+    if (modifications.state().is_set())
     {
-        handle_set_state(window_info, modifications.state.value());
+        handle_set_state(window_info, modifications.state().value());
     }
 }
 
