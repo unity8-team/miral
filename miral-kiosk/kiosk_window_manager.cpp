@@ -41,25 +41,25 @@ void KioskWindowManagerPolicy::handle_displays_updated(Rectangles const& /*displ
 }
 
 auto KioskWindowManagerPolicy::handle_place_new_surface(
-    ApplicationInfo const& /*app_info*/,
-    ms::SurfaceCreationParameters const& request_parameters)
--> ms::SurfaceCreationParameters
+    miral::ApplicationInfo const& /*app_info*/,
+    miral::WindowSpecification const& request_parameters)
+-> miral::WindowSpecification
 {
     auto parameters = request_parameters;
 
     Rectangle const active_display = tools->active_display();
-    parameters.top_left = parameters.top_left + (active_display.top_left - Point{0, 0});
+    parameters.top_left() = parameters.top_left().value() + (active_display.top_left - Point{0, 0});
 
-    if (parameters.parent.lock())
+    if (parameters.parent().is_set() && parameters.parent().value().lock())
     {
-        auto parent = tools->info_for(parameters.parent).window;
-        auto const width = parameters.size.width.as_int();
-        auto const height = parameters.size.height.as_int();
+        auto parent = tools->info_for(parameters.parent().value()).window;
+        auto const width = parameters.size().value().width.as_int();
+        auto const height = parameters.size().value().height.as_int();
 
-        if (parameters.aux_rect.is_set() && parameters.edge_attachment.is_set())
+        if (parameters.aux_rect().is_set() && parameters.edge_attachment().is_set())
         {
-            auto const edge_attachment = parameters.edge_attachment.value();
-            auto const aux_rect = parameters.aux_rect.value();
+            auto const edge_attachment = parameters.edge_attachment().value();
+            auto const aux_rect = parameters.aux_rect().value();
             auto const parent_top_left = parent.top_left();
             auto const top_left = aux_rect.top_left     -Point{} + parent_top_left;
             auto const top_right= aux_rect.top_right()  -Point{} + parent_top_left;
@@ -69,11 +69,11 @@ auto KioskWindowManagerPolicy::handle_place_new_surface(
             {
                 if (active_display.contains(top_right + Displacement{width, height}))
                 {
-                    parameters.top_left = top_right;
+                    parameters.top_left() = top_right;
                 }
                 else if (active_display.contains(top_left + Displacement{-width, height}))
                 {
-                    parameters.top_left = top_left + Displacement{-width, 0};
+                    parameters.top_left() = top_left + Displacement{-width, 0};
                 }
             }
 
@@ -81,11 +81,11 @@ auto KioskWindowManagerPolicy::handle_place_new_surface(
             {
                 if (active_display.contains(bot_left + Displacement{width, height}))
                 {
-                    parameters.top_left = bot_left;
+                    parameters.top_left() = bot_left;
                 }
                 else if (active_display.contains(top_left + Displacement{width, -height}))
                 {
-                    parameters.top_left = top_left + Displacement{0, -height};
+                    parameters.top_left() = top_left + Displacement{0, -height};
                 }
             }
         }
@@ -93,17 +93,29 @@ auto KioskWindowManagerPolicy::handle_place_new_surface(
         {
             auto const parent_top_left = parent.top_left();
             auto const centred = parent_top_left
-                                 + 0.5*(as_displacement(parent.size()) - as_displacement(parameters.size))
+                                 + 0.5*(as_displacement(parent.size()) - as_displacement(parameters.size().value()))
                                  - DeltaY{(parent.size().height.as_int()-height)/6};
 
-            parameters.top_left = centred;
+            parameters.top_left() = centred;
         }
     }
     else
     {
-        parameters.size = active_display.size;
+        parameters.size() = active_display.size;
     }
 
+    return parameters;
+}
+
+auto KioskWindowManagerPolicy::handle_place_new_surface(
+    ApplicationInfo const& app_info,
+    ms::SurfaceCreationParameters const& request_parameters)
+-> ms::SurfaceCreationParameters
+{
+    auto parameters = request_parameters;
+    WindowSpecification spec{parameters};
+    spec = handle_place_new_surface(app_info, spec);
+    spec.update(parameters);
     return parameters;
 }
 

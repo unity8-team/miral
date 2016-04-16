@@ -257,6 +257,7 @@ miral::WindowSpecification::Self::Self(mir::scene::SurfaceCreationParameters con
 void miral::WindowSpecification::Self::update(mir::scene::SurfaceCreationParameters& params) const
 {
     copy_if_set(params.top_left, top_left);
+    copy_if_set(params.size, size);
     copy_if_set(params.pixel_format, pixel_format);
     copy_if_set(params.buffer_usage, buffer_usage);
     copy_if_set(params.name, name);

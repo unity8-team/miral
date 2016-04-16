@@ -19,6 +19,7 @@
 #ifndef MIRAL_KIOSK_WINDOW_MANAGER_H
 #define MIRAL_KIOSK_WINDOW_MANAGER_H
 
+#include <miral/window_specification.h>
 #include "sw_splash.h"
 
 #include "miral/window_management_policy.h"
@@ -38,6 +39,11 @@ public:
         miral::ApplicationInfo const& app_info,
         mir::scene::SurfaceCreationParameters const& request_parameters)
     -> mir::scene::SurfaceCreationParameters override;
+
+    auto handle_place_new_surface(
+        miral::ApplicationInfo const& app_info,
+        miral::WindowSpecification const& request_parameters)
+        -> miral::WindowSpecification /*override*/;
 
     void handle_new_window(miral::WindowInfo& window_info) override;
 
