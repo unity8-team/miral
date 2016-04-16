@@ -34,9 +34,9 @@ public:
     virtual void handle_app_info_updated(mir::geometry::Rectangles const& displays) = 0;
     virtual void handle_displays_updated(mir::geometry::Rectangles const& displays) = 0;
     virtual auto handle_place_new_surface(
-        ApplicationInfo const& app_info,
-        mir::scene::SurfaceCreationParameters const& request_parameters)
-        -> mir::scene::SurfaceCreationParameters = 0;
+        miral::ApplicationInfo const& app_info,
+        miral::WindowSpecification const& request_parameters)
+        -> miral::WindowSpecification = 0;
     virtual void handle_new_window(WindowInfo& window_info) = 0;
     virtual void handle_window_ready(WindowInfo& window_info) = 0;
     virtual void handle_modify_window(WindowInfo& window_info,

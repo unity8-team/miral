@@ -18,6 +18,7 @@
 
 #include "basic_window_manager.h"
 
+#include "miral/window_specification.h"
 #include <mir/scene/session.h>
 #include <mir/scene/surface.h>
 #include <mir/scene/surface_creation_parameters.h>
@@ -72,7 +73,11 @@ auto miral::BasicWindowManager::add_surface(
     std::lock_guard<decltype(mutex)> lock(mutex);
     surface_builder = [build](std::shared_ptr<scene::Session> const& session, scene::SurfaceCreationParameters const& params)
         { return Window{session, build(session, params)}; };
-    auto const placed_params = policy->handle_place_new_surface(info_for(session), params);
+
+    auto placed_params = params;
+    WindowSpecification spec{placed_params};
+    spec = policy->handle_place_new_surface(info_for(session), spec);
+    spec.update(placed_params);
 
     auto& window_info = build_window(session, placed_params);
 

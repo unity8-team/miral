@@ -148,19 +148,6 @@ auto TilingWindowManagerPolicy::handle_place_new_surface(
     return parameters;
 }
 
-
-auto TilingWindowManagerPolicy::handle_place_new_surface(
-    ApplicationInfo const& app_info,
-    ms::SurfaceCreationParameters const& request_parameters)
--> ms::SurfaceCreationParameters
-{
-    auto parameters = request_parameters;
-    WindowSpecification spec{parameters};
-    spec = handle_place_new_surface(app_info, spec);
-    spec.update(parameters);
-    return parameters;
-}
-
 void TilingWindowManagerPolicy::generate_decorations_for(WindowInfo& /*window_info*/)
 {
 }

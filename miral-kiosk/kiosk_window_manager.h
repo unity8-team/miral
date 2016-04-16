@@ -36,11 +36,6 @@ public:
 
     auto handle_place_new_surface(
         miral::ApplicationInfo const& app_info,
-        mir::scene::SurfaceCreationParameters const& request_parameters)
-    -> mir::scene::SurfaceCreationParameters override;
-
-    auto handle_place_new_surface(
-        miral::ApplicationInfo const& app_info,
         miral::WindowSpecification const& request_parameters)
         -> miral::WindowSpecification /*override*/;
 
