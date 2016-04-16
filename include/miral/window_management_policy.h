@@ -35,8 +35,7 @@ public:
     virtual void handle_displays_updated(mir::geometry::Rectangles const& displays) = 0;
     virtual auto handle_place_new_surface(
         ApplicationInfo const& app_info,
-        WindowSpecification const& request_parameters)
-    -> WindowSpecification = 0;
+        WindowSpecification const& request_parameters) -> WindowSpecification = 0;
     virtual void handle_new_window(WindowInfo& window_info) = 0;
     virtual void handle_window_ready(WindowInfo& window_info) = 0;
     virtual void handle_modify_window(WindowInfo& window_info, WindowSpecification const& modifications) = 0;
