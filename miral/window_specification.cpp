@@ -331,242 +331,242 @@ void miral::WindowSpecification::update(mir::scene::SurfaceCreationParameters& p
     self->update(params);
 }
 
-auto miral::WindowSpecification::top_left() const -> mir::optional_value<Point>
+auto miral::WindowSpecification::top_left() const -> mir::optional_value<Point> const&
 {
     return self->top_left;
 }
 
-auto miral::WindowSpecification::size() const -> mir::optional_value<Size>
+auto miral::WindowSpecification::size() const -> mir::optional_value<Size> const&
 {
     return self->size;
 }
 
-auto miral::WindowSpecification::pixel_format() const -> mir::optional_value<MirPixelFormat>
+auto miral::WindowSpecification::pixel_format() const -> mir::optional_value<MirPixelFormat> const&
 {
     return self->pixel_format;
 }
 
-auto miral::WindowSpecification::buffer_usage() const -> mir::optional_value<BufferUsage>
+auto miral::WindowSpecification::buffer_usage() const -> mir::optional_value<BufferUsage> const&
 {
     return self->buffer_usage;
 }
 
-auto miral::WindowSpecification::name() const -> mir::optional_value<std::string>
+auto miral::WindowSpecification::name() const -> mir::optional_value<std::string> const&
 {
     return self->name;
 }
 
-auto miral::WindowSpecification::output_id() const -> mir::optional_value<int>
+auto miral::WindowSpecification::output_id() const -> mir::optional_value<int> const&
 {
     return self->output_id;
 }
 
-auto miral::WindowSpecification::type() const -> mir::optional_value<MirSurfaceType>
+auto miral::WindowSpecification::type() const -> mir::optional_value<MirSurfaceType> const&
 {
     return self->type;
 }
 
-auto miral::WindowSpecification::state() const -> mir::optional_value<MirSurfaceState>
+auto miral::WindowSpecification::state() const -> mir::optional_value<MirSurfaceState> const&
 {
     return self->state;
 }
 
-auto miral::WindowSpecification::preferred_orientation() const -> mir::optional_value<MirOrientationMode>
+auto miral::WindowSpecification::preferred_orientation() const -> mir::optional_value<MirOrientationMode> const&
 {
     return self->preferred_orientation;
 }
 
-auto miral::WindowSpecification::aux_rect() const -> mir::optional_value<Rectangle>
+auto miral::WindowSpecification::aux_rect() const -> mir::optional_value<Rectangle> const&
 {
     return self->aux_rect;
 }
 
-auto miral::WindowSpecification::edge_attachment() const -> mir::optional_value<MirEdgeAttachment>
+auto miral::WindowSpecification::edge_attachment() const -> mir::optional_value<MirEdgeAttachment> const&
 {
     return self->edge_attachment;
 }
 
-auto miral::WindowSpecification::min_width() const -> mir::optional_value<Width>
+auto miral::WindowSpecification::min_width() const -> mir::optional_value<Width> const&
 {
     return self->min_width;
 }
 
-auto miral::WindowSpecification::min_height() const -> mir::optional_value<Height>
+auto miral::WindowSpecification::min_height() const -> mir::optional_value<Height> const&
 {
     return self->min_height;
 }
 
-auto miral::WindowSpecification::max_width() const -> mir::optional_value<Width>
+auto miral::WindowSpecification::max_width() const -> mir::optional_value<Width> const&
 {
     return self->max_width;
 }
 
-auto miral::WindowSpecification::max_height() const -> mir::optional_value<Height>
+auto miral::WindowSpecification::max_height() const -> mir::optional_value<Height> const&
 {
     return self->max_height;
 }
 
-auto miral::WindowSpecification::width_inc() const -> mir::optional_value<DeltaX>
+auto miral::WindowSpecification::width_inc() const -> mir::optional_value<DeltaX> const&
 {
     return self->width_inc;
 }
 
-auto miral::WindowSpecification::height_inc() const -> mir::optional_value<DeltaY>
+auto miral::WindowSpecification::height_inc() const -> mir::optional_value<DeltaY> const&
 {
     return self->height_inc;
 }
 
-auto miral::WindowSpecification::min_aspect() const -> mir::optional_value<AspectRatio>
+auto miral::WindowSpecification::min_aspect() const -> mir::optional_value<AspectRatio> const&
 {
     return self->min_aspect;
 }
 
-auto miral::WindowSpecification::max_aspect() const -> mir::optional_value<AspectRatio>
+auto miral::WindowSpecification::max_aspect() const -> mir::optional_value<AspectRatio> const&
 {
     return self->max_aspect;
 }
 
-auto miral::WindowSpecification::streams() const -> mir::optional_value<std::vector<StreamSpecification>>
+auto miral::WindowSpecification::streams() const -> mir::optional_value<std::vector<StreamSpecification>> const&
 {
     return self->streams;
 }
 
-auto miral::WindowSpecification::parent() const -> mir::optional_value<std::weak_ptr<mir::scene::Surface>>
+auto miral::WindowSpecification::parent() const -> mir::optional_value<std::weak_ptr<mir::scene::Surface>> const&
 {
     return self->parent;
 }
 
-auto miral::WindowSpecification::input_shape() const -> mir::optional_value<std::vector<Rectangle>>
+auto miral::WindowSpecification::input_shape() const -> mir::optional_value<std::vector<Rectangle>> const&
 {
     return self->input_shape;
 }
 
-auto miral::WindowSpecification::input_mode() const -> mir::optional_value<InputReceptionMode>
+auto miral::WindowSpecification::input_mode() const -> mir::optional_value<InputReceptionMode> const&
 {
     return self->input_mode;
 }
 
-auto miral::WindowSpecification::shell_chrome() const -> mir::optional_value<MirShellChrome>
+auto miral::WindowSpecification::shell_chrome() const -> mir::optional_value<MirShellChrome> const&
 {
     return self->shell_chrome;
 }
 
-void miral::WindowSpecification::top_left(mir::optional_value<Point> const& value)
+auto miral::WindowSpecification::top_left() -> mir::optional_value<Point>&
 {
-    self->top_left = value;
+    return self->top_left;
 }
 
-void miral::WindowSpecification::size(mir::optional_value<Size> const& value)
+auto miral::WindowSpecification::size() -> mir::optional_value<Size>&
 {
-    self->size = value;
+    return self->size;
 }
 
-void miral::WindowSpecification::pixel_format(mir::optional_value<MirPixelFormat> const& value)
+auto miral::WindowSpecification::pixel_format() -> mir::optional_value<MirPixelFormat>&
 {
-    self->pixel_format = value;
+    return self->pixel_format;
 }
 
-void miral::WindowSpecification::buffer_usage(mir::optional_value<BufferUsage> const& value)
+auto miral::WindowSpecification::buffer_usage() -> mir::optional_value<BufferUsage>&
 {
-    self->buffer_usage = value;
+    return self->buffer_usage;
 }
 
-void miral::WindowSpecification::name(mir::optional_value<std::string> const& value)
+auto miral::WindowSpecification::name() -> mir::optional_value<std::string>&
 {
-    self->name = value;
+    return self->name;
 }
 
-void miral::WindowSpecification::output_id(mir::optional_value<int> const& value)
+auto miral::WindowSpecification::output_id() -> mir::optional_value<int>&
 {
-    self->output_id = value;
+    return self->output_id;
 }
 
-void miral::WindowSpecification::type(mir::optional_value<MirSurfaceType> const& value)
+auto miral::WindowSpecification::type() -> mir::optional_value<MirSurfaceType>&
 {
-    self->type = value;
+    return self->type;
 }
 
-void miral::WindowSpecification::state(mir::optional_value<MirSurfaceState> const& value)
+auto miral::WindowSpecification::state() -> mir::optional_value<MirSurfaceState>&
 {
-    self->state = value;
+    return self->state;
 }
 
-void miral::WindowSpecification::preferred_orientation(mir::optional_value<MirOrientationMode> const& value)
+auto miral::WindowSpecification::preferred_orientation() -> mir::optional_value<MirOrientationMode>&
 {
-    self->preferred_orientation = value;
+    return self->preferred_orientation;
 }
 
-void miral::WindowSpecification::aux_rect(mir::optional_value<Rectangle> const& value)
+auto miral::WindowSpecification::aux_rect() -> mir::optional_value<Rectangle>&
 {
-    self->aux_rect = value;
+    return self->aux_rect;
 }
 
-void miral::WindowSpecification::edge_attachment(mir::optional_value<MirEdgeAttachment> const& value)
+auto miral::WindowSpecification::edge_attachment() -> mir::optional_value<MirEdgeAttachment>&
 {
-    self->edge_attachment = value;
+    return self->edge_attachment;
 }
 
-void miral::WindowSpecification::min_width(mir::optional_value<Width> const& value)
+auto miral::WindowSpecification::min_width() -> mir::optional_value<Width>&
 {
-    self->min_width = value;
+    return self->min_width;
 }
 
-void miral::WindowSpecification::min_height(mir::optional_value<Height> const& value)
+auto miral::WindowSpecification::min_height() -> mir::optional_value<Height>&
 {
-    self->min_height = value;
+    return self->min_height;
 }
 
-void miral::WindowSpecification::max_width(mir::optional_value<Width> const& value)
+auto miral::WindowSpecification::max_width() -> mir::optional_value<Width>&
 {
-    self->max_width = value;
+    return self->max_width;
 }
 
-void miral::WindowSpecification::max_height(mir::optional_value<Height> const& value)
+auto miral::WindowSpecification::max_height() -> mir::optional_value<Height>&
 {
-    self->max_height = value;
+    return self->max_height;
 }
 
-void miral::WindowSpecification::width_inc(mir::optional_value<DeltaX> const& value)
+auto miral::WindowSpecification::width_inc() -> mir::optional_value<DeltaX>&
 {
-    self->width_inc = value;
+    return self->width_inc;
 }
 
-void miral::WindowSpecification::height_inc(mir::optional_value<DeltaY> const& value)
+auto miral::WindowSpecification::height_inc() -> mir::optional_value<DeltaY>&
 {
-    self->height_inc = value;
+    return self->height_inc;
 }
 
-void miral::WindowSpecification::min_aspect(mir::optional_value<AspectRatio> const& value)
+auto miral::WindowSpecification::min_aspect() -> mir::optional_value<AspectRatio>&
 {
-    self->min_aspect = value;
+    return self->min_aspect;
 }
 
-void miral::WindowSpecification::max_aspect(mir::optional_value<AspectRatio> const& value)
+auto miral::WindowSpecification::max_aspect() -> mir::optional_value<AspectRatio>&
 {
-    self->max_aspect = value;
+    return self->max_aspect;
 }
 
-void miral::WindowSpecification::streams(mir::optional_value<std::vector<StreamSpecification>> const& value)
+auto miral::WindowSpecification::streams() -> mir::optional_value<std::vector<StreamSpecification>>&
 {
-    self->streams = value;
+    return self->streams;
 }
 
-void miral::WindowSpecification::parent(mir::optional_value<std::weak_ptr<mir::scene::Surface>> const& value)
+auto miral::WindowSpecification::parent() -> mir::optional_value<std::weak_ptr<mir::scene::Surface>>&
 {
-    self->parent = value;
+    return self->parent;
 }
 
-void miral::WindowSpecification::input_shape(mir::optional_value<std::vector<Rectangle>> const& value)
+auto miral::WindowSpecification::input_shape() -> mir::optional_value<std::vector<Rectangle>>&
 {
-    self->input_shape = value;
+    return self->input_shape;
 }
 
-void miral::WindowSpecification::input_mode(mir::optional_value<InputReceptionMode> const& value)
+auto miral::WindowSpecification::input_mode() -> mir::optional_value<InputReceptionMode>&
 {
-    self->input_mode = value;
+    return self->input_mode;
 }
 
-void miral::WindowSpecification::shell_chrome(mir::optional_value<MirShellChrome> const& value)
+auto miral::WindowSpecification::shell_chrome() -> mir::optional_value<MirShellChrome>&
 {
-    self->shell_chrome = value;
+    return self->shell_chrome;
 }
