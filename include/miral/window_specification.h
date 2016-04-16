@@ -68,8 +68,8 @@ public:
     };
 
     WindowSpecification();
-//    WindowSpecification(WindowSpecification const& that);
-//    auto operator=(WindowSpecification const& that) => WindowSpecification&;
+    WindowSpecification(WindowSpecification const& that);
+    auto operator=(WindowSpecification const& that) -> WindowSpecification&;
 
     WindowSpecification(mir::shell::SurfaceSpecification const& spec);
     auto operator=(mir::shell::SurfaceSpecification const& spec) -> WindowSpecification&;
