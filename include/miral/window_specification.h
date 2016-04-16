@@ -19,12 +19,10 @@
 #ifndef MIRAL_WINDOW_SPECIFICATION_H
 #define MIRAL_WINDOW_SPECIFICATION_H
 
+#include "miral/stream_specification.h"
+
 #include <mir_toolkit/common.h>
-
-#include <mir/int_wrapper.h>
 #include <mir/optional_value.h>
-
-#include <mir/geometry/displacement.h>
 #include <mir/geometry/rectangles.h>
 
 #include <memory>
@@ -38,8 +36,6 @@ namespace shell { class SurfaceSpecification; }
 namespace miral
 {
 using namespace mir::geometry;
-namespace detail { struct SessionsBufferStreamIdTag; }
-typedef mir::IntWrapper<detail::SessionsBufferStreamIdTag> BufferStreamId;
 
 class WindowSpecification
 {
@@ -60,12 +56,6 @@ public:
     };
 
     struct AspectRatio { unsigned width; unsigned height; };
-
-    struct StreamSpecification
-    {
-        BufferStreamId stream_id;
-        Displacement displacement;
-    };
 
     WindowSpecification();
     WindowSpecification(WindowSpecification const& that);

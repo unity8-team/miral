@@ -532,16 +532,6 @@ void TilingWindowManagerPolicy::update_surfaces(ApplicationInfo& info, Rectangle
     }
 }
 
-void TilingWindowManagerPolicy::clip_to_tile(ms::SurfaceCreationParameters& parameters, Rectangle const& tile)
-{
-    auto const displacement = parameters.top_left - tile.top_left;
-
-    auto width = std::min(tile.size.width.as_int()-displacement.dx.as_int(), parameters.size.width.as_int());
-    auto height = std::min(tile.size.height.as_int()-displacement.dy.as_int(), parameters.size.height.as_int());
-
-    parameters.size = Size{width, height};
-}
-
 void TilingWindowManagerPolicy::clip_to_tile(miral::WindowSpecification& parameters, Rectangle const& tile)
 {
     auto const displacement = parameters.top_left().value() - tile.top_left;

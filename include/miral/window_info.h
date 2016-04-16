@@ -20,13 +20,10 @@
 #define MIRAL_WINDOW_INFO_H
 
 #include "miral/window.h"
+#include "miral/window_specification.h"
 
 #include <mir/geometry/rectangles.h>
 #include <mir/optional_value.h>
-
-// TODO remove shell::SurfaceSpecification & scene::SurfaceCreationParameters/SurfaceAspectRatio &
-// mir::graphics::DisplayConfigurationOutputId from the interface
-#include <mir/scene/surface_creation_parameters.h>
 
 namespace mir
 {
@@ -39,6 +36,8 @@ namespace miral
 // TODO "Opaquify WindowInfo to provide a stable API
 struct WindowInfo
 {
+    using AspectRatio = WindowSpecification::AspectRatio;
+
     WindowInfo(Window const& window, mir::scene::SurfaceCreationParameters const& params);
 
     bool can_be_active() const;
@@ -68,9 +67,9 @@ struct WindowInfo
     mir::geometry::Height max_height;
     mir::optional_value<mir::geometry::DeltaX> width_inc;
     mir::optional_value<mir::geometry::DeltaY> height_inc;
-    mir::optional_value<mir::shell::SurfaceAspectRatio> min_aspect;
-    mir::optional_value<mir::shell::SurfaceAspectRatio> max_aspect;
-    mir::optional_value<mir::graphics::DisplayConfigurationOutputId> output_id;
+    mir::optional_value<AspectRatio> min_aspect;
+    mir::optional_value<AspectRatio> max_aspect;
+    mir::optional_value<int> output_id;
 
     /// This can be used by client code to store window manager specific information
     std::shared_ptr<void> userdata;

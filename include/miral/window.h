@@ -19,6 +19,8 @@
 #ifndef MIRAL_WINDOW_H
 #define MIRAL_WINDOW_H
 
+#include "miral/stream_specification.h"
+
 #include <mir_toolkit/common.h>
 #include <mir/geometry/point.h>
 #include <mir/geometry/size.h>
@@ -58,7 +60,7 @@ public:
     auto surface_id()   const -> mir::frontend::SurfaceId;
     auto input_bounds() const -> mir::geometry::Rectangle;
     auto input_area_contains(mir::geometry::Point const& point) const -> bool;
-    void configure_streams(std::vector<mir::shell::StreamSpecification> const& config);
+    void configure_streams(std::vector<StreamSpecification> const& config);
 
     // Indicates that the Window isn't null
     operator bool() const;

@@ -16,6 +16,7 @@ add_library(miral SHARED
     ${CMAKE_SOURCE_DIR}/include/miral/application_info.h
     ${CMAKE_SOURCE_DIR}/include/miral/window_management_policy.h
     ${CMAKE_SOURCE_DIR}/include/miral/window_manager_tools.h
+    ${CMAKE_SOURCE_DIR}/include/miral/stream_specification.h
 )
 
 target_link_libraries(miral

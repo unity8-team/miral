@@ -19,7 +19,7 @@
 #ifndef MIRAL_WINDOW_MANAGER_TOOLS_H
 #define MIRAL_WINDOW_MANAGER_TOOLS_H
 
-#include <mir/graphics/display_configuration.h>
+#include "miral/stream_specification.h"
 
 #include <memory>
 
@@ -63,8 +63,7 @@ public:
     virtual void forget(Window const& window) = 0;
     virtual void raise_tree(Window const& root) = 0;
     virtual void size_to_output(mir::geometry::Rectangle& rect) = 0;
-    virtual bool place_in_output(mir::graphics::DisplayConfigurationOutputId id,
-                                 mir::geometry::Rectangle& rect) = 0;
+    virtual bool place_in_output(int id, mir::geometry::Rectangle& rect) = 0;
 
     virtual ~WindowManagerTools() = default;
     WindowManagerTools() = default;

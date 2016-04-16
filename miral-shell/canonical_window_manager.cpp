@@ -24,6 +24,8 @@
 #include "miral/window_manager_tools.h"
 #include "miral/window_specification.h"
 
+#include <mir/frontend/buffer_stream_id.h>
+
 #include <linux/input.h>
 #include <csignal>
 
@@ -113,10 +115,10 @@ auto CanonicalWindowManagerPolicy::handle_place_new_surface(
 
     bool const has_parent{parameters.parent().is_set() && parameters.parent().value().lock()};
 
-    if (parameters.output_id().value() != 0)
+    if (parameters.output_id().is_set() && parameters.output_id().value() != 0)
     {
         Rectangle rect{parameters.top_left().value(), parameters.size().value()};
-        tools->place_in_output(mir::graphics::DisplayConfigurationOutputId{parameters.output_id().value()}, rect);
+        tools->place_in_output(parameters.output_id().value(), rect);
         parameters.top_left() = rect.top_left;
         parameters.size() = rect.size;
         parameters.state() = mir_surface_state_fullscreen;
@@ -337,20 +339,11 @@ void CanonicalWindowManagerPolicy::handle_modify_window(
     COPY_IF_SET(min_width);
     COPY_IF_SET(width_inc);
     COPY_IF_SET(height_inc);
-//    COPY_IF_SET(min_aspect);
-//    COPY_IF_SET(max_aspect);
-//    COPY_IF_SET(output_id);
+    COPY_IF_SET(min_aspect);
+    COPY_IF_SET(max_aspect);
+    COPY_IF_SET(output_id);
 
 #undef COPY_IF_SET
-
-    if (modifications.min_aspect().is_set()) 
-        window_info_new.min_aspect = mir::shell::SurfaceAspectRatio{modifications.min_aspect().value().width, modifications.min_aspect().value().height};
-
-    if (modifications.max_aspect().is_set())
-        window_info_new.max_aspect = mir::shell::SurfaceAspectRatio{modifications.max_aspect().value().width, modifications.max_aspect().value().height};
-
-    if (modifications.output_id().is_set())
-        window_info_new.output_id = static_cast<mir::graphics::DisplayConfigurationOutputId>(modifications.output_id().value());
 
     std::swap(window_info_new, window_info);
 
@@ -358,21 +351,10 @@ void CanonicalWindowManagerPolicy::handle_modify_window(
         window.rename(modifications.name().value());
 
     if (modifications.streams().is_set())
-    {
-        auto const& source = modifications.streams().value();
-        std::vector<mir::shell::StreamSpecification> dest;
-        dest.reserve(source.size());
-
-        for (auto const& stream : source)
-            dest.push_back(mir::shell::StreamSpecification{mir::frontend::BufferStreamId{stream.stream_id.as_value()}, stream.displacement});
-
-        window_info_new.window.configure_streams(dest);
-    }
+        window_info_new.window.configure_streams(modifications.streams().value());
 
     if (modifications.input_shape().is_set())
-    {
         window.set_input_region(modifications.input_shape().value());
-    }
 
     if (modifications.size().is_set())
     {
@@ -386,9 +368,7 @@ void CanonicalWindowManagerPolicy::handle_modify_window(
     }
 
     if (modifications.state().is_set())
-    {
         handle_set_state(window_info, modifications.state().value());
-    }
 }
 
 void CanonicalWindowManagerPolicy::handle_delete_window(WindowInfo& window_info)

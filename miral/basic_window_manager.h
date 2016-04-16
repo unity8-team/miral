@@ -130,7 +130,7 @@ public:
 
     void size_to_output(mir::geometry::Rectangle& rect) override;
 
-    bool place_in_output(mir::graphics::DisplayConfigurationOutputId id, mir::geometry::Rectangle& rect) override;
+    bool place_in_output(int id, mir::geometry::Rectangle& rect) override;
 
 private:
     using SurfaceInfoMap = std::map<std::weak_ptr<mir::scene::Surface>, WindowInfo, std::owner_less<std::weak_ptr<mir::scene::Surface>>>;

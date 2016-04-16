@@ -89,7 +89,6 @@ private:
     auto select_active_window(miral::Window const& window) -> miral::Window;
     auto transform_set_state(miral::WindowInfo& window_info, MirSurfaceState value) -> MirSurfaceState;
 
-    static void clip_to_tile(mir::scene::SurfaceCreationParameters& parameters, Rectangle const& tile);
     static void clip_to_tile(miral::WindowSpecification& parameters, Rectangle const& tile);
     static void fit_to_new_tile(miral::Window& window, Rectangle const& old_tile, Rectangle const& new_tile);
     static void resize(miral::Window window, Point cursor, Point old_cursor, Rectangle bounds);
