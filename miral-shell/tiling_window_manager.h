@@ -19,6 +19,7 @@
 #ifndef MIRAL_SHELL_TILING_WINDOW_MANAGER_H
 #define MIRAL_SHELL_TILING_WINDOW_MANAGER_H
 
+#include <miral/window_specification.h>
 #include "miral/window_management_policy.h"
 
 using namespace mir::geometry;
@@ -46,6 +47,11 @@ public:
         miral::ApplicationInfo const& app_info,
         mir::scene::SurfaceCreationParameters const& request_parameters)
     -> mir::scene::SurfaceCreationParameters override;
+
+    auto handle_place_new_surface(
+        miral::ApplicationInfo const& app_info,
+        miral::WindowSpecification const& request_parameters)
+        -> miral::WindowSpecification /*override*/;
 
     void handle_new_window(miral::WindowInfo& window_info) override;
 
@@ -89,6 +95,7 @@ private:
     auto transform_set_state(miral::WindowInfo& window_info, MirSurfaceState value) -> MirSurfaceState;
 
     static void clip_to_tile(mir::scene::SurfaceCreationParameters& parameters, Rectangle const& tile);
+    static void clip_to_tile(miral::WindowSpecification& parameters, Rectangle const& tile);
     static void fit_to_new_tile(miral::Window& window, Rectangle const& old_tile, Rectangle const& new_tile);
     static void resize(miral::Window window, Point cursor, Point old_cursor, Rectangle bounds);
     static void constrained_move(miral::Window window, Displacement& movement, Rectangle const& bounds);

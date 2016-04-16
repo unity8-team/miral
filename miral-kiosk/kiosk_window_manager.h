@@ -19,7 +19,6 @@
 #ifndef MIRAL_KIOSK_WINDOW_MANAGER_H
 #define MIRAL_KIOSK_WINDOW_MANAGER_H
 
-#include <miral/window_specification.h>
 #include "sw_splash.h"
 
 #include "miral/window_management_policy.h"

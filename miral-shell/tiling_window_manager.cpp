@@ -20,6 +20,7 @@
 
 #include "miral/application.h"
 #include "miral/window_manager_tools.h"
+#include "miral/window_specification.h"
 
 #include <linux/input.h>
 #include <csignal>
@@ -85,24 +86,24 @@ void TilingWindowManagerPolicy::resize(Point cursor)
 
 auto TilingWindowManagerPolicy::handle_place_new_surface(
     ApplicationInfo const& app_info,
-    ms::SurfaceCreationParameters const& request_parameters)
--> ms::SurfaceCreationParameters
+    WindowSpecification const& request_parameters)
+    -> WindowSpecification
 {
     auto parameters = request_parameters;
 
     Rectangle const& tile = tile_for(app_info);
-    parameters.top_left = parameters.top_left + (tile.top_left - Point{0, 0});
+    parameters.top_left() = parameters.top_left().value() + (tile.top_left - Point{0, 0});
 
-    if (parameters.parent.lock())
+    if (parameters.parent().is_set() && parameters.parent().value().lock())
     {
-        auto parent = tools->info_for(parameters.parent).window;
-        auto const width = parameters.size.width.as_int();
-        auto const height = parameters.size.height.as_int();
+        auto parent = tools->info_for(parameters.parent().value()).window;
+        auto const width = parameters.size().value().width.as_int();
+        auto const height = parameters.size().value().height.as_int();
 
-        if (parameters.aux_rect.is_set() && parameters.edge_attachment.is_set())
+        if (parameters.aux_rect().is_set() && parameters.edge_attachment().is_set())
         {
-            auto const edge_attachment = parameters.edge_attachment.value();
-            auto const aux_rect = parameters.aux_rect.value();
+            auto const edge_attachment = parameters.edge_attachment().value();
+            auto const aux_rect = parameters.aux_rect().value();
             auto const parent_top_left = parent.top_left();
             auto const top_left = aux_rect.top_left     -Point{} + parent_top_left;
             auto const top_right= aux_rect.top_right()  -Point{} + parent_top_left;
@@ -112,11 +113,11 @@ auto TilingWindowManagerPolicy::handle_place_new_surface(
             {
                 if (tile.contains(top_right + Displacement{width, height}))
                 {
-                    parameters.top_left = top_right;
+                    parameters.top_left() = top_right;
                 }
                 else if (tile.contains(top_left + Displacement{-width, height}))
                 {
-                    parameters.top_left = top_left + Displacement{-width, 0};
+                    parameters.top_left() = top_left + Displacement{-width, 0};
                 }
             }
 
@@ -124,11 +125,11 @@ auto TilingWindowManagerPolicy::handle_place_new_surface(
             {
                 if (tile.contains(bot_left + Displacement{width, height}))
                 {
-                    parameters.top_left = bot_left;
+                    parameters.top_left() = bot_left;
                 }
                 else if (tile.contains(top_left + Displacement{width, -height}))
                 {
-                    parameters.top_left = top_left + Displacement{0, -height};
+                    parameters.top_left() = top_left + Displacement{0, -height};
                 }
             }
         }
@@ -136,14 +137,27 @@ auto TilingWindowManagerPolicy::handle_place_new_surface(
         {
             auto const parent_top_left = parent.top_left();
             auto const centred = parent_top_left
-                                 + 0.5*(as_displacement(parent.size()) - as_displacement(parameters.size))
+                                 + 0.5*(as_displacement(parent.size()) - as_displacement(parameters.size().value()))
                                  - DeltaY{(parent.size().height.as_int()-height)/6};
 
-            parameters.top_left = centred;
+            parameters.top_left() = centred;
         }
     }
 
     clip_to_tile(parameters, tile);
+    return parameters;
+}
+
+
+auto TilingWindowManagerPolicy::handle_place_new_surface(
+    ApplicationInfo const& app_info,
+    ms::SurfaceCreationParameters const& request_parameters)
+-> ms::SurfaceCreationParameters
+{
+    auto parameters = request_parameters;
+    WindowSpecification spec{parameters};
+    spec = handle_place_new_surface(app_info, spec);
+    spec.update(parameters);
     return parameters;
 }
 
@@ -539,6 +553,16 @@ void TilingWindowManagerPolicy::clip_to_tile(ms::SurfaceCreationParameters& para
     auto height = std::min(tile.size.height.as_int()-displacement.dy.as_int(), parameters.size.height.as_int());
 
     parameters.size = Size{width, height};
+}
+
+void TilingWindowManagerPolicy::clip_to_tile(miral::WindowSpecification& parameters, Rectangle const& tile)
+{
+    auto const displacement = parameters.top_left().value() - tile.top_left;
+
+    auto width = std::min(tile.size.width.as_int()-displacement.dx.as_int(), parameters.size().value().width.as_int());
+    auto height = std::min(tile.size.height.as_int()-displacement.dy.as_int(), parameters.size().value().height.as_int());
+
+    parameters.size() = Size{width, height};
 }
 
 void TilingWindowManagerPolicy::fit_to_new_tile(miral::Window& window, Rectangle const& old_tile, Rectangle const& new_tile)

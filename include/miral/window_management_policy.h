@@ -26,6 +26,8 @@
 
 namespace miral
 {
+class WindowSpecification;
+
 class WindowManagementPolicy
 {
 public:
