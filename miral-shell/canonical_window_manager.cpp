@@ -17,14 +17,12 @@
  */
 
 #include "canonical_window_manager.h"
-#include "canonical_window_management_policy_data.h"
+#include "titlebar/canonical_window_management_policy_data.h"
 #include "spinner/splash.h"
 
 #include "miral/application.h"
 #include "miral/window_manager_tools.h"
 #include "miral/window_specification.h"
-
-#include <mir/frontend/buffer_stream_id.h>
 
 #include <linux/input.h>
 #include <csignal>
