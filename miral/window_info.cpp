@@ -21,8 +21,6 @@
 #include <mir/scene/surface.h>
 #include <mir/scene/surface_creation_parameters.h>
 
-#include <atomic>
-
 namespace ms = mir::scene;
 namespace mg = mir::graphics;
 using namespace mir::geometry;

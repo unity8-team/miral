@@ -18,7 +18,6 @@
 
 #include "basic_window_manager.h"
 
-#include "miral/window_specification.h"
 #include <mir/scene/session.h>
 #include <mir/scene/surface.h>
 #include <mir/scene/surface_creation_parameters.h>

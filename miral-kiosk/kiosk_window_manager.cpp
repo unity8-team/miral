@@ -20,7 +20,6 @@
 
 #include "miral/application.h"
 #include "miral/window_manager_tools.h"
-#include "miral/window_specification.h"
 
 #include <linux/input.h>
 
@@ -245,7 +244,6 @@ bool KioskWindowManagerPolicy::handle_touch_event(MirTouchEvent const* event)
 
     Point const cursor{total_x/count, total_y/count};
 
-    old_cursor = cursor;
     return false;
 }
 
@@ -262,7 +260,6 @@ bool KioskWindowManagerPolicy::handle_pointer_event(MirPointerEvent const* event
         select_active_window(tools->window_at(cursor));
     }
 
-    old_cursor = cursor;
     return false;
 }
 

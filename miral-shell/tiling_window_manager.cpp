@@ -55,7 +55,6 @@ TilingWindowManagerPolicy::TilingWindowManagerPolicy(WindowManagerTools* const t
 
 void TilingWindowManagerPolicy::click(Point cursor)
 {
-    auto const application = application_under(cursor);
     auto const window = tools->window_at(cursor);
     select_active_window(window);
 }
@@ -494,9 +493,8 @@ void TilingWindowManagerPolicy::update_tiles(Rectangles const& displays)
 
     auto index = 0;
 
-    tools->for_each_application(
-        [&](ApplicationInfo& info)
-            {
+    tools->for_each_application([&](ApplicationInfo& info)
+        {
             if (!info.userdata)
                 info.userdata = std::make_shared<TilingWindowManagerPolicyData>();
 
@@ -513,7 +511,7 @@ void TilingWindowManagerPolicy::update_tiles(Rectangles const& displays)
             update_surfaces(info, old_tile, new_tile);
 
             tile = new_tile;
-            });
+        });
 }
 
 void TilingWindowManagerPolicy::update_surfaces(ApplicationInfo& info, Rectangle const& old_tile, Rectangle const& new_tile)

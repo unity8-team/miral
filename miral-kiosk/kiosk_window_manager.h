@@ -73,8 +73,6 @@ private:
 
     miral::WindowManagerTools* const tools;
 
-    Point old_cursor{};
-
     SwSplash const splash;
 };
 
