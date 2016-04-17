@@ -25,8 +25,6 @@
 #include <mir/geometry/point.h>
 #include <mir/geometry/size.h>
 #include <mir/geometry/rectangle.h>
-
-// TODO remove frontend::SurfaceId from the interface
 #include <mir/frontend/surface_id.h>
 
 #include <memory>

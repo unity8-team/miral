@@ -7,21 +7,6 @@ is, it can be used but isn't very satisfying. Also the encapsulation provided
 by libmiral is leaky.
 
 
-Fixing the leaky encapsulation
-------------------------------
-
-Currently, some types from the Mir server API are exposed by MirAL. These need
-suitable wrapper classes providing, and the corresponding #includes removing
-from include/miral/*.h. Finally, the mirserver pkg_check_modules() and  
-include_directories() options need removing from miral-server/CMakeLists.txt
-
- - mir::graphics::DisplayConfigurationOutputId
-
- - mir::scene::SurfaceCreationParameters and mir::shell::SurfaceSpecification
-   these are very similar to each other and overlap with miral::WindowInfo.
-   All three could be combined into a single type.
-   
-
 ABI stability
 -------------
 
@@ -45,6 +30,12 @@ additions to libmiral to expose additional Mir functionality.
    grey rectangles for titlebars. The "tiling" window does not offer them
    at all. They should contain the window title and sizing controls.
    
+ - Titlebars. The approach to titlebars uses Mir ABIs, an alternative
+   approach wrapped by MirAL is needed.
+   
+   Titlebars. GTK+ apps provide their own titlebars, bettter integration is
+   needed.
+   
  - Keyboard layouts. It should be possible to configure and use non-US keyboard
    layouts.
    
@@ -67,9 +58,6 @@ additions to libmiral to expose additional Mir functionality.
   
  - Shadows, animations and other "effects".
  
- - Titlebar toolkits. We shouldn't have both the server and client drawing
-   these (as can be seen with gnome-terminal).
-   
  - Menu integration with toolkits. We should probably support dbus menus.
    
  - Add virtual workspaces. A virtual workspace represents a group of windows

@@ -33,7 +33,6 @@ namespace shell { struct SurfaceSpecification; }
 
 namespace miral
 {
-// TODO "Opaquify WindowInfo to provide a stable API
 struct WindowInfo
 {
     using AspectRatio = WindowSpecification::AspectRatio;
