@@ -37,13 +37,13 @@ public:
     auto handle_place_new_surface(
         miral::ApplicationInfo const& app_info,
         miral::WindowSpecification const& request_parameters)
-        -> miral::WindowSpecification /*override*/;
+        -> miral::WindowSpecification override;
 
     void handle_new_window(miral::WindowInfo& window_info) override;
 
     void handle_window_ready(miral::WindowInfo& window_info) override;
 
-    void handle_modify_window(miral::WindowInfo& window_info, miral::WindowSpecification const& modifications);
+    void handle_modify_window(miral::WindowInfo& window_info, miral::WindowSpecification const& modifications) override;
 
     void handle_delete_window(miral::WindowInfo& window_info) override;
 

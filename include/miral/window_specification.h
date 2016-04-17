@@ -29,8 +29,8 @@
 
 namespace mir
 {
-namespace scene { class Surface; class SurfaceCreationParameters; }
-namespace shell { class SurfaceSpecification; }
+namespace scene { class Surface; struct SurfaceCreationParameters; }
+namespace shell { struct SurfaceSpecification; }
 }
 
 namespace miral
