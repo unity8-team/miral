@@ -181,6 +181,7 @@ void TilingWindowManagerPolicy::handle_delete_window(WindowInfo& window_info)
 {
     auto const session = window_info.window.session();
     auto const& window = window_info.window;
+    bool const is_active_window{window == tools->focused_window()};
 
     if (auto const parent = window_info.parent)
     {
@@ -209,10 +210,17 @@ void TilingWindowManagerPolicy::handle_delete_window(WindowInfo& window_info)
 
     window_info.window.destroy_surface();
 
-    if (windows.empty() && session == tools->focused_application())
+    if (is_active_window)
     {
-        tools->focus_next_application();
-        select_active_window(tools->focused_window());
+        if (windows.empty())
+        {
+            tools->focus_next_application();
+            select_active_window(tools->focused_window());
+        }
+        else
+        {
+            select_active_window(windows[0]);
+        }
     }
 }
 

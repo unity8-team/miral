@@ -383,6 +383,7 @@ void CanonicalWindowManagerPolicy::handle_delete_window(WindowInfo& window_info)
 {
     auto const& session = window_info.window.session();
     auto& window = window_info.window;
+    bool const is_active_window{window == active_window()};
 
     fullscreen_surfaces.erase(window);
 
@@ -419,11 +420,18 @@ void CanonicalWindowManagerPolicy::handle_delete_window(WindowInfo& window_info)
 
     window.destroy_surface();
 
-    if (windows.empty() && session == tools->focused_application())
+    if (is_active_window)
     {
-        active_window_.reset();
-        tools->focus_next_application();
-        select_active_window(tools->focused_window());
+        if (windows.empty())
+        {
+            active_window_.reset();
+            tools->focus_next_application();
+            select_active_window(tools->focused_window());
+        }
+        else
+        {
+            select_active_window(windows[0]);
+        }
     }
 }
 
