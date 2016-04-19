@@ -67,7 +67,7 @@ public:
 
     void generate_decorations_for(miral::WindowInfo& window_info) override;
 
-    auto select_active_window(miral::Window const& window) -> miral::Window;
+    auto select_active_window(miral::Window const& window) -> miral::Window override;
 
 private:
     static const int modifier_mask =
