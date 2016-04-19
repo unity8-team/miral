@@ -107,6 +107,7 @@ void miral::BasicWindowManager::remove_surface(
     std::weak_ptr<scene::Surface> const& surface)
 {
     std::lock_guard<decltype(mutex)> lock(mutex);
+    bool const is_active_window{surface.lock() == focus_controller->focused_surface()};
 
     auto& info = info_for(surface);
 
@@ -137,7 +138,33 @@ void miral::BasicWindowManager::remove_surface(
 
     policy->handle_delete_window(info);
 
+    session->destroy_surface(surface);
+
+    auto const parent = info.parent;
+
+    // NB this invalidates info, but we want to keep access to "parent".
     window_info.erase(surface);
+
+    if (is_active_window)
+    {
+        // Try to make the parent active
+        if (parent)
+        {
+            if (policy->select_active_window(parent))
+                return;
+        }
+
+        // Ought to find top window of same application, but we don't
+        // have the API (yet), so find any suitable top-level-window
+        for (auto const& tlw : windows)
+        {
+            if (policy->select_active_window(tlw))
+                return;
+        }
+
+        focus_next_application();
+        policy->select_active_window(focused_window());
+    }
 }
 
 void miral::BasicWindowManager::forget(Window const& window)

@@ -381,11 +381,7 @@ void CanonicalWindowManagerPolicy::handle_modify_window(
 
 void CanonicalWindowManagerPolicy::handle_delete_window(WindowInfo& window_info)
 {
-    auto const& session = window_info.window.session();
-    auto& window = window_info.window;
-    bool const is_active_window{window == active_window()};
-
-    fullscreen_surfaces.erase(window);
+    fullscreen_surfaces.erase(window_info.window);
 
     if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(window_info.userdata))
     {
@@ -393,23 +389,7 @@ void CanonicalWindowManagerPolicy::handle_delete_window(WindowInfo& window_info)
         tools->forget(titlebar->window);
     }
 
-    window.destroy_surface();
-
-    if (is_active_window)
-    {
-        auto& windows = tools->info_for(session).windows;
-
-        if (windows.empty())
-        {
-            active_window_.reset();
-            tools->focus_next_application();
-            select_active_window(tools->focused_window());
-        }
-        else
-        {
-            select_active_window(windows[0]);
-        }
-    }
+    active_window_.reset();
 }
 
 auto CanonicalWindowManagerPolicy::handle_set_state(WindowInfo& window_info, MirSurfaceState value)
