@@ -16,7 +16,7 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#include "miral/internal_client.h"
+#include "miral/startup_internal_client.h"
 
 #include <mir_toolkit/mir_connection.h>
 #include <mir/fd.h>
@@ -28,7 +28,7 @@
 #include <mutex>
 #include <thread>
 
-class miral::InternalClient::Self
+class miral::StartupInternalClient::Self
 {
 public:
     Self(std::string name,
@@ -50,7 +50,7 @@ private:
     std::function<void(std::weak_ptr<mir::scene::Session> const session)> connect_notification;
 };
 
-miral::InternalClient::Self::Self(
+miral::StartupInternalClient::Self::Self(
     std::string const name,
     std::function<void(MirConnection* connection)> client_code,
     std::function<void(std::weak_ptr<mir::scene::Session> const session)> connect_notification) :
@@ -60,7 +60,7 @@ miral::InternalClient::Self::Self(
 {
 }
 
-void miral::InternalClient::Self::run(mir::Server& server)
+void miral::StartupInternalClient::Self::run(mir::Server& server)
 {
     fd = server.open_client_socket([this](std::shared_ptr<mir::frontend::Session> const& mf_session)
         {
@@ -86,7 +86,7 @@ void miral::InternalClient::Self::run(mir::Server& server)
         }};
 }
 
-miral::InternalClient::Self::~Self()
+miral::StartupInternalClient::Self::~Self()
 {
     if (thread.joinable())
     {
@@ -94,7 +94,7 @@ miral::InternalClient::Self::~Self()
     }
 }
 
-miral::InternalClient::InternalClient(
+miral::StartupInternalClient::StartupInternalClient(
     std::string name,
     std::function<void(MirConnection* connection)> client_code,
     std::function<void(std::weak_ptr<mir::scene::Session> const session)> connect_notification) :
@@ -102,7 +102,7 @@ miral::InternalClient::InternalClient(
 {
 }
 
-void miral::InternalClient::operator()(mir::Server& server)
+void miral::StartupInternalClient::operator()(mir::Server& server)
 {
     server.add_init_callback([this, &server]
     {
@@ -113,4 +113,4 @@ void miral::InternalClient::operator()(mir::Server& server)
     });
 }
 
-miral::InternalClient::~InternalClient() = default;
+miral::StartupInternalClient::~StartupInternalClient() = default;

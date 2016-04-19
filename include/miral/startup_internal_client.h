@@ -16,8 +16,8 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#ifndef MIRAL_INTERNAL_CLIENT_H
-#define MIRAL_INTERNAL_CLIENT_H
+#ifndef MIRAL_STARTUP_INTERNAL_CLIENT_H
+#define MIRAL_STARTUP_INTERNAL_CLIENT_H
 
 #include <mir_toolkit/client_types.h>
 
@@ -29,26 +29,26 @@ namespace mir { class Server; namespace scene { class Session; }}
 
 namespace miral
 {
-/** Wrapper for running an internal Mir client
+/** Wrapper for running an internal Mir client at startup
  *  \note client_code will be executed on its own thread, this must exit
  *  \note connection_notification will be called on a worker thread and must not block
  *
  *  \param client_code              code implementing the internal client
  *  \param connection_notification  handler for registering the server-side session
  */
-class InternalClient
+class StartupInternalClient
 {
 public:
-    explicit InternalClient(
+    explicit StartupInternalClient(
         std::string name,
         std::function<void(MirConnection* connection)> client_code,
         std::function<void(std::weak_ptr<mir::scene::Session> const session)> connect_notification);
 
     template <typename ClientObject>
-    explicit InternalClient(std::string name, ClientObject const& client_object) :
-        InternalClient(name, client_object, client_object) {}
+    explicit StartupInternalClient(std::string name, ClientObject const& client_object) :
+        StartupInternalClient(name, client_object, client_object) {}
 
-    ~InternalClient();
+    ~StartupInternalClient();
 
     void operator()(mir::Server& server);
 
@@ -58,4 +58,4 @@ private:
 };
 }
 
-#endif //MIRAL_INTERNAL_CLIENT_H
+#endif //MIRAL_STARTUP_INTERNAL_CLIENT_H
