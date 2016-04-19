@@ -24,7 +24,7 @@
 #include "miral/runner.h"
 #include "miral/window_management_options.h"
 #include "miral/quit_on_ctrl_alt_bksp.h"
-#include "miral/internal_client.h"
+#include "miral/startup_internal_client.h"
 
 int main(int argc, char const* argv[])
 {
@@ -41,6 +41,6 @@ int main(int argc, char const* argv[])
                 },
             display_configuration_options,
             QuitOnCtrlAltBkSp{},
-            InternalClient{"Intro", spinner}
+            StartupInternalClient{"Intro", spinner}
         });
 }
