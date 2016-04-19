@@ -393,12 +393,12 @@ void CanonicalWindowManagerPolicy::handle_delete_window(WindowInfo& window_info)
         tools->forget(titlebar->window);
     }
 
-    auto& windows = tools->info_for(session).windows;
-
     window.destroy_surface();
 
     if (is_active_window)
     {
+        auto& windows = tools->info_for(session).windows;
+
         if (windows.empty())
         {
             active_window_.reset();
@@ -741,12 +741,12 @@ void CanonicalWindowManagerPolicy::toggle(MirSurfaceState state)
     }
 }
 
-void CanonicalWindowManagerPolicy::select_active_window(Window const& window)
+auto CanonicalWindowManagerPolicy::select_active_window(Window const& hint) -> miral::Window
 {
-    if (window == active_window_)
-        return;
+    if (hint == active_window_)
+        return hint ;
 
-    if (!window)
+    if (!hint)
     {
         if (auto const active_surface = active_window_)
         {
@@ -761,10 +761,10 @@ void CanonicalWindowManagerPolicy::select_active_window(Window const& window)
             tools->set_focus_to({});
 
         active_window_.reset();
-        return;
+        return hint;
     }
 
-    auto const& info_for = tools->info_for(window);
+    auto const& info_for = tools->info_for(hint);
 
     if (info_for.can_be_active())
     {
@@ -776,7 +776,7 @@ void CanonicalWindowManagerPolicy::select_active_window(Window const& window)
                 titlebar->paint_titlebar(0x3F);
             }
         }
-        auto& info = tools->info_for(window);
+        auto& info = tools->info_for(hint);
         if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(info.userdata))
         {
             titlebar->paint_titlebar(0xFF);
@@ -793,13 +793,17 @@ void CanonicalWindowManagerPolicy::select_active_window(Window const& window)
             if (spinner_info.windows.size() > 0)
                 tools->raise_tree(spinner_info.windows[0]);
         }
+
+        return hint;
     }
     else
     {
         // Cannot have input focus - try the parent
         if (auto const parent = info_for.parent)
-            select_active_window(parent);
+            return select_active_window(parent);
     }
+
+    return {};
 }
 
 auto CanonicalWindowManagerPolicy::active_window() const
