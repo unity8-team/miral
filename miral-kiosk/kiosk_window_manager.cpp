@@ -143,30 +143,7 @@ void KioskWindowManagerPolicy::handle_delete_window(WindowInfo& window_info)
     auto const& window = window_info.window;
     bool const is_active_window{window == tools->focused_window()};
 
-    if (auto const parent = window_info.parent)
-    {
-        auto& siblings = tools->info_for(parent).children;
-
-        for (auto i = begin(siblings); i != end(siblings); ++i)
-        {
-            if (window == *i)
-            {
-                siblings.erase(i);
-                break;
-            }
-        }
-    }
-
     auto& windows = tools->info_for(session).windows;
-
-    for (auto i = begin(windows); i != end(windows); ++i)
-    {
-        if (window == *i)
-        {
-            windows.erase(i);
-            break;
-        }
-    }
 
     window_info.window.destroy_surface();
 

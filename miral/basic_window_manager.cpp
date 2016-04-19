@@ -103,11 +103,39 @@ void miral::BasicWindowManager::modify_surface(
 }
 
 void miral::BasicWindowManager::remove_surface(
-    std::shared_ptr<scene::Session> const& /*session*/,
+    std::shared_ptr<scene::Session> const& session,
     std::weak_ptr<scene::Surface> const& surface)
 {
     std::lock_guard<decltype(mutex)> lock(mutex);
-    policy->handle_delete_window(info_for(surface));
+
+    auto& info = info_for(surface);
+
+    if (auto const parent = info.parent)
+    {
+        auto& siblings = info_for(parent).children;
+
+        for (auto i = begin(siblings); i != end(siblings); ++i)
+        {
+            if (info.window == *i)
+            {
+                siblings.erase(i);
+                break;
+            }
+        }
+    }
+
+    auto& windows = info_for(session).windows;
+
+    for (auto i = begin(windows); i != end(windows); ++i)
+    {
+        if (info.window == *i)
+        {
+            windows.erase(i);
+            break;
+        }
+    }
+
+    policy->handle_delete_window(info);
 
     window_info.erase(surface);
 }

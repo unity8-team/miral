@@ -387,20 +387,6 @@ void CanonicalWindowManagerPolicy::handle_delete_window(WindowInfo& window_info)
 
     fullscreen_surfaces.erase(window);
 
-    if (auto const parent = window_info.parent)
-    {
-        auto& siblings = tools->info_for(parent).children;
-
-        for (auto i = begin(siblings); i != end(siblings); ++i)
-        {
-            if (window == *i)
-            {
-                siblings.erase(i);
-                break;
-            }
-        }
-    }
-
     if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(window_info.userdata))
     {
         titlebar->window.destroy_surface();
@@ -408,15 +394,6 @@ void CanonicalWindowManagerPolicy::handle_delete_window(WindowInfo& window_info)
     }
 
     auto& windows = tools->info_for(session).windows;
-
-    for (auto i = begin(windows); i != end(windows); ++i)
-    {
-        if (window == *i)
-        {
-            windows.erase(i);
-            break;
-        }
-    }
 
     window.destroy_surface();
 
