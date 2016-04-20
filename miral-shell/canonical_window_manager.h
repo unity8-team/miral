@@ -75,6 +75,8 @@ public:
 
     void generate_decorations_for(miral::WindowInfo& window_info) override;
 
+    auto select_active_window(miral::Window const& hint) -> miral::Window override;
+
 private:
     static const int modifier_mask =
         mir_input_event_modifier_alt |
@@ -88,7 +90,6 @@ private:
     void resize(Point cursor);
     void toggle(MirSurfaceState state);
 
-    void select_active_window(miral::Window const& window);
     auto active_window() const -> miral::Window;
 
     bool resize(miral::Window const& window, Point cursor, Point old_cursor);

@@ -46,6 +46,8 @@ public:
     virtual bool handle_pointer_event(MirPointerEvent const* event) = 0;
     virtual void handle_raise_window(WindowInfo& window_info) = 0;
 
+    virtual auto select_active_window(miral::Window const& hint) -> miral::Window = 0;
+
     virtual ~WindowManagementPolicy() = default;
     WindowManagementPolicy() = default;
     WindowManagementPolicy(WindowManagementPolicy const&) = delete;

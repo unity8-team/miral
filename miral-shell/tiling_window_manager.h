@@ -67,6 +67,8 @@ public:
 
     void generate_decorations_for(miral::WindowInfo& window_info) override;
 
+    auto select_active_window(miral::Window const& window) -> miral::Window override;
+
 private:
     static const int modifier_mask =
         mir_input_event_modifier_alt |
@@ -85,7 +87,6 @@ private:
     void update_tiles(Rectangles const& displays);
     void update_surfaces(miral::ApplicationInfo& info, Rectangle const& old_tile, Rectangle const& new_tile);
     void drag(miral::WindowInfo& window_info, Point to, Point from, Rectangle bounds);
-    auto select_active_window(miral::Window const& window) -> miral::Window;
     auto transform_set_state(miral::WindowInfo& window_info, MirSurfaceState value) -> MirSurfaceState;
 
     static void clip_to_tile(mir::scene::SurfaceCreationParameters& parameters, Rectangle const& tile);

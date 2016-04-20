@@ -381,24 +381,7 @@ void CanonicalWindowManagerPolicy::handle_modify_window(
 
 void CanonicalWindowManagerPolicy::handle_delete_window(WindowInfo& window_info)
 {
-    auto const& session = window_info.window.session();
-    auto& window = window_info.window;
-
-    fullscreen_surfaces.erase(window);
-
-    if (auto const parent = window_info.parent)
-    {
-        auto& siblings = tools->info_for(parent).children;
-
-        for (auto i = begin(siblings); i != end(siblings); ++i)
-        {
-            if (window == *i)
-            {
-                siblings.erase(i);
-                break;
-            }
-        }
-    }
+    fullscreen_surfaces.erase(window_info.window);
 
     if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(window_info.userdata))
     {
@@ -406,25 +389,7 @@ void CanonicalWindowManagerPolicy::handle_delete_window(WindowInfo& window_info)
         tools->forget(titlebar->window);
     }
 
-    auto& windows = tools->info_for(session).windows;
-
-    for (auto i = begin(windows); i != end(windows); ++i)
-    {
-        if (window == *i)
-        {
-            windows.erase(i);
-            break;
-        }
-    }
-
-    window.destroy_surface();
-
-    if (windows.empty() && session == tools->focused_application())
-    {
-        active_window_.reset();
-        tools->focus_next_application();
-        select_active_window(tools->focused_window());
-    }
+    active_window_.reset();
 }
 
 auto CanonicalWindowManagerPolicy::handle_set_state(WindowInfo& window_info, MirSurfaceState value)
@@ -756,12 +721,12 @@ void CanonicalWindowManagerPolicy::toggle(MirSurfaceState state)
     }
 }
 
-void CanonicalWindowManagerPolicy::select_active_window(Window const& window)
+auto CanonicalWindowManagerPolicy::select_active_window(Window const& hint) -> miral::Window
 {
-    if (window == active_window_)
-        return;
+    if (hint == active_window_)
+        return hint ;
 
-    if (!window)
+    if (!hint)
     {
         if (auto const active_surface = active_window_)
         {
@@ -776,10 +741,10 @@ void CanonicalWindowManagerPolicy::select_active_window(Window const& window)
             tools->set_focus_to({});
 
         active_window_.reset();
-        return;
+        return hint;
     }
 
-    auto const& info_for = tools->info_for(window);
+    auto const& info_for = tools->info_for(hint);
 
     if (info_for.can_be_active())
     {
@@ -791,7 +756,7 @@ void CanonicalWindowManagerPolicy::select_active_window(Window const& window)
                 titlebar->paint_titlebar(0x3F);
             }
         }
-        auto& info = tools->info_for(window);
+        auto& info = tools->info_for(hint);
         if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(info.userdata))
         {
             titlebar->paint_titlebar(0xFF);
@@ -808,13 +773,17 @@ void CanonicalWindowManagerPolicy::select_active_window(Window const& window)
             if (spinner_info.windows.size() > 0)
                 tools->raise_tree(spinner_info.windows[0]);
         }
+
+        return hint;
     }
     else
     {
         // Cannot have input focus - try the parent
         if (auto const parent = info_for.parent)
-            select_active_window(parent);
+            return select_active_window(parent);
     }
+
+    return {};
 }
 
 auto CanonicalWindowManagerPolicy::active_window() const

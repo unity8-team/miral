@@ -177,43 +177,8 @@ void TilingWindowManagerPolicy::handle_modify_window(
         window_info.window.rename(modifications.name.value());
 }
 
-void TilingWindowManagerPolicy::handle_delete_window(WindowInfo& window_info)
+void TilingWindowManagerPolicy::handle_delete_window(WindowInfo& /*window_info*/)
 {
-    auto const session = window_info.window.session();
-    auto const& window = window_info.window;
-
-    if (auto const parent = window_info.parent)
-    {
-        auto& siblings = tools->info_for(parent).children;
-
-        for (auto i = begin(siblings); i != end(siblings); ++i)
-        {
-            if (window == *i)
-            {
-                siblings.erase(i);
-                break;
-            }
-        }
-    }
-
-    auto& windows = tools->info_for(session).windows;
-
-    for (auto i = begin(windows); i != end(windows); ++i)
-    {
-        if (window == *i)
-        {
-            windows.erase(i);
-            break;
-        }
-    }
-
-    window_info.window.destroy_surface();
-
-    if (windows.empty() && session == tools->focused_application())
-    {
-        tools->focus_next_application();
-        select_active_window(tools->focused_window());
-    }
 }
 
 auto TilingWindowManagerPolicy::handle_set_state(WindowInfo& window_info, MirSurfaceState value)

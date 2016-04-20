@@ -59,6 +59,8 @@ public:
 
     void generate_decorations_for(miral::WindowInfo& window_info) override;
 
+    auto select_active_window(miral::Window const& window) -> miral::Window override;
+
 private:
     static const int modifier_mask =
         mir_input_event_modifier_alt |
@@ -67,7 +69,6 @@ private:
         mir_input_event_modifier_ctrl |
         mir_input_event_modifier_meta;
 
-    auto select_active_window(miral::Window const& window) -> miral::Window;
     auto transform_set_state(miral::WindowInfo& window_info, MirSurfaceState value) -> MirSurfaceState;
     void raise_splash_session() const;
 
