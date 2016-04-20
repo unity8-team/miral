@@ -111,17 +111,8 @@ void KioskWindowManagerPolicy::generate_decorations_for(WindowInfo& /*window_inf
 {
 }
 
-void KioskWindowManagerPolicy::handle_new_window(WindowInfo& window_info)
+void KioskWindowManagerPolicy::handle_new_window(WindowInfo& /*window_info*/)
 {
-    auto const window = window_info.window;
-    auto const session = window.session();
-
-    tools->info_for(session).windows.push_back(window);
-
-    if (auto const parent = window_info.parent)
-    {
-        tools->info_for(parent).children.push_back(window);
-    }
 }
 
 void KioskWindowManagerPolicy::handle_window_ready(WindowInfo& window_info)

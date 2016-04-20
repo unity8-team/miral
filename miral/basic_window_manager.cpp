@@ -76,9 +76,15 @@ auto miral::BasicWindowManager::add_surface(
     surface_builder = [build](std::shared_ptr<scene::Session> const& session, scene::SurfaceCreationParameters const& params)
         { return Window{session, build(session, params)}; };
 
-    auto const spec = policy->handle_place_new_surface(info_for(session), params);
+    auto& session_info = info_for(session);
+    auto& window_info = build_window(session, policy->handle_place_new_surface(session_info, params));
 
-    auto& window_info = build_window(session, spec);
+    auto const window = window_info.window;
+
+    session_info.windows.push_back(window);
+
+    if (auto const parent = window_info.parent)
+        info_for(parent).children.push_back(window);
 
     policy->handle_new_window(window_info);
     policy->generate_decorations_for(window_info);
@@ -92,7 +98,6 @@ auto miral::BasicWindowManager::add_surface(
             session,
             scene_surface));
     }
-
 
     return window_info.window.surface_id();
 }
@@ -171,8 +176,9 @@ void miral::BasicWindowManager::remove_surface(
     }
 }
 
-void miral::BasicWindowManager::forget(Window const& window)
+void miral::BasicWindowManager::destroy(Window& window)
 {
+    window.destroy_surface();
     window_info.erase(window);
 }
 
