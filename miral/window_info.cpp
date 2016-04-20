@@ -20,8 +20,6 @@
 
 #include <mir/scene/surface.h>
 
-#include <atomic>
-
 namespace ms = mir::scene;
 namespace mg = mir::graphics;
 using namespace mir::geometry;
