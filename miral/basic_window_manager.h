@@ -78,7 +78,7 @@ public:
         std::shared_ptr<mir::scene::Session> const& session,
         std::weak_ptr<mir::scene::Surface> const& surface) override;
 
-    void forget(Window const& window) override;
+    void destroy(Window& window) override;
 
     void add_display(mir::geometry::Rectangle const& area) override;
 

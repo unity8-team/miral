@@ -120,8 +120,9 @@ void miral::BasicWindowManager::remove_surface(
     window_info.erase(surface);
 }
 
-void miral::BasicWindowManager::forget(Window const& window)
+void miral::BasicWindowManager::destroy(Window& window)
 {
+    window.destroy_surface();
     window_info.erase(window);
 }
 

@@ -392,8 +392,7 @@ void CanonicalWindowManagerPolicy::handle_delete_window(WindowInfo& window_info)
 
     if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(window_info.userdata))
     {
-        titlebar->window.destroy_surface();
-        tools->forget(titlebar->window);
+        tools->destroy(titlebar->window);
     }
 
     auto& windows = tools->info_for(session).windows;

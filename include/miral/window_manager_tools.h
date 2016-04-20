@@ -59,7 +59,7 @@ public:
     virtual void set_focus_to(Window const& window) = 0;
     virtual auto window_at(mir::geometry::Point cursor) const -> Window = 0;
     virtual auto active_display() -> mir::geometry::Rectangle const = 0;
-    virtual void forget(Window const& window) = 0;
+    virtual void destroy(Window& window) = 0;
     virtual void raise_tree(Window const& root) = 0;
     virtual void size_to_output(mir::geometry::Rectangle& rect) = 0;
     virtual bool place_in_output(mir::graphics::DisplayConfigurationOutputId id,
