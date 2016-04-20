@@ -75,6 +75,15 @@ auto miral::BasicWindowManager::add_surface(
     auto const placed_params = policy->handle_place_new_surface(info_for(session), params);
 
     auto& window_info = build_window(session, placed_params);
+    auto& session_info = info_for(session);
+    auto const spec = policy->handle_place_new_surface(session_info, params);
+
+    auto const window = window_info.window;
+
+    session_info.windows.push_back(window);
+
+    if (auto const parent = window_info.parent)
+        info_for(parent).children.push_back(window);
 
     policy->handle_new_window(window_info);
     policy->generate_decorations_for(window_info);
@@ -88,7 +97,6 @@ auto miral::BasicWindowManager::add_surface(
             session,
             scene_surface));
     }
-
 
     return window_info.window.surface_id();
 }

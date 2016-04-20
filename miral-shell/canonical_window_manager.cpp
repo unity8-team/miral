@@ -267,16 +267,6 @@ void CanonicalWindowManagerPolicy::generate_decorations_for(WindowInfo& window_i
 
 void CanonicalWindowManagerPolicy::handle_new_window(WindowInfo& window_info)
 {
-    auto const window = window_info.window;
-    auto const session = window_info.window.session();
-
-    if (auto const parent = window_info.parent)
-    {
-        tools->info_for(parent).children.push_back(window_info.window);
-    }
-
-    tools->info_for(session).windows.push_back(window_info.window);
-
     if (window_info.state == mir_surface_state_fullscreen)
         fullscreen_surfaces.insert(window_info.window);
 }
