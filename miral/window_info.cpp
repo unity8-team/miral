@@ -29,8 +29,8 @@ miral::WindowInfo::WindowInfo(
     Window const& window,
     ms::SurfaceCreationParameters const& params) :
     window{window},
-    type{window.type()},
-    state{window.state()},
+    type{params.type.is_set() ? params.type.value() : mir_surface_type_normal},
+    state{params.state.is_set() ? params.state.value() : mir_surface_state_restored},
     restore_rect{window.top_left(), window.size()},
     min_width{params.min_width.is_set() ? params.min_width.value()  : Width{}},
     min_height{params.min_height.is_set() ? params.min_height.value() : Height{}},

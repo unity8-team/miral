@@ -50,7 +50,6 @@ public:
     Window(std::shared_ptr <mir::scene::Session> const& session, mir::frontend::SurfaceId surface);
     ~Window();
 
-    auto type()         const -> MirSurfaceType;
     auto state()        const -> MirSurfaceState;
     auto top_left()     const -> mir::geometry::Point;
     auto size()         const -> mir::geometry::Size;
@@ -73,7 +72,6 @@ public:
     void set_state(MirSurfaceState state);
     void set_type(MirSurfaceType type);
 
-    void destroy_surface();
     void reset();
 
     void request_client_surface_close() const;

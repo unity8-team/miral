@@ -178,7 +178,7 @@ void miral::BasicWindowManager::remove_surface(
 
 void miral::BasicWindowManager::destroy(Window& window)
 {
-    window.destroy_surface();
+    window.session()->destroy_surface(window.surface_id());
     window_info.erase(window);
 }
 

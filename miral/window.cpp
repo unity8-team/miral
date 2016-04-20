@@ -90,14 +90,6 @@ void miral::Window::hide()
         surface->hide();
 }
 
-void miral::Window::destroy_surface()
-{
-    if (!self) return;
-    if (auto const session = self->session.lock())
-        session->destroy_surface(self->id);
-    self.reset();
-}
-
 void miral::Window::reset()
 {
     self.reset();
@@ -129,18 +121,6 @@ void miral::Window::request_client_surface_close() const
     if (!self) return;
     if (auto const surface = self->surface.lock())
         surface->request_client_surface_close();
-}
-
-auto miral::Window::type() const
--> MirSurfaceType
-{
-    if (self)
-    {
-        if (auto const surface = self->surface.lock())
-            return surface->type();
-    }
-
-    return mir_surface_type_normal;
 }
 
 auto miral::Window::state() const
