@@ -19,13 +19,13 @@
 #ifndef MIRAL_WINDOW_MANAGER_TOOLS_H
 #define MIRAL_WINDOW_MANAGER_TOOLS_H
 
-#include <mir/graphics/display_configuration.h>
+#include "miral/stream_specification.h"
 
 #include <memory>
 
 namespace mir
 {
-namespace scene { class Session; class Surface; struct SurfaceCreationParameters; }
+namespace scene { class Session; class Surface; }
 }
 
 
@@ -35,6 +35,7 @@ class Window;
 class Application;
 struct WindowInfo;
 struct ApplicationInfo;
+class WindowSpecification;
 
 /// The interface through which the policy instructs the controller.
 /// These functions assume that the BasicWindowManager data structures can be accessed freely.
@@ -44,7 +45,7 @@ class WindowManagerTools
 public:
     virtual auto build_window(
         std::shared_ptr<mir::scene::Session> const& session,
-        mir::scene::SurfaceCreationParameters const& parameters)
+        WindowSpecification const& parameters)
     -> WindowInfo& = 0;
     virtual auto count_applications() const -> unsigned int = 0;
     virtual void for_each_application(std::function<void(ApplicationInfo& info)> const& functor) = 0;
@@ -62,8 +63,7 @@ public:
     virtual void forget(Window const& window) = 0;
     virtual void raise_tree(Window const& root) = 0;
     virtual void size_to_output(mir::geometry::Rectangle& rect) = 0;
-    virtual bool place_in_output(mir::graphics::DisplayConfigurationOutputId id,
-                                 mir::geometry::Rectangle& rect) = 0;
+    virtual bool place_in_output(int id, mir::geometry::Rectangle& rect) = 0;
 
     virtual ~WindowManagerTools() = default;
     WindowManagerTools() = default;

@@ -19,8 +19,7 @@
 #include "miral/window_info.h"
 
 #include <mir/scene/surface.h>
-
-#include <atomic>
+#include <mir/scene/surface_creation_parameters.h>
 
 namespace ms = mir::scene;
 namespace mg = mir::graphics;
@@ -39,11 +38,17 @@ miral::WindowInfo::WindowInfo(
     max_height{params.max_height.is_set() ? params.max_height.value() : Height{std::numeric_limits<int>::max()}},
     width_inc{params.width_inc},
     height_inc{params.height_inc},
-    min_aspect{params.min_aspect},
-    max_aspect{params.max_aspect}
+    min_aspect{},
+    max_aspect{}
 {
+    if (min_aspect.is_set())
+        min_aspect = AspectRatio{params.min_aspect.value().width, params.min_aspect.value().height};
+
+    if (max_aspect.is_set())
+        max_aspect = AspectRatio{params.max_aspect.value().width, params.max_aspect.value().height};
+
     if (params.output_id != mir::graphics::DisplayConfigurationOutputId{0})
-        output_id = params.output_id;
+        output_id = params.output_id.as_value();
 }
 
 bool miral::WindowInfo::can_be_active() const

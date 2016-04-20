@@ -36,14 +36,14 @@ public:
 
     auto handle_place_new_surface(
         miral::ApplicationInfo const& app_info,
-        mir::scene::SurfaceCreationParameters const& request_parameters)
-    -> mir::scene::SurfaceCreationParameters override;
+        miral::WindowSpecification const& request_parameters)
+        -> miral::WindowSpecification override;
 
     void handle_new_window(miral::WindowInfo& window_info) override;
 
     void handle_window_ready(miral::WindowInfo& window_info) override;
 
-    void handle_modify_window(miral::WindowInfo& window_info, mir::shell::SurfaceSpecification const& modifications) override;
+    void handle_modify_window(miral::WindowInfo& window_info, miral::WindowSpecification const& modifications) override;
 
     void handle_delete_window(miral::WindowInfo& window_info) override;
 
@@ -73,8 +73,6 @@ private:
     void raise_splash_session() const;
 
     miral::WindowManagerTools* const tools;
-
-    Point old_cursor{};
 
     SwSplash const splash;
 };

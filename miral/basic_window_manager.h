@@ -56,7 +56,7 @@ public:
         WindowManagementPolicyBuilder const& build);
 
     auto build_window(
-        std::shared_ptr<mir::scene::Session> const& session, mir::scene::SurfaceCreationParameters const& parameters)
+        std::shared_ptr<mir::scene::Session> const& session, WindowSpecification const& spec)
     -> WindowInfo& override;
 
     void add_session(std::shared_ptr<mir::scene::Session> const& session) override;
@@ -130,7 +130,7 @@ public:
 
     void size_to_output(mir::geometry::Rectangle& rect) override;
 
-    bool place_in_output(mir::graphics::DisplayConfigurationOutputId id, mir::geometry::Rectangle& rect) override;
+    bool place_in_output(int id, mir::geometry::Rectangle& rect) override;
 
 private:
     using SurfaceInfoMap = std::map<std::weak_ptr<mir::scene::Surface>, WindowInfo, std::owner_less<std::weak_ptr<mir::scene::Surface>>>;

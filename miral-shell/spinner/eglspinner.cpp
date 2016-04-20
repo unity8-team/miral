@@ -37,15 +37,6 @@
 #include "spinner_glow.h"
 #include "spinner_logo.h"
 
-// this is needed for get_gu() to obtain the grid-unit value
-#define MAX_LENGTH       256
-#define VALUE_KEY        "GRID_UNIT_PX"
-#define VALUE_KEY_LENGTH 12
-#define PROP_KEY         "ro.product.device"
-#define DEFAULT_FILE     "/etc/ubuntu-touch-session.d/android.conf"
-#define FILE_BASE        "/etc/ubuntu-touch-session.d/"
-#define FILE_EXTENSION   ".conf"
-
 static GLuint load_shader(const char *src, GLenum type)
 {
     GLuint shader = glCreateShader(type);

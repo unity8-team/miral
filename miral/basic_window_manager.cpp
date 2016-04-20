@@ -39,9 +39,12 @@ miral::BasicWindowManager::BasicWindowManager(
 }
 
 auto miral::BasicWindowManager::build_window(
-    std::shared_ptr<scene::Session> const& session, scene::SurfaceCreationParameters const& parameters)
+    std::shared_ptr<scene::Session> const& session, WindowSpecification const& spec)
 -> WindowInfo&
 {
+    scene::SurfaceCreationParameters parameters;
+    spec.update(parameters);
+
     auto result = surface_builder(session, parameters);
     auto& info = window_info.emplace(result, WindowInfo{result, parameters}).first->second;
     if (auto const parent = parameters.parent.lock())
@@ -72,9 +75,10 @@ auto miral::BasicWindowManager::add_surface(
     std::lock_guard<decltype(mutex)> lock(mutex);
     surface_builder = [build](std::shared_ptr<scene::Session> const& session, scene::SurfaceCreationParameters const& params)
         { return Window{session, build(session, params)}; };
-    auto const placed_params = policy->handle_place_new_surface(info_for(session), params);
 
-    auto& window_info = build_window(session, placed_params);
+    auto const spec = policy->handle_place_new_surface(info_for(session), params);
+
+    auto& window_info = build_window(session, spec);
 
     policy->handle_new_window(window_info);
     policy->generate_decorations_for(window_info);
@@ -422,7 +426,7 @@ void miral::BasicWindowManager::size_to_output(mir::geometry::Rectangle& rect)
     display_layout->size_to_output(rect);
 }
 
-bool miral::BasicWindowManager::place_in_output(mir::graphics::DisplayConfigurationOutputId id, mir::geometry::Rectangle& rect)
+bool miral::BasicWindowManager::place_in_output(int id, mir::geometry::Rectangle& rect)
 {
-    return display_layout->place_in_output(id, rect);
+    return display_layout->place_in_output(mir::graphics::DisplayConfigurationOutputId{id}, rect);
 }
