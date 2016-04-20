@@ -7,8 +7,8 @@ is, it can be used but isn't very satisfying. Also the encapsulation provided
 by libmiral is leaky.
 
 
-ABI stability
--------------
+ABI design and stability
+------------------------
 
 There are some aspects of the current interface that are of concern for the
 stability of the ABI. In particular, classes with accessible data members or
@@ -18,6 +18,16 @@ with virtual function tables can only be modified in restricted ways.
    using the CheshireCat/pimpl idiom allowing properties to be added without 
    breaking ABI.
 
+ - There's duplicated logic managing the "info" data across the different window
+   management policies that should handled by the MirAL BasicWindowManager.
+   
+ - There are neither tests of MirAL code, nor of the sample code using it.
+   (This comes from its origin as a proof-of-concept "spike", but needs
+   correcting.) The test doubles supplied by mir-test-tools should be helpful.
+   
+ - There's a lack of documentation of the preconditions and postconditions of
+   the API.
+   
 
 Missing functionality
 ---------------------
@@ -105,4 +115,3 @@ currently need:
  - Default wallpaper
 
  - Default icon (using ubuntu logo atm). Must be svg
-
