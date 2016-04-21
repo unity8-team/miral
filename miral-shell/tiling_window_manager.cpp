@@ -283,24 +283,22 @@ bool TilingWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* ev
     }
     else if (action == mir_keyboard_action_down && scan_code == KEY_F4)
     {
-        if (auto const application = tools->focused_application())
+        switch (modifiers & modifier_mask)
         {
-            switch (modifiers & modifier_mask)
-            {
-            case mir_input_event_modifier_alt:
+        case mir_input_event_modifier_alt:
+            if (auto const application = tools->focused_application())
                 application.kill(SIGTERM);
-                return true;
 
-            case mir_input_event_modifier_ctrl:
-                if (auto const window = application.default_window())
-                {
-                    window.request_client_surface_close();
-                    return true;
-                }
+            return true;
 
-            default:
-                break;
-            }
+        case mir_input_event_modifier_ctrl:
+            if (auto const window = tools->focused_window())
+                window.request_client_surface_close();
+
+            return true;
+
+        default:
+            break;
         }
     }
     else if (action == mir_keyboard_action_down &&
@@ -418,15 +416,12 @@ bool TilingWindowManagerPolicy::handle_pointer_event(MirPointerEvent const* even
 
 void TilingWindowManagerPolicy::toggle(MirSurfaceState state)
 {
-    if (auto const application = tools->focused_application())
+    if (auto window = tools->focused_window())
     {
-        if (auto window = application.default_window())
-        {
-            if (window.state() == state)
-                state = mir_surface_state_restored;
+        if (window.state() == state)
+            state = mir_surface_state_restored;
 
-            handle_set_state(tools->info_for(window), state);
-        }
+        handle_set_state(tools->info_for(window), state);
     }
 }
 

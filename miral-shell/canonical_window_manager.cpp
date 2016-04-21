@@ -537,24 +537,22 @@ bool CanonicalWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const*
     }
     else if (action == mir_keyboard_action_down && scan_code == KEY_F4)
     {
-        if (auto const application = tools->focused_application())
+        switch (modifiers & modifier_mask)
         {
-            switch (modifiers)
-            {
-            case mir_input_event_modifier_alt:
+        case mir_input_event_modifier_alt:
+            if (auto const application = tools->focused_application())
                 application.kill(SIGTERM);
-                return true;
 
-            case mir_input_event_modifier_ctrl:
-                if (auto const window = application.default_window())
-                {
-                    window.request_client_surface_close();
-                    return true;
-                }
+            return true;
 
-            default:
-                break;
-            }
+        case mir_input_event_modifier_ctrl:
+            if (auto const window = tools->focused_window())
+                window.request_client_surface_close();
+
+            return true;
+
+        default:
+            break;
         }
     }
     else if (action == mir_keyboard_action_down &&
@@ -768,16 +766,7 @@ auto CanonicalWindowManagerPolicy::select_active_window(Window const& hint) -> m
 auto CanonicalWindowManagerPolicy::active_window() const
 -> Window
 {
-    if (auto const window = active_window_)
-        return window;
-
-    if (auto const application = tools->focused_application())
-    {
-        if (auto const window = application.default_window())
-            return window;
-    }
-
-    return Window{};
+    return active_window_;
 }
 
 bool CanonicalWindowManagerPolicy::resize(Window const& window, Point cursor, Point old_cursor)

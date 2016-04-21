@@ -24,12 +24,6 @@
 
 #include <csignal>
 
-auto miral::Application::default_window() const
--> Window
-{
-    return tools->info_for(scene_session.lock()->default_surface()).window;
-}
-
 auto miral::Application::window_after(Window const& window) const
 -> Window
 {
