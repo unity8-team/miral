@@ -173,18 +173,6 @@ auto miral::Window::surface_id() const
     return self->id;
 }
 
-auto miral::Window::input_bounds() const
--> mir::geometry::Rectangle
-{
-    if (self)
-    {
-        if (auto const surface = self->surface.lock())
-            return surface->input_bounds();
-    }
-
-    return {};
-}
-
 auto miral::Window::input_area_contains(mir::geometry::Point const& point) const
 -> bool
 {

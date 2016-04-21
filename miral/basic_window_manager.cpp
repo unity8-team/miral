@@ -334,9 +334,9 @@ auto miral::BasicWindowManager::active_display()
 
     // 1. If a window has input focus, whichever display contains the largest
     //    proportion of the area of that window.
-    if (auto const window = focused_window())
+    if (auto const surface = focus_controller->focused_surface())
     {
-        auto const surface_rect = window.input_bounds();
+        auto const surface_rect = surface->input_bounds();
         int max_overlap_area = -1;
 
         for (auto const& display : displays)

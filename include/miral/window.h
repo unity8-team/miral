@@ -54,7 +54,6 @@ public:
     auto size()         const -> mir::geometry::Size;
     auto session()      const -> std::shared_ptr<mir::scene::Session>;
     auto surface_id()   const -> mir::frontend::SurfaceId;
-    auto input_bounds() const -> mir::geometry::Rectangle;
     auto input_area_contains(mir::geometry::Point const& point) const -> bool;
     void configure_streams(std::vector<StreamSpecification> const& config);
 
