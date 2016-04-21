@@ -41,8 +41,7 @@ namespace miral
 {
 class Application;
 
-/// Handle class to manage a Mir surface. It may be null (e.g. default initialized) in which case
-///
+/// Handle class to manage a Mir surface. It may be null (e.g. default initialized)
 class Window
 {
 public:
@@ -76,10 +75,8 @@ public:
 
     void request_client_surface_close() const;
 
-    // TODO remove this conversion which is convenient to maintain stable intermediate forms
+    // Access to the underlying Mir surface
     operator std::weak_ptr<mir::scene::Surface>() const;
-
-    // TODO remove this conversion which is convenient to maintain stable intermediate forms
     operator std::shared_ptr<mir::scene::Surface>() const;
 
 private:
