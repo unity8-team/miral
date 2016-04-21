@@ -426,10 +426,12 @@ void TilingWindowManagerPolicy::toggle(MirSurfaceState state)
 {
     if (auto window = tools->focused_window())
     {
-        if (window.state() == state)
+        auto& window_info = tools->info_for(window);
+
+        if (window_info.state == state)
             state = mir_surface_state_restored;
 
-        handle_set_state(tools->info_for(window), state);
+        handle_set_state(window_info, state);
     }
 }
 

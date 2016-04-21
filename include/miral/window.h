@@ -49,10 +49,8 @@ public:
     Window(std::shared_ptr <mir::scene::Session> const& session, mir::frontend::SurfaceId surface);
     ~Window();
 
-    auto state()        const -> MirSurfaceState;
     auto top_left()     const -> mir::geometry::Point;
     auto size()         const -> mir::geometry::Size;
-    auto surface_id()   const -> mir::frontend::SurfaceId;
     auto input_area_contains(mir::geometry::Point const& point) const -> bool;
 
     void configure_streams(std::vector<StreamSpecification> const& config);
@@ -73,6 +71,9 @@ public:
     void reset();
 
     void request_client_surface_close() const;
+
+    // Access to the underlying Mir surface id
+    auto surface_id()   const -> mir::frontend::SurfaceId;
 
     // Access to the underlying Mir session
     auto session()      const -> std::shared_ptr<mir::scene::Session>;

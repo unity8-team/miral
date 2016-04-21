@@ -123,18 +123,6 @@ void miral::Window::request_client_surface_close() const
         surface->request_client_surface_close();
 }
 
-auto miral::Window::state() const
--> MirSurfaceState
-{
-    if (self)
-    {
-        if (auto const surface = self->surface.lock())
-            return surface->state();
-    }
-
-    return mir_surface_state_unknown;
-}
-
 auto miral::Window::top_left() const
 -> mir::geometry::Point
 {
