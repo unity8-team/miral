@@ -23,6 +23,7 @@
 #include "miral/window_specification.h"
 
 #include <linux/input.h>
+#include <algorithm>
 #include <csignal>
 
 namespace ms = mir::scene;
@@ -316,11 +317,18 @@ bool TilingWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* ev
     {
         if (auto const prev = tools->focused_window())
         {
-            if (auto const app = tools->focused_application())
-                if (auto const window = app.window_after(prev))
-                {
-                    select_active_window(tools->info_for(window).window);
-                }
+            auto const& siblings = tools->info_for(prev.session()).windows;
+            auto current = find(begin(siblings), end(siblings), prev);
+
+            while (current != end(siblings) && prev == select_active_window(*current))
+                ++current;
+
+            if (current == end(siblings))
+            {
+                current = begin(siblings);
+                while (prev != *current && prev == select_active_window(*current))
+                    ++current;
+            }
         }
 
         return true;

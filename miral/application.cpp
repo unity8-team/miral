@@ -24,12 +24,6 @@
 
 #include <csignal>
 
-auto miral::Application::window_after(Window const& window) const
--> Window
-{
-    return tools->info_for(scene_session.lock()->surface_after(window)).window;
-}
-
 auto miral::Application::kill(int sig) const -> int
 {
     return ::kill(scene_session.lock()->process_id(), sig);

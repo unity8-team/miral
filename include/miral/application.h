@@ -37,7 +37,6 @@ public:
     explicit Application(WindowManagerTools const* tools, std::weak_ptr<mir::scene::Session> const& scene_session) :
         tools(tools), scene_session{scene_session} {}
 
-    auto window_after(Window const& window) const   -> Window;
     auto kill(int sig) const -> int;
 
     operator bool() const { return !!scene_session.lock(); }
