@@ -259,7 +259,7 @@ void CanonicalWindowManagerPolicy::generate_decorations_for(WindowInfo& window_i
     params.top_left() = titlebar_position_for_window(window.top_left());
     params.type() = mir_surface_type_gloss;
 
-    auto& titlebar_info = tools->build_window(window.session(), params);
+    auto& titlebar_info = tools->build_window(window.application(), params);
     titlebar_info.window.set_alpha(0.9);
     titlebar_info.parent = window;
 
@@ -572,7 +572,7 @@ bool CanonicalWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const*
     {
         if (auto const prev = tools->focused_window())
         {
-            auto const& siblings = tools->info_for(prev.session()).windows;
+            auto const& siblings = tools->info_for(prev.application()).windows;
             auto current = find(begin(siblings), end(siblings), prev);
 
             while (current != end(siblings) && prev == select_active_window(*current))

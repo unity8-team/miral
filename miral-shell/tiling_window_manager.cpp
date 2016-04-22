@@ -206,7 +206,7 @@ auto TilingWindowManagerPolicy::transform_set_state(WindowInfo& window_info, Mir
         return window_info.state;
     }
 
-    auto const& tile = tile_for(tools->info_for(window_info.window.session()));
+    auto const& tile = tile_for(tools->info_for(window_info.window.application()));
 
     switch (value)
     {
@@ -317,7 +317,7 @@ bool TilingWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* ev
     {
         if (auto const prev = tools->focused_window())
         {
-            auto const& siblings = tools->info_for(prev.session()).windows;
+            auto const& siblings = tools->info_for(prev.application()).windows;
             auto current = find(begin(siblings), end(siblings), prev);
 
             while (current != end(siblings) && prev == select_active_window(*current))
@@ -443,9 +443,9 @@ auto TilingWindowManagerPolicy::application_under(Point position)
 
 void TilingWindowManagerPolicy::update_tiles(Rectangles const& displays)
 {
-    auto const sessions = tools->count_applications();
+    auto const applications = tools->count_applications();
 
-    if (sessions < 1 || displays.size() < 1) return;
+    if (applications < 1 || displays.size() < 1) return;
 
     auto const bounding_rect = displays.bounding_rectangle();
 
@@ -461,9 +461,9 @@ void TilingWindowManagerPolicy::update_tiles(Rectangles const& displays)
 
             auto& tile = tile_for(info);
 
-            auto const x = (total_width * index) / sessions;
+            auto const x = (total_width * index) / applications;
             ++index;
-            auto const dx = (total_width * index) / sessions - x;
+            auto const dx = (total_width * index) / applications - x;
 
             auto const old_tile = tile;
             Rectangle const new_tile{{x,  0},

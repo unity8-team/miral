@@ -174,7 +174,7 @@ bool KioskWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* eve
     {
         if (auto const prev = tools->focused_window())
         {
-            auto const& siblings = tools->info_for(prev.session()).windows;
+            auto const& siblings = tools->info_for(prev.application()).windows;
             auto current = find(begin(siblings), end(siblings), prev);
 
             while (current != end(siblings) && prev == select_active_window(*current))

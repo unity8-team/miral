@@ -103,7 +103,7 @@ auto miral::BasicWindowManager::add_surface(
 }
 
 void miral::BasicWindowManager::modify_surface(
-    std::shared_ptr<scene::Session> const& /*session*/,
+    std::shared_ptr<scene::Session> const& /*application*/,
     std::shared_ptr<scene::Surface> const& surface,
     shell::SurfaceSpecification const& modifications)
 {
@@ -178,7 +178,7 @@ void miral::BasicWindowManager::remove_surface(
 
 void miral::BasicWindowManager::destroy(Window& window)
 {
-    window.session()->destroy_surface(window.surface_id());
+    window.application()->destroy_surface(window.surface_id());
     window_info.erase(window);
 }
 
@@ -223,7 +223,7 @@ bool miral::BasicWindowManager::handle_pointer_event(MirPointerEvent const* even
 }
 
 void miral::BasicWindowManager::handle_raise_surface(
-    std::shared_ptr<scene::Session> const& /*session*/,
+    std::shared_ptr<scene::Session> const& /*application*/,
     std::shared_ptr<scene::Surface> const& surface,
     uint64_t timestamp)
 {
@@ -233,7 +233,7 @@ void miral::BasicWindowManager::handle_raise_surface(
 }
 
 int miral::BasicWindowManager::set_surface_attribute(
-    std::shared_ptr<scene::Session> const& /*session*/,
+    std::shared_ptr<scene::Session> const& /*application*/,
     std::shared_ptr<scene::Surface> const& surface,
     MirSurfaceAttrib attrib,
     int value)
@@ -317,7 +317,7 @@ void miral::BasicWindowManager::focus_next_application()
 
 void miral::BasicWindowManager::set_focus_to(Window const& window)
 {
-    focus_controller->set_focus_to(window.session(), window);
+    focus_controller->set_focus_to(window.application(), window);
 }
 
 auto miral::BasicWindowManager::window_at(geometry::Point cursor) const

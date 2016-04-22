@@ -51,6 +51,8 @@ public:
     auto top_left()     const -> mir::geometry::Point;
     auto size()         const -> mir::geometry::Size;
     auto input_area_contains(mir::geometry::Point const& point) const -> bool;
+    auto application()  const -> Application;
+
 
     void configure_streams(std::vector<StreamSpecification> const& config);
 
@@ -73,9 +75,6 @@ public:
 
     // Access to the underlying Mir surface id
     auto surface_id()   const -> mir::frontend::SurfaceId;
-
-    // Access to the underlying Mir session
-    auto session()      const -> std::shared_ptr<mir::scene::Session>;
 
     // Access to the underlying Mir surface
     operator std::weak_ptr<mir::scene::Surface>() const;

@@ -147,8 +147,8 @@ auto miral::Window::size() const
     return {};
 }
 
-auto miral::Window::session() const
--> std::shared_ptr<mir::scene::Session>
+auto miral::Window::application() const
+-> Application
 {
     if (!self) return {};
     return self->session.lock();
@@ -184,7 +184,7 @@ void miral::Window::configure_streams(std::vector<StreamSpecification> const& co
         for (auto const& stream : config)
             dest.push_back(mir::shell::StreamSpecification{mir::frontend::BufferStreamId{stream.stream_id.as_value()}, stream.displacement});
 
-        session()->configure_streams(*surface, dest);
+        application()->configure_streams(*surface, dest);
     }
 }
 

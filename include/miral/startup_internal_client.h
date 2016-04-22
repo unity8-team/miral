@@ -34,7 +34,7 @@ namespace miral
  *  \note connection_notification will be called on a worker thread and must not block
  *
  *  \param client_code              code implementing the internal client
- *  \param connection_notification  handler for registering the server-side session
+ *  \param connection_notification  handler for registering the server-side application
  */
 class StartupInternalClient
 {
