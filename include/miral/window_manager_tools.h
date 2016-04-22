@@ -26,7 +26,7 @@
 
 namespace mir
 {
-namespace scene { class Session; class Surface; }
+namespace scene { class Surface; }
 }
 
 
@@ -43,9 +43,7 @@ class WindowSpecification;
 class WindowManagerTools
 {
 public:
-    virtual auto build_window(
-        std::shared_ptr<mir::scene::Session> const& session,
-        WindowSpecification const& parameters)
+    virtual auto build_window(Application const& application, WindowSpecification const& parameters)
     -> WindowInfo& = 0;
     virtual auto count_applications() const -> unsigned int = 0;
     virtual void for_each_application(std::function<void(ApplicationInfo& info)> const& functor) = 0;

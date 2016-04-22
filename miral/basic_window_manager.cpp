@@ -38,14 +38,13 @@ miral::BasicWindowManager::BasicWindowManager(
 {
 }
 
-auto miral::BasicWindowManager::build_window(
-    std::shared_ptr<scene::Session> const& session, WindowSpecification const& spec)
+auto miral::BasicWindowManager::build_window(Application const& application, WindowSpecification const& spec)
 -> WindowInfo&
 {
     scene::SurfaceCreationParameters parameters;
     spec.update(parameters);
 
-    auto result = surface_builder(session, parameters);
+    auto result = surface_builder(application, parameters);
     auto& info = window_info.emplace(result, WindowInfo{result, parameters}).first->second;
     if (auto const parent = parameters.parent.lock())
         info.parent = info_for(parent).window;
