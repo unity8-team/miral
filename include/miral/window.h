@@ -34,7 +34,7 @@
 
 namespace mir
 {
-namespace scene { class Session; class Surface; }
+namespace scene { class Surface; }
 namespace shell { class StreamSpecification; }
 }
 
@@ -45,7 +45,7 @@ class Window
 {
 public:
     Window();
-    Window(std::shared_ptr <mir::scene::Session> const& session, mir::frontend::SurfaceId surface);
+    Window(Application const& application, mir::frontend::SurfaceId surface);
     ~Window();
 
     auto top_left()     const -> mir::geometry::Point;

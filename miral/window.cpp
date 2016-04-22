@@ -34,8 +34,8 @@ struct miral::Window::Self
 miral::Window::Self::Self(std::shared_ptr<mir::scene::Session> const& session, mir::frontend::SurfaceId surface) :
     id{surface}, session{session}, surface{session->surface(surface)} {}
 
-miral::Window::Window(std::shared_ptr<mir::scene::Session> const& session, mir::frontend::SurfaceId surface) :
-    self{std::make_shared<Self>(session, surface)}
+miral::Window::Window(Application const& application, mir::frontend::SurfaceId surface) :
+    self{std::make_shared<Self>(application, surface)}
 {
 }
 
