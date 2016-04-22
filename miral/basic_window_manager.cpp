@@ -272,11 +272,11 @@ auto miral::BasicWindowManager::find_application(std::function<bool(ApplicationI
     {
         if (predicate(info.second))
         {
-            return Application{this, info.first};
+            return Application{info.first};
         }
     }
 
-    return Application{this, {}};
+    return Application{};
 }
 
 auto miral::BasicWindowManager::info_for(std::weak_ptr<scene::Session> const& session) const
@@ -300,7 +300,7 @@ auto miral::BasicWindowManager::info_for(Window const& window) const
 auto miral::BasicWindowManager::focused_application() const
 -> Application
 {
-    return Application{this, focus_controller->focused_session() };
+    return focus_controller->focused_session();
 }
 
 auto miral::BasicWindowManager::focused_window() const

@@ -28,36 +28,9 @@ namespace scene { class Session; }
 
 namespace miral
 {
-class Window;
-class WindowManagerTools;
+using Application = std::shared_ptr<mir::scene::Session>;
 
-class Application
-{
-public:
-    explicit Application(WindowManagerTools const* tools, std::weak_ptr<mir::scene::Session> const& scene_session) :
-        tools(tools), scene_session{scene_session} {}
-
-    auto kill(int sig) const -> int;
-
-    operator bool() const { return !!scene_session.lock(); }
-    operator std::weak_ptr<mir::scene::Session>() const { return scene_session; }
-    operator std::shared_ptr<mir::scene::Session>() const { return scene_session.lock(); }
-
-private:
-    WindowManagerTools const* tools;
-    std::weak_ptr<mir::scene::Session> scene_session;
-    friend bool operator==(Application const& lhs, Application const& rhs);
-    friend bool operator==(std::shared_ptr<mir::scene::Session> const& lhs, Application const& rhs);
-    friend bool operator==(Application const& lhs, std::shared_ptr<mir::scene::Session> const& rhs);
-};
-
-bool operator==(Application const& lhs, Application const& rhs);
-bool operator==(std::shared_ptr<mir::scene::Session> const& lhs, Application const& rhs);
-bool operator==(Application const& lhs, Application const& rhs);
-
-inline bool operator!=(Application const& lhs, Application const& rhs) { return !(lhs == rhs); }
-inline bool operator!=(std::shared_ptr<mir::scene::Session> const& lhs, Application const& rhs) { return !(lhs == rhs); }
-inline bool operator!=(Application const& lhs, std::shared_ptr<mir::scene::Session> const& rhs) { return !(lhs == rhs); }
+void kill(std::shared_ptr<mir::scene::Session> const& application, int sig);
 }
 
 #endif //MIRAL_APPLICATION_H

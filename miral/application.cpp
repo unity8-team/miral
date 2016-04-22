@@ -17,29 +17,13 @@
  */
 
 #include "miral/application.h"
-#include "miral/window_info.h"
-#include "miral/window_manager_tools.h"
 
 #include <mir/scene/session.h>
 
 #include <csignal>
 
-auto miral::Application::kill(int sig) const -> int
+void miral::kill(std::shared_ptr<mir::scene::Session> const& application, int sig)
 {
-    return ::kill(scene_session.lock()->process_id(), sig);
-}
-
-bool miral::operator==(Application const& lhs, Application const& rhs)
-{
-    return !lhs.scene_session.owner_before(rhs.scene_session) && !rhs.scene_session.owner_before(lhs.scene_session);
-}
-
-bool miral::operator==(std::shared_ptr<mir::scene::Session> const& lhs, Application const& rhs)
-{
-    return !lhs.owner_before(rhs.scene_session) && !rhs.scene_session.owner_before(lhs);
-}
-
-bool miral::operator==(Application const& lhs, std::shared_ptr<mir::scene::Session> const& rhs)
-{
-    return rhs == lhs;
+    if (application)
+        ::kill(application->process_id(), sig);
 }

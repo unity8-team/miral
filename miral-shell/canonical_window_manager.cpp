@@ -542,7 +542,7 @@ bool CanonicalWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const*
         {
         case mir_input_event_modifier_alt:
             if (auto const application = tools->focused_application())
-                application.kill(SIGTERM);
+                miral::kill(application, SIGTERM);
 
             return true;
 

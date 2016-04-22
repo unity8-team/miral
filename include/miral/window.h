@@ -19,6 +19,7 @@
 #ifndef MIRAL_WINDOW_H
 #define MIRAL_WINDOW_H
 
+#include "miral/application.h"
 #include "miral/stream_specification.h"
 
 #include <mir_toolkit/common.h>
@@ -39,8 +40,6 @@ namespace shell { class StreamSpecification; }
 
 namespace miral
 {
-class Application;
-
 /// Handle class to manage a Mir surface. It may be null (e.g. default initialized)
 class Window
 {

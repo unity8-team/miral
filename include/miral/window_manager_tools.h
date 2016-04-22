@@ -19,6 +19,7 @@
 #ifndef MIRAL_WINDOW_MANAGER_TOOLS_H
 #define MIRAL_WINDOW_MANAGER_TOOLS_H
 
+#include "miral/application.h"
 #include "miral/stream_specification.h"
 
 #include <memory>
@@ -32,7 +33,6 @@ namespace scene { class Session; class Surface; }
 namespace miral
 {
 class Window;
-class Application;
 struct WindowInfo;
 struct ApplicationInfo;
 class WindowSpecification;
