@@ -27,7 +27,7 @@
 
 namespace mir
 {
-namespace scene { class Session; struct SurfaceCreationParameters; }
+namespace scene { struct SurfaceCreationParameters; }
 namespace shell { struct SurfaceSpecification; }
 }
 
