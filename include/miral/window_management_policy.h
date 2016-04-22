@@ -24,10 +24,10 @@
 
 namespace miral
 {
-class ApplicationInfo;
 class Window;
-class WindowInfo;
 class WindowSpecification;
+struct ApplicationInfo;
+struct WindowInfo;
 
 class WindowManagementPolicy
 {
