@@ -30,7 +30,7 @@ namespace miral
 {
 using Application = std::shared_ptr<mir::scene::Session>;
 
-void kill(std::shared_ptr<mir::scene::Session> const& application, int sig);
+void kill(Application const& application, int sig);
 }
 
 #endif //MIRAL_APPLICATION_H

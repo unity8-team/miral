@@ -22,7 +22,7 @@
 
 #include <csignal>
 
-void miral::kill(std::shared_ptr<mir::scene::Session> const& application, int sig)
+void miral::kill(Application const& application, int sig)
 {
     if (application)
         ::kill(application->process_id(), sig);
