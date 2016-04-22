@@ -18,9 +18,9 @@
 
 #include "tiling_window_manager.h"
 
-#include "miral/application.h"
+#include "miral/application_info.h"
+#include "miral/window_info.h"
 #include "miral/window_manager_tools.h"
-#include "miral/window_specification.h"
 
 #include <linux/input.h>
 #include <algorithm>
