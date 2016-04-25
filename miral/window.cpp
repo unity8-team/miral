@@ -34,8 +34,8 @@ struct miral::Window::Self
 miral::Window::Self::Self(std::shared_ptr<mir::scene::Session> const& session, mir::frontend::SurfaceId surface) :
     id{surface}, session{session}, surface{session->surface(surface)} {}
 
-miral::Window::Window(std::shared_ptr<mir::scene::Session> const& session, mir::frontend::SurfaceId surface) :
-    self{std::make_shared<Self>(session, surface)}
+miral::Window::Window(Application const& application, mir::frontend::SurfaceId surface) :
+    self{std::make_shared<Self>(application, surface)}
 {
 }
 
@@ -123,18 +123,6 @@ void miral::Window::request_client_surface_close() const
         surface->request_client_surface_close();
 }
 
-auto miral::Window::state() const
--> MirSurfaceState
-{
-    if (self)
-    {
-        if (auto const surface = self->surface.lock())
-            return surface->state();
-    }
-
-    return mir_surface_state_unknown;
-}
-
 auto miral::Window::top_left() const
 -> mir::geometry::Point
 {
@@ -159,8 +147,8 @@ auto miral::Window::size() const
     return {};
 }
 
-auto miral::Window::session() const
--> std::shared_ptr<mir::scene::Session>
+auto miral::Window::application() const
+-> Application
 {
     if (!self) return {};
     return self->session.lock();
@@ -171,18 +159,6 @@ auto miral::Window::surface_id() const
 {
     if (!self) return {};
     return self->id;
-}
-
-auto miral::Window::input_bounds() const
--> mir::geometry::Rectangle
-{
-    if (self)
-    {
-        if (auto const surface = self->surface.lock())
-            return surface->input_bounds();
-    }
-
-    return {};
 }
 
 auto miral::Window::input_area_contains(mir::geometry::Point const& point) const
@@ -208,7 +184,7 @@ void miral::Window::configure_streams(std::vector<StreamSpecification> const& co
         for (auto const& stream : config)
             dest.push_back(mir::shell::StreamSpecification{mir::frontend::BufferStreamId{stream.stream_id.as_value()}, stream.displacement});
 
-        session()->configure_streams(*surface, dest);
+        application()->configure_streams(*surface, dest);
     }
 }
 

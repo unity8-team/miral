@@ -55,8 +55,7 @@ public:
         std::shared_ptr<mir::shell::DisplayLayout> const& display_layout,
         WindowManagementPolicyBuilder const& build);
 
-    auto build_window(
-        std::shared_ptr<mir::scene::Session> const& session, WindowSpecification const& spec)
+    auto build_window(Application const& application, WindowSpecification const& spec)
     -> WindowInfo& override;
 
     void add_session(std::shared_ptr<mir::scene::Session> const& session) override;
@@ -96,7 +95,7 @@ public:
         uint64_t timestamp) override;
 
     int set_surface_attribute(
-        std::shared_ptr<mir::scene::Session> const& /*session*/,
+        std::shared_ptr<mir::scene::Session> const& /*application*/,
         std::shared_ptr<mir::scene::Surface> const& surface,
         MirSurfaceAttrib attrib,
         int value) override;

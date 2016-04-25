@@ -20,11 +20,12 @@
 #include "titlebar/canonical_window_management_policy_data.h"
 #include "spinner/splash.h"
 
-#include "miral/application.h"
+#include "miral/application_info.h"
+#include "miral/window_info.h"
 #include "miral/window_manager_tools.h"
-#include "miral/window_specification.h"
 
 #include <linux/input.h>
+#include <algorithm>
 #include <csignal>
 
 namespace ms = mir::scene;
@@ -258,7 +259,7 @@ void CanonicalWindowManagerPolicy::generate_decorations_for(WindowInfo& window_i
     params.top_left() = titlebar_position_for_window(window.top_left());
     params.type() = mir_surface_type_gloss;
 
-    auto& titlebar_info = tools->build_window(window.session(), params);
+    auto& titlebar_info = tools->build_window(window.application(), params);
     titlebar_info.window.set_alpha(0.9);
     titlebar_info.parent = window;
 
@@ -537,24 +538,22 @@ bool CanonicalWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const*
     }
     else if (action == mir_keyboard_action_down && scan_code == KEY_F4)
     {
-        if (auto const application = tools->focused_application())
+        switch (modifiers & modifier_mask)
         {
-            switch (modifiers)
-            {
-            case mir_input_event_modifier_alt:
-                application.kill(SIGTERM);
-                return true;
+        case mir_input_event_modifier_alt:
+            if (auto const application = tools->focused_application())
+                miral::kill(application, SIGTERM);
 
-            case mir_input_event_modifier_ctrl:
-                if (auto const window = application.default_window())
-                {
-                    window.request_client_surface_close();
-                    return true;
-                }
+            return true;
 
-            default:
-                break;
-            }
+        case mir_input_event_modifier_ctrl:
+            if (auto const window = tools->focused_window())
+                window.request_client_surface_close();
+
+            return true;
+
+        default:
+            break;
         }
     }
     else if (action == mir_keyboard_action_down &&
@@ -573,8 +572,18 @@ bool CanonicalWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const*
     {
         if (auto const prev = tools->focused_window())
         {
-            if (auto const app = tools->focused_application())
-                select_active_window(app.window_after(prev));
+            auto const& siblings = tools->info_for(prev.application()).windows;
+            auto current = find(begin(siblings), end(siblings), prev);
+
+            while (current != end(siblings) && prev == select_active_window(*current))
+                ++current;
+
+            if (current == end(siblings))
+            {
+                current = begin(siblings);
+                while (prev != *current && prev == select_active_window(*current))
+                    ++current;
+            }
         }
 
         return true;
@@ -768,16 +777,7 @@ auto CanonicalWindowManagerPolicy::select_active_window(Window const& hint) -> m
 auto CanonicalWindowManagerPolicy::active_window() const
 -> Window
 {
-    if (auto const window = active_window_)
-        return window;
-
-    if (auto const application = tools->focused_application())
-    {
-        if (auto const window = application.default_window())
-            return window;
-    }
-
-    return Window{};
+    return active_window_;
 }
 
 bool CanonicalWindowManagerPolicy::resize(Window const& window, Point cursor, Point old_cursor)

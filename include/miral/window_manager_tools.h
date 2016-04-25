@@ -19,20 +19,20 @@
 #ifndef MIRAL_WINDOW_MANAGER_TOOLS_H
 #define MIRAL_WINDOW_MANAGER_TOOLS_H
 
+#include "miral/application.h"
 #include "miral/stream_specification.h"
 
 #include <memory>
 
 namespace mir
 {
-namespace scene { class Session; class Surface; }
+namespace scene { class Surface; }
 }
 
 
 namespace miral
 {
 class Window;
-class Application;
 struct WindowInfo;
 struct ApplicationInfo;
 class WindowSpecification;
@@ -43,9 +43,7 @@ class WindowSpecification;
 class WindowManagerTools
 {
 public:
-    virtual auto build_window(
-        std::shared_ptr<mir::scene::Session> const& session,
-        WindowSpecification const& parameters)
+    virtual auto build_window(Application const& application, WindowSpecification const& parameters)
     -> WindowInfo& = 0;
     virtual auto count_applications() const -> unsigned int = 0;
     virtual void for_each_application(std::function<void(ApplicationInfo& info)> const& functor) = 0;

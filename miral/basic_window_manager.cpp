@@ -38,14 +38,13 @@ miral::BasicWindowManager::BasicWindowManager(
 {
 }
 
-auto miral::BasicWindowManager::build_window(
-    std::shared_ptr<scene::Session> const& session, WindowSpecification const& spec)
+auto miral::BasicWindowManager::build_window(Application const& application, WindowSpecification const& spec)
 -> WindowInfo&
 {
     scene::SurfaceCreationParameters parameters;
     spec.update(parameters);
 
-    auto result = surface_builder(session, parameters);
+    auto result = surface_builder(application, parameters);
     auto& info = window_info.emplace(result, WindowInfo{result, parameters}).first->second;
     if (auto const parent = parameters.parent.lock())
         info.parent = info_for(parent).window;
@@ -103,7 +102,7 @@ auto miral::BasicWindowManager::add_surface(
 }
 
 void miral::BasicWindowManager::modify_surface(
-    std::shared_ptr<scene::Session> const& /*session*/,
+    std::shared_ptr<scene::Session> const& /*application*/,
     std::shared_ptr<scene::Surface> const& surface,
     shell::SurfaceSpecification const& modifications)
 {
@@ -178,7 +177,7 @@ void miral::BasicWindowManager::remove_surface(
 
 void miral::BasicWindowManager::destroy(Window& window)
 {
-    window.session()->destroy_surface(window.surface_id());
+    window.application()->destroy_surface(window.surface_id());
     window_info.erase(window);
 }
 
@@ -223,7 +222,7 @@ bool miral::BasicWindowManager::handle_pointer_event(MirPointerEvent const* even
 }
 
 void miral::BasicWindowManager::handle_raise_surface(
-    std::shared_ptr<scene::Session> const& /*session*/,
+    std::shared_ptr<scene::Session> const& /*application*/,
     std::shared_ptr<scene::Surface> const& surface,
     uint64_t timestamp)
 {
@@ -233,7 +232,7 @@ void miral::BasicWindowManager::handle_raise_surface(
 }
 
 int miral::BasicWindowManager::set_surface_attribute(
-    std::shared_ptr<scene::Session> const& /*session*/,
+    std::shared_ptr<scene::Session> const& /*application*/,
     std::shared_ptr<scene::Surface> const& surface,
     MirSurfaceAttrib attrib,
     int value)
@@ -272,11 +271,11 @@ auto miral::BasicWindowManager::find_application(std::function<bool(ApplicationI
     {
         if (predicate(info.second))
         {
-            return Application{this, info.first};
+            return Application{info.first};
         }
     }
 
-    return Application{this, {}};
+    return Application{};
 }
 
 auto miral::BasicWindowManager::info_for(std::weak_ptr<scene::Session> const& session) const
@@ -300,7 +299,7 @@ auto miral::BasicWindowManager::info_for(Window const& window) const
 auto miral::BasicWindowManager::focused_application() const
 -> Application
 {
-    return Application{this, focus_controller->focused_session() };
+    return focus_controller->focused_session();
 }
 
 auto miral::BasicWindowManager::focused_window() const
@@ -317,7 +316,7 @@ void miral::BasicWindowManager::focus_next_application()
 
 void miral::BasicWindowManager::set_focus_to(Window const& window)
 {
-    focus_controller->set_focus_to(window.session(), window);
+    focus_controller->set_focus_to(window.application(), window);
 }
 
 auto miral::BasicWindowManager::window_at(geometry::Point cursor) const
@@ -334,9 +333,9 @@ auto miral::BasicWindowManager::active_display()
 
     // 1. If a window has input focus, whichever display contains the largest
     //    proportion of the area of that window.
-    if (auto const window = focused_window())
+    if (auto const surface = focus_controller->focused_surface())
     {
-        auto const surface_rect = window.input_bounds();
+        auto const surface_rect = surface->input_bounds();
         int max_overlap_area = -1;
 
         for (auto const& display : displays)

@@ -19,14 +19,15 @@
 #ifndef MIRAL_WINDOW_MANAGEMENT_POLICY_H
 #define MIRAL_WINDOW_MANAGEMENT_POLICY_H
 
-#include "miral/window_info.h"
-#include "miral/application_info.h"
-
+#include <mir/geometry/rectangles.h>
 #include <mir_toolkit/event.h>
 
 namespace miral
 {
+class Window;
 class WindowSpecification;
+struct ApplicationInfo;
+struct WindowInfo;
 
 class WindowManagementPolicy
 {
@@ -47,7 +48,7 @@ public:
     virtual bool handle_pointer_event(MirPointerEvent const* event) = 0;
     virtual void handle_raise_window(WindowInfo& window_info) = 0;
 
-    virtual auto select_active_window(miral::Window const& hint) -> miral::Window = 0;
+    virtual auto select_active_window(Window const& hint) -> Window = 0;
 
     virtual ~WindowManagementPolicy() = default;
     WindowManagementPolicy() = default;

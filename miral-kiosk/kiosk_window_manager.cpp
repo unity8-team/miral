@@ -18,10 +18,13 @@
 
 #include "kiosk_window_manager.h"
 
-#include "miral/application.h"
+#include "miral/application_info.h"
+#include "miral/window_info.h"
 #include "miral/window_manager_tools.h"
 
 #include <linux/input.h>
+
+#include <algorithm>
 
 namespace ms = mir::scene;
 using namespace miral;
@@ -172,11 +175,18 @@ bool KioskWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* eve
     {
         if (auto const prev = tools->focused_window())
         {
-            if (auto const app = tools->focused_application())
-                if (auto const window = app.window_after(prev))
-                {
-                    select_active_window(tools->info_for(window).window);
-                }
+            auto const& siblings = tools->info_for(prev.application()).windows;
+            auto current = find(begin(siblings), end(siblings), prev);
+
+            while (current != end(siblings) && prev == select_active_window(*current))
+                ++current;
+
+            if (current == end(siblings))
+            {
+                current = begin(siblings);
+                while (prev != *current && prev == select_active_window(*current))
+                    ++current;
+            }
         }
 
         return true;

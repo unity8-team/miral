@@ -19,6 +19,7 @@
 #ifndef MIRAL_WINDOW_H
 #define MIRAL_WINDOW_H
 
+#include "miral/application.h"
 #include "miral/stream_specification.h"
 
 #include <mir_toolkit/common.h>
@@ -33,30 +34,26 @@
 
 namespace mir
 {
-namespace scene { class Session; class Surface; }
+namespace scene { class Surface; }
 namespace shell { class StreamSpecification; }
 }
 
 namespace miral
 {
-class Application;
-
-/// Handle class to manage a Mir surface. It may be null (e.g. default initialized) in which case
-///
+/// Handle class to manage a Mir surface. It may be null (e.g. default initialized)
 class Window
 {
 public:
     Window();
-    Window(std::shared_ptr <mir::scene::Session> const& session, mir::frontend::SurfaceId surface);
+    Window(Application const& application, mir::frontend::SurfaceId surface);
     ~Window();
 
-    auto state()        const -> MirSurfaceState;
     auto top_left()     const -> mir::geometry::Point;
     auto size()         const -> mir::geometry::Size;
-    auto session()      const -> std::shared_ptr<mir::scene::Session>;
-    auto surface_id()   const -> mir::frontend::SurfaceId;
-    auto input_bounds() const -> mir::geometry::Rectangle;
     auto input_area_contains(mir::geometry::Point const& point) const -> bool;
+    auto application()  const -> Application;
+
+
     void configure_streams(std::vector<StreamSpecification> const& config);
 
     // Indicates that the Window isn't null
@@ -76,10 +73,11 @@ public:
 
     void request_client_surface_close() const;
 
-    // TODO remove this conversion which is convenient to maintain stable intermediate forms
-    operator std::weak_ptr<mir::scene::Surface>() const;
+    // Access to the underlying Mir surface id
+    auto surface_id()   const -> mir::frontend::SurfaceId;
 
-    // TODO remove this conversion which is convenient to maintain stable intermediate forms
+    // Access to the underlying Mir surface
+    operator std::weak_ptr<mir::scene::Surface>() const;
     operator std::shared_ptr<mir::scene::Surface>() const;
 
 private:
