@@ -246,7 +246,7 @@ void CanonicalWindowManagerPolicy::generate_decorations_for(WindowInfo& window_i
 {
     Window const& window = window_info.window;
 
-    if (!WindowInfo::needs_titlebar(window.type()))
+    if (!window_info.needs_titlebar(window_info.type))
         return;
 
     auto format = mir_pixel_format_xrgb_8888;
