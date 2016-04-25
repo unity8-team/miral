@@ -27,6 +27,11 @@ target_link_libraries(miral
         ${MIRSERVER_LDFLAGS}
 )
 
-install(TARGETS miral
-    LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/miral.pc.in
+    ${CMAKE_CURRENT_BINARY_DIR}/miral.pc
+    @ONLY
 )
+
+install(TARGETS     miral                                   DESTINATION "lib")
+install(DIRECTORY   ${CMAKE_SOURCE_DIR}/include/            DESTINATION "include/mircommon")
+install(FILES       ${CMAKE_CURRENT_BINARY_DIR}/miral.pc    DESTINATION "lib/pkgconfig")

@@ -1,0 +1,11 @@
+prefix=@PREFIX@
+exec_prefix=@EXEC_PREFIX@
+libdir=@LIBDIR@
+includedir=@INCLUDEDIR@/miral
+
+Name: miral
+Description: Mir Abstraction Layer library
+Version: @MIRAL_VERSION@
+Requires: mirclient
+Libs: -L${libdir} -lmiral
+Cflags: -I${includedir}
