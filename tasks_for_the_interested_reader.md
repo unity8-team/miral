@@ -56,13 +56,10 @@ additions to libmiral to expose additional Mir functionality.
  - Launching internal clients. Currently a short animation is played on
    startup. Shells ought to be able to launch internal clients at any time.
    
- - launching external clients. There's currently an option to launch the
+ - launching external clients. There's currently an option to launch e.g. the
    gnome-terminal at startup. This would be better with Ctrl-Alt-T. But note, 
    forking from a running server (with multiple threads and owning system
    resources) is a Bad Idea(tm).
-   
- - launching startup applications. There's currently an option to launch the
-   gnome-terminal at startup. A more general approach is desirable.
    
  - Wallpaper. The default black background is boring.
   
@@ -76,6 +73,12 @@ additions to libmiral to expose additional Mir functionality.
    represents a group of windows that can be switched away from (hidden) or 
    to (shown) in a single action. Each window belongs in a single virtual
    workspace.
+   
+ - Compositing effects. There needs to be an API for coding "effects" within
+   the compositor (spreads, wobbly windows, shadows).
+
+ - Customizing compositing. There needs to be a mechanism for loading custom
+   compositing effects. E.g. specifying a module (or modules) to load.
 
 
 The tiling window management strategy
