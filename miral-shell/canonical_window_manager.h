@@ -108,6 +108,10 @@ private:
     using FullscreenSurfaces = std::set<miral::Window>;
 
     FullscreenSurfaces fullscreen_surfaces;
+
+    bool resizing = false;
+    bool left_resize = false;
+    bool top_resize  = false;
 };
 
 #endif /* MIRAL_SHELL_CANONICAL_WINDOW_MANAGER_H_ */
