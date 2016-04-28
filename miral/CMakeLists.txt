@@ -27,11 +27,14 @@ target_link_libraries(miral
         ${MIRSERVER_LDFLAGS}
 )
 
+set(LIBDIR "${CMAKE_INSTALL_PREFIX}/lib")
+set(INCLUDEDIR "${CMAKE_INSTALL_PREFIX}/include/miral")
+
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/miral.pc.in
     ${CMAKE_CURRENT_BINARY_DIR}/miral.pc
     @ONLY
 )
 
-install(TARGETS     miral                                   DESTINATION "lib")
-install(DIRECTORY   ${CMAKE_SOURCE_DIR}/include/            DESTINATION "include/miral")
-install(FILES       ${CMAKE_CURRENT_BINARY_DIR}/miral.pc    DESTINATION "lib/pkgconfig")
+install(TARGETS     miral                           LIBRARY DESTINATION "${LIBDIR}")
+install(DIRECTORY   ${CMAKE_SOURCE_DIR}/include/            DESTINATION "${INCLUDEDIR}")
+install(FILES       ${CMAKE_CURRENT_BINARY_DIR}/miral.pc    DESTINATION "${LIBDIR}/pkgconfig")

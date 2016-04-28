@@ -1,7 +1,5 @@
-prefix=@PREFIX@
-exec_prefix=@EXEC_PREFIX@
 libdir=@LIBDIR@
-includedir=@INCLUDEDIR@/miral
+includedir=@INCLUDEDIR@
 
 Name: miral
 Description: Mir Abstraction Layer library
