@@ -33,5 +33,5 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/miral.pc.in
 )
 
 install(TARGETS     miral                                   DESTINATION "lib")
-install(DIRECTORY   ${CMAKE_SOURCE_DIR}/include/            DESTINATION "include/mircommon")
+install(DIRECTORY   ${CMAKE_SOURCE_DIR}/include/            DESTINATION "include/miral")
 install(FILES       ${CMAKE_CURRENT_BINARY_DIR}/miral.pc    DESTINATION "lib/pkgconfig")
