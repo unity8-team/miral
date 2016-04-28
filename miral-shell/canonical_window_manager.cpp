@@ -83,11 +83,11 @@ void CanonicalWindowManagerPolicy::handle_displays_updated(Rectangles const& dis
     }
 }
 
-void CanonicalWindowManagerPolicy::resize(Point cursor)
+bool CanonicalWindowManagerPolicy::resize(Point cursor)
 {
     if (!resizing)
         select_active_window(tools->window_at(old_cursor));
-    resize(active_window(), cursor, old_cursor);
+    return resize(active_window(), cursor, old_cursor);
 }
 
 
@@ -671,8 +671,7 @@ bool CanonicalWindowManagerPolicy::handle_pointer_event(MirPointerEvent const* e
 
         if (mir_pointer_event_button_state(event, mir_pointer_button_tertiary))
         {
-            resize(cursor);
-            resize_event = true;
+            resize_event = resize(cursor);
             consumes_event = true;
         }
     }
@@ -822,8 +821,8 @@ bool CanonicalWindowManagerPolicy::resize(Window const& window, Point cursor, Po
     auto new_width = old_pos.size.width + x_sign * delta.dx;
     auto new_height = old_pos.size.height + y_sign * delta.dy;
 
-    auto const min_width  = std::max(window_info.min_width, Width{1});
-    auto const min_height = std::max(window_info.min_height, Height{1});
+    auto const min_width  = std::max(window_info.min_width, Width{5});
+    auto const min_height = std::max(window_info.min_height, Height{5});
 
     if (new_width < min_width)
     {

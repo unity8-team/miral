@@ -88,7 +88,7 @@ private:
 
     void drag(Point cursor);
     void click(Point cursor);
-    void resize(Point cursor);
+    bool resize(Point cursor);
     void toggle(MirSurfaceState state);
 
     auto active_window() const -> miral::Window;
