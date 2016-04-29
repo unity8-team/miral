@@ -21,6 +21,7 @@
 #include <mir/scene/session.h>
 #include <mir/scene/surface.h>
 #include <mir/scene/surface_creation_parameters.h>
+#include <mir/version.h>
 
 struct miral::Window::Self
 {
@@ -181,9 +182,20 @@ void miral::Window::configure_streams(std::vector<StreamSpecification> const& co
         std::vector<mir::shell::StreamSpecification> dest;
         dest.reserve(config.size());
 
+#if MIR_SERVER_VERSION < MIR_VERSION_NUMBER(0, 22, 0)
         for (auto const& stream : config)
             dest.push_back(mir::shell::StreamSpecification{mir::frontend::BufferStreamId{stream.stream_id.as_value()}, stream.displacement});
-
+#else
+        for (auto const& stream : config)
+        {
+            dest.push_back(
+                mir::shell::StreamSpecification{
+                    mir::frontend::BufferStreamId{stream.stream_id.as_value()},
+                    stream.displacement,
+                    stream.size
+                });
+        }
+#endif
         application()->configure_streams(*surface, dest);
     }
 }

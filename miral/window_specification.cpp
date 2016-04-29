@@ -20,6 +20,7 @@
 
 #include <mir/shell/surface_specification.h>
 #include <mir/scene/surface_creation_parameters.h>
+#include <mir/version.h>
 
 struct miral::WindowSpecification::Self
 {
@@ -103,8 +104,27 @@ miral::WindowSpecification::Self::Self(mir::shell::SurfaceSpecification const& s
         std::vector<StreamSpecification> dest;
         dest.reserve(source.size());
 
+#if MIR_SERVER_VERSION < MIR_VERSION_NUMBER(0, 22, 0)
         for (auto const& stream : source)
-            dest.push_back(StreamSpecification{BufferStreamId{stream.stream_id.as_value()}, stream.displacement});
+        {
+            dest.push_back(
+                StreamSpecification{
+                    BufferStreamId{stream.stream_id.as_value()},
+                    stream.displacement,
+                    mir::optional_value<mir::geometry::Size>{}
+                });
+        }
+#else
+        for (auto const& stream : source)
+        {
+            dest.push_back(
+                StreamSpecification{
+                    BufferStreamId{stream.stream_id.as_value()},
+                    stream.displacement,
+                    stream.size
+                });
+        }
+#endif
     }
 }
 
@@ -209,8 +229,20 @@ void miral::WindowSpecification::Self::update(mir::shell::SurfaceSpecification& 
         std::vector<mir::shell::StreamSpecification> dest;
         dest.reserve(source.size());
 
+#if MIR_SERVER_VERSION < MIR_VERSION_NUMBER(0, 22, 0)
         for (auto const& stream : source)
             dest.push_back(mir::shell::StreamSpecification{mir::frontend::BufferStreamId{stream.stream_id.as_value()}, stream.displacement});
+#else
+        for (auto const& stream : source)
+        {
+            dest.push_back(
+                mir::shell::StreamSpecification{
+                    mir::frontend::BufferStreamId{stream.stream_id.as_value()},
+                    stream.displacement,
+                    stream.size
+                });
+        }
+#endif
 
         spec.streams = std::move(dest);
     }

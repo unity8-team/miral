@@ -21,6 +21,8 @@
 
 #include <mir/int_wrapper.h>
 #include <mir/geometry/displacement.h>
+#include <mir/geometry/size.h>
+#include <mir/optional_value.h>
 
 namespace miral
 {
@@ -33,6 +35,7 @@ struct StreamSpecification
 {
     BufferStreamId stream_id;
     Displacement displacement;
+    mir::optional_value<mir::geometry::Size> size;
 };
 }
 
