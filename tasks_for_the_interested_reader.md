@@ -79,6 +79,10 @@ additions to libmiral to expose additional Mir functionality.
 
  - Customizing compositing. There needs to be a mechanism for loading custom
    compositing effects. E.g. specifying a module (or modules) to load.
+   
+ - Display configuration. There needs to be a useful abstraction of outputs
+   and geometry. See src/modules/Unity/Screens/screens.h in lp:qtmir.
+   (Or maybe an internal client can use the client APIs?)
 
 
 The tiling window management strategy
