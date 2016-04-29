@@ -114,6 +114,40 @@ void launch_startup_applications(::mir::Server& server)
         }
     }
 }
+
+auto const env_hacks = "env-hacks";
+
+void enable_env_hacks(::mir::Server& server)
+{
+    server.add_configuration_option(
+        env_hacks, "Colon separated list of environment variable settings", mir::OptionType::string);
+}
+
+void apply_env_hacks(::mir::Server& server)
+{
+    if (auto const options = server.get_options())
+    {
+        if (options->is_set(env_hacks))
+        {
+            auto const value = options->get<std::string>(env_hacks);
+
+            for (auto i = begin(value); i != end(value); )
+            {
+                auto const j = find(i, end(value), ':');
+
+                auto equals = find(i, j, '=');
+
+                auto const key = std::string(i, equals);
+                if (j != equals) ++equals;
+                auto const val = std::string(equals, j);
+
+                setenv(key.c_str(), val.c_str(), true);
+
+                if ((i = j) != end(value)) ++i;
+            }
+        }
+    }
+}
 }
 
 auto miral::MirRunner::run_with(std::initializer_list<std::function<void(::mir::Server&)>> options)
@@ -125,6 +159,7 @@ try
     server.set_config_filename(config_file);
 
     enable_startup_applications(server);
+    enable_env_hacks(server);
 
     for (auto& option : options)
         option(server);
@@ -132,6 +167,7 @@ try
     // Provide the command line and run the server
     server.set_command_line(argc, argv);
     server.apply_settings();
+    apply_env_hacks(server);
 
     // Has to be done after apply_settings() parses the command-line and
     // before run() starts allocates resources and starts threads.
