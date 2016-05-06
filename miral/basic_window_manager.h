@@ -131,6 +131,8 @@ public:
 
     bool place_in_output(int id, mir::geometry::Rectangle& rect) override;
 
+    void invoke_under_lock(std::function<void()> const& callback) override;
+
 private:
     using SurfaceInfoMap = std::map<std::weak_ptr<mir::scene::Surface>, WindowInfo, std::owner_less<std::weak_ptr<mir::scene::Surface>>>;
     using SessionInfoMap = std::map<std::weak_ptr<mir::scene::Session>, ApplicationInfo, std::owner_less<std::weak_ptr<mir::scene::Session>>>;

@@ -435,3 +435,9 @@ bool miral::BasicWindowManager::place_in_output(int id, mir::geometry::Rectangle
 {
     return display_layout->place_in_output(mir::graphics::DisplayConfigurationOutputId{id}, rect);
 }
+
+void miral::BasicWindowManager::invoke_under_lock(std::function<void()> const& callback)
+{
+    std::lock_guard<decltype(mutex)> lock(mutex);
+    callback();
+}
