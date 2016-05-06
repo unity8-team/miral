@@ -149,7 +149,7 @@ private:
     uint64_t last_input_event_timestamp{0};
 
     // Cache the builder functor for the convenience of policies - this should become unnecessary
-    std::function<Window(std::shared_ptr<mir::scene::Session> const& session, mir::scene::SurfaceCreationParameters const& params)> surface_builder;
+    std::function<Window(std::shared_ptr<mir::scene::Session> const& session, WindowSpecification const& params)> surface_builder;
 
     void update_event_timestamp(MirKeyboardEvent const* kev);
     void update_event_timestamp(MirPointerEvent const* pev);

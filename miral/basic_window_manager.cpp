@@ -33,7 +33,7 @@ miral::BasicWindowManager::BasicWindowManager(
     focus_controller(focus_controller),
     display_layout(display_layout),
     policy(build(this)),
-    surface_builder([](std::shared_ptr<scene::Session> const&, scene::SurfaceCreationParameters const&) -> Window
+    surface_builder([](std::shared_ptr<scene::Session> const&, WindowSpecification const&) -> Window
         { throw std::logic_error{"Can't create a window yet"};})
 {
 }
@@ -41,13 +41,10 @@ miral::BasicWindowManager::BasicWindowManager(
 auto miral::BasicWindowManager::build_window(Application const& application, WindowSpecification const& spec)
 -> WindowInfo&
 {
-    scene::SurfaceCreationParameters parameters;
-    spec.update(parameters);
-
-    auto result = surface_builder(application, parameters);
-    auto& info = window_info.emplace(result, WindowInfo{result, parameters}).first->second;
-    if (auto const parent = parameters.parent.lock())
-        info.parent = info_for(parent).window;
+    auto result = surface_builder(application, spec);
+    auto& info = window_info.emplace(result, WindowInfo{result, spec}).first->second;
+    if (spec.parent().is_set() && spec.parent().value().lock())
+        info.parent = info_for(spec.parent().value()).window;
     return info;
 }
 
@@ -72,8 +69,12 @@ auto miral::BasicWindowManager::add_surface(
 -> frontend::SurfaceId
 {
     std::lock_guard<decltype(mutex)> lock(mutex);
-    surface_builder = [build](std::shared_ptr<scene::Session> const& session, scene::SurfaceCreationParameters const& params)
-        { return Window{session, build(session, params)}; };
+    surface_builder = [build](std::shared_ptr<scene::Session> const& session, WindowSpecification const& params)
+        {
+            scene::SurfaceCreationParameters parameters;
+            params.update(parameters);
+            return Window{session, build(session, parameters)};
+        };
 
     auto& session_info = info_for(session);
     auto& window_info = build_window(session, policy->handle_place_new_surface(session_info, params));
