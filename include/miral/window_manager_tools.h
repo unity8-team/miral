@@ -20,7 +20,6 @@
 #define MIRAL_WINDOW_MANAGER_TOOLS_H
 
 #include "miral/application.h"
-#include "miral/stream_specification.h"
 
 #include <functional>
 #include <memory>
