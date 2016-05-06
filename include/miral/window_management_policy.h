@@ -41,7 +41,10 @@ public:
     virtual void handle_window_ready(WindowInfo& window_info) = 0;
     virtual void handle_modify_window(WindowInfo& window_info, WindowSpecification const& modifications) = 0;
     virtual void handle_delete_window(WindowInfo& window_info) = 0;
+
+    // TOOD set_state is really a special (and legacy) case of handle_modify_window() and should be removed
     virtual auto handle_set_state(WindowInfo& window_info, MirSurfaceState value) -> MirSurfaceState = 0;
+
     virtual bool handle_keyboard_event(MirKeyboardEvent const* event) = 0;
     virtual bool handle_touch_event(MirTouchEvent const* event) = 0;
     virtual bool handle_pointer_event(MirPointerEvent const* event) = 0;

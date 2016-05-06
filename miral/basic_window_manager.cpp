@@ -230,6 +230,7 @@ void miral::BasicWindowManager::handle_raise_surface(
         policy->handle_raise_window(info_for(surface));
 }
 
+// TODO set_surface_attribute() should map attribute/value pair to policy->handle_modify_window()
 int miral::BasicWindowManager::set_surface_attribute(
     std::shared_ptr<scene::Session> const& /*application*/,
     std::shared_ptr<scene::Surface> const& surface,
