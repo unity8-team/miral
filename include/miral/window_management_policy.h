@@ -42,7 +42,6 @@ public:
     virtual void handle_modify_window(WindowInfo& window_info, WindowSpecification const& modifications) = 0;
     virtual void handle_delete_window(WindowInfo& window_info) = 0;
     virtual auto handle_set_state(WindowInfo& window_info, MirSurfaceState value) -> MirSurfaceState = 0;
-    virtual void generate_decorations_for(WindowInfo& window_info) = 0;
     virtual bool handle_keyboard_event(MirKeyboardEvent const* event) = 0;
     virtual bool handle_touch_event(MirTouchEvent const* event) = 0;
     virtual bool handle_pointer_event(MirPointerEvent const* event) = 0;

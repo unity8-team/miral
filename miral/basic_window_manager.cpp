@@ -86,7 +86,6 @@ auto miral::BasicWindowManager::add_surface(
         info_for(parent).children.push_back(window);
 
     policy->handle_new_window(window_info);
-    policy->generate_decorations_for(window_info);
 
     if (window_info.can_be_active())
     {
