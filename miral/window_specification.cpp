@@ -126,6 +126,7 @@ miral::WindowSpecification::Self::Self(mir::shell::SurfaceSpecification const& s
                 });
         }
 #endif
+        streams = std::move(dest);
     }
 }
 
@@ -297,6 +298,27 @@ miral::WindowSpecification::Self::Self(mir::scene::SurfaceCreationParameters con
 
     if (params.max_aspect.is_set())
         max_aspect = AspectRatio{params.max_aspect.value().width, params.max_aspect.value().height};
+
+#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 22, 0)
+    if (params.streams.is_set())
+    {
+        auto const& source = params.streams.value();
+        std::vector<StreamSpecification> dest;
+        dest.reserve(source.size());
+
+        for (auto const& stream : source)
+        {
+            dest.push_back(
+                StreamSpecification{
+                    BufferStreamId{stream.stream_id.as_value()},
+                    stream.displacement,
+                    stream.size
+                });
+        }
+
+        streams = std::move(dest);
+    }
+#endif
 }
 
 void miral::WindowSpecification::Self::update(mir::scene::SurfaceCreationParameters& params) const
@@ -321,11 +343,31 @@ void miral::WindowSpecification::Self::update(mir::scene::SurfaceCreationParamet
     copy_if_set(params.height_inc, height_inc);
     copy_if_set(params.min_aspect, min_aspect);
     copy_if_set(params.max_aspect, max_aspect);
-//    streams
     copy_if_set(params.parent, parent);
     copy_if_set(params.input_shape, input_shape);
     copy_if_set(params.input_mode, input_mode);
     copy_if_set(params.shell_chrome, shell_chrome);
+
+#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 22, 0)
+    if (streams.is_set())
+    {
+        auto const& source = streams.value();
+        std::vector<mir::shell::StreamSpecification> dest;
+        dest.reserve(source.size());
+
+        for (auto const& stream : source)
+        {
+            dest.push_back(
+                mir::shell::StreamSpecification{
+                    mir::frontend::BufferStreamId{stream.stream_id.as_value()},
+                    stream.displacement,
+                    stream.size
+                });
+        }
+
+        params.streams = std::move(dest);
+    }
+#endif
 }
 
 miral::WindowSpecification::WindowSpecification() :
