@@ -23,6 +23,7 @@
 #include <mir/scene/surface_creation_parameters.h>
 #include <mir/shell/display_layout.h>
 #include <mir/shell/surface_ready_observer.h>
+#include <mir/version.h>
 
 using namespace mir;
 
@@ -38,9 +39,20 @@ miral::BasicWindowManager::BasicWindowManager(
 {
 }
 
-auto miral::BasicWindowManager::build_window(Application const& application, WindowSpecification const& spec)
+auto miral::BasicWindowManager::build_window(Application const& application, WindowSpecification const& spec_)
 -> WindowInfo&
 {
+    auto spec = spec_;
+
+#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 22, 0)
+    // Quick, dirty hack to support titlebar creation - really need an API for buffer stream creation
+    if (!spec.content_id().is_set() && !spec.streams().is_set())
+    {
+        mir::graphics::BufferProperties properties(spec.size().value(), spec.pixel_format().value(), mir::graphics::BufferUsage::software);
+        spec.content_id() = BufferStreamId{application->create_buffer_stream(properties).as_value()};
+    }
+#endif
+
     auto result = surface_builder(application, spec);
     auto& info = window_info.emplace(result, WindowInfo{result, spec}).first->second;
     if (spec.parent().is_set() && spec.parent().value().lock())

@@ -27,6 +27,7 @@
 #include <linux/input.h>
 #include <algorithm>
 #include <csignal>
+#include <mirplatform/mir/graphics/buffer_properties.h>
 
 namespace ms = mir::scene;
 using namespace miral;
