@@ -105,6 +105,7 @@ public:
     auto type() -> mir::optional_value<MirSurfaceType>&;
     auto state() -> mir::optional_value<MirSurfaceState>&;
     auto preferred_orientation() -> mir::optional_value<MirOrientationMode>&;
+    auto content_id() -> mir::optional_value<BufferStreamId>&;
     auto aux_rect() -> mir::optional_value<Rectangle>&;
     auto edge_attachment() -> mir::optional_value<MirEdgeAttachment>&;
     auto min_width() -> mir::optional_value<Width>&;

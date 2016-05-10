@@ -40,6 +40,7 @@ struct miral::WindowSpecification::Self
     mir::optional_value<MirSurfaceType> type;
     mir::optional_value<MirSurfaceState> state;
     mir::optional_value<MirOrientationMode> preferred_orientation;
+    mir::optional_value<BufferStreamId> content_id;
     mir::optional_value<Rectangle> aux_rect;
     mir::optional_value<MirEdgeAttachment> edge_attachment;
     mir::optional_value<Width> min_width;
@@ -193,6 +194,14 @@ void copy_if_set(
 {
     if (source.is_set()) dest = mir::shell::SurfaceAspectRatio{source.value().width, source.value().height};
 }
+
+template<typename Source>
+void copy_if_set(
+    mir::optional_value<mir::frontend::BufferStreamId>& dest,
+    mir::optional_value<Source> const& source)
+{
+    if (source.is_set()) dest = mir::frontend::BufferStreamId{source.value().as_value()};
+}
 }
 
 void miral::WindowSpecification::Self::update(mir::shell::SurfaceSpecification& spec) const
@@ -280,6 +289,9 @@ miral::WindowSpecification::Self::Self(mir::scene::SurfaceCreationParameters con
     input_mode(static_cast<InputReceptionMode>(params.input_mode)),
     shell_chrome()
 {
+    if (params.content_id.is_set())
+        content_id = BufferStreamId{params.content_id.value().as_value()};
+
     if (params.min_aspect.is_set())
         min_aspect = AspectRatio{params.min_aspect.value().width, params.min_aspect.value().height};
 
@@ -298,6 +310,7 @@ void miral::WindowSpecification::Self::update(mir::scene::SurfaceCreationParamet
     copy_if_set(params.type, type);
     copy_if_set(params.state, state);
     copy_if_set(params.preferred_orientation, preferred_orientation);
+    copy_if_set(params.content_id, content_id);
     copy_if_set(params.aux_rect, aux_rect);
     copy_if_set(params.edge_attachment, edge_attachment);
     copy_if_set(params.min_width, min_width);
@@ -528,6 +541,11 @@ auto miral::WindowSpecification::state() -> mir::optional_value<MirSurfaceState>
 auto miral::WindowSpecification::preferred_orientation() -> mir::optional_value<MirOrientationMode>&
 {
     return self->preferred_orientation;
+}
+
+auto miral::WindowSpecification::content_id() -> mir::optional_value<BufferStreamId>&
+{
+    return self->content_id;
 }
 
 auto miral::WindowSpecification::aux_rect() -> mir::optional_value<Rectangle>&
