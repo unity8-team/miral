@@ -62,7 +62,7 @@ MirPixelFormat find_8888_format(MirConnection* connection)
 auto create_surface(MirConnection* connection, MirPixelFormat pixel_format) -> MirSurface*
 {
 
-    auto* spec = mir_connection_create_spec_for_normal_surface(connection, 0, 0, pixel_format);
+    auto* spec = mir_connection_create_spec_for_normal_surface(connection, 42, 42, pixel_format);
 
     mir_surface_spec_set_name(spec, "splash");
     mir_surface_spec_set_buffer_usage(spec, mir_buffer_usage_software);

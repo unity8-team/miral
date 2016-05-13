@@ -20,8 +20,8 @@
 #define MIRAL_WINDOW_MANAGER_TOOLS_H
 
 #include "miral/application.h"
-#include "miral/stream_specification.h"
 
+#include <functional>
 #include <memory>
 
 namespace mir
@@ -38,11 +38,14 @@ struct ApplicationInfo;
 class WindowSpecification;
 
 /// The interface through which the policy instructs the controller.
-/// These functions assume that the BasicWindowManager data structures can be accessed freely.
-/// I.e. should only be invoked by the policy handle_... methods (where any necessary locks are held).
 class WindowManagerTools
 {
 public:
+/** @name Update Model
+ *  These functions assume that the BasicWindowManager data structures can be accessed freely.
+ *  I.e. they should only be used by a thread that has called the WindowManagementPolicy methods
+ *  (where any necessary locks are held) or via a invoke_under_lock() callback.
+ *  @{ */
     virtual auto build_window(Application const& application, WindowSpecification const& parameters)
     -> WindowInfo& = 0;
     virtual auto count_applications() const -> unsigned int = 0;
@@ -62,6 +65,16 @@ public:
     virtual void raise_tree(Window const& root) = 0;
     virtual void size_to_output(mir::geometry::Rectangle& rect) = 0;
     virtual bool place_in_output(int id, mir::geometry::Rectangle& rect) = 0;
+/** @} */
+
+/** @name Multi-thread support
+ *  Allows threads that don't hold a lock on the model to acquire one and call the "Update Model"
+ *  member functions.
+ *  This should NOT be used by a thread that has called the WindowManagementPolicy methods (and
+ *  already holds the lock).
+ *  @{ */
+    virtual void invoke_under_lock(std::function<void()> const& callback) = 0;
+/** @} */
 
     virtual ~WindowManagerTools() = default;
     WindowManagerTools() = default;

@@ -57,8 +57,6 @@ public:
 
     void handle_raise_window(miral::WindowInfo& window_info) override;
 
-    void generate_decorations_for(miral::WindowInfo& window_info) override;
-
     auto select_active_window(miral::Window const& window) -> miral::Window override;
 
 private:

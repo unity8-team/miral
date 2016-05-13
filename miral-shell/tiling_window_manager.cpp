@@ -148,10 +148,6 @@ auto TilingWindowManagerPolicy::handle_place_new_surface(
     return parameters;
 }
 
-void TilingWindowManagerPolicy::generate_decorations_for(WindowInfo& /*window_info*/)
-{
-}
-
 void TilingWindowManagerPolicy::handle_new_window(WindowInfo& /*window_info*/)
 {
 }

@@ -273,6 +273,8 @@ void CanonicalWindowManagerPolicy::handle_new_window(WindowInfo& window_info)
 {
     if (window_info.state == mir_surface_state_fullscreen)
         fullscreen_surfaces.insert(window_info.window);
+
+    generate_decorations_for(window_info);
 }
 
 void CanonicalWindowManagerPolicy::handle_window_ready(WindowInfo& window_info)

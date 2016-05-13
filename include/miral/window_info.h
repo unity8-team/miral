@@ -27,7 +27,6 @@
 
 namespace mir
 {
-namespace scene { struct SurfaceCreationParameters; }
 namespace shell { struct SurfaceSpecification; }
 }
 
@@ -37,7 +36,7 @@ struct WindowInfo
 {
     using AspectRatio = WindowSpecification::AspectRatio;
 
-    WindowInfo(Window const& window, mir::scene::SurfaceCreationParameters const& params);
+    WindowInfo(Window const& window, WindowSpecification const& params);
 
     bool can_be_active() const;
 

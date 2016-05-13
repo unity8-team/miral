@@ -131,6 +131,8 @@ public:
 
     bool place_in_output(int id, mir::geometry::Rectangle& rect) override;
 
+    void invoke_under_lock(std::function<void()> const& callback) override;
+
 private:
     using SurfaceInfoMap = std::map<std::weak_ptr<mir::scene::Surface>, WindowInfo, std::owner_less<std::weak_ptr<mir::scene::Surface>>>;
     using SessionInfoMap = std::map<std::weak_ptr<mir::scene::Session>, ApplicationInfo, std::owner_less<std::weak_ptr<mir::scene::Session>>>;
@@ -147,7 +149,7 @@ private:
     uint64_t last_input_event_timestamp{0};
 
     // Cache the builder functor for the convenience of policies - this should become unnecessary
-    std::function<Window(std::shared_ptr<mir::scene::Session> const& session, mir::scene::SurfaceCreationParameters const& params)> surface_builder;
+    std::function<Window(std::shared_ptr<mir::scene::Session> const& session, WindowSpecification const& params)> surface_builder;
 
     void update_event_timestamp(MirKeyboardEvent const* kev);
     void update_event_timestamp(MirPointerEvent const* pev);

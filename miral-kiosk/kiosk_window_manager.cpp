@@ -110,10 +110,6 @@ auto KioskWindowManagerPolicy::handle_place_new_surface(
     return parameters;
 }
 
-void KioskWindowManagerPolicy::generate_decorations_for(WindowInfo& /*window_info*/)
-{
-}
-
 void KioskWindowManagerPolicy::handle_new_window(WindowInfo& /*window_info*/)
 {
 }

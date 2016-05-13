@@ -18,37 +18,46 @@
 
 #include "miral/window_info.h"
 
-#include <mir/scene/surface.h>
-#include <mir/scene/surface_creation_parameters.h>
+#include <mir/geometry/size.h>
 
-namespace ms = mir::scene;
-namespace mg = mir::graphics;
+#include <limits>
+
 using namespace mir::geometry;
+
+namespace
+{
+template<typename Value>
+auto optional_value_or_default(mir::optional_value<Value> const& optional_value, Value default_ = Value{})
+-> Value
+{
+    return optional_value.is_set() ? optional_value.value() : default_;
+}
+}
 
 miral::WindowInfo::WindowInfo(
     Window const& window,
-    ms::SurfaceCreationParameters const& params) :
+    WindowSpecification const& params) :
     window{window},
-    type{params.type.is_set() ? params.type.value() : mir_surface_type_normal},
-    state{params.state.is_set() ? params.state.value() : mir_surface_state_restored},
+    type{optional_value_or_default(params.type(), mir_surface_type_normal)},
+    state{optional_value_or_default(params.state(), mir_surface_state_restored)},
     restore_rect{window.top_left(), window.size()},
-    min_width{params.min_width.is_set() ? params.min_width.value()  : Width{}},
-    min_height{params.min_height.is_set() ? params.min_height.value() : Height{}},
-    max_width{params.max_width.is_set() ? params.max_width.value() : Width{std::numeric_limits<int>::max()}},
-    max_height{params.max_height.is_set() ? params.max_height.value() : Height{std::numeric_limits<int>::max()}},
-    width_inc{params.width_inc},
-    height_inc{params.height_inc},
+    min_width{optional_value_or_default(params.min_width())},
+    min_height{optional_value_or_default(params.min_height())},
+    max_width{optional_value_or_default(params.max_width(), Width{std::numeric_limits<int>::max()})},
+    max_height{optional_value_or_default(params.max_height(), Height{std::numeric_limits<int>::max()})},
+    width_inc{params.width_inc()},
+    height_inc{params.height_inc()},
     min_aspect{},
     max_aspect{}
 {
     if (min_aspect.is_set())
-        min_aspect = AspectRatio{params.min_aspect.value().width, params.min_aspect.value().height};
+        min_aspect = AspectRatio{params.min_aspect().value().width, params.min_aspect().value().height};
 
     if (max_aspect.is_set())
-        max_aspect = AspectRatio{params.max_aspect.value().width, params.max_aspect.value().height};
+        max_aspect = AspectRatio{params.max_aspect().value().width, params.max_aspect().value().height};
 
-    if (params.output_id != mir::graphics::DisplayConfigurationOutputId{0})
-        output_id = params.output_id.as_value();
+    if (params.output_id().is_set())
+        output_id = params.output_id().value();
 }
 
 bool miral::WindowInfo::can_be_active() const

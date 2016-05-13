@@ -23,6 +23,7 @@
 #include <mir/scene/surface_creation_parameters.h>
 #include <mir/shell/display_layout.h>
 #include <mir/shell/surface_ready_observer.h>
+#include <mir/version.h>
 
 using namespace mir;
 
@@ -33,21 +34,29 @@ miral::BasicWindowManager::BasicWindowManager(
     focus_controller(focus_controller),
     display_layout(display_layout),
     policy(build(this)),
-    surface_builder([](std::shared_ptr<scene::Session> const&, scene::SurfaceCreationParameters const&) -> Window
+    surface_builder([](std::shared_ptr<scene::Session> const&, WindowSpecification const&) -> Window
         { throw std::logic_error{"Can't create a window yet"};})
 {
 }
 
-auto miral::BasicWindowManager::build_window(Application const& application, WindowSpecification const& spec)
+auto miral::BasicWindowManager::build_window(Application const& application, WindowSpecification const& spec_)
 -> WindowInfo&
 {
-    scene::SurfaceCreationParameters parameters;
-    spec.update(parameters);
+    auto spec = spec_;
 
-    auto result = surface_builder(application, parameters);
-    auto& info = window_info.emplace(result, WindowInfo{result, parameters}).first->second;
-    if (auto const parent = parameters.parent.lock())
-        info.parent = info_for(parent).window;
+#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 22, 0)
+    // Quick, dirty hack to support titlebar creation - really need an API for buffer stream creation
+    if (!spec.content_id().is_set() && !spec.streams().is_set())
+    {
+        mir::graphics::BufferProperties properties(spec.size().value(), spec.pixel_format().value(), mir::graphics::BufferUsage::software);
+        spec.content_id() = BufferStreamId{application->create_buffer_stream(properties).as_value()};
+    }
+#endif
+
+    auto result = surface_builder(application, spec);
+    auto& info = window_info.emplace(result, WindowInfo{result, spec}).first->second;
+    if (spec.parent().is_set() && spec.parent().value().lock())
+        info.parent = info_for(spec.parent().value()).window;
     return info;
 }
 
@@ -72,8 +81,12 @@ auto miral::BasicWindowManager::add_surface(
 -> frontend::SurfaceId
 {
     std::lock_guard<decltype(mutex)> lock(mutex);
-    surface_builder = [build](std::shared_ptr<scene::Session> const& session, scene::SurfaceCreationParameters const& params)
-        { return Window{session, build(session, params)}; };
+    surface_builder = [build](std::shared_ptr<scene::Session> const& session, WindowSpecification const& params)
+        {
+            scene::SurfaceCreationParameters parameters;
+            params.update(parameters);
+            return Window{session, build(session, parameters)};
+        };
 
     auto& session_info = info_for(session);
     auto& window_info = build_window(session, policy->handle_place_new_surface(session_info, params));
@@ -86,7 +99,6 @@ auto miral::BasicWindowManager::add_surface(
         info_for(parent).children.push_back(window);
 
     policy->handle_new_window(window_info);
-    policy->generate_decorations_for(window_info);
 
     if (window_info.can_be_active())
     {
@@ -231,6 +243,7 @@ void miral::BasicWindowManager::handle_raise_surface(
         policy->handle_raise_window(info_for(surface));
 }
 
+// TODO set_surface_attribute() should map attribute/value pair to policy->handle_modify_window()
 int miral::BasicWindowManager::set_surface_attribute(
     std::shared_ptr<scene::Session> const& /*application*/,
     std::shared_ptr<scene::Surface> const& surface,
@@ -434,4 +447,10 @@ void miral::BasicWindowManager::size_to_output(mir::geometry::Rectangle& rect)
 bool miral::BasicWindowManager::place_in_output(int id, mir::geometry::Rectangle& rect)
 {
     return display_layout->place_in_output(mir::graphics::DisplayConfigurationOutputId{id}, rect);
+}
+
+void miral::BasicWindowManager::invoke_under_lock(std::function<void()> const& callback)
+{
+    std::lock_guard<decltype(mutex)> lock(mutex);
+    callback();
 }

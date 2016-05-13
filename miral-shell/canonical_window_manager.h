@@ -74,8 +74,6 @@ public:
 
     void handle_raise_window(miral::WindowInfo& window_info) override;
 
-    void generate_decorations_for(miral::WindowInfo& window_info) override;
-
     auto select_active_window(miral::Window const& hint) -> miral::Window override;
 
 private:
@@ -98,6 +96,7 @@ private:
     void move_tree(miral::WindowInfo& root, Displacement movement) const;
     void apply_resize(miral::WindowInfo& window_info, Point new_pos, Size new_size) const;
     auto transform_set_state(miral::WindowInfo& window_info, MirSurfaceState value) -> MirSurfaceState;
+    void generate_decorations_for(miral::WindowInfo& window_info);
 
     miral::WindowManagerTools* const tools;
     SpinnerSplash const spinner;
