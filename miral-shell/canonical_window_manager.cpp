@@ -564,8 +564,6 @@ bool CanonicalWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const*
             scan_code == KEY_TAB)
     {
         tools->focus_next_application();
-        if (auto const window = tools->focused_window())
-            select_active_window(window);
 
         return true;
     }

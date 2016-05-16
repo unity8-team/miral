@@ -161,7 +161,6 @@ bool KioskWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* eve
             scan_code == KEY_TAB)
     {
         tools->focus_next_application();
-        select_active_window(tools->focused_window());
 
         return true;
     }
