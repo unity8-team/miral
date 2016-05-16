@@ -721,11 +721,10 @@ auto CanonicalWindowManagerPolicy::select_active_window(Window const& hint) -> m
     {
         if (active_window_)
         {
-            handle_focus_lost(tools->info_for(active_window_));
             tools->set_focus_to({});
+            handle_focus_lost(tools->info_for(active_window_));
         }
 
-        active_window_.reset();
         return hint;
     }
 
@@ -733,13 +732,13 @@ auto CanonicalWindowManagerPolicy::select_active_window(Window const& hint) -> m
 
     if (info_for_hint.can_be_active())
     {
+        tools->set_focus_to(hint);
+        tools->raise_tree(hint);
+
         if (active_window_)
             handle_focus_lost(tools->info_for(active_window_));
 
         handle_focus_gained(info_for_hint);
-
-        tools->set_focus_to(hint);
-        tools->raise_tree(hint);
 
         return hint;
     }
@@ -774,6 +773,8 @@ void CanonicalWindowManagerPolicy::handle_focus_lost(WindowInfo const& info)
 {
     if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(info.userdata))
         titlebar->paint_titlebar(0x3F);
+
+    active_window_.reset();
 }
 
 auto CanonicalWindowManagerPolicy::active_window() const
