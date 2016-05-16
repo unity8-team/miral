@@ -714,15 +714,17 @@ void CanonicalWindowManagerPolicy::toggle(MirSurfaceState state)
 
 auto CanonicalWindowManagerPolicy::select_active_window(Window const& hint) -> miral::Window
 {
-    if (hint == active_window_)
+    auto const prev_window = active_window();
+
+    if (hint == prev_window)
         return hint ;
 
     if (!hint)
     {
-        if (active_window_)
+        if (prev_window)
         {
             tools->set_focus_to({});
-            handle_focus_lost(tools->info_for(active_window_));
+            handle_focus_lost(tools->info_for(prev_window));
         }
 
         return hint;
@@ -735,8 +737,8 @@ auto CanonicalWindowManagerPolicy::select_active_window(Window const& hint) -> m
         tools->set_focus_to(hint);
         tools->raise_tree(hint);
 
-        if (active_window_)
-            handle_focus_lost(tools->info_for(active_window_));
+        if (prev_window)
+            handle_focus_lost(tools->info_for(prev_window));
 
         handle_focus_gained(info_for_hint);
 
