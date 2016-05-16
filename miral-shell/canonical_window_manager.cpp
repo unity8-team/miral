@@ -719,14 +719,11 @@ auto CanonicalWindowManagerPolicy::select_active_window(Window const& hint) -> m
 
     if (!hint)
     {
-        if (auto const active_surface = active_window_)
-        {
-            auto& info = tools->info_for(active_surface);
-            handle_focus_lost(info);
-        }
-
         if (active_window_)
+        {
+            handle_focus_lost(tools->info_for(active_window_));
             tools->set_focus_to({});
+        }
 
         active_window_.reset();
         return hint;
@@ -736,15 +733,13 @@ auto CanonicalWindowManagerPolicy::select_active_window(Window const& hint) -> m
 
     if (info_for_hint.can_be_active())
     {
-        if (auto const active_surface = active_window_)
-        {
-            auto& info = tools->info_for(active_surface);
-            handle_focus_lost(info);
-        }
-        auto& info = tools->info_for(hint);
-        handle_focus_gained(info);
-        tools->set_focus_to(info_for_hint.window);
-        tools->raise_tree(info_for_hint.window);
+        if (active_window_)
+            handle_focus_lost(tools->info_for(active_window_));
+
+        handle_focus_gained(info_for_hint);
+
+        tools->set_focus_to(hint);
+        tools->raise_tree(hint);
 
         return hint;
     }
