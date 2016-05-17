@@ -194,7 +194,7 @@ auto TilingWindowManagerPolicy::transform_set_state(WindowInfo& window_info, Mir
 
     if (window_info.state() == mir_surface_state_restored)
     {
-        window_info.restore_rect = {window_info.window.top_left(), window_info.window.size()};
+        window_info.restore_rect({window_info.window.top_left(), window_info.window.size()});
     }
 
     if (window_info.state() == value)
@@ -207,8 +207,8 @@ auto TilingWindowManagerPolicy::transform_set_state(WindowInfo& window_info, Mir
     switch (value)
     {
     case mir_surface_state_restored:
-        window_info.window.resize(window_info.restore_rect.size);
-        drag(window_info, window_info.restore_rect.top_left, window_info.window.top_left(), tile);
+        window_info.window.resize(window_info.restore_rect().size);
+        drag(window_info, window_info.restore_rect().top_left, window_info.window.top_left(), tile);
         break;
 
     case mir_surface_state_maximized:
@@ -217,13 +217,13 @@ auto TilingWindowManagerPolicy::transform_set_state(WindowInfo& window_info, Mir
         break;
 
     case mir_surface_state_horizmaximized:
-        window_info.window.resize({tile.size.width, window_info.restore_rect.size.height});
-        drag(window_info, {tile.top_left.x, window_info.restore_rect.top_left.y}, window_info.window.top_left(), tile);
+        window_info.window.resize({tile.size.width, window_info.restore_rect().size.height});
+        drag(window_info, {tile.top_left.x, window_info.restore_rect().top_left.y}, window_info.window.top_left(), tile);
         break;
 
     case mir_surface_state_vertmaximized:
-        window_info.window.resize({window_info.restore_rect.size.width, tile.size.height});
-        drag(window_info, {window_info.restore_rect.top_left.x, tile.top_left.y}, window_info.window.top_left(), tile);
+        window_info.window.resize({window_info.restore_rect().size.width, tile.size.height});
+        drag(window_info, {window_info.restore_rect().top_left.x, tile.top_left.y}, window_info.window.top_left(), tile);
         break;
 
     default:

@@ -82,7 +82,6 @@ miral::WindowInfo::WindowInfo(
     Window const& window,
     WindowSpecification const& params) :
     window{window},
-    restore_rect{window.top_left(), window.size()},
     min_width{optional_value_or_default(params.min_width())},
     min_height{optional_value_or_default(params.min_height())},
     max_width{optional_value_or_default(params.max_width(), Width{std::numeric_limits<int>::max()})},
@@ -109,7 +108,6 @@ miral::WindowInfo::~WindowInfo()
 
 miral::WindowInfo::WindowInfo(WindowInfo const& that) :
     window{that.window},
-    restore_rect{that.restore_rect},
     min_width{that.min_width},
     min_height{that.min_height},
     max_width{that.max_width},
@@ -393,4 +391,14 @@ auto miral::WindowInfo::state() const -> MirSurfaceState
 void miral::WindowInfo::state(MirSurfaceState state)
 {
     self->state = state;
+}
+
+auto miral::WindowInfo::restore_rect() const -> mir::geometry::Rectangle
+{
+    return self->restore_rect;
+}
+
+void miral::WindowInfo::restore_rect(mir::geometry::Rectangle const& restore_rect)
+{
+    self->restore_rect = restore_rect;
 }

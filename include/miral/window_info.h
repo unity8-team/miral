@@ -63,7 +63,9 @@ struct WindowInfo
     auto state() const -> MirSurfaceState;
     void state(MirSurfaceState state);
 
-    mir::geometry::Rectangle restore_rect;
+    auto restore_rect() const -> mir::geometry::Rectangle;
+    void restore_rect(mir::geometry::Rectangle const& restore_rect);
+
     Window parent;
     std::vector <Window> children;
     mir::geometry::Width min_width;
