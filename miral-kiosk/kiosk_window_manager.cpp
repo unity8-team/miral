@@ -247,7 +247,7 @@ auto KioskWindowManagerPolicy::select_active_window(Window const& window) -> Win
     else
     {
         // Cannot have input focus - try the parent
-        if (auto const parent = info_for.parent)
+        if (auto const parent = info_for.parent())
             return select_active_window(parent);
 
         return {};

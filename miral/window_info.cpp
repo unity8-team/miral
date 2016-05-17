@@ -119,13 +119,21 @@ miral::WindowInfo::WindowInfo(WindowInfo const& that) :
     userdata{that.userdata},
     self{std::make_unique<Self>(*that.self)}
 {
-
 }
 
 miral::WindowInfo& miral::WindowInfo::operator=(WindowInfo const& that)
 {
-    auto temp = that;
-    std::swap(*this, temp);
+    window = that.window;
+    min_width = that.min_width;
+    min_height = that.min_height;
+    max_width = that.max_width;
+    max_height = that.max_height;
+    width_inc = that.width_inc;
+    height_inc = that.height_inc;
+    min_aspect = that.min_aspect;
+    max_aspect = that.max_aspect;
+    userdata = that.userdata;
+    *self = *that.self;
     return *this;
 }
 
@@ -402,3 +410,14 @@ void miral::WindowInfo::restore_rect(mir::geometry::Rectangle const& restore_rec
 {
     self->restore_rect = restore_rect;
 }
+
+auto miral::WindowInfo::parent() const -> Window
+{
+    return self->parent;
+}
+
+void miral::WindowInfo::parent(Window const& parent)
+{
+    self->parent = parent;
+}
+

@@ -262,7 +262,7 @@ void CanonicalWindowManagerPolicy::generate_decorations_for(WindowInfo& window_i
 
     auto& titlebar_info = tools->build_window(window.application(), params);
     titlebar_info.window.set_alpha(0.9);
-    titlebar_info.parent = window;
+    titlebar_info.parent(window);
 
     auto data = std::make_shared<CanonicalWindowManagementPolicyData>(titlebar_info.window);
     window_info.userdata = data;
@@ -290,7 +290,7 @@ void CanonicalWindowManagerPolicy::handle_modify_window(
     auto& window = window_info_new.window;
 
     if (modifications.parent().is_set())
-        window_info_new.parent = tools->info_for(modifications.parent().value()).window;
+        window_info_new.parent(tools->info_for(modifications.parent().value()).window);
 
     if (modifications.type().is_set() &&
         window_info_new.type() != modifications.type().value())
@@ -309,11 +309,11 @@ void CanonicalWindowManagerPolicy::handle_modify_window(
             if (modifications.parent().is_set())
                 throw std::runtime_error("Target window type does not support parent");
 
-            window_info_new.parent.reset();
+            window_info_new.parent({});
         }
         else if (window_info_new.must_have_parent())
         {
-            if (!window_info_new.parent)
+            if (!window_info_new.parent())
                 throw std::runtime_error("Target window type requires parent");
         }
 
@@ -685,7 +685,7 @@ bool CanonicalWindowManagerPolicy::handle_pointer_event(MirPointerEvent const* e
             // TODO this is a rather roundabout way to detect a titlebar
             if (auto const possible_titlebar = tools->window_at(old_cursor))
             {
-                if (auto const parent = tools->info_for(possible_titlebar).parent)
+                if (auto const parent = tools->info_for(possible_titlebar).parent())
                 {
                     if (std::static_pointer_cast<CanonicalWindowManagementPolicyData>(tools->info_for(parent).userdata))
                     {
@@ -773,7 +773,7 @@ auto CanonicalWindowManagerPolicy::select_active_window(Window const& hint) -> m
     else
     {
         // Cannot have input focus - try the parent
-        if (auto const parent = info_for.parent)
+        if (auto const parent = info_for.parent())
             return select_active_window(parent);
     }
 

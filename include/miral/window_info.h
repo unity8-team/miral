@@ -66,7 +66,9 @@ struct WindowInfo
     auto restore_rect() const -> mir::geometry::Rectangle;
     void restore_rect(mir::geometry::Rectangle const& restore_rect);
 
-    Window parent;
+    auto parent() const -> Window;
+    void parent(Window const& parent);
+
     std::vector <Window> children;
     mir::geometry::Width min_width;
     mir::geometry::Height min_height;

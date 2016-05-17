@@ -56,7 +56,7 @@ auto miral::BasicWindowManager::build_window(Application const& application, Win
     auto result = surface_builder(application, spec);
     auto& info = window_info.emplace(result, WindowInfo{result, spec}).first->second;
     if (spec.parent().is_set() && spec.parent().value().lock())
-        info.parent = info_for(spec.parent().value()).window;
+        info.parent(info_for(spec.parent().value()).window);
     return info;
 }
 
@@ -95,7 +95,7 @@ auto miral::BasicWindowManager::add_surface(
 
     session_info.windows.push_back(window);
 
-    if (auto const parent = window_info.parent)
+    if (auto const parent = window_info.parent())
         info_for(parent).children.push_back(window);
 
     policy->handle_new_window(window_info);
@@ -131,7 +131,7 @@ void miral::BasicWindowManager::remove_surface(
 
     auto& info = info_for(surface);
 
-    if (auto const parent = info.parent)
+    if (auto const parent = info.parent())
     {
         auto& siblings = info_for(parent).children;
 
@@ -160,7 +160,7 @@ void miral::BasicWindowManager::remove_surface(
 
     session->destroy_surface(surface);
 
-    auto const parent = info.parent;
+    auto const parent = info.parent();
 
     // NB this invalidates info, but we want to keep access to "parent".
     window_info.erase(surface);
