@@ -36,6 +36,8 @@ auto optional_value_or_default(mir::optional_value<Value> const& optional_value,
 
 struct miral::WindowInfo::Self
 {
+    Self(WindowSpecification const& params);
+
     MirSurfaceType type;
     MirSurfaceState state;
     mir::geometry::Rectangle restore_rect;
@@ -53,6 +55,29 @@ struct miral::WindowInfo::Self
     std::shared_ptr<void> userdata;
 };
 
+miral::WindowInfo::Self::Self(WindowSpecification const& params) :
+    type{optional_value_or_default(params.type(), mir_surface_type_normal)},
+    state{optional_value_or_default(params.state(), mir_surface_state_restored)},
+    restore_rect{params.top_left().value(), params.size().value()},
+    min_width{optional_value_or_default(params.min_width())},
+    min_height{optional_value_or_default(params.min_height())},
+    max_width{optional_value_or_default(params.max_width(), Width{std::numeric_limits<int>::max()})},
+    max_height{optional_value_or_default(params.max_height(), Height{std::numeric_limits<int>::max()})},
+    width_inc{params.width_inc()},
+    height_inc{params.height_inc()},
+    min_aspect{},
+    max_aspect{}
+{
+    if (min_aspect.is_set())
+        min_aspect = AspectRatio{params.min_aspect().value().width, params.min_aspect().value().height};
+
+    if (max_aspect.is_set())
+        max_aspect = AspectRatio{params.max_aspect().value().width, params.max_aspect().value().height};
+
+    if (params.output_id().is_set())
+        output_id = params.output_id().value();
+}
+
 miral::WindowInfo::WindowInfo(
     Window const& window,
     WindowSpecification const& params) :
@@ -68,7 +93,7 @@ miral::WindowInfo::WindowInfo(
     height_inc{params.height_inc()},
     min_aspect{},
     max_aspect{},
-    self{std::make_unique<Self>()}
+    self{std::make_unique<Self>(params)}
 {
     if (min_aspect.is_set())
         min_aspect = AspectRatio{params.min_aspect().value().width, params.min_aspect().value().height};
