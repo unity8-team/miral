@@ -322,13 +322,19 @@ void CanonicalWindowManagerPolicy::handle_modify_window(
 
 #define COPY_IF_SET(field)\
         if (modifications.field().is_set())\
-            window_info_new.field = modifications.field().value()
+            window_info_new.field(modifications.field().value())
 
     COPY_IF_SET(min_width);
+
+#undef COPY_IF_SET
+
+#define COPY_IF_SET(field)\
+        if (modifications.field().is_set())\
+            window_info_new.field = modifications.field().value()
+
     COPY_IF_SET(min_height);
     COPY_IF_SET(max_width);
     COPY_IF_SET(max_height);
-    COPY_IF_SET(min_width);
     COPY_IF_SET(width_inc);
     COPY_IF_SET(height_inc);
     COPY_IF_SET(min_aspect);
@@ -824,7 +830,7 @@ bool CanonicalWindowManagerPolicy::resize(Window const& window, Point cursor, Po
     auto new_width = old_pos.size.width + x_sign * delta.dx;
     auto new_height = old_pos.size.height + y_sign * delta.dy;
 
-    auto const min_width  = std::max(window_info.min_width, Width{5});
+    auto const min_width  = std::max(window_info.min_width(), Width{5});
     auto const min_height = std::max(window_info.min_height, Height{5});
 
     if (new_width < min_width)

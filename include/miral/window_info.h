@@ -74,7 +74,9 @@ struct WindowInfo
     void add_child(Window const& child);
     void remove_child(Window const& child);
 
-    mir::geometry::Width min_width;
+    auto min_width() const -> mir::geometry::Width;
+    void min_width(mir::geometry::Width min_width);
+
     mir::geometry::Height min_height;
     mir::geometry::Width max_width;
     mir::geometry::Height max_height;
