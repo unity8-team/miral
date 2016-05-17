@@ -82,7 +82,6 @@ miral::WindowInfo::WindowInfo(
     Window const& window,
     WindowSpecification const& params) :
     window{window},
-    state{optional_value_or_default(params.state(), mir_surface_state_restored)},
     restore_rect{window.top_left(), window.size()},
     min_width{optional_value_or_default(params.min_width())},
     min_height{optional_value_or_default(params.min_height())},
@@ -110,7 +109,6 @@ miral::WindowInfo::~WindowInfo()
 
 miral::WindowInfo::WindowInfo(WindowInfo const& that) :
     window{that.window},
-    state{that.state},
     restore_rect{that.restore_rect},
     min_width{that.min_width},
     min_height{that.min_height},
@@ -226,7 +224,7 @@ bool miral::WindowInfo::must_not_have_parent() const
 
 bool miral::WindowInfo::is_visible() const
 {
-    switch (state)
+    switch (state())
     {
     case mir_surface_state_hidden:
     case mir_surface_state_minimized:
@@ -326,7 +324,7 @@ void miral::WindowInfo::constrain_resize(Point& requested_pos, Size& requested_s
 
     // placeholder - constrain onscreen
 
-    switch (state)
+    switch (state())
     {
     case mir_surface_state_restored:
         break;
@@ -385,4 +383,14 @@ auto miral::WindowInfo::type() const -> MirSurfaceType
 void miral::WindowInfo::type(MirSurfaceType type)
 {
     self->type = type;
+}
+
+auto miral::WindowInfo::state() const -> MirSurfaceState
+{
+    return self->state;
+}
+
+void miral::WindowInfo::state(MirSurfaceState state)
+{
+    self->state = state;
 }

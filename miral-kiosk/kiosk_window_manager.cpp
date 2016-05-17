@@ -142,7 +142,7 @@ auto KioskWindowManagerPolicy::handle_set_state(WindowInfo& window_info, MirSurf
 auto KioskWindowManagerPolicy::transform_set_state(WindowInfo& window_info, MirSurfaceState /*value*/)
 -> MirSurfaceState
 {
-    return window_info.state;
+    return window_info.state();
 }
 
 void KioskWindowManagerPolicy::handle_raise_window(WindowInfo& window_info)

@@ -271,7 +271,7 @@ void CanonicalWindowManagerPolicy::generate_decorations_for(WindowInfo& window_i
 
 void CanonicalWindowManagerPolicy::handle_new_window(WindowInfo& window_info)
 {
-    if (window_info.state == mir_surface_state_fullscreen)
+    if (window_info.state() == mir_surface_state_fullscreen)
         fullscreen_surfaces.insert(window_info.window);
 
     generate_decorations_for(window_info);
@@ -398,15 +398,15 @@ auto CanonicalWindowManagerPolicy::transform_set_state(WindowInfo& window_info, 
         break;
 
     default:
-        return window_info.state;
+        return window_info.state();
     }
 
-    if (window_info.state == mir_surface_state_restored)
+    if (window_info.state() == mir_surface_state_restored)
     {
         window_info.restore_rect = {window_info.window.top_left(), window_info.window.size()};
     }
 
-    if (window_info.state != mir_surface_state_fullscreen)
+    if (window_info.state() != mir_surface_state_fullscreen)
     {
         window_info.output_id = decltype(window_info.output_id){};
         fullscreen_surfaces.erase(window_info.window);
@@ -416,9 +416,9 @@ auto CanonicalWindowManagerPolicy::transform_set_state(WindowInfo& window_info, 
         fullscreen_surfaces.insert(window_info.window);
     }
 
-    if (window_info.state == value)
+    if (window_info.state() == value)
     {
-        return window_info.state;
+        return window_info.state();
     }
 
     auto const old_pos = window_info.window.top_left();
@@ -483,7 +483,8 @@ auto CanonicalWindowManagerPolicy::transform_set_state(WindowInfo& window_info, 
         if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(window_info.userdata))
             titlebar->window.hide();
         window_info.window.hide();
-        return window_info.state = value;
+        window_info.state(value);
+        return value;
 
     default:
         break;
@@ -494,12 +495,12 @@ auto CanonicalWindowManagerPolicy::transform_set_state(WindowInfo& window_info, 
     // TODO some sensible layout rules.
     move_tree(window_info, movement);
 
-    window_info.state = value;
+    window_info.state(value);
 
     if (window_info.is_visible())
         window_info.window.show();
 
-    return window_info.state;
+    return window_info.state();
 }
 
 void CanonicalWindowManagerPolicy::drag(Point cursor)
@@ -707,7 +708,7 @@ void CanonicalWindowManagerPolicy::toggle(MirSurfaceState state)
     {
         auto& info = tools->info_for(window);
 
-        if (info.state == state)
+        if (info.state() == state)
             state = mir_surface_state_restored;
 
         handle_set_state(info, state);
@@ -875,7 +876,7 @@ bool CanonicalWindowManagerPolicy::drag(Window window, Point to, Point from, Rec
 
     // placeholder - constrain onscreen
 
-    switch (window_info.state)
+    switch (window_info.state())
     {
     case mir_surface_state_restored:
         break;

@@ -189,17 +189,17 @@ auto TilingWindowManagerPolicy::transform_set_state(WindowInfo& window_info, Mir
         break;
 
     default:
-        return window_info.state;
+        return window_info.state();
     }
 
-    if (window_info.state == mir_surface_state_restored)
+    if (window_info.state() == mir_surface_state_restored)
     {
         window_info.restore_rect = {window_info.window.top_left(), window_info.window.size()};
     }
 
-    if (window_info.state == value)
+    if (window_info.state() == value)
     {
-        return window_info.state;
+        return window_info.state();
     }
 
     auto const& tile = tile_for(tools->info_for(window_info.window.application()));
@@ -230,7 +230,8 @@ auto TilingWindowManagerPolicy::transform_set_state(WindowInfo& window_info, Mir
         break;
     }
 
-    return window_info.state = value;
+    window_info.state(value);
+    return value;
 }
 
 void TilingWindowManagerPolicy::drag(Point cursor)
@@ -424,7 +425,7 @@ void TilingWindowManagerPolicy::toggle(MirSurfaceState state)
     {
         auto& window_info = tools->info_for(window);
 
-        if (window_info.state == state)
+        if (window_info.state() == state)
             state = mir_surface_state_restored;
 
         handle_set_state(window_info, state);
