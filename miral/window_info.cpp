@@ -34,6 +34,25 @@ auto optional_value_or_default(mir::optional_value<Value> const& optional_value,
 }
 }
 
+struct miral::WindowInfo::Self
+{
+    MirSurfaceType type;
+    MirSurfaceState state;
+    mir::geometry::Rectangle restore_rect;
+    Window parent;
+    std::vector <Window> children;
+    mir::geometry::Width min_width;
+    mir::geometry::Height min_height;
+    mir::geometry::Width max_width;
+    mir::geometry::Height max_height;
+    mir::optional_value<mir::geometry::DeltaX> width_inc;
+    mir::optional_value<mir::geometry::DeltaY> height_inc;
+    mir::optional_value<AspectRatio> min_aspect;
+    mir::optional_value<AspectRatio> max_aspect;
+    mir::optional_value<int> output_id;
+    std::shared_ptr<void> userdata;
+};
+
 miral::WindowInfo::WindowInfo(
     Window const& window,
     WindowSpecification const& params) :
@@ -48,7 +67,8 @@ miral::WindowInfo::WindowInfo(
     width_inc{params.width_inc()},
     height_inc{params.height_inc()},
     min_aspect{},
-    max_aspect{}
+    max_aspect{},
+    self{std::make_unique<Self>()}
 {
     if (min_aspect.is_set())
         min_aspect = AspectRatio{params.min_aspect().value().width, params.min_aspect().value().height};
@@ -58,6 +78,36 @@ miral::WindowInfo::WindowInfo(
 
     if (params.output_id().is_set())
         output_id = params.output_id().value();
+}
+
+miral::WindowInfo::~WindowInfo()
+{
+}
+
+miral::WindowInfo::WindowInfo(WindowInfo const& that) :
+    window{that.window},
+    type{that.type},
+    state{that.state},
+    restore_rect{that.restore_rect},
+    min_width{that.min_width},
+    min_height{that.min_height},
+    max_width{that.max_width},
+    max_height{that.max_height},
+    width_inc{that.width_inc},
+    height_inc{that.height_inc},
+    min_aspect{that.min_aspect},
+    max_aspect{that.max_aspect},
+    userdata{that.userdata},
+    self{std::make_unique<Self>(*that.self)}
+{
+
+}
+
+miral::WindowInfo& miral::WindowInfo::operator=(WindowInfo const& that)
+{
+    auto temp = that;
+    std::swap(*this, temp);
+    return *this;
 }
 
 bool miral::WindowInfo::can_be_active() const

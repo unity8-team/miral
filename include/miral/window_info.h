@@ -37,6 +37,9 @@ struct WindowInfo
     using AspectRatio = WindowSpecification::AspectRatio;
 
     WindowInfo(Window const& window, WindowSpecification const& params);
+    ~WindowInfo();
+    WindowInfo(WindowInfo const& that);
+    WindowInfo& operator=(WindowInfo const& that);
 
     bool can_be_active() const;
 
@@ -71,6 +74,10 @@ struct WindowInfo
 
     /// This can be used by client code to store window manager specific information
     std::shared_ptr<void> userdata;
+
+private:
+    struct Self;
+    std::unique_ptr<Self> const self;
 };
 }
 
