@@ -82,7 +82,6 @@ miral::WindowInfo::WindowInfo(
     Window const& window,
     WindowSpecification const& params) :
     window{window},
-    type{optional_value_or_default(params.type(), mir_surface_type_normal)},
     state{optional_value_or_default(params.state(), mir_surface_state_restored)},
     restore_rect{window.top_left(), window.size()},
     min_width{optional_value_or_default(params.min_width())},
@@ -111,7 +110,6 @@ miral::WindowInfo::~WindowInfo()
 
 miral::WindowInfo::WindowInfo(WindowInfo const& that) :
     window{that.window},
-    type{that.type},
     state{that.state},
     restore_rect{that.restore_rect},
     min_width{that.min_width},
@@ -137,7 +135,7 @@ miral::WindowInfo& miral::WindowInfo::operator=(WindowInfo const& that)
 
 bool miral::WindowInfo::can_be_active() const
 {
-    switch (type)
+    switch (type())
     {
     case mir_surface_type_normal:       /**< AKA "regular"                       */
     case mir_surface_type_utility:      /**< AKA "floating"                      */
@@ -158,7 +156,7 @@ bool miral::WindowInfo::can_be_active() const
 
 bool miral::WindowInfo::must_have_parent() const
 {
-    switch (type)
+    switch (type())
     {
     case mir_surface_type_overlay:;
     case mir_surface_type_inputmethod:
@@ -178,7 +176,7 @@ bool miral::WindowInfo::can_morph_to(MirSurfaceType new_type) const
     case mir_surface_type_normal:
     case mir_surface_type_utility:
     case mir_surface_type_satellite:
-        switch (type)
+        switch (type())
         {
         case mir_surface_type_normal:
         case mir_surface_type_utility:
@@ -192,7 +190,7 @@ bool miral::WindowInfo::can_morph_to(MirSurfaceType new_type) const
         break;
 
     case mir_surface_type_dialog:
-        switch (type)
+        switch (type())
         {
         case mir_surface_type_normal:
         case mir_surface_type_utility:
@@ -215,7 +213,7 @@ bool miral::WindowInfo::can_morph_to(MirSurfaceType new_type) const
 
 bool miral::WindowInfo::must_not_have_parent() const
 {
-    switch (type)
+    switch (type())
     {
     case mir_surface_type_normal:
     case mir_surface_type_utility:
@@ -377,4 +375,14 @@ bool miral::WindowInfo::needs_titlebar(MirSurfaceType type)
     default:
         return true;
     }
+}
+
+auto miral::WindowInfo::type() const -> MirSurfaceType
+{
+    return self->type;
+}
+
+void miral::WindowInfo::type(MirSurfaceType type)
+{
+    self->type = type;
 }

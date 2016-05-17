@@ -57,7 +57,8 @@ struct WindowInfo
 
     Window window;
 
-    MirSurfaceType type;
+    auto type() const -> MirSurfaceType;
+    void type(MirSurfaceType type);
     MirSurfaceState state;
     mir::geometry::Rectangle restore_rect;
     Window parent;

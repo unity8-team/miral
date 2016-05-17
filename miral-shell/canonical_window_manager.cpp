@@ -248,7 +248,7 @@ void CanonicalWindowManagerPolicy::generate_decorations_for(WindowInfo& window_i
 {
     Window const& window = window_info.window;
 
-    if (!window_info.needs_titlebar(window_info.type))
+    if (!window_info.needs_titlebar(window_info.type()))
         return;
 
     auto format = mir_pixel_format_xrgb_8888;
@@ -293,7 +293,7 @@ void CanonicalWindowManagerPolicy::handle_modify_window(
         window_info_new.parent = tools->info_for(modifications.parent().value()).window;
 
     if (modifications.type().is_set() &&
-        window_info_new.type != modifications.type().value())
+        window_info_new.type() != modifications.type().value())
     {
         auto const new_type = modifications.type().value();
 
@@ -302,7 +302,7 @@ void CanonicalWindowManagerPolicy::handle_modify_window(
             throw std::runtime_error("Unsupported window type change");
         }
 
-        window_info_new.type = new_type;
+        window_info_new.type(new_type);
 
         if (window_info_new.must_not_have_parent())
         {
