@@ -266,7 +266,7 @@ void CanonicalWindowManagerPolicy::generate_decorations_for(WindowInfo& window_i
 
     auto data = std::make_shared<CanonicalWindowManagementPolicyData>(titlebar_info.window);
     window_info.userdata = data;
-    window_info.children.push_back(titlebar_info.window);
+    window_info.add_child(titlebar_info.window);
 }
 
 void CanonicalWindowManagerPolicy::handle_new_window(WindowInfo& window_info)
@@ -911,7 +911,7 @@ void CanonicalWindowManagerPolicy::move_tree(WindowInfo& root, Displacement move
 {
     root.window.move_to(root.window.top_left() + movement);
 
-    for (auto const& child: root.children)
+    for (auto const& child: root.children())
     {
         move_tree(tools->info_for(child), movement);
     }

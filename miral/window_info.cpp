@@ -421,3 +421,31 @@ void miral::WindowInfo::parent(Window const& parent)
     self->parent = parent;
 }
 
+auto miral::WindowInfo::children() const -> std::vector <Window> const&
+{
+    return self->children;
+}
+
+void miral::WindowInfo::children(std::vector <Window> const& children)
+{
+    self->children = children;
+}
+
+void miral::WindowInfo::add_child(Window const& child)
+{
+    self->children.push_back(child);
+}
+
+void miral::WindowInfo::remove_child(Window const& child)
+{
+    auto& siblings = self->children;
+
+    for (auto i = begin(siblings); i != end(siblings); ++i)
+    {
+        if (child == *i)
+        {
+            siblings.erase(i);
+            break;
+        }
+    }
+}

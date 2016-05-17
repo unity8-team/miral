@@ -96,7 +96,7 @@ auto miral::BasicWindowManager::add_surface(
     session_info.windows.push_back(window);
 
     if (auto const parent = window_info.parent())
-        info_for(parent).children.push_back(window);
+        info_for(parent).add_child(window);
 
     policy->handle_new_window(window_info);
 
@@ -132,18 +132,7 @@ void miral::BasicWindowManager::remove_surface(
     auto& info = info_for(surface);
 
     if (auto const parent = info.parent())
-    {
-        auto& siblings = info_for(parent).children;
-
-        for (auto i = begin(siblings); i != end(siblings); ++i)
-        {
-            if (info.window == *i)
-            {
-                siblings.erase(i);
-                break;
-            }
-        }
-    }
+        info_for(parent).remove_child(info.window);
 
     auto& windows = info_for(session).windows;
 
@@ -394,8 +383,8 @@ void miral::BasicWindowManager::raise_tree(Window const& root)
         [&,this](std::weak_ptr<scene::Surface> const& surface)
             {
             auto const& info = info_for(surface);
-            windows.insert(begin(info.children), end(info.children));
-            for (auto const& child : info.children)
+            windows.insert(begin(info.children()), end(info.children()));
+            for (auto const& child : info.children())
                 add_children(child);
             };
 

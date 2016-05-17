@@ -521,7 +521,7 @@ void TilingWindowManagerPolicy::drag(WindowInfo& window_info, Point to, Point fr
 
         constrained_move(window_info.window, movement, bounds);
 
-        for (auto const& child: window_info.children)
+        for (auto const& child: window_info.children())
         {
             auto move = movement;
             constrained_move(child, move, bounds);

@@ -69,7 +69,11 @@ struct WindowInfo
     auto parent() const -> Window;
     void parent(Window const& parent);
 
-    std::vector <Window> children;
+    auto children() const -> std::vector <Window> const&;
+    void children(std::vector <Window> const& children);
+    void add_child(Window const& child);
+    void remove_child(Window const& child);
+
     mir::geometry::Width min_width;
     mir::geometry::Height min_height;
     mir::geometry::Width max_width;
