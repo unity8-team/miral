@@ -110,7 +110,6 @@ struct WindowInfo
     void userdata(std::shared_ptr<void> userdata);
 
 private:
-    Window mutable window_;
     struct Self;
     std::unique_ptr<Self> const self;
 };
