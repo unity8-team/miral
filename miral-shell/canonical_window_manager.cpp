@@ -326,6 +326,7 @@ void CanonicalWindowManagerPolicy::handle_modify_window(
 
     COPY_IF_SET(min_width);
     COPY_IF_SET(min_height);
+    COPY_IF_SET(max_width);
 
 #undef COPY_IF_SET
 
@@ -333,7 +334,6 @@ void CanonicalWindowManagerPolicy::handle_modify_window(
         if (modifications.field().is_set())\
             window_info_new.field = modifications.field().value()
 
-    COPY_IF_SET(max_width);
     COPY_IF_SET(max_height);
     COPY_IF_SET(width_inc);
     COPY_IF_SET(height_inc);

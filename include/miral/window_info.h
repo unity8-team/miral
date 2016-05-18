@@ -79,7 +79,9 @@ struct WindowInfo
     auto min_height() const -> mir::geometry::Height;
     void min_height(mir::geometry::Height min_height);
 
-    mir::geometry::Width max_width;
+    auto max_width() const -> mir::geometry::Width;
+    void max_width(mir::geometry::Width max_width);
+
     mir::geometry::Height max_height;
     mir::optional_value<mir::geometry::DeltaX> width_inc;
     mir::optional_value<mir::geometry::DeltaY> height_inc;
