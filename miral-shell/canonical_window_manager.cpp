@@ -126,9 +126,9 @@ auto CanonicalWindowManagerPolicy::handle_place_new_surface(
     }
     else if (!has_parent) // No parent => client can't suggest positioning
     {
-        if (app_info.windows.size() > 0)
+        if (app_info.windows().size() > 0)
         {
-            if (auto const default_window = app_info.windows[0])
+            if (auto const default_window = app_info.windows()[0])
             {
                 static Displacement const offset{title_bar_height, title_bar_height};
 
@@ -575,7 +575,7 @@ bool CanonicalWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const*
     {
         if (auto const prev = tools->focused_window())
         {
-            auto const& siblings = tools->info_for(prev.application()).windows;
+            auto const& siblings = tools->info_for(prev.application()).windows();
             auto current = find(begin(siblings), end(siblings), prev);
 
             while (current != end(siblings) && prev == select_active_window(*current))
@@ -763,8 +763,8 @@ auto CanonicalWindowManagerPolicy::select_active_window(Window const& hint) -> m
         {
             auto const& spinner_info = tools->info_for(spinner_session);
 
-            if (spinner_info.windows.size() > 0)
-                tools->raise_tree(spinner_info.windows[0]);
+            if (spinner_info.windows().size() > 0)
+                tools->raise_tree(spinner_info.windows()[0]);
         }
 
         return hint;

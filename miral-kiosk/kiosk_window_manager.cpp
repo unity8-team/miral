@@ -171,7 +171,7 @@ bool KioskWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* eve
     {
         if (auto const prev = tools->focused_window())
         {
-            auto const& siblings = tools->info_for(prev.application()).windows;
+            auto const& siblings = tools->info_for(prev.application()).windows();
             auto current = find(begin(siblings), end(siblings), prev);
 
             while (current != end(siblings) && prev == select_active_window(*current))
@@ -260,7 +260,7 @@ void KioskWindowManagerPolicy::raise_splash_session() const
     {
         auto const& app_info = tools->info_for(session);
 
-        for (auto const& s : app_info.windows)
+        for (auto const& s : app_info.windows())
             tools->raise_tree(s);
     }
 }
