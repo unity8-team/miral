@@ -372,7 +372,8 @@ void CanonicalWindowManagerPolicy::handle_delete_window(WindowInfo& window_info)
         tools->destroy(titlebar->window);
     }
 
-    active_window_.reset();
+    if (active_window() == window_info.window)
+        active_window_.reset();
 }
 
 auto CanonicalWindowManagerPolicy::handle_set_state(WindowInfo& window_info, MirSurfaceState value)
