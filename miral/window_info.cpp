@@ -91,7 +91,7 @@ miral::WindowInfo::WindowInfo(
         max_aspect(AspectRatio{params.max_aspect().value().width, params.max_aspect().value().height});
 
     if (params.output_id().is_set())
-        output_id = params.output_id().value();
+        output_id(params.output_id().value());
 }
 
 miral::WindowInfo::~WindowInfo()
@@ -527,4 +527,19 @@ auto miral::WindowInfo::max_aspect() const -> AspectRatio
 void miral::WindowInfo::max_aspect(mir::optional_value<AspectRatio> max_aspect)
 {
     self->max_aspect = max_aspect;
+}
+
+bool miral::WindowInfo::has_output_id() const
+{
+    return self->output_id.is_set();
+}
+
+auto miral::WindowInfo::output_id() const -> int
+{
+    return self->output_id.value();
+}
+
+void miral::WindowInfo::output_id(mir::optional_value<int> output_id)
+{
+    self->output_id = output_id;
 }

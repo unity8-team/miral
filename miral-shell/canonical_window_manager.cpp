@@ -76,7 +76,7 @@ void CanonicalWindowManagerPolicy::handle_displays_updated(Rectangles const& dis
             auto const& info = tools->info_for(window);
             Rectangle rect{window.top_left(), window.size()};
 
-            tools->place_in_output(info.output_id.value(), rect);
+            tools->place_in_output(info.output_id(), rect);
             window.move_to(rect.top_left);
             window.resize(rect.size);
         }
@@ -332,13 +332,6 @@ void CanonicalWindowManagerPolicy::handle_modify_window(
     COPY_IF_SET(height_inc);
     COPY_IF_SET(min_aspect);
     COPY_IF_SET(max_aspect);
-
-#undef COPY_IF_SET
-
-#define COPY_IF_SET(field)\
-        if (modifications.field().is_set())\
-            window_info_new.field = modifications.field().value()
-
     COPY_IF_SET(output_id);
 
 #undef COPY_IF_SET
@@ -414,7 +407,7 @@ auto CanonicalWindowManagerPolicy::transform_set_state(WindowInfo& window_info, 
 
     if (window_info.state() != mir_surface_state_fullscreen)
     {
-        window_info.output_id = decltype(window_info.output_id){};
+        window_info.output_id({});
         fullscreen_surfaces.erase(window_info.window);
     }
     else
@@ -470,9 +463,9 @@ auto CanonicalWindowManagerPolicy::transform_set_state(WindowInfo& window_info, 
     {
         Rectangle rect{old_pos, window_info.window.size()};
 
-        if (window_info.output_id.is_set())
+        if (window_info.has_output_id())
         {
-            tools->place_in_output(window_info.output_id.value(), rect);
+            tools->place_in_output(window_info.output_id(), rect);
         }
         else
         {
