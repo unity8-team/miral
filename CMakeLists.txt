@@ -22,6 +22,7 @@ set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-z,defs -fuse-ld=gold
 include(FindPkgConfig)
 
 pkg_check_modules(MIRCLIENT mirclient>=0.20 REQUIRED)
+pkg_search_module(GtestGmock GtestGmock)
 
 include_directories(include SYSTEM ${MIRCLIENT_INCLUDE_DIRS})
 
@@ -34,3 +35,8 @@ set(MIRAL_VERSION ${MIRAL_VERSION_MAJOR}.${MIRAL_VERSION_MINOR}.${MIRAL_VERSION_
 add_subdirectory(miral)
 add_subdirectory(miral-shell)
 add_subdirectory(miral-kiosk)
+
+if (GtestGmock_FOUND)
+    add_subdirectory(test)
+endif ()
+
