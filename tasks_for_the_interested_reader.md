@@ -14,9 +14,6 @@ There are some aspects of the current interface that are of concern for the
 stability of the ABI. In particular, classes with accessible data members or
 with virtual function tables can only be modified in restricted ways.
  
- - miral::ApplicationInfo would be better implemented using the CheshireCat
-   idiom allowing properties to be added without breaking ABI.
-
  - There's duplicated logic managing the "info" data across the different window
    management policies that should handled by the MirAL BasicWindowManager.
    
