@@ -96,7 +96,7 @@ auto TilingWindowManagerPolicy::handle_place_new_surface(
 
     if (parameters.parent().is_set() && parameters.parent().value().lock())
     {
-        auto parent = tools->info_for(parameters.parent().value()).window;
+        auto parent = tools->info_for(parameters.parent().value()).window();
         auto const width = parameters.size().value().width.as_int();
         auto const height = parameters.size().value().height.as_int();
 
@@ -154,7 +154,7 @@ void TilingWindowManagerPolicy::handle_new_window(WindowInfo& /*window_info*/)
 
 void TilingWindowManagerPolicy::handle_window_ready(WindowInfo& window_info)
 {
-    select_active_window(window_info.window);
+    select_active_window(window_info.window());
 }
 
 void TilingWindowManagerPolicy::handle_modify_window(
@@ -162,7 +162,7 @@ void TilingWindowManagerPolicy::handle_modify_window(
     miral::WindowSpecification const& modifications)
 {
     if (modifications.name().is_set())
-        window_info.window.rename(modifications.name().value());
+        window_info.window().rename(modifications.name().value());
 }
 
 void TilingWindowManagerPolicy::handle_delete_window(WindowInfo& /*window_info*/)
@@ -173,7 +173,7 @@ auto TilingWindowManagerPolicy::handle_set_state(WindowInfo& window_info, MirSur
 -> MirSurfaceState
 {
     auto state = transform_set_state(window_info, value);
-    window_info.window.set_state(state);
+    window_info.window().set_state(state);
     return state;
 }
 
@@ -194,7 +194,7 @@ auto TilingWindowManagerPolicy::transform_set_state(WindowInfo& window_info, Mir
 
     if (window_info.state() == mir_surface_state_restored)
     {
-        window_info.restore_rect({window_info.window.top_left(), window_info.window.size()});
+        window_info.restore_rect({window_info.window().top_left(), window_info.window().size()});
     }
 
     if (window_info.state() == value)
@@ -202,28 +202,28 @@ auto TilingWindowManagerPolicy::transform_set_state(WindowInfo& window_info, Mir
         return window_info.state();
     }
 
-    auto const& tile = tile_for(tools->info_for(window_info.window.application()));
+    auto const& tile = tile_for(tools->info_for(window_info.window().application()));
 
     switch (value)
     {
     case mir_surface_state_restored:
-        window_info.window.resize(window_info.restore_rect().size);
-        drag(window_info, window_info.restore_rect().top_left, window_info.window.top_left(), tile);
+        window_info.window().resize(window_info.restore_rect().size);
+        drag(window_info, window_info.restore_rect().top_left, window_info.window().top_left(), tile);
         break;
 
     case mir_surface_state_maximized:
-        window_info.window.resize(tile.size);
-        drag(window_info, tile.top_left, window_info.window.top_left(), tile);
+        window_info.window().resize(tile.size);
+        drag(window_info, tile.top_left, window_info.window().top_left(), tile);
         break;
 
     case mir_surface_state_horizmaximized:
-        window_info.window.resize({tile.size.width, window_info.restore_rect().size.height});
-        drag(window_info, {tile.top_left.x, window_info.restore_rect().top_left.y}, window_info.window.top_left(), tile);
+        window_info.window().resize({tile.size.width, window_info.restore_rect().size.height});
+        drag(window_info, {tile.top_left.x, window_info.restore_rect().top_left.y}, window_info.window().top_left(), tile);
         break;
 
     case mir_surface_state_vertmaximized:
-        window_info.window.resize({window_info.restore_rect().size.width, tile.size.height});
-        drag(window_info, {window_info.restore_rect().top_left.x, tile.top_left.y}, window_info.window.top_left(), tile);
+        window_info.window().resize({window_info.restore_rect().size.width, tile.size.height});
+        drag(window_info, {window_info.restore_rect().top_left.x, tile.top_left.y}, window_info.window().top_left(), tile);
         break;
 
     default:
@@ -250,7 +250,7 @@ void TilingWindowManagerPolicy::drag(Point cursor)
 
 void TilingWindowManagerPolicy::handle_raise_window(WindowInfo& window_info)
 {
-    select_active_window(window_info.window);
+    select_active_window(window_info.window());
 }
 
 bool TilingWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* event)
@@ -515,11 +515,11 @@ void TilingWindowManagerPolicy::fit_to_new_tile(miral::Window& window, Rectangle
 
 void TilingWindowManagerPolicy::drag(WindowInfo& window_info, Point to, Point from, Rectangle bounds)
 {
-    if (window_info.window && window_info.window.input_area_contains(from))
+    if (window_info.window() && window_info.window().input_area_contains(from))
     {
         auto movement = to - from;
 
-        constrained_move(window_info.window, movement, bounds);
+        constrained_move(window_info.window(), movement, bounds);
 
         for (auto const& child: window_info.children())
         {
@@ -596,7 +596,7 @@ auto TilingWindowManagerPolicy::select_active_window(Window const& window) -> Wi
 
     if (info_for.can_be_active())
     {
-        tools->set_focus_to(info_for.window);
+        tools->set_focus_to(info_for.window());
         tools->raise_tree(window);
         return window;
     }

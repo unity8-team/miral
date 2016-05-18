@@ -55,7 +55,7 @@ struct WindowInfo
 
     void constrain_resize(mir::geometry::Point& requested_pos, mir::geometry::Size& requested_size) const;
 
-    Window window;
+    auto window() const -> Window&;
 
     auto type() const -> MirSurfaceType;
     void type(MirSurfaceType type);
@@ -110,6 +110,7 @@ struct WindowInfo
     void userdata(std::shared_ptr<void> userdata);
 
 private:
+    Window mutable window_;
     struct Self;
     std::unique_ptr<Self> const self;
 };

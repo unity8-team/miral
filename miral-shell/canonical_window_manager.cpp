@@ -145,7 +145,7 @@ auto CanonicalWindowManagerPolicy::handle_place_new_surface(
 
     if (has_parent && parameters.aux_rect().is_set() && parameters.edge_attachment().is_set())
     {
-        auto parent = tools->info_for(parameters.parent().value()).window;
+        auto parent = tools->info_for(parameters.parent().value()).window();
 
         auto const edge_attachment = parameters.edge_attachment().value();
         auto const aux_rect = parameters.aux_rect().value();
@@ -184,7 +184,7 @@ auto CanonicalWindowManagerPolicy::handle_place_new_surface(
     }
     else if (has_parent)
     {
-        auto parent = tools->info_for(parameters.parent().value()).window;
+        auto parent = tools->info_for(parameters.parent().value()).window();
         //  o Otherwise, if the dialog is not the same as any previous dialog for the
         //    same parent window, and/or it does not have user-customized position:
         //      o It should be optically centered relative to its parent, unless this
@@ -246,7 +246,7 @@ auto CanonicalWindowManagerPolicy::handle_place_new_surface(
 
 void CanonicalWindowManagerPolicy::generate_decorations_for(WindowInfo& window_info)
 {
-    Window const& window = window_info.window;
+    Window const& window = window_info.window();
 
     if (!window_info.needs_titlebar(window_info.type()))
         return;
@@ -261,25 +261,25 @@ void CanonicalWindowManagerPolicy::generate_decorations_for(WindowInfo& window_i
     params.type() = mir_surface_type_gloss;
 
     auto& titlebar_info = tools->build_window(window.application(), params);
-    titlebar_info.window.set_alpha(0.9);
+    titlebar_info.window().set_alpha(0.9);
     titlebar_info.parent(window);
 
-    auto data = std::make_shared<CanonicalWindowManagementPolicyData>(titlebar_info.window);
+    auto data = std::make_shared<CanonicalWindowManagementPolicyData>(titlebar_info.window());
     window_info.userdata(data);
-    window_info.add_child(titlebar_info.window);
+    window_info.add_child(titlebar_info.window());
 }
 
 void CanonicalWindowManagerPolicy::handle_new_window(WindowInfo& window_info)
 {
     if (window_info.state() == mir_surface_state_fullscreen)
-        fullscreen_surfaces.insert(window_info.window);
+        fullscreen_surfaces.insert(window_info.window());
 
     generate_decorations_for(window_info);
 }
 
 void CanonicalWindowManagerPolicy::handle_window_ready(WindowInfo& window_info)
 {
-    select_active_window(window_info.window);
+    select_active_window(window_info.window());
 }
 
 void CanonicalWindowManagerPolicy::handle_modify_window(
@@ -287,10 +287,10 @@ void CanonicalWindowManagerPolicy::handle_modify_window(
     WindowSpecification const& modifications)
 {
     auto window_info_new = window_info;
-    auto& window = window_info_new.window;
+    auto& window = window_info_new.window();
 
     if (modifications.parent().is_set())
-        window_info_new.parent(tools->info_for(modifications.parent().value()).window);
+        window_info_new.parent(tools->info_for(modifications.parent().value()).window());
 
     if (modifications.type().is_set() &&
         window_info_new.type() != modifications.type().value())
@@ -342,7 +342,7 @@ void CanonicalWindowManagerPolicy::handle_modify_window(
         window.rename(modifications.name().value());
 
     if (modifications.streams().is_set())
-        window_info_new.window.configure_streams(modifications.streams().value());
+        window_info_new.window().configure_streams(modifications.streams().value());
 
     if (modifications.input_shape().is_set())
         window.set_input_region(modifications.input_shape().value());
@@ -364,7 +364,7 @@ void CanonicalWindowManagerPolicy::handle_modify_window(
 
 void CanonicalWindowManagerPolicy::handle_delete_window(WindowInfo& window_info)
 {
-    fullscreen_surfaces.erase(window_info.window);
+    fullscreen_surfaces.erase(window_info.window());
 
     if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(window_info.userdata()))
     {
@@ -378,7 +378,7 @@ auto CanonicalWindowManagerPolicy::handle_set_state(WindowInfo& window_info, Mir
 -> MirSurfaceState
 {
     auto state = transform_set_state(window_info, value);
-    window_info.window.set_state(state);
+    window_info.window().set_state(state);
     return state;
 }
 
@@ -402,17 +402,17 @@ auto CanonicalWindowManagerPolicy::transform_set_state(WindowInfo& window_info, 
 
     if (window_info.state() == mir_surface_state_restored)
     {
-        window_info.restore_rect({window_info.window.top_left(), window_info.window.size()});
+        window_info.restore_rect({window_info.window().top_left(), window_info.window().size()});
     }
 
     if (window_info.state() != mir_surface_state_fullscreen)
     {
         window_info.output_id({});
-        fullscreen_surfaces.erase(window_info.window);
+        fullscreen_surfaces.erase(window_info.window());
     }
     else
     {
-        fullscreen_surfaces.insert(window_info.window);
+        fullscreen_surfaces.insert(window_info.window());
     }
 
     if (window_info.state() == value)
@@ -420,14 +420,14 @@ auto CanonicalWindowManagerPolicy::transform_set_state(WindowInfo& window_info, 
         return window_info.state();
     }
 
-    auto const old_pos = window_info.window.top_left();
+    auto const old_pos = window_info.window().top_left();
     Displacement movement;
 
     switch (value)
     {
     case mir_surface_state_restored:
         movement = window_info.restore_rect().top_left - old_pos;
-        window_info.window.resize(window_info.restore_rect().size);
+        window_info.window().resize(window_info.restore_rect().size);
         if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(window_info.userdata()))
         {
             titlebar->window.resize(titlebar_size_for_window(window_info.restore_rect().size));
@@ -437,14 +437,14 @@ auto CanonicalWindowManagerPolicy::transform_set_state(WindowInfo& window_info, 
 
     case mir_surface_state_maximized:
         movement = display_area.top_left - old_pos;
-        window_info.window.resize(display_area.size);
+        window_info.window().resize(display_area.size);
         if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(window_info.userdata()))
             titlebar->window.hide();
         break;
 
     case mir_surface_state_horizmaximized:
         movement = Point{display_area.top_left.x, window_info.restore_rect().top_left.y} - old_pos;
-        window_info.window.resize({display_area.size.width, window_info.restore_rect().size.height});
+        window_info.window().resize({display_area.size.width, window_info.restore_rect().size.height});
         if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(window_info.userdata()))
         {
             titlebar->window.resize(titlebar_size_for_window({display_area.size.width, window_info.restore_rect().size.height}));
@@ -454,14 +454,14 @@ auto CanonicalWindowManagerPolicy::transform_set_state(WindowInfo& window_info, 
 
     case mir_surface_state_vertmaximized:
         movement = Point{window_info.restore_rect().top_left.x, display_area.top_left.y} - old_pos;
-        window_info.window.resize({window_info.restore_rect().size.width, display_area.size.height});
+        window_info.window().resize({window_info.restore_rect().size.width, display_area.size.height});
         if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(window_info.userdata()))
             titlebar->window.hide();
         break;
 
     case mir_surface_state_fullscreen:
     {
-        Rectangle rect{old_pos, window_info.window.size()};
+        Rectangle rect{old_pos, window_info.window().size()};
 
         if (window_info.has_output_id())
         {
@@ -473,7 +473,7 @@ auto CanonicalWindowManagerPolicy::transform_set_state(WindowInfo& window_info, 
         }
 
         movement = rect.top_left - old_pos;
-        window_info.window.resize(rect.size);
+        window_info.window().resize(rect.size);
         break;
     }
 
@@ -481,7 +481,7 @@ auto CanonicalWindowManagerPolicy::transform_set_state(WindowInfo& window_info, 
     case mir_surface_state_minimized:
         if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(window_info.userdata()))
             titlebar->window.hide();
-        window_info.window.hide();
+        window_info.window().hide();
         window_info.state(value);
         return value;
 
@@ -497,7 +497,7 @@ auto CanonicalWindowManagerPolicy::transform_set_state(WindowInfo& window_info, 
     window_info.state(value);
 
     if (window_info.is_visible())
-        window_info.window.show();
+        window_info.window().show();
 
     return window_info.state();
 }
@@ -510,7 +510,7 @@ void CanonicalWindowManagerPolicy::drag(Point cursor)
 
 void CanonicalWindowManagerPolicy::handle_raise_window(WindowInfo& window_info)
 {
-    select_active_window(window_info.window);
+    select_active_window(window_info.window());
 }
 
 bool CanonicalWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* event)
@@ -754,9 +754,9 @@ auto CanonicalWindowManagerPolicy::select_active_window(Window const& hint) -> m
         {
             titlebar->paint_titlebar(0xFF);
         }
-        tools->set_focus_to(info_for.window);
-        tools->raise_tree(info_for.window);
-        active_window_ = info_for.window;
+        tools->set_focus_to(info_for.window());
+        tools->raise_tree(info_for.window());
+        active_window_ = info_for.window();
 
         // Frig to force the spinner to the top
         if (auto const spinner_session = spinner.session())
@@ -855,9 +855,9 @@ void CanonicalWindowManagerPolicy::apply_resize(WindowInfo& window_info, Point n
     if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(window_info.userdata()))
         titlebar->window.resize({new_size.width, Height{title_bar_height}});
 
-    window_info.window.resize(new_size);
+    window_info.window().resize(new_size);
 
-    move_tree(window_info, new_pos-window_info.window.top_left());
+    move_tree(window_info, new_pos-window_info.window().top_left());
 }
 
 bool CanonicalWindowManagerPolicy::drag(Window window, Point to, Point from, Rectangle /*bounds*/)
@@ -908,7 +908,7 @@ bool CanonicalWindowManagerPolicy::drag(Window window, Point to, Point from, Rec
 
 void CanonicalWindowManagerPolicy::move_tree(WindowInfo& root, Displacement movement) const
 {
-    root.window.move_to(root.window.top_left() + movement);
+    root.window().move_to(root.window().top_left() + movement);
 
     for (auto const& child: root.children())
     {

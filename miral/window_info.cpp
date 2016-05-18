@@ -81,7 +81,7 @@ miral::WindowInfo::Self::Self(WindowSpecification const& params) :
 miral::WindowInfo::WindowInfo(
     Window const& window,
     WindowSpecification const& params) :
-    window{window},
+    window_{window},
     self{std::make_unique<Self>(params)}
 {
     if (params.min_aspect().is_set())
@@ -99,14 +99,14 @@ miral::WindowInfo::~WindowInfo()
 }
 
 miral::WindowInfo::WindowInfo(WindowInfo const& that) :
-    window{that.window},
+    window_{that.window_},
     self{std::make_unique<Self>(*that.self)}
 {
 }
 
 miral::WindowInfo& miral::WindowInfo::operator=(WindowInfo const& that)
 {
-    window = that.window;
+    window_ = that.window_;
     *self = *that.self;
     return *this;
 }
@@ -216,8 +216,8 @@ bool miral::WindowInfo::is_visible() const
 }
 void miral::WindowInfo::constrain_resize(Point& requested_pos, Size& requested_size) const
 {
-    bool const left_resize = requested_pos.x != window.top_left().x;
-    bool const top_resize  = requested_pos.y != window.top_left().y;
+    bool const left_resize = requested_pos.x != window_.top_left().x;
+    bool const top_resize  = requested_pos.y != window_.top_left().y;
 
     Point new_pos = requested_pos;
     Size new_size = requested_size;
@@ -312,15 +312,15 @@ void miral::WindowInfo::constrain_resize(Point& requested_pos, Size& requested_s
         // "A vertically maximised window is anchored to the top and bottom of
         // the available workspace and can have any width."
     case mir_surface_state_vertmaximized:
-        new_pos.y = window.top_left().y;
-        new_size.height = window.size().height;
+        new_pos.y = window_.top_left().y;
+        new_size.height = window_.size().height;
         break;
 
         // "A horizontally maximised window is anchored to the left and right of
         // the available workspace and can have any height"
     case mir_surface_state_horizmaximized:
-        new_pos.x = window.top_left().x;
-        new_size.width = window.size().width;
+        new_pos.x = window_.top_left().x;
+        new_size.width = window_.size().width;
         break;
 
         // "A maximised window is anchored to the top, bottom, left and right of the
@@ -328,10 +328,10 @@ void miral::WindowInfo::constrain_resize(Point& requested_pos, Size& requested_s
         // the left-edge of the window is anchored to the right-edge of the launcher."
     case mir_surface_state_maximized:
     default:
-        new_pos.x = window.top_left().x;
-        new_pos.y = window.top_left().y;
-        new_size.width = window.size().width;
-        new_size.height = window.size().height;
+        new_pos.x = window_.top_left().x;
+        new_pos.y = window_.top_left().y;
+        new_size.width = window_.size().width;
+        new_size.height = window_.size().height;
         break;
     }
 
@@ -542,4 +542,9 @@ auto miral::WindowInfo::output_id() const -> int
 void miral::WindowInfo::output_id(mir::optional_value<int> output_id)
 {
     self->output_id = output_id;
+}
+
+auto miral::WindowInfo::window() const -> Window&
+{
+    return window_;
 }
