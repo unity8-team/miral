@@ -70,7 +70,6 @@ struct WindowInfo
     void parent(Window const& parent);
 
     auto children() const -> std::vector <Window> const&;
-    void children(std::vector <Window> const& children);
     void add_child(Window const& child);
     void remove_child(Window const& child);
 

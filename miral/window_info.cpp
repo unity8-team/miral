@@ -423,11 +423,6 @@ auto miral::WindowInfo::children() const -> std::vector <Window> const&
     return self->children;
 }
 
-void miral::WindowInfo::children(std::vector <Window> const& children)
-{
-    self->children = children;
-}
-
 void miral::WindowInfo::add_child(Window const& child)
 {
     self->children.push_back(child);
