@@ -65,3 +65,13 @@ void miral::ApplicationInfo::remove_window(Window const& window)
         }
     }
 }
+
+auto miral::ApplicationInfo::userdata() const -> std::shared_ptr<void>
+{
+    return self->userdata;
+}
+
+void miral::ApplicationInfo::userdata(std::shared_ptr<void> userdata)
+{
+    self->userdata = userdata;
+}

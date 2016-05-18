@@ -38,7 +38,8 @@ struct ApplicationInfo
     void remove_window(Window const& window);
 
     /// This can be used by client code to store window manager specific information
-    std::shared_ptr<void> userdata;
+    auto userdata() const -> std::shared_ptr<void>;
+    void userdata(std::shared_ptr<void> userdata);
 
 private:
     struct Self;

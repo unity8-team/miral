@@ -38,12 +38,12 @@ struct TilingWindowManagerPolicyData
 
 inline Rectangle& tile_for(miral::ApplicationInfo& app_info)
 {
-    return std::static_pointer_cast<TilingWindowManagerPolicyData>(app_info.userdata)->tile;
+    return std::static_pointer_cast<TilingWindowManagerPolicyData>(app_info.userdata())->tile;
 }
 
 inline Rectangle const& tile_for(miral::ApplicationInfo const& app_info)
 {
-    return std::static_pointer_cast<TilingWindowManagerPolicyData>(app_info.userdata)->tile;
+    return std::static_pointer_cast<TilingWindowManagerPolicyData>(app_info.userdata())->tile;
 }
 }
 
@@ -453,8 +453,8 @@ void TilingWindowManagerPolicy::update_tiles(Rectangles const& displays)
 
     tools->for_each_application([&](ApplicationInfo& info)
         {
-            if (!info.userdata)
-                info.userdata = std::make_shared<TilingWindowManagerPolicyData>();
+            if (!info.userdata())
+                info.userdata(std::make_shared<TilingWindowManagerPolicyData>());
 
             auto& tile = tile_for(info);
 
