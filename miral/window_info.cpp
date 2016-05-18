@@ -82,7 +82,6 @@ miral::WindowInfo::WindowInfo(
     Window const& window,
     WindowSpecification const& params) :
     window{window},
-    max_height{optional_value_or_default(params.max_height(), Height{std::numeric_limits<int>::max()})},
     width_inc{params.width_inc()},
     height_inc{params.height_inc()},
     min_aspect{},
@@ -105,7 +104,6 @@ miral::WindowInfo::~WindowInfo()
 
 miral::WindowInfo::WindowInfo(WindowInfo const& that) :
     window{that.window},
-    max_height{that.max_height},
     width_inc{that.width_inc},
     height_inc{that.height_inc},
     min_aspect{that.min_aspect},
@@ -118,7 +116,6 @@ miral::WindowInfo::WindowInfo(WindowInfo const& that) :
 miral::WindowInfo& miral::WindowInfo::operator=(WindowInfo const& that)
 {
     window = that.window;
-    max_height = that.max_height;
     width_inc = that.width_inc;
     height_inc = that.height_inc;
     min_aspect = that.min_aspect;
@@ -294,8 +291,8 @@ void miral::WindowInfo::constrain_resize(Point& requested_pos, Size& requested_s
     if (max_width() < new_size.width)
         new_size.width = max_width();
 
-    if (max_height < new_size.height)
-        new_size.height = max_height;
+    if (max_height() < new_size.height)
+        new_size.height = max_height();
 
     if (width_inc.is_set())
     {
@@ -464,4 +461,14 @@ auto miral::WindowInfo::max_width() const -> mir::geometry::Width
 void miral::WindowInfo::max_width(mir::geometry::Width max_width)
 {
     self->max_width = max_width;
+}
+
+auto miral::WindowInfo::max_height() const -> mir::geometry::Height
+{
+    return self->max_height;
+}
+
+void miral::WindowInfo::max_height(mir::geometry::Height max_height)
+{
+    self->max_height = max_height;
 }
