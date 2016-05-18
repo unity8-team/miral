@@ -82,7 +82,6 @@ miral::WindowInfo::WindowInfo(
     Window const& window,
     WindowSpecification const& params) :
     window{window},
-    height_inc{params.height_inc()},
     min_aspect{},
     max_aspect{},
     self{std::make_unique<Self>(params)}
@@ -103,7 +102,6 @@ miral::WindowInfo::~WindowInfo()
 
 miral::WindowInfo::WindowInfo(WindowInfo const& that) :
     window{that.window},
-    height_inc{that.height_inc},
     min_aspect{that.min_aspect},
     max_aspect{that.max_aspect},
     self{std::make_unique<Self>(*that.self)}
@@ -113,7 +111,6 @@ miral::WindowInfo::WindowInfo(WindowInfo const& that) :
 miral::WindowInfo& miral::WindowInfo::operator=(WindowInfo const& that)
 {
     window = that.window;
-    height_inc = that.height_inc;
     min_aspect = that.min_aspect;
     max_aspect = that.max_aspect;
     *self = *that.self;
@@ -297,10 +294,10 @@ void miral::WindowInfo::constrain_resize(Point& requested_pos, Size& requested_s
             new_size.width = min_width() + DeltaX{inc*(((2L*width + inc)/2)/inc)};
     }
 
-    if (height_inc.is_set())
+    if (has_height_inc())
     {
         auto const height = new_size.height.as_int() - min_height().as_int();
-        auto inc = height_inc.value().as_int();
+        auto inc = height_inc().as_int();
         if (height % inc)
             new_size.height = min_height() + DeltaY{inc*(((2L*height + inc)/2)/inc)};
     }
@@ -491,4 +488,19 @@ auto miral::WindowInfo::width_inc() const -> mir::geometry::DeltaX
 void miral::WindowInfo::width_inc(mir::optional_value<mir::geometry::DeltaX> width_inc)
 {
     self->width_inc = width_inc;
+}
+
+bool miral::WindowInfo::has_height_inc() const
+{
+    return self->height_inc.is_set();
+}
+
+auto miral::WindowInfo::height_inc() const -> mir::geometry::DeltaY
+{
+    return self->height_inc.value();
+}
+
+void miral::WindowInfo::height_inc(mir::optional_value<mir::geometry::DeltaY> height_inc)
+{
+    self->height_inc = height_inc;
 }

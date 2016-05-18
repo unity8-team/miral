@@ -89,7 +89,10 @@ struct WindowInfo
     auto width_inc() const -> mir::geometry::DeltaX;
     void width_inc(mir::optional_value<mir::geometry::DeltaX> width_inc);
 
-    mir::optional_value<mir::geometry::DeltaY> height_inc;
+    bool has_height_inc() const;
+    auto height_inc() const -> mir::geometry::DeltaY;
+    void height_inc(mir::optional_value<mir::geometry::DeltaY> height_inc);
+
     mir::optional_value<AspectRatio> min_aspect;
     mir::optional_value<AspectRatio> max_aspect;
     mir::optional_value<int> output_id;
