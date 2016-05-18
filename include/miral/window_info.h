@@ -92,7 +92,8 @@ struct WindowInfo
     mir::optional_value<int> output_id;
 
     /// This can be used by client code to store window manager specific information
-    std::shared_ptr<void> userdata;
+    auto userdata() const -> std::shared_ptr<void>;
+    void userdata(std::shared_ptr<void> userdata);
 
 private:
     struct Self;

@@ -108,7 +108,6 @@ miral::WindowInfo::WindowInfo(WindowInfo const& that) :
     height_inc{that.height_inc},
     min_aspect{that.min_aspect},
     max_aspect{that.max_aspect},
-    userdata{that.userdata},
     self{std::make_unique<Self>(*that.self)}
 {
 }
@@ -120,7 +119,6 @@ miral::WindowInfo& miral::WindowInfo::operator=(WindowInfo const& that)
     height_inc = that.height_inc;
     min_aspect = that.min_aspect;
     max_aspect = that.max_aspect;
-    userdata = that.userdata;
     *self = *that.self;
     return *this;
 }
@@ -471,4 +469,14 @@ auto miral::WindowInfo::max_height() const -> mir::geometry::Height
 void miral::WindowInfo::max_height(mir::geometry::Height max_height)
 {
     self->max_height = max_height;
+}
+
+auto miral::WindowInfo::userdata() const -> std::shared_ptr<void>
+{
+    return self->userdata;
+}
+
+void miral::WindowInfo::userdata(std::shared_ptr<void> userdata)
+{
+    self->userdata = userdata;
 }
