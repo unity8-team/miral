@@ -82,12 +82,11 @@ miral::WindowInfo::WindowInfo(
     Window const& window,
     WindowSpecification const& params) :
     window{window},
-    min_aspect{},
     max_aspect{},
     self{std::make_unique<Self>(params)}
 {
-    if (min_aspect.is_set())
-        min_aspect = AspectRatio{params.min_aspect().value().width, params.min_aspect().value().height};
+    if (params.min_aspect().is_set())
+        min_aspect(AspectRatio{params.min_aspect().value().width, params.min_aspect().value().height});
 
     if (max_aspect.is_set())
         max_aspect = AspectRatio{params.max_aspect().value().width, params.max_aspect().value().height};
@@ -102,7 +101,6 @@ miral::WindowInfo::~WindowInfo()
 
 miral::WindowInfo::WindowInfo(WindowInfo const& that) :
     window{that.window},
-    min_aspect{that.min_aspect},
     max_aspect{that.max_aspect},
     self{std::make_unique<Self>(*that.self)}
 {
@@ -111,7 +109,6 @@ miral::WindowInfo::WindowInfo(WindowInfo const& that) :
 miral::WindowInfo& miral::WindowInfo::operator=(WindowInfo const& that)
 {
     window = that.window;
-    min_aspect = that.min_aspect;
     max_aspect = that.max_aspect;
     *self = *that.self;
     return *this;
@@ -228,9 +225,9 @@ void miral::WindowInfo::constrain_resize(Point& requested_pos, Size& requested_s
     Point new_pos = requested_pos;
     Size new_size = requested_size;
 
-    if (min_aspect.is_set())
+    if (has_min_aspect())
     {
-        auto const ar = min_aspect.value();
+        auto const ar = min_aspect();
 
         auto const error = new_size.height.as_int()*long(ar.width) - new_size.width.as_int()*long(ar.height);
 
@@ -503,4 +500,19 @@ auto miral::WindowInfo::height_inc() const -> mir::geometry::DeltaY
 void miral::WindowInfo::height_inc(mir::optional_value<mir::geometry::DeltaY> height_inc)
 {
     self->height_inc = height_inc;
+}
+
+bool miral::WindowInfo::has_min_aspect() const
+{
+    return self->min_aspect.is_set();
+}
+
+auto miral::WindowInfo::min_aspect() const -> AspectRatio
+{
+    return self->min_aspect.value();
+}
+
+void miral::WindowInfo::min_aspect(mir::optional_value<AspectRatio> min_aspect)
+{
+    self->min_aspect = min_aspect;
 }
