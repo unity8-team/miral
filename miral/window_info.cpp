@@ -82,14 +82,13 @@ miral::WindowInfo::WindowInfo(
     Window const& window,
     WindowSpecification const& params) :
     window{window},
-    max_aspect{},
     self{std::make_unique<Self>(params)}
 {
     if (params.min_aspect().is_set())
         min_aspect(AspectRatio{params.min_aspect().value().width, params.min_aspect().value().height});
 
-    if (max_aspect.is_set())
-        max_aspect = AspectRatio{params.max_aspect().value().width, params.max_aspect().value().height};
+    if (params.max_aspect().is_set())
+        max_aspect(AspectRatio{params.max_aspect().value().width, params.max_aspect().value().height});
 
     if (params.output_id().is_set())
         output_id = params.output_id().value();
@@ -101,7 +100,6 @@ miral::WindowInfo::~WindowInfo()
 
 miral::WindowInfo::WindowInfo(WindowInfo const& that) :
     window{that.window},
-    max_aspect{that.max_aspect},
     self{std::make_unique<Self>(*that.self)}
 {
 }
@@ -109,7 +107,6 @@ miral::WindowInfo::WindowInfo(WindowInfo const& that) :
 miral::WindowInfo& miral::WindowInfo::operator=(WindowInfo const& that)
 {
     window = that.window;
-    max_aspect = that.max_aspect;
     *self = *that.self;
     return *this;
 }
@@ -248,9 +245,9 @@ void miral::WindowInfo::constrain_resize(Point& requested_pos, Size& requested_s
         }
     }
 
-    if (max_aspect.is_set())
+    if (has_max_aspect())
     {
-        auto const ar = max_aspect.value();
+        auto const ar = max_aspect();
 
         auto const error = new_size.width.as_int()*long(ar.height) - new_size.height.as_int()*long(ar.width);
 
@@ -515,4 +512,19 @@ auto miral::WindowInfo::min_aspect() const -> AspectRatio
 void miral::WindowInfo::min_aspect(mir::optional_value<AspectRatio> min_aspect)
 {
     self->min_aspect = min_aspect;
+}
+
+bool miral::WindowInfo::has_max_aspect() const
+{
+    return self->max_aspect.is_set();
+}
+
+auto miral::WindowInfo::max_aspect() const -> AspectRatio
+{
+    return self->max_aspect.value();
+}
+
+void miral::WindowInfo::max_aspect(mir::optional_value<AspectRatio> max_aspect)
+{
+    self->max_aspect = max_aspect;
 }

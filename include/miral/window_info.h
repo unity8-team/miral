@@ -97,7 +97,10 @@ struct WindowInfo
     auto min_aspect() const -> AspectRatio;
     void min_aspect(mir::optional_value<AspectRatio> min_aspect);
 
-    mir::optional_value<AspectRatio> max_aspect;
+    bool has_max_aspect() const;
+    auto max_aspect() const -> AspectRatio;
+    void max_aspect(mir::optional_value<AspectRatio> max_aspect);
+
     mir::optional_value<int> output_id;
 
     /// This can be used by client code to store window manager specific information
