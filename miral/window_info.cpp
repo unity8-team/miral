@@ -82,7 +82,6 @@ miral::WindowInfo::WindowInfo(
     Window const& window,
     WindowSpecification const& params) :
     window{window},
-    min_height{optional_value_or_default(params.min_height())},
     max_width{optional_value_or_default(params.max_width(), Width{std::numeric_limits<int>::max()})},
     max_height{optional_value_or_default(params.max_height(), Height{std::numeric_limits<int>::max()})},
     width_inc{params.width_inc()},
@@ -107,7 +106,6 @@ miral::WindowInfo::~WindowInfo()
 
 miral::WindowInfo::WindowInfo(WindowInfo const& that) :
     window{that.window},
-    min_height{that.min_height},
     max_width{that.max_width},
     max_height{that.max_height},
     width_inc{that.width_inc},
@@ -122,8 +120,6 @@ miral::WindowInfo::WindowInfo(WindowInfo const& that) :
 miral::WindowInfo& miral::WindowInfo::operator=(WindowInfo const& that)
 {
     window = that.window;
-    min_height = that.min_height;
-    max_width = that.max_width;
     max_height = that.max_height;
     width_inc = that.width_inc;
     height_inc = that.height_inc;
@@ -294,8 +290,8 @@ void miral::WindowInfo::constrain_resize(Point& requested_pos, Size& requested_s
     if (min_width() > new_size.width)
         new_size.width = min_width();
 
-    if (min_height > new_size.height)
-        new_size.height = min_height;
+    if (min_height() > new_size.height)
+        new_size.height = min_height();
 
     if (max_width < new_size.width)
         new_size.width = max_width;
@@ -313,10 +309,10 @@ void miral::WindowInfo::constrain_resize(Point& requested_pos, Size& requested_s
 
     if (height_inc.is_set())
     {
-        auto const height = new_size.height.as_int() - min_height.as_int();
+        auto const height = new_size.height.as_int() - min_height().as_int();
         auto inc = height_inc.value().as_int();
         if (height % inc)
-            new_size.height = min_height + DeltaY{inc*(((2L*height + inc)/2)/inc)};
+            new_size.height = min_height() + DeltaY{inc*(((2L*height + inc)/2)/inc)};
     }
 
     if (left_resize)
@@ -450,4 +446,14 @@ auto miral::WindowInfo::min_width() const -> mir::geometry::Width
 void miral::WindowInfo::min_width(mir::geometry::Width min_width)
 {
     self->min_width = min_width;
+}
+
+auto miral::WindowInfo::min_height() const -> mir::geometry::Height
+{
+    return self->min_height;
+}
+
+void miral::WindowInfo::min_height(mir::geometry::Height min_height)
+{
+    self->min_height = min_height;
 }
