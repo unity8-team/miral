@@ -127,9 +127,9 @@ void miral::BasicWindowManager::remove_surface(
     std::weak_ptr<scene::Surface> const& surface)
 {
     std::lock_guard<decltype(mutex)> lock(mutex);
-    bool const is_active_window{surface.lock() == focus_controller->focused_surface()};
-
     auto& info = info_for(surface);
+
+    bool const is_active_window{mru_active_windows.top() == info.window()};
 
     if (auto const parent = info.parent())
         info_for(parent).remove_child(info.window());
@@ -157,11 +157,17 @@ void miral::BasicWindowManager::remove_surface(
                 return;
         }
 
-        // Try to return focus to recent window of same application
+        // TODO the policy for choosing a window is mixed with implementing the choice.
+        // I.e. select_active_window() calls set_focus_to() which updates mru_active_windows
+        // during the iteration. There must be a better way to sequence the logic.
+        // Until then we copy the list.
+        auto const copy_mru_windows = mru_active_windows;
+
+        // Try to activate to recently active window of same application
         {
             Window new_focus;
 
-            mru_active_windows.enumerate([&](Window& window)
+            copy_mru_windows.enumerate([&](Window& window)
                 {
                     return window.application() != session ||
                         !(new_focus = policy->select_active_window(window));
@@ -170,11 +176,11 @@ void miral::BasicWindowManager::remove_surface(
             if (new_focus) return;
         }
 
-        // Try to return focus to recent window of any application
+        // Try to activate to recently active window of any application
         {
             Window new_focus;
 
-            mru_active_windows.enumerate([&](Window& window)
+            copy_mru_windows.enumerate([&](Window& window)
             {
                 return !(new_focus = policy->select_active_window(window));
             });
