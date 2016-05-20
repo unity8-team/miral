@@ -26,13 +26,24 @@
 
 namespace miral
 {
-// TODO "Opaquify ApplicationInfo to provide a stable API
 struct ApplicationInfo
 {
-    std::vector<Window> windows;
+    ApplicationInfo();
+    ~ApplicationInfo();
+    ApplicationInfo(ApplicationInfo const& that);
+    auto operator=(ApplicationInfo const& that) -> miral::ApplicationInfo&;
+
+    auto windows() const -> std::vector <Window>&;
+    void add_window(Window const& window);
+    void remove_window(Window const& window);
 
     /// This can be used by client code to store window manager specific information
-    std::shared_ptr<void> userdata;
+    auto userdata() const -> std::shared_ptr<void>;
+    void userdata(std::shared_ptr<void> userdata);
+
+private:
+    struct Self;
+    std::unique_ptr<Self> const self;
 };
 }
 
