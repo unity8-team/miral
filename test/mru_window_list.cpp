@@ -46,6 +46,11 @@ void miral::MRUWindowList::note(Window const& window)
     surfaces.push_back(window);
 }
 
+void miral::MRUWindowList::erase(Window const& window)
+{
+    surfaces.erase(remove(begin(surfaces), end(surfaces), window), end(surfaces));
+}
+
 auto miral::MRUWindowList::top() const -> Window
 {
     return (!surfaces.empty()) ? surfaces.back() : Window{};
@@ -108,5 +113,14 @@ TEST_F(MRUWindowList, given_non_empty_list_when_a_window_pushed_that_window_is_t
     mru_list.note(window_b);
     mru_list.note(window_c);
     EXPECT_THAT(mru_list.top(), Eq(window_c));
+}
+
+TEST_F(MRUWindowList, given_non_empty_list_when_top_window_is_erased_that_window_is_no_longer_on_top)
+{
+    mru_list.note(window_a);
+    mru_list.note(window_b);
+    mru_list.note(window_c);
+    mru_list.erase(window_c);
+    EXPECT_THAT(mru_list.top(), Ne(window_c));
 }
 
