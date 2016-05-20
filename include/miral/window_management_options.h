@@ -43,13 +43,6 @@ struct WindowManagerOption
     WindowManagementPolicyBuilder const build;
 };
 
-template<typename Policy>
-inline auto add_window_manager_policy(std::string const& name) -> WindowManagerOption
-{
-    return {name, [](miral::WindowManagerTools* tools) -> std::unique_ptr<miral::WindowManagementPolicy>
-        { return std::make_unique<Policy>(tools); }};
-}
-
 template<typename Policy, typename ...Args>
 inline auto add_window_manager_policy(std::string const& name, Args&... args) -> WindowManagerOption
 {
