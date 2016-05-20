@@ -48,7 +48,7 @@ void miral::MRUWindowList::note(Window const& window)
 
 auto miral::MRUWindowList::top() const -> Window
 {
-    return (!surfaces.empty()) ? surfaces.front() : Window{};
+    return (!surfaces.empty()) ? surfaces.back() : Window{};
 }
 
 /////////////////////
@@ -96,9 +96,17 @@ TEST_F(MRUWindowList, when_created_is_empty)
     EXPECT_THAT(mru_list.top(), IsNullWindow());
 }
 
-TEST_F(MRUWindowList, given_one_window_pushed_that_window_is_top)
+TEST_F(MRUWindowList, given_empty_list_when_a_window_pushed_that_window_is_top)
 {
     mru_list.note(window_a);
     EXPECT_THAT(mru_list.top(), Eq(window_a));
+}
+
+TEST_F(MRUWindowList, given_non_empty_list_when_a_window_pushed_that_window_is_top)
+{
+    mru_list.note(window_a);
+    mru_list.note(window_b);
+    mru_list.note(window_c);
+    EXPECT_THAT(mru_list.top(), Eq(window_c));
 }
 
