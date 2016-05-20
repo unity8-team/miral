@@ -157,16 +157,33 @@ void miral::BasicWindowManager::remove_surface(
                 return;
         }
 
-        // Ought to find top window of same application, but we don't
-        // have the API (yet), so find any suitable top-level-window
-        for (auto const& tlw : session_info.windows())
+        // Try to return focus to recent window of same application
         {
-            if (policy->select_active_window(tlw))
-                return;
+            Window new_focus;
+
+            mru_active_windows.enumerate([&](Window& window)
+                {
+                    return window.application() != session ||
+                        !(new_focus = policy->select_active_window(window));
+                });
+
+            if (new_focus) return;
         }
 
+        // Try to return focus to recent window of any application
+        {
+            Window new_focus;
+
+            mru_active_windows.enumerate([&](Window& window)
+            {
+                return !(new_focus = policy->select_active_window(window));
+            });
+
+            if (new_focus) return;
+        }
+
+        // Fallback to cycling through applications
         focus_next_application();
-        policy->select_active_window(focused_window());
     }
 }
 
