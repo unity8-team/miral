@@ -371,7 +371,7 @@ void CanonicalWindowManagerPolicy::handle_delete_window(WindowInfo& window_info)
         tools->destroy(titlebar->window);
     }
 
-    if (active_window() == window_info.window)
+    if (active_window() == window_info.window())
         active_window_.reset();
 }
 
@@ -840,7 +840,7 @@ bool CanonicalWindowManagerPolicy::resize(Window const& window, Point cursor, Po
         if (delta.dy > DeltaY{0})
             delta.dy = DeltaY{0};
     }
-    
+
     Size new_size{new_width, new_height};
     Point new_pos = top_left + left_resize*delta.dx + top_resize*delta.dy;
 
