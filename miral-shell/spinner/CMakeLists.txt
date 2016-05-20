@@ -47,8 +47,6 @@ include_directories(
   ${CMAKE_CURRENT_BINARY_DIR}
 )
 
-link_directories(${MIRCLIENT_LIBRARY_DIRS})
-
 add_library(miral-spinner STATIC
   eglapp.cpp
   eglapp.h

@@ -718,7 +718,7 @@ auto CanonicalWindowManagerPolicy::select_active_window(Window const& hint) -> m
     auto const prev_window = active_window();
 
     if (hint == prev_window)
-        return hint ;
+        return hint;
 
     if (!hint)
     {
