@@ -307,6 +307,7 @@ auto miral::BasicWindowManager::focused_window() const
 void miral::BasicWindowManager::focus_next_application()
 {
     focus_controller->focus_next_session();
+    policy->select_active_window(focused_window());
 }
 
 void miral::BasicWindowManager::set_focus_to(Window const& window)
