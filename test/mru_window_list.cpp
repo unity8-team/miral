@@ -30,7 +30,7 @@ class MRUWindowList
 {
 public:
 
-    void note(Window const& window);
+    void push(Window const& window);
     void erase(Window const& window);
     auto top() const -> Window;
 
@@ -41,7 +41,7 @@ private:
 
 /////////////////////
 
-void miral::MRUWindowList::note(Window const& window)
+void miral::MRUWindowList::push(Window const& window)
 {
     surfaces.push_back(window);
 }
@@ -103,23 +103,23 @@ TEST_F(MRUWindowList, when_created_is_empty)
 
 TEST_F(MRUWindowList, given_empty_list_when_a_window_pushed_that_window_is_top)
 {
-    mru_list.note(window_a);
+    mru_list.push(window_a);
     EXPECT_THAT(mru_list.top(), Eq(window_a));
 }
 
 TEST_F(MRUWindowList, given_non_empty_list_when_a_window_pushed_that_window_is_top)
 {
-    mru_list.note(window_a);
-    mru_list.note(window_b);
-    mru_list.note(window_c);
+    mru_list.push(window_a);
+    mru_list.push(window_b);
+    mru_list.push(window_c);
     EXPECT_THAT(mru_list.top(), Eq(window_c));
 }
 
 TEST_F(MRUWindowList, given_non_empty_list_when_top_window_is_erased_that_window_is_no_longer_on_top)
 {
-    mru_list.note(window_a);
-    mru_list.note(window_b);
-    mru_list.note(window_c);
+    mru_list.push(window_a);
+    mru_list.push(window_b);
+    mru_list.push(window_c);
     mru_list.erase(window_c);
     EXPECT_THAT(mru_list.top(), Ne(window_c));
 }
