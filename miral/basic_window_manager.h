@@ -24,6 +24,7 @@
 #include "miral/window_info.h"
 #include "miral/application.h"
 #include "miral/application_info.h"
+#include "miral/mru_window_list.h"
 
 #include "mir/geometry/rectangles.h"
 #include "mir/shell/abstract_shell.h"
@@ -147,6 +148,7 @@ private:
     mir::geometry::Rectangles displays;
     mir::geometry::Point cursor;
     uint64_t last_input_event_timestamp{0};
+    miral::MRUWindowList mru_active_windows;
 
     // Cache the builder functor for the convenience of policies - this should become unnecessary
     std::function<Window(std::shared_ptr<mir::scene::Session> const& session, WindowSpecification const& params)> surface_builder;

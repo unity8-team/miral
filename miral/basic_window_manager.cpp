@@ -137,6 +137,7 @@ void miral::BasicWindowManager::remove_surface(
     auto& session_info = info_for(session);
 
     session_info.remove_window(info.window());
+    mru_active_windows.erase(info.window());
 
     policy->handle_delete_window(info);
 
@@ -312,6 +313,7 @@ void miral::BasicWindowManager::focus_next_application()
 
 void miral::BasicWindowManager::set_focus_to(Window const& window)
 {
+    if (window) mru_active_windows.push(window);
     focus_controller->set_focus_to(window.application(), window);
 }
 

@@ -21,8 +21,8 @@
 
 #include "spinner/splash.h"
 
-#include "miral/window.h"
-#include "miral/window_management_policy.h"
+#include <miral/window.h>
+#include <miral/window_management_policy.h>
 
 #include <mir/geometry/displacement.h>
 
