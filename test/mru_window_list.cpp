@@ -136,16 +136,49 @@ TEST_F(MRUWindowList, given_non_empty_list_when_top_window_is_erased_that_window
     EXPECT_THAT(mru_list.top(), Ne(window_c));
 }
 
-TEST_F(MRUWindowList, a_window_pushed_twice_is_not_listed_twice)
+TEST_F(MRUWindowList, a_window_pushed_twice_is_not_enumerated_twice)
 {
     mru_list.push(window_a);
     mru_list.push(window_b);
     mru_list.push(window_a);
 
-    int count;
+    int count{0};
 
-    mru_list.enumerate([&](miral::Window& window) { if (window == window_a) ++ count; return true; });
+    mru_list.enumerate([&](miral::Window& window)
+        { if (window == window_a) ++count; return true; });
 
     EXPECT_THAT(count, Eq(1));
 }
 
+TEST_F(MRUWindowList, after_multiple_pushes_windows_are_enumerated_in_mru_order)
+{
+    mru_list.push(window_a);
+    mru_list.push(window_b);
+    mru_list.push(window_c);
+    mru_list.push(window_a);
+    mru_list.push(window_b);
+    mru_list.push(window_a);
+    mru_list.push(window_c);
+    mru_list.push(window_b);
+    mru_list.push(window_a);
+
+    std::vector<miral::Window> as_enumerated;
+
+    mru_list.enumerate([&](miral::Window& window)
+       { as_enumerated.push_back(window); return true; });
+
+    EXPECT_THAT(as_enumerated, ElementsAre(window_a, window_b, window_c));
+}
+
+TEST_F(MRUWindowList, when_enumerator_returns_false_enumeration_is_short_circuited)
+{
+    mru_list.push(window_a);
+    mru_list.push(window_b);
+    mru_list.push(window_c);
+
+    int count{0};
+
+    mru_list.enumerate([&](miral::Window&) { ++count; return false; });
+
+    EXPECT_THAT(count, Eq(1));
+}
