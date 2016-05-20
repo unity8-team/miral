@@ -16,59 +16,13 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#include <miral/window.h>
+#include <miral/mru_window_list.h>
 
 #include <mir/test/doubles/stub_surface.h>
 #include <mir/test/doubles/stub_session.h>
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-
-namespace miral
-{
-class MRUWindowList
-{
-public:
-
-    void push(Window const& window);
-    void erase(Window const& window);
-    auto top() const -> Window;
-
-    using Enumerator = std::function<bool(Window& window)>;
-
-    void enumerate(Enumerator const& enumerator) const;
-
-private:
-    std::vector<Window> surfaces;
-};
-}
-
-/////////////////////
-
-void miral::MRUWindowList::push(Window const& window)
-{
-    surfaces.erase(remove(begin(surfaces), end(surfaces), window), end(surfaces));
-    surfaces.push_back(window);
-}
-
-void miral::MRUWindowList::erase(Window const& window)
-{
-    surfaces.erase(remove(begin(surfaces), end(surfaces), window), end(surfaces));
-}
-
-auto miral::MRUWindowList::top() const -> Window
-{
-    return (!surfaces.empty()) ? surfaces.back() : Window{};
-}
-
-void miral::MRUWindowList::enumerate(Enumerator const& enumerator) const
-{
-    for (auto i = rbegin(surfaces); i != rend(surfaces); ++i)
-        if (!enumerator(const_cast<Window&>(*i)))
-            break;
-}
-
-/////////////////////
 
 using StubSurface = mir::test::doubles::StubSurface;
 using namespace testing;
@@ -158,6 +112,7 @@ TEST_F(MRUWindowList, after_multiple_pushes_windows_are_enumerated_in_mru_order)
     mru_list.push(window_a);
     mru_list.push(window_b);
     mru_list.push(window_a);
+
     mru_list.push(window_c);
     mru_list.push(window_b);
     mru_list.push(window_a);
