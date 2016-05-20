@@ -38,12 +38,12 @@ struct TilingWindowManagerPolicyData
 
 inline Rectangle& tile_for(miral::ApplicationInfo& app_info)
 {
-    return std::static_pointer_cast<TilingWindowManagerPolicyData>(app_info.userdata)->tile;
+    return std::static_pointer_cast<TilingWindowManagerPolicyData>(app_info.userdata())->tile;
 }
 
 inline Rectangle const& tile_for(miral::ApplicationInfo const& app_info)
 {
-    return std::static_pointer_cast<TilingWindowManagerPolicyData>(app_info.userdata)->tile;
+    return std::static_pointer_cast<TilingWindowManagerPolicyData>(app_info.userdata())->tile;
 }
 }
 
@@ -314,7 +314,7 @@ bool TilingWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* ev
     {
         if (auto const prev = tools->focused_window())
         {
-            auto const& siblings = tools->info_for(prev.application()).windows;
+            auto const& siblings = tools->info_for(prev.application()).windows();
             auto current = find(begin(siblings), end(siblings), prev);
 
             while (current != end(siblings) && prev == select_active_window(*current))
@@ -453,8 +453,8 @@ void TilingWindowManagerPolicy::update_tiles(Rectangles const& displays)
 
     tools->for_each_application([&](ApplicationInfo& info)
         {
-            if (!info.userdata)
-                info.userdata = std::make_shared<TilingWindowManagerPolicyData>();
+            if (!info.userdata())
+                info.userdata(std::make_shared<TilingWindowManagerPolicyData>());
 
             auto& tile = tile_for(info);
 
@@ -476,7 +476,7 @@ void TilingWindowManagerPolicy::update_surfaces(ApplicationInfo& info, Rectangle
 {
     auto displacement = new_tile.top_left - old_tile.top_left;
 
-    for (auto& window : info.windows)
+    for (auto& window : info.windows())
     {
         if (window)
         {

@@ -93,7 +93,7 @@ auto miral::BasicWindowManager::add_surface(
 
     auto const window = window_info.window();
 
-    session_info.windows.push_back(window);
+    session_info.add_window(window);
 
     if (auto const parent = window_info.parent())
         info_for(parent).add_child(window);
@@ -134,16 +134,9 @@ void miral::BasicWindowManager::remove_surface(
     if (auto const parent = info.parent())
         info_for(parent).remove_child(info.window());
 
-    auto& windows = info_for(session).windows;
+    auto& session_info = info_for(session);
 
-    for (auto i = begin(windows); i != end(windows); ++i)
-    {
-        if (info.window() == *i)
-        {
-            windows.erase(i);
-            break;
-        }
-    }
+    session_info.remove_window(info.window());
 
     policy->handle_delete_window(info);
 
@@ -165,7 +158,7 @@ void miral::BasicWindowManager::remove_surface(
 
         // Ought to find top window of same application, but we don't
         // have the API (yet), so find any suitable top-level-window
-        for (auto const& tlw : windows)
+        for (auto const& tlw : session_info.windows())
         {
             if (policy->select_active_window(tlw))
                 return;
