@@ -56,7 +56,7 @@ auto miral::BasicWindowManager::build_window(Application const& application, Win
     auto result = surface_builder(application, spec);
     auto& info = window_info.emplace(result, WindowInfo{result, spec}).first->second;
     if (spec.parent().is_set() && spec.parent().value().lock())
-        info.parent = info_for(spec.parent().value()).window;
+        info.parent(info_for(spec.parent().value()).window());
     return info;
 }
 
@@ -91,18 +91,18 @@ auto miral::BasicWindowManager::add_surface(
     auto& session_info = info_for(session);
     auto& window_info = build_window(session, policy->handle_place_new_surface(session_info, params));
 
-    auto const window = window_info.window;
+    auto const window = window_info.window();
 
     session_info.windows.push_back(window);
 
-    if (auto const parent = window_info.parent)
-        info_for(parent).children.push_back(window);
+    if (auto const parent = window_info.parent())
+        info_for(parent).add_child(window);
 
     policy->handle_new_window(window_info);
 
     if (window_info.can_be_active())
     {
-        std::shared_ptr<scene::Surface> const scene_surface = window_info.window;
+        std::shared_ptr<scene::Surface> const scene_surface = window_info.window();
         scene_surface->add_observer(std::make_shared<shell::SurfaceReadyObserver>(
             [this, &window_info](std::shared_ptr<scene::Session> const&, std::shared_ptr<scene::Surface> const&)
                 { policy->handle_window_ready(window_info); },
@@ -110,7 +110,7 @@ auto miral::BasicWindowManager::add_surface(
             scene_surface));
     }
 
-    return window_info.window.surface_id();
+    return window_info.window().surface_id();
 }
 
 void miral::BasicWindowManager::modify_surface(
@@ -131,25 +131,14 @@ void miral::BasicWindowManager::remove_surface(
 
     auto& info = info_for(surface);
 
-    if (auto const parent = info.parent)
-    {
-        auto& siblings = info_for(parent).children;
-
-        for (auto i = begin(siblings); i != end(siblings); ++i)
-        {
-            if (info.window == *i)
-            {
-                siblings.erase(i);
-                break;
-            }
-        }
-    }
+    if (auto const parent = info.parent())
+        info_for(parent).remove_child(info.window());
 
     auto& windows = info_for(session).windows;
 
     for (auto i = begin(windows); i != end(windows); ++i)
     {
-        if (info.window == *i)
+        if (info.window() == *i)
         {
             windows.erase(i);
             break;
@@ -160,7 +149,7 @@ void miral::BasicWindowManager::remove_surface(
 
     session->destroy_surface(surface);
 
-    auto const parent = info.parent;
+    auto const parent = info.parent();
 
     // NB this invalidates info, but we want to keep access to "parent".
     window_info.erase(surface);
@@ -319,7 +308,7 @@ auto miral::BasicWindowManager::focused_window() const
 -> Window
 {
     auto focussed_surface = focus_controller->focused_surface();
-    return focussed_surface ? info_for(focussed_surface).window :Window{};
+    return focussed_surface ? info_for(focussed_surface).window() : Window{};
 }
 
 void miral::BasicWindowManager::focus_next_application()
@@ -336,7 +325,7 @@ auto miral::BasicWindowManager::window_at(geometry::Point cursor) const
 -> Window
 {
     auto surface_at = focus_controller->surface_at(cursor);
-    return surface_at ? info_for(surface_at).window : Window{};
+    return surface_at ? info_for(surface_at).window() : Window{};
 }
 
 auto miral::BasicWindowManager::active_display()
@@ -394,8 +383,8 @@ void miral::BasicWindowManager::raise_tree(Window const& root)
         [&,this](std::weak_ptr<scene::Surface> const& surface)
             {
             auto const& info = info_for(surface);
-            windows.insert(begin(info.children), end(info.children));
-            for (auto const& child : info.children)
+            windows.insert(begin(info.children()), end(info.children()));
+            for (auto const& child : info.children())
                 add_children(child);
             };
 
