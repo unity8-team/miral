@@ -87,6 +87,8 @@ struct MRUWindowList : testing::Test
     std::shared_ptr<StubSession> const stub_session{std::make_shared<StubSession>(3)};
     miral::Application app{stub_session};
     miral::Window window_a{app, mir::frontend::SurfaceId{0}};
+    miral::Window window_b{app, mir::frontend::SurfaceId{1}};
+    miral::Window window_c{app, mir::frontend::SurfaceId{2}};
 };
 
 TEST_F(MRUWindowList, when_created_is_empty)
