@@ -718,7 +718,7 @@ void CanonicalWindowManagerPolicy::toggle(MirSurfaceState state)
 auto CanonicalWindowManagerPolicy::select_active_window(Window const& hint) -> miral::Window
 {
     if (hint == active_window_)
-        return hint ;
+        return hint;
 
     if (!hint)
     {
