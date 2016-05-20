@@ -18,6 +18,9 @@
 
 #include <miral/window.h>
 
+#include <mir/test/doubles/stub_surface.h>
+#include <mir/test/doubles/stub_session.h>
+
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
@@ -30,21 +33,48 @@ public:
     void note(Window const& window);
     void erase(Window const& window);
     auto top() const -> Window;
+
+private:
+    std::vector<Window> surfaces;
 };
 }
 
 /////////////////////
 
+void miral::MRUWindowList::note(Window const& window)
+{
+    surfaces.push_back(window);
+}
+
 auto miral::MRUWindowList::top() const -> Window
 {
-    return {};
+    return (!surfaces.empty()) ? surfaces.front() : Window{};
 }
 
 /////////////////////
 
+using StubSurface = mir::test::doubles::StubSurface;
+using namespace testing;
+
 namespace
 {
-MATCHER(IsNull, std::string("is not null"))
+struct StubSession : mir::test::doubles::StubSession
+{
+    StubSession(int number_of_surfaces)
+    {
+        for (auto i = 0; i != number_of_surfaces; ++i)
+            surfaces.push_back(std::make_shared<mir::test::doubles::StubSurface>());
+    }
+
+    std::shared_ptr<mir::scene::Surface> surface(mir::frontend::SurfaceId surface) const override
+    {
+        return surfaces.at(surface.as_value());
+    }
+
+    std::vector<std::shared_ptr<StubSurface>> surfaces;
+};
+
+MATCHER(IsNullWindow, std::string("is not null"))
 {
     return !arg;
 }
@@ -54,10 +84,19 @@ struct MRUWindowList : testing::Test
 {
     miral::MRUWindowList mru_list;
 
+    std::shared_ptr<StubSession> const stub_session{std::make_shared<StubSession>(3)};
+    miral::Application app{stub_session};
+    miral::Window window_a{app, mir::frontend::SurfaceId{0}};
 };
 
 TEST_F(MRUWindowList, when_created_is_empty)
 {
-    EXPECT_THAT(mru_list.top(), IsNull());
+    EXPECT_THAT(mru_list.top(), IsNullWindow());
+}
+
+TEST_F(MRUWindowList, given_one_window_pushed_that_window_is_top)
+{
+    mru_list.note(window_a);
+    EXPECT_THAT(mru_list.top(), Eq(window_a));
 }
 
