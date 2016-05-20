@@ -34,6 +34,10 @@ public:
     void erase(Window const& window);
     auto top() const -> Window;
 
+    using Enumerator = std::function<bool(Window& window)>;
+
+    void enumerate(Enumerator const& enumerator) const;
+
 private:
     std::vector<Window> surfaces;
 };
@@ -43,6 +47,7 @@ private:
 
 void miral::MRUWindowList::push(Window const& window)
 {
+    surfaces.erase(remove(begin(surfaces), end(surfaces), window), end(surfaces));
     surfaces.push_back(window);
 }
 
@@ -54,6 +59,13 @@ void miral::MRUWindowList::erase(Window const& window)
 auto miral::MRUWindowList::top() const -> Window
 {
     return (!surfaces.empty()) ? surfaces.back() : Window{};
+}
+
+void miral::MRUWindowList::enumerate(Enumerator const& enumerator) const
+{
+    for (auto i = rbegin(surfaces); i != rend(surfaces); ++i)
+        if (!enumerator(const_cast<Window&>(*i)))
+            break;
 }
 
 /////////////////////
@@ -122,5 +134,18 @@ TEST_F(MRUWindowList, given_non_empty_list_when_top_window_is_erased_that_window
     mru_list.push(window_c);
     mru_list.erase(window_c);
     EXPECT_THAT(mru_list.top(), Ne(window_c));
+}
+
+TEST_F(MRUWindowList, a_window_pushed_twice_is_not_listed_twice)
+{
+    mru_list.push(window_a);
+    mru_list.push(window_b);
+    mru_list.push(window_a);
+
+    int count;
+
+    mru_list.enumerate([&](miral::Window& window) { if (window == window_a) ++ count; return true; });
+
+    EXPECT_THAT(count, Eq(1));
 }
 
