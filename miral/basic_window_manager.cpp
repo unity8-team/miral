@@ -483,7 +483,6 @@ auto miral::BasicWindowManager::select_active_window(Window const& hint) -> mira
     {
         mru_active_windows.push(hint);
         focus_controller->set_focus_to(hint.application(), hint);
-        raise_tree(hint);
 
         if (prev_window && prev_window != hint)
             policy->handle_focus_lost(info_for(prev_window));

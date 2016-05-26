@@ -57,6 +57,10 @@ public:
 
     void handle_raise_window(miral::WindowInfo& window_info) override;
 
+    void handle_focus_lost(miral::WindowInfo const& info) override;
+
+    void handle_focus_gained(miral::WindowInfo const& info) override;
+
 private:
     static const int modifier_mask =
         mir_input_event_modifier_alt |

@@ -234,3 +234,12 @@ void KioskWindowManagerPolicy::raise_splash_session() const
             tools->raise_tree(s);
     }
 }
+
+void KioskWindowManagerPolicy::handle_focus_gained(WindowInfo const& info)
+{
+    tools->raise_tree(info.window());
+}
+
+void KioskWindowManagerPolicy::handle_focus_lost(WindowInfo const& /*info*/)
+{
+}

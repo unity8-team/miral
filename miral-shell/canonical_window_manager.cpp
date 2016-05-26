@@ -712,6 +712,8 @@ void CanonicalWindowManagerPolicy::toggle(MirSurfaceState state)
 
 void CanonicalWindowManagerPolicy::handle_focus_gained(WindowInfo const& info)
 {
+    tools->raise_tree(info.window());
+
     if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(info.userdata()))
         titlebar->paint_titlebar(0xFF);
 

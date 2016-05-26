@@ -582,3 +582,12 @@ void TilingWindowManagerPolicy::resize(Window window, Point cursor, Point old_cu
         window.resize(new_size);
     }
 }
+
+void TilingWindowManagerPolicy::handle_focus_gained(WindowInfo const& info)
+{
+    tools->raise_tree(info.window());
+}
+
+void TilingWindowManagerPolicy::handle_focus_lost(WindowInfo const& /*info*/)
+{
+}

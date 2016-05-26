@@ -50,9 +50,8 @@ public:
     virtual bool handle_pointer_event(MirPointerEvent const* event) = 0;
     virtual void handle_raise_window(WindowInfo& window_info) = 0;
 
-    // TODO push down implementations
-    virtual void handle_focus_lost(miral::WindowInfo const& /*info*/) {}
-    virtual void handle_focus_gained(miral::WindowInfo const& /*info*/) {}
+    virtual void handle_focus_lost(miral::WindowInfo const& info) = 0;
+    virtual void handle_focus_gained(miral::WindowInfo const& info) = 0;
 
     virtual ~WindowManagementPolicy() = default;
     WindowManagementPolicy() = default;

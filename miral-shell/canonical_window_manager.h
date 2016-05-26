@@ -74,6 +74,10 @@ public:
 
     void handle_raise_window(miral::WindowInfo& window_info) override;
 
+    void handle_focus_lost(miral::WindowInfo const& info) override;
+
+    void handle_focus_gained(miral::WindowInfo const& info) override;
+
 private:
     static const int modifier_mask =
         mir_input_event_modifier_alt |
@@ -87,8 +91,6 @@ private:
     bool resize(Point cursor);
     void toggle(MirSurfaceState state);
 
-    void handle_focus_lost(miral::WindowInfo const& info);
-    void handle_focus_gained(miral::WindowInfo const& info);
 
     bool resize(miral::Window const& window, Point cursor, Point old_cursor);
     bool drag(miral::Window window, Point to, Point from, Rectangle bounds);
