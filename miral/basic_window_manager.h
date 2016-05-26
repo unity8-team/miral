@@ -118,6 +118,8 @@ public:
 
     auto focused_window() const -> Window override;
 
+    auto active_window() const -> Window override;
+
     void focus_next_application() override;
 
     void set_focus_to(Window const& window) override;

@@ -572,7 +572,7 @@ bool CanonicalWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const*
             modifiers == mir_input_event_modifier_alt &&
             scan_code == KEY_GRAVE)
     {
-        if (auto const prev = tools->focused_window())
+        if (auto const prev = tools->active_window())
         {
             auto const& siblings = tools->info_for(prev.application()).windows();
             auto current = find(begin(siblings), end(siblings), prev);
@@ -715,10 +715,7 @@ void CanonicalWindowManagerPolicy::toggle(MirSurfaceState state)
 
 auto CanonicalWindowManagerPolicy::select_active_window(Window const& hint) -> miral::Window
 {
-    auto const prev_window = active_window();
-
-    if (hint == prev_window)
-        return hint;
+    auto const prev_window = tools->active_window();
 
     if (!hint)
     {
@@ -738,7 +735,7 @@ auto CanonicalWindowManagerPolicy::select_active_window(Window const& hint) -> m
         tools->set_focus_to(hint);
         tools->raise_tree(hint);
 
-        if (prev_window)
+        if (prev_window && prev_window != hint)
             handle_focus_lost(tools->info_for(prev_window));
 
         handle_focus_gained(info_for_hint);
@@ -782,7 +779,7 @@ void CanonicalWindowManagerPolicy::handle_focus_lost(WindowInfo const& info)
 auto CanonicalWindowManagerPolicy::active_window() const
 -> Window
 {
-    return active_window_;
+    return tools->active_window();
 }
 
 bool CanonicalWindowManagerPolicy::resize(Window const& window, Point cursor, Point old_cursor)

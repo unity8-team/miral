@@ -57,6 +57,7 @@ public:
     virtual auto info_for(Window const& window) const -> WindowInfo& = 0;
     virtual auto focused_application() const -> Application = 0;
     virtual auto focused_window() const -> Window = 0;
+    virtual auto active_window() const -> Window = 0;
     virtual void focus_next_application() = 0;
     virtual void set_focus_to(Window const& window) = 0;
     virtual auto window_at(mir::geometry::Point cursor) const -> Window = 0;
