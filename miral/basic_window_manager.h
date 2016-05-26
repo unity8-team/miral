@@ -159,7 +159,6 @@ private:
     void update_event_timestamp(MirPointerEvent const* pev);
     void update_event_timestamp(MirTouchEvent const* tev);
 
-    void set_focus_to(Window const& window);
 };
 }
 

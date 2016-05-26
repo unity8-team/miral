@@ -339,12 +339,6 @@ void miral::BasicWindowManager::focus_next_application()
     select_active_window(focused_window());
 }
 
-void miral::BasicWindowManager::set_focus_to(Window const& window)
-{
-    if (window) mru_active_windows.push(window);
-    focus_controller->set_focus_to(window.application(), window);
-}
-
 auto miral::BasicWindowManager::window_at(geometry::Point cursor) const
 -> Window
 {
@@ -476,7 +470,7 @@ auto miral::BasicWindowManager::select_active_window(Window const& hint) -> mira
     {
         if (prev_window)
         {
-            set_focus_to({});
+            focus_controller->set_focus_to(hint.application(), hint);
             policy->handle_focus_lost(info_for(prev_window));
         }
 
@@ -487,7 +481,8 @@ auto miral::BasicWindowManager::select_active_window(Window const& hint) -> mira
 
     if (info_for_hint.can_be_active())
     {
-        set_focus_to(hint);
+        mru_active_windows.push(hint);
+        focus_controller->set_focus_to(hint.application(), hint);
         raise_tree(hint);
 
         if (prev_window && prev_window != hint)
