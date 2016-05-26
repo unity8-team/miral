@@ -839,7 +839,7 @@ bool CanonicalWindowManagerPolicy::resize(Window const& window, Point cursor, Po
         if (delta.dy > DeltaY{0})
             delta.dy = DeltaY{0};
     }
-    
+
     Size new_size{new_width, new_height};
     Point new_pos = top_left + left_resize*delta.dx + top_resize*delta.dy;
 
