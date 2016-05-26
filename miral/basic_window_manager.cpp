@@ -315,7 +315,7 @@ auto miral::BasicWindowManager::info_for(Window const& window) const
     return info_for(std::weak_ptr<mir::scene::Surface>(window));
 }
 
-auto miral::BasicWindowManager::focused_application() const
+auto miral::BasicWindowManager::active_application() const
 -> Application
 {
     return focus_controller->focused_session();

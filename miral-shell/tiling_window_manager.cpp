@@ -284,7 +284,7 @@ bool TilingWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* ev
         switch (modifiers & modifier_mask)
         {
         case mir_input_event_modifier_alt:
-            if (auto const application = tools->focused_application())
+            if (auto const application = tools->active_application())
                 miral::kill(application, SIGTERM);
 
             return true;
