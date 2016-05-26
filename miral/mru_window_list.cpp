@@ -38,7 +38,7 @@ auto miral::MRUWindowList::top() const -> Window
 
 void miral::MRUWindowList::enumerate(Enumerator const& enumerator) const
 {
-    for (auto i = rbegin(surfaces); i != rend(surfaces); ++i)
+    for (auto i = surfaces.rbegin(); i != surfaces.rend(); ++i)
         if (!enumerator(const_cast<Window&>(*i)))
             break;
 }
