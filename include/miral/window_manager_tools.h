@@ -60,7 +60,6 @@ public:
     virtual auto active_window() const -> Window = 0;
     virtual auto select_active_window(Window const& hint) -> Window = 0;
     virtual void focus_next_application() = 0;
-    virtual void set_focus_to(Window const& window) = 0;
     virtual auto window_at(mir::geometry::Point cursor) const -> Window = 0;
     virtual auto active_display() -> mir::geometry::Rectangle const = 0;
     virtual void destroy(Window& window) = 0;

@@ -124,8 +124,6 @@ public:
 
     void focus_next_application() override;
 
-    void set_focus_to(Window const& window) override;
-
     auto window_at(mir::geometry::Point cursor) const -> Window override;
 
     auto active_display() -> mir::geometry::Rectangle const override;
@@ -160,6 +158,8 @@ private:
     void update_event_timestamp(MirKeyboardEvent const* kev);
     void update_event_timestamp(MirPointerEvent const* pev);
     void update_event_timestamp(MirTouchEvent const* tev);
+
+    void set_focus_to(Window const& window);
 };
 }
 
