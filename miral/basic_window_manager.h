@@ -114,7 +114,7 @@ public:
 
     auto info_for(Window const& window) const -> WindowInfo& override;
 
-    auto active_application() const -> Application override;
+    void kill_active_application(int sig) override;
 
     auto active_window() const -> Window override;
 

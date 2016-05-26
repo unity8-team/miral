@@ -315,10 +315,10 @@ auto miral::BasicWindowManager::info_for(Window const& window) const
     return info_for(std::weak_ptr<mir::scene::Surface>(window));
 }
 
-auto miral::BasicWindowManager::active_application() const
--> Application
+void miral::BasicWindowManager::kill_active_application(int sig)
 {
-    return focus_controller->focused_session();
+    if (auto const application = focus_controller->focused_session())
+        miral::kill(application, sig);
 }
 
 auto miral::BasicWindowManager::active_window() const -> Window
