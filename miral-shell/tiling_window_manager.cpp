@@ -290,7 +290,7 @@ bool TilingWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* ev
             return true;
 
         case mir_input_event_modifier_ctrl:
-            if (auto const window = tools->focused_window())
+            if (auto const window = tools->active_window())
                 window.request_client_surface_close();
 
             return true;
@@ -311,7 +311,7 @@ bool TilingWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* ev
             modifiers == mir_input_event_modifier_alt &&
             scan_code == KEY_GRAVE)
     {
-        if (auto const prev = tools->focused_window())
+        if (auto const prev = tools->active_window())
         {
             auto const& siblings = tools->info_for(prev.application()).windows();
             auto current = find(begin(siblings), end(siblings), prev);
@@ -420,7 +420,7 @@ bool TilingWindowManagerPolicy::handle_pointer_event(MirPointerEvent const* even
 
 void TilingWindowManagerPolicy::toggle(MirSurfaceState state)
 {
-    if (auto window = tools->focused_window())
+    if (auto window = tools->active_window())
     {
         auto& window_info = tools->info_for(window);
 

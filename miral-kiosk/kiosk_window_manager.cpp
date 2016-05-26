@@ -168,7 +168,7 @@ bool KioskWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* eve
             modifiers == mir_input_event_modifier_alt &&
             scan_code == KEY_GRAVE)
     {
-        if (auto const prev = tools->focused_window())
+        if (auto const prev = tools->active_window())
         {
             auto const& siblings = tools->info_for(prev.application()).windows();
             auto current = find(begin(siblings), end(siblings), prev);

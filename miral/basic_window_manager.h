@@ -116,8 +116,6 @@ public:
 
     auto focused_application() const -> Application override;
 
-    auto focused_window() const -> Window override;
-
     auto active_window() const -> Window override;
 
     auto select_active_window(Window const& hint) -> Window override;

@@ -321,13 +321,6 @@ auto miral::BasicWindowManager::focused_application() const
     return focus_controller->focused_session();
 }
 
-auto miral::BasicWindowManager::focused_window() const
--> Window
-{
-    auto focussed_surface = focus_controller->focused_surface();
-    return focussed_surface ? info_for(focussed_surface).window() : Window{};
-}
-
 auto miral::BasicWindowManager::active_window() const -> Window
 {
     return mru_active_windows.top();
@@ -336,7 +329,8 @@ auto miral::BasicWindowManager::active_window() const -> Window
 void miral::BasicWindowManager::focus_next_application()
 {
     focus_controller->focus_next_session();
-    select_active_window(focused_window());
+    auto const focussed_surface = focus_controller->focused_surface();
+    select_active_window(focussed_surface ? info_for(focussed_surface).window() : Window{});
 }
 
 auto miral::BasicWindowManager::window_at(geometry::Point cursor) const

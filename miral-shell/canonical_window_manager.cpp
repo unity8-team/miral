@@ -548,7 +548,7 @@ bool CanonicalWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const*
             return true;
 
         case mir_input_event_modifier_ctrl:
-            if (auto const window = tools->focused_window())
+            if (auto const window = tools->active_window())
                 window.request_client_surface_close();
 
             return true;
