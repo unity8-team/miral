@@ -87,7 +87,7 @@ bool CanonicalWindowManagerPolicy::resize(Point cursor)
 {
     if (!resizing)
         select_active_window(tools->window_at(old_cursor));
-    return resize(active_window(), cursor, old_cursor);
+    return resize(tools->active_window(), cursor, old_cursor);
 }
 
 
@@ -503,7 +503,7 @@ auto CanonicalWindowManagerPolicy::transform_set_state(WindowInfo& window_info, 
 void CanonicalWindowManagerPolicy::drag(Point cursor)
 {
     select_active_window(tools->window_at(old_cursor));
-    drag(active_window(), cursor, old_cursor, display_area);
+    drag(tools->active_window(), cursor, old_cursor, display_area);
 }
 
 void CanonicalWindowManagerPolicy::handle_raise_window(WindowInfo& window_info)
@@ -699,7 +699,7 @@ bool CanonicalWindowManagerPolicy::handle_pointer_event(MirPointerEvent const* e
 
 void CanonicalWindowManagerPolicy::toggle(MirSurfaceState state)
 {
-    if (auto window = active_window())
+    if (auto const window = tools->active_window())
     {
         auto& info = tools->info_for(window);
 
@@ -767,12 +767,6 @@ void CanonicalWindowManagerPolicy::handle_focus_lost(WindowInfo const& info)
 {
     if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(info.userdata()))
         titlebar->paint_titlebar(0x3F);
-}
-
-auto CanonicalWindowManagerPolicy::active_window() const
--> Window
-{
-    return tools->active_window();
 }
 
 bool CanonicalWindowManagerPolicy::resize(Window const& window, Point cursor, Point old_cursor)

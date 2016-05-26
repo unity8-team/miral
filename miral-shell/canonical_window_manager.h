@@ -89,7 +89,6 @@ private:
     bool resize(Point cursor);
     void toggle(MirSurfaceState state);
 
-    auto active_window() const -> miral::Window;
     void handle_focus_lost(miral::WindowInfo const& info);
     void handle_focus_gained(miral::WindowInfo const& info);
 
