@@ -57,7 +57,7 @@ TilingWindowManagerPolicy::TilingWindowManagerPolicy(WindowManagerTools* const t
 void TilingWindowManagerPolicy::click(Point cursor)
 {
     auto const window = tools->window_at(cursor);
-    select_active_window(window);
+    tools->select_active_window(window);
 }
 
 void TilingWindowManagerPolicy::handle_app_info_updated(Rectangles const& displays)
@@ -76,7 +76,7 @@ void TilingWindowManagerPolicy::resize(Point cursor)
     {
         if (application == application_under(old_cursor))
         {
-            if (auto const window = select_active_window(tools->window_at(old_cursor)))
+            if (auto const window = tools->select_active_window(tools->window_at(old_cursor)))
             {
                 resize(window, cursor, old_cursor, tile_for(tools->info_for(application)));
             }
@@ -154,7 +154,7 @@ void TilingWindowManagerPolicy::handle_new_window(WindowInfo& /*window_info*/)
 
 void TilingWindowManagerPolicy::handle_window_ready(WindowInfo& window_info)
 {
-    select_active_window(window_info.window());
+    tools->select_active_window(window_info.window());
 }
 
 void TilingWindowManagerPolicy::handle_modify_window(
@@ -240,7 +240,7 @@ void TilingWindowManagerPolicy::drag(Point cursor)
     {
         if (application == application_under(old_cursor))
         {
-            if (auto const window = select_active_window(tools->window_at(old_cursor)))
+            if (auto const window = tools->select_active_window(tools->window_at(old_cursor)))
             {
                 drag(tools->info_for(window), cursor, old_cursor, tile_for(tools->info_for(application)));
             }
@@ -250,7 +250,7 @@ void TilingWindowManagerPolicy::drag(Point cursor)
 
 void TilingWindowManagerPolicy::handle_raise_window(WindowInfo& window_info)
 {
-    select_active_window(window_info.window());
+    tools-> select_active_window(window_info.window());
 }
 
 bool TilingWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* event)
@@ -316,13 +316,13 @@ bool TilingWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* ev
             auto const& siblings = tools->info_for(prev.application()).windows();
             auto current = find(begin(siblings), end(siblings), prev);
 
-            while (current != end(siblings) && prev == select_active_window(*current))
+            while (current != end(siblings) && prev == tools->select_active_window(*current))
                 ++current;
 
             if (current == end(siblings))
             {
                 current = begin(siblings);
-                while (prev != *current && prev == select_active_window(*current))
+                while (prev != *current && prev == tools->select_active_window(*current))
                     ++current;
             }
         }
@@ -580,31 +580,5 @@ void TilingWindowManagerPolicy::resize(Window window, Point cursor, Point old_cu
             new_size.height = size_limits.height;
 
         window.resize(new_size);
-    }
-}
-
-auto TilingWindowManagerPolicy::select_active_window(Window const& window) -> Window
-{
-    if (!window)
-    {
-        tools->set_focus_to({});
-        return window;
-    }
-
-    auto const& info_for = tools->info_for(window);
-
-    if (info_for.can_be_active())
-    {
-        tools->set_focus_to(info_for.window());
-        tools->raise_tree(window);
-        return window;
-    }
-    else
-    {
-        // Cannot have input focus - try the parent
-        if (auto const parent = info_for.parent())
-            return select_active_window(parent);
-
-        return {};
     }
 }

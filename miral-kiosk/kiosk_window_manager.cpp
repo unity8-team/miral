@@ -116,7 +116,7 @@ void KioskWindowManagerPolicy::handle_new_window(WindowInfo& /*window_info*/)
 
 void KioskWindowManagerPolicy::handle_window_ready(WindowInfo& window_info)
 {
-    select_active_window(window_info.window());
+    tools->select_active_window(window_info.window());
 }
 
 void KioskWindowManagerPolicy::handle_modify_window(
@@ -147,7 +147,7 @@ auto KioskWindowManagerPolicy::transform_set_state(WindowInfo& window_info, MirS
 
 void KioskWindowManagerPolicy::handle_raise_window(WindowInfo& window_info)
 {
-    select_active_window(window_info.window());
+    tools->select_active_window(window_info.window());
 }
 
 bool KioskWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* event)
@@ -173,13 +173,13 @@ bool KioskWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* eve
             auto const& siblings = tools->info_for(prev.application()).windows();
             auto current = find(begin(siblings), end(siblings), prev);
 
-            while (current != end(siblings) && prev == select_active_window(*current))
+            while (current != end(siblings) && prev == tools->select_active_window(*current))
                 ++current;
 
             if (current == end(siblings))
             {
                 current = begin(siblings);
-                while (prev != *current && prev == select_active_window(*current))
+                while (prev != *current && prev == tools->select_active_window(*current))
                     ++current;
             }
         }
@@ -218,39 +218,10 @@ bool KioskWindowManagerPolicy::handle_pointer_event(MirPointerEvent const* event
 
     if (action == mir_pointer_action_button_down)
     {
-        select_active_window(tools->window_at(cursor));
+        tools->select_active_window(tools->window_at(cursor));
     }
 
     return false;
-}
-
-auto KioskWindowManagerPolicy::select_active_window(Window const& window) -> Window
-{
-    if (!window)
-    {
-        tools->set_focus_to({});
-        return window;
-    }
-
-    auto const& info_for = tools->info_for(window);
-
-    if (info_for.can_be_active())
-    {
-        tools->set_focus_to(info_for.window());
-        tools->raise_tree(window);
-
-        raise_splash_session();
-
-        return window;
-    }
-    else
-    {
-        // Cannot have input focus - try the parent
-        if (auto const parent = info_for.parent())
-            return select_active_window(parent);
-
-        return {};
-    }
 }
 
 void KioskWindowManagerPolicy::raise_splash_session() const

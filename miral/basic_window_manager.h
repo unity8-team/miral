@@ -120,6 +120,8 @@ public:
 
     auto active_window() const -> Window override;
 
+    auto select_active_window(Window const& hint) -> Window override;
+
     void focus_next_application() override;
 
     void set_focus_to(Window const& window) override;

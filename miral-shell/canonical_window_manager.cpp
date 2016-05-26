@@ -58,7 +58,7 @@ CanonicalWindowManagerPolicy::CanonicalWindowManagerPolicy(WindowManagerTools* c
 void CanonicalWindowManagerPolicy::click(Point cursor)
 {
     if (auto const window = tools->window_at(cursor))
-        select_active_window(window);
+        tools->select_active_window(window);
 }
 
 void CanonicalWindowManagerPolicy::handle_app_info_updated(Rectangles const& /*displays*/)
@@ -86,7 +86,7 @@ void CanonicalWindowManagerPolicy::handle_displays_updated(Rectangles const& dis
 bool CanonicalWindowManagerPolicy::resize(Point cursor)
 {
     if (!resizing)
-        select_active_window(tools->window_at(old_cursor));
+        tools->select_active_window(tools->window_at(old_cursor));
     return resize(tools->active_window(), cursor, old_cursor);
 }
 
@@ -279,7 +279,7 @@ void CanonicalWindowManagerPolicy::handle_new_window(WindowInfo& window_info)
 
 void CanonicalWindowManagerPolicy::handle_window_ready(WindowInfo& window_info)
 {
-    select_active_window(window_info.window());
+    tools->select_active_window(window_info.window());
 }
 
 void CanonicalWindowManagerPolicy::handle_modify_window(
@@ -502,13 +502,13 @@ auto CanonicalWindowManagerPolicy::transform_set_state(WindowInfo& window_info, 
 
 void CanonicalWindowManagerPolicy::drag(Point cursor)
 {
-    select_active_window(tools->window_at(old_cursor));
+    tools->select_active_window(tools->window_at(old_cursor));
     drag(tools->active_window(), cursor, old_cursor, display_area);
 }
 
 void CanonicalWindowManagerPolicy::handle_raise_window(WindowInfo& window_info)
 {
-    select_active_window(window_info.window());
+    tools->select_active_window(window_info.window());
 }
 
 bool CanonicalWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* event)
@@ -574,13 +574,13 @@ bool CanonicalWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const*
             auto const& siblings = tools->info_for(prev.application()).windows();
             auto current = find(begin(siblings), end(siblings), prev);
 
-            while (current != end(siblings) && prev == select_active_window(*current))
+            while (current != end(siblings) && prev == tools->select_active_window(*current))
                 ++current;
 
             if (current == end(siblings))
             {
                 current = begin(siblings);
-                while (prev != *current && prev == select_active_window(*current))
+                while (prev != *current && prev == tools->select_active_window(*current))
                     ++current;
             }
         }
@@ -708,44 +708,6 @@ void CanonicalWindowManagerPolicy::toggle(MirSurfaceState state)
 
         handle_set_state(info, state);
     }
-}
-
-auto CanonicalWindowManagerPolicy::select_active_window(Window const& hint) -> miral::Window
-{
-    auto const prev_window = tools->active_window();
-
-    if (!hint)
-    {
-        if (prev_window)
-        {
-            tools->set_focus_to({});
-            handle_focus_lost(tools->info_for(prev_window));
-        }
-
-        return hint;
-    }
-
-    auto const& info_for_hint = tools->info_for(hint);
-
-    if (info_for_hint.can_be_active())
-    {
-        tools->set_focus_to(hint);
-        tools->raise_tree(hint);
-
-        if (prev_window && prev_window != hint)
-            handle_focus_lost(tools->info_for(prev_window));
-
-        handle_focus_gained(info_for_hint);
-        return hint;
-    }
-    else
-    {
-        // Cannot have input focus - try the parent
-        if (auto const parent = info_for_hint.parent())
-            return select_active_window(parent);
-    }
-
-    return {};
 }
 
 void CanonicalWindowManagerPolicy::handle_focus_gained(WindowInfo const& info)

@@ -153,7 +153,7 @@ void miral::BasicWindowManager::remove_surface(
         // Try to make the parent active
         if (parent)
         {
-            if (policy->select_active_window(parent))
+            if (select_active_window(parent))
                 return;
         }
 
@@ -170,7 +170,7 @@ void miral::BasicWindowManager::remove_surface(
             copy_mru_windows.enumerate([&](Window& window)
                 {
                     return window.application() != session ||
-                        !(new_focus = policy->select_active_window(window));
+                        !(new_focus = select_active_window(window));
                 });
 
             if (new_focus) return;
@@ -182,7 +182,7 @@ void miral::BasicWindowManager::remove_surface(
 
             copy_mru_windows.enumerate([&](Window& window)
             {
-                return !(new_focus = policy->select_active_window(window));
+                return !(new_focus = select_active_window(window));
             });
 
             if (new_focus) return;
@@ -336,7 +336,7 @@ auto miral::BasicWindowManager::active_window() const -> Window
 void miral::BasicWindowManager::focus_next_application()
 {
     focus_controller->focus_next_session();
-    policy->select_active_window(focused_window());
+    select_active_window(focused_window());
 }
 
 void miral::BasicWindowManager::set_focus_to(Window const& window)
@@ -466,4 +466,42 @@ void miral::BasicWindowManager::invoke_under_lock(std::function<void()> const& c
 {
     std::lock_guard<decltype(mutex)> lock(mutex);
     callback();
+}
+
+auto miral::BasicWindowManager::select_active_window(Window const& hint) -> miral::Window
+{
+    auto const prev_window = active_window();
+
+    if (!hint)
+    {
+        if (prev_window)
+        {
+            set_focus_to({});
+            policy->handle_focus_lost(info_for(prev_window));
+        }
+
+        return hint;
+    }
+
+    auto const& info_for_hint = info_for(hint);
+
+    if (info_for_hint.can_be_active())
+    {
+        set_focus_to(hint);
+        raise_tree(hint);
+
+        if (prev_window && prev_window != hint)
+            policy->handle_focus_lost(info_for(prev_window));
+
+        policy->handle_focus_gained(info_for_hint);
+        return hint;
+    }
+    else
+    {
+        // Cannot have input focus - try the parent
+        if (auto const parent = info_for_hint.parent())
+            return select_active_window(parent);
+    }
+
+    return {};
 }
