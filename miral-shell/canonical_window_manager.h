@@ -105,7 +105,6 @@ private:
 
     Rectangle display_area;
     Point old_cursor{};
-    miral::Window active_window_;
     using FullscreenSurfaces = std::set<miral::Window>;
 
     FullscreenSurfaces fullscreen_surfaces;

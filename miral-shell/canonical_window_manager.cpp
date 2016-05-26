@@ -370,9 +370,6 @@ void CanonicalWindowManagerPolicy::handle_delete_window(WindowInfo& window_info)
     {
         tools->destroy(titlebar->window);
     }
-
-    if (active_window() == window_info.window())
-        active_window_.reset();
 }
 
 auto CanonicalWindowManagerPolicy::handle_set_state(WindowInfo& window_info, MirSurfaceState value)
@@ -756,8 +753,6 @@ void CanonicalWindowManagerPolicy::handle_focus_gained(WindowInfo const& info)
     if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(info.userdata()))
         titlebar->paint_titlebar(0xFF);
 
-    active_window_ = info.window();
-
     // Frig to force the spinner to the top
     if (auto const spinner_session = spinner.session())
     {
@@ -772,8 +767,6 @@ void CanonicalWindowManagerPolicy::handle_focus_lost(WindowInfo const& info)
 {
     if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(info.userdata()))
         titlebar->paint_titlebar(0x3F);
-
-    active_window_.reset();
 }
 
 auto CanonicalWindowManagerPolicy::active_window() const
