@@ -157,6 +157,7 @@ private:
     void update_event_timestamp(MirPointerEvent const* pev);
     void update_event_timestamp(MirTouchEvent const* tev);
 
+    auto can_activate_window_for_session(miral::Application const& session) -> bool;
 };
 }
 

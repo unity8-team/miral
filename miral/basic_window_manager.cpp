@@ -151,25 +151,11 @@ void miral::BasicWindowManager::remove_surface(
     if (is_active_window)
     {
         // Try to make the parent active
-        if (parent)
-        {
-            if (select_active_window(parent))
-                return;
-        }
+        if (parent && select_active_window(parent))
+            return;
 
-        // Try to activate to recently active window of same application
-        {
-            Window new_focus;
-
-            mru_active_windows.enumerate([&](Window& window)
-                {
-                    // select_active_window() calls set_focus_to() which updates mru_active_windows and changes window
-                    auto const w = window;
-                    return w.application() != session || !(new_focus = select_active_window(w));
-                });
-
-            if (new_focus) return;
-        }
+        if (can_activate_window_for_session(session))
+            return;
 
         // Try to activate to recently active window of any application
         {
@@ -326,21 +312,9 @@ auto miral::BasicWindowManager::active_window() const -> Window
 void miral::BasicWindowManager::focus_next_application()
 {
     focus_controller->focus_next_session();
-    auto const session = focus_controller->focused_session();
 
-    // activate most recently active window
-    {
-        Window new_focus;
-
-        mru_active_windows.enumerate([&](Window& window)
-            {
-                // select_active_window() calls set_focus_to() which updates mru_active_windows and changes window
-                auto const w = window;
-                return w.application() != session || !(new_focus = select_active_window(w));
-            });
-
-        if (new_focus) return;
-    }
+    if (can_activate_window_for_session(focus_controller->focused_session()))
+        return;
 
     // Last resort: accept wherever focus_controller placed focus
     auto const focussed_surface = focus_controller->focused_surface();
@@ -506,4 +480,18 @@ auto miral::BasicWindowManager::select_active_window(Window const& hint) -> mira
     }
 
     return {};
+}
+
+auto miral::BasicWindowManager::can_activate_window_for_session(miral::Application const& session) -> bool
+{
+    miral::Window new_focus;
+
+    mru_active_windows.enumerate([&](miral::Window& window)
+        {
+            // select_active_window() calls set_focus_to() which updates mru_active_windows and changes window
+            auto const w = window;
+            return w.application() != session || !(new_focus = miral::BasicWindowManager::select_active_window(w));
+        });
+
+    return new_focus;
 }
