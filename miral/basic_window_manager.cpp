@@ -157,20 +157,15 @@ void miral::BasicWindowManager::remove_surface(
                 return;
         }
 
-        // TODO the policy for choosing a window is mixed with implementing the choice.
-        // I.e. select_active_window() calls set_focus_to() which updates mru_active_windows
-        // during the iteration. There must be a better way to sequence the logic.
-        // Until then we copy the list.
-        auto const copy_mru_windows = mru_active_windows;
-
         // Try to activate to recently active window of same application
         {
             Window new_focus;
 
-            copy_mru_windows.enumerate([&](Window& window)
+            mru_active_windows.enumerate([&](Window& window)
                 {
-                    return window.application() != session ||
-                        !(new_focus = select_active_window(window));
+                    // select_active_window() calls set_focus_to() which updates mru_active_windows and changes window
+                    auto const w = window;
+                    return w.application() != session || !(new_focus = select_active_window(w));
                 });
 
             if (new_focus) return;
@@ -180,9 +175,11 @@ void miral::BasicWindowManager::remove_surface(
         {
             Window new_focus;
 
-            copy_mru_windows.enumerate([&](Window& window)
+            mru_active_windows.enumerate([&](Window& window)
             {
-                return !(new_focus = select_active_window(window));
+                // select_active_window() calls set_focus_to() which updates mru_active_windows and changes window
+                auto const w = window;
+                return !(new_focus = select_active_window(w));
             });
 
             if (new_focus) return;
@@ -329,6 +326,23 @@ auto miral::BasicWindowManager::active_window() const -> Window
 void miral::BasicWindowManager::focus_next_application()
 {
     focus_controller->focus_next_session();
+    auto const session = focus_controller->focused_session();
+
+    // activate most recently active window
+    {
+        Window new_focus;
+
+        mru_active_windows.enumerate([&](Window& window)
+            {
+                // select_active_window() calls set_focus_to() which updates mru_active_windows and changes window
+                auto const w = window;
+                return w.application() != session || !(new_focus = select_active_window(w));
+            });
+
+        if (new_focus) return;
+    }
+
+    // Last resort: accept wherever focus_controller placed focus
     auto const focussed_surface = focus_controller->focused_surface();
     select_active_window(focussed_surface ? info_for(focussed_surface).window() : Window{});
 }
