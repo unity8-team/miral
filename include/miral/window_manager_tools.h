@@ -55,10 +55,10 @@ public:
     virtual auto info_for(std::weak_ptr<mir::scene::Session> const& session) const -> ApplicationInfo& = 0;
     virtual auto info_for(std::weak_ptr<mir::scene::Surface> const& surface) const -> WindowInfo& = 0;
     virtual auto info_for(Window const& window) const -> WindowInfo& = 0;
-    virtual auto focused_application() const -> Application = 0;
-    virtual auto focused_window() const -> Window = 0;
+    virtual void kill_active_application(int sig) = 0;
+    virtual auto active_window() const -> Window = 0;
+    virtual auto select_active_window(Window const& hint) -> Window = 0;
     virtual void focus_next_application() = 0;
-    virtual void set_focus_to(Window const& window) = 0;
     virtual auto window_at(mir::geometry::Point cursor) const -> Window = 0;
     virtual auto active_display() -> mir::geometry::Rectangle const = 0;
     virtual void destroy(Window& window) = 0;

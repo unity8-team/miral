@@ -114,13 +114,13 @@ public:
 
     auto info_for(Window const& window) const -> WindowInfo& override;
 
-    auto focused_application() const -> Application override;
+    void kill_active_application(int sig) override;
 
-    auto focused_window() const -> Window override;
+    auto active_window() const -> Window override;
+
+    auto select_active_window(Window const& hint) -> Window override;
 
     void focus_next_application() override;
-
-    void set_focus_to(Window const& window) override;
 
     auto window_at(mir::geometry::Point cursor) const -> Window override;
 
@@ -156,6 +156,8 @@ private:
     void update_event_timestamp(MirKeyboardEvent const* kev);
     void update_event_timestamp(MirPointerEvent const* pev);
     void update_event_timestamp(MirTouchEvent const* tev);
+
+    auto can_activate_window_for_session(miral::Application const& session) -> bool;
 };
 }
 

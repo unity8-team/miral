@@ -57,7 +57,9 @@ public:
 
     void handle_raise_window(miral::WindowInfo& window_info) override;
 
-    auto select_active_window(miral::Window const& window) -> miral::Window override;
+    void handle_focus_lost(miral::WindowInfo const& info) override;
+
+    void handle_focus_gained(miral::WindowInfo const& info) override;
 
 private:
     static const int modifier_mask =

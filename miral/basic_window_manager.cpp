@@ -151,38 +151,21 @@ void miral::BasicWindowManager::remove_surface(
     if (is_active_window)
     {
         // Try to make the parent active
-        if (parent)
-        {
-            if (policy->select_active_window(parent))
-                return;
-        }
+        if (parent && select_active_window(parent))
+            return;
 
-        // TODO the policy for choosing a window is mixed with implementing the choice.
-        // I.e. select_active_window() calls set_focus_to() which updates mru_active_windows
-        // during the iteration. There must be a better way to sequence the logic.
-        // Until then we copy the list.
-        auto const copy_mru_windows = mru_active_windows;
-
-        // Try to activate to recently active window of same application
-        {
-            Window new_focus;
-
-            copy_mru_windows.enumerate([&](Window& window)
-                {
-                    return window.application() != session ||
-                        !(new_focus = policy->select_active_window(window));
-                });
-
-            if (new_focus) return;
-        }
+        if (can_activate_window_for_session(session))
+            return;
 
         // Try to activate to recently active window of any application
         {
             Window new_focus;
 
-            copy_mru_windows.enumerate([&](Window& window)
+            mru_active_windows.enumerate([&](Window& window)
             {
-                return !(new_focus = policy->select_active_window(window));
+                // select_active_window() calls set_focus_to() which updates mru_active_windows and changes window
+                auto const w = window;
+                return !(new_focus = select_active_window(w));
             });
 
             if (new_focus) return;
@@ -315,29 +298,27 @@ auto miral::BasicWindowManager::info_for(Window const& window) const
     return info_for(std::weak_ptr<mir::scene::Surface>(window));
 }
 
-auto miral::BasicWindowManager::focused_application() const
--> Application
+void miral::BasicWindowManager::kill_active_application(int sig)
 {
-    return focus_controller->focused_session();
+    if (auto const application = focus_controller->focused_session())
+        miral::kill(application, sig);
 }
 
-auto miral::BasicWindowManager::focused_window() const
--> Window
+auto miral::BasicWindowManager::active_window() const -> Window
 {
-    auto focussed_surface = focus_controller->focused_surface();
-    return focussed_surface ? info_for(focussed_surface).window() : Window{};
+    return mru_active_windows.top();
 }
 
 void miral::BasicWindowManager::focus_next_application()
 {
     focus_controller->focus_next_session();
-    policy->select_active_window(focused_window());
-}
 
-void miral::BasicWindowManager::set_focus_to(Window const& window)
-{
-    if (window) mru_active_windows.push(window);
-    focus_controller->set_focus_to(window.application(), window);
+    if (can_activate_window_for_session(focus_controller->focused_session()))
+        return;
+
+    // Last resort: accept wherever focus_controller placed focus
+    auto const focussed_surface = focus_controller->focused_surface();
+    select_active_window(focussed_surface ? info_for(focussed_surface).window() : Window{});
 }
 
 auto miral::BasicWindowManager::window_at(geometry::Point cursor) const
@@ -461,4 +442,56 @@ void miral::BasicWindowManager::invoke_under_lock(std::function<void()> const& c
 {
     std::lock_guard<decltype(mutex)> lock(mutex);
     callback();
+}
+
+auto miral::BasicWindowManager::select_active_window(Window const& hint) -> miral::Window
+{
+    auto const prev_window = active_window();
+
+    if (!hint)
+    {
+        if (prev_window)
+        {
+            focus_controller->set_focus_to(hint.application(), hint);
+            policy->handle_focus_lost(info_for(prev_window));
+        }
+
+        return hint;
+    }
+
+    auto const& info_for_hint = info_for(hint);
+
+    if (info_for_hint.can_be_active())
+    {
+        mru_active_windows.push(hint);
+        focus_controller->set_focus_to(hint.application(), hint);
+
+        if (prev_window && prev_window != hint)
+            policy->handle_focus_lost(info_for(prev_window));
+
+        policy->handle_focus_gained(info_for_hint);
+        return hint;
+    }
+    else
+    {
+        // Cannot have input focus - try the parent
+        if (auto const parent = info_for_hint.parent())
+            return select_active_window(parent);
+    }
+
+    return {};
+}
+
+auto miral::BasicWindowManager::can_activate_window_for_session(miral::Application const& session) -> bool
+{
+    miral::Window new_focus;
+
+    mru_active_windows.enumerate([&](miral::Window& window)
+        {
+            // select_active_window() calls set_focus_to() which updates mru_active_windows and changes window
+            auto const w = window;
+            return w.application() != session || !(new_focus = miral::BasicWindowManager::select_active_window(w));
+        });
+
+    return new_focus;
 }

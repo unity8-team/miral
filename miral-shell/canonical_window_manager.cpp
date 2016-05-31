@@ -58,7 +58,7 @@ CanonicalWindowManagerPolicy::CanonicalWindowManagerPolicy(WindowManagerTools* c
 void CanonicalWindowManagerPolicy::click(Point cursor)
 {
     if (auto const window = tools->window_at(cursor))
-        select_active_window(window);
+        tools->select_active_window(window);
 }
 
 void CanonicalWindowManagerPolicy::handle_app_info_updated(Rectangles const& /*displays*/)
@@ -86,8 +86,8 @@ void CanonicalWindowManagerPolicy::handle_displays_updated(Rectangles const& dis
 bool CanonicalWindowManagerPolicy::resize(Point cursor)
 {
     if (!resizing)
-        select_active_window(tools->window_at(old_cursor));
-    return resize(active_window(), cursor, old_cursor);
+        tools->select_active_window(tools->window_at(old_cursor));
+    return resize(tools->active_window(), cursor, old_cursor);
 }
 
 
@@ -279,7 +279,7 @@ void CanonicalWindowManagerPolicy::handle_new_window(WindowInfo& window_info)
 
 void CanonicalWindowManagerPolicy::handle_window_ready(WindowInfo& window_info)
 {
-    select_active_window(window_info.window());
+    tools->select_active_window(window_info.window());
 }
 
 void CanonicalWindowManagerPolicy::handle_modify_window(
@@ -370,9 +370,6 @@ void CanonicalWindowManagerPolicy::handle_delete_window(WindowInfo& window_info)
     {
         tools->destroy(titlebar->window);
     }
-
-    if (active_window() == window_info.window())
-        active_window_.reset();
 }
 
 auto CanonicalWindowManagerPolicy::handle_set_state(WindowInfo& window_info, MirSurfaceState value)
@@ -505,13 +502,13 @@ auto CanonicalWindowManagerPolicy::transform_set_state(WindowInfo& window_info, 
 
 void CanonicalWindowManagerPolicy::drag(Point cursor)
 {
-    select_active_window(tools->window_at(old_cursor));
-    drag(active_window(), cursor, old_cursor, display_area);
+    tools->select_active_window(tools->window_at(old_cursor));
+    drag(tools->active_window(), cursor, old_cursor, display_area);
 }
 
 void CanonicalWindowManagerPolicy::handle_raise_window(WindowInfo& window_info)
 {
-    select_active_window(window_info.window());
+    tools->select_active_window(window_info.window());
 }
 
 bool CanonicalWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* event)
@@ -545,13 +542,11 @@ bool CanonicalWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const*
         switch (modifiers & modifier_mask)
         {
         case mir_input_event_modifier_alt:
-            if (auto const application = tools->focused_application())
-                miral::kill(application, SIGTERM);
-
+            tools->kill_active_application(SIGTERM);
             return true;
 
         case mir_input_event_modifier_ctrl:
-            if (auto const window = tools->focused_window())
+            if (auto const window = tools->active_window())
                 window.request_client_surface_close();
 
             return true;
@@ -572,18 +567,18 @@ bool CanonicalWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const*
             modifiers == mir_input_event_modifier_alt &&
             scan_code == KEY_GRAVE)
     {
-        if (auto const prev = tools->focused_window())
+        if (auto const prev = tools->active_window())
         {
             auto const& siblings = tools->info_for(prev.application()).windows();
             auto current = find(begin(siblings), end(siblings), prev);
 
-            while (current != end(siblings) && prev == select_active_window(*current))
+            while (current != end(siblings) && prev == tools->select_active_window(*current))
                 ++current;
 
             if (current == end(siblings))
             {
                 current = begin(siblings);
-                while (prev != *current && prev == select_active_window(*current))
+                while (prev != *current && prev == tools->select_active_window(*current))
                     ++current;
             }
         }
@@ -702,7 +697,7 @@ bool CanonicalWindowManagerPolicy::handle_pointer_event(MirPointerEvent const* e
 
 void CanonicalWindowManagerPolicy::toggle(MirSurfaceState state)
 {
-    if (auto window = active_window())
+    if (auto const window = tools->active_window())
     {
         auto& info = tools->info_for(window);
 
@@ -713,53 +708,12 @@ void CanonicalWindowManagerPolicy::toggle(MirSurfaceState state)
     }
 }
 
-auto CanonicalWindowManagerPolicy::select_active_window(Window const& hint) -> miral::Window
-{
-    auto const prev_window = active_window();
-
-    if (hint == prev_window)
-        return hint;
-
-    if (!hint)
-    {
-        if (prev_window)
-        {
-            tools->set_focus_to({});
-            handle_focus_lost(tools->info_for(prev_window));
-        }
-
-        return hint;
-    }
-
-    auto const& info_for_hint = tools->info_for(hint);
-
-    if (info_for_hint.can_be_active())
-    {
-        tools->set_focus_to(hint);
-        tools->raise_tree(hint);
-
-        if (prev_window)
-            handle_focus_lost(tools->info_for(prev_window));
-
-        handle_focus_gained(info_for_hint);
-        return hint;
-    }
-    else
-    {
-        // Cannot have input focus - try the parent
-        if (auto const parent = info_for_hint.parent())
-            return select_active_window(parent);
-    }
-
-    return {};
-}
-
 void CanonicalWindowManagerPolicy::handle_focus_gained(WindowInfo const& info)
 {
+    tools->raise_tree(info.window());
+
     if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(info.userdata()))
         titlebar->paint_titlebar(0xFF);
-
-    active_window_ = info.window();
 
     // Frig to force the spinner to the top
     if (auto const spinner_session = spinner.session())
@@ -775,14 +729,6 @@ void CanonicalWindowManagerPolicy::handle_focus_lost(WindowInfo const& info)
 {
     if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(info.userdata()))
         titlebar->paint_titlebar(0x3F);
-
-    active_window_.reset();
-}
-
-auto CanonicalWindowManagerPolicy::active_window() const
--> Window
-{
-    return active_window_;
 }
 
 bool CanonicalWindowManagerPolicy::resize(Window const& window, Point cursor, Point old_cursor)
