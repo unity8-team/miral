@@ -21,8 +21,8 @@
 
 #include "spinner/splash.h"
 
-#include "miral/window.h"
-#include "miral/window_management_policy.h"
+#include <miral/window.h>
+#include <miral/window_management_policy.h>
 
 #include <mir/geometry/displacement.h>
 
@@ -90,6 +90,8 @@ private:
     void toggle(MirSurfaceState state);
 
     auto active_window() const -> miral::Window;
+    void handle_focus_lost(miral::WindowInfo const& info);
+    void handle_focus_gained(miral::WindowInfo const& info);
 
     bool resize(miral::Window const& window, Point cursor, Point old_cursor);
     bool drag(miral::Window window, Point to, Point from, Rectangle bounds);

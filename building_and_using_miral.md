@@ -5,12 +5,15 @@ These instructions assume that you’re using Ubuntu 16.04LTS or later, I’ve n
 earlier Ubuntu versions or other distributions.
 
 You’ll need a few development and utility packages installed, along with the
-Mir development packages (if you’re working on a phone or tablet use 
-mir-graphics-drivers-android in place of mir-graphics-drivers-desktop):
+Mir development packages:
 
     $ sudo apt-get install cmake g++ make bzr python-pil
-    $ sudo apt-get install mir-graphics-drivers-desktop libmirserver-dev libmirclient-dev
-    
+    $ sudo apt-get install libmirserver-dev libmirclient-dev mirtest-dev
+    $ sudo apt-get install mir-graphics-drivers-desktop
+
+(If you’re working on a phone or tablet use mir-graphics-drivers-android in
+place of mir-graphics-drivers-desktop.)
+
 With these installed you can checkout and build miral:
 
     $ bzr branch lp:miral

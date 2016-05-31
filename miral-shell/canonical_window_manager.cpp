@@ -20,9 +20,9 @@
 #include "titlebar/canonical_window_management_policy_data.h"
 #include "spinner/splash.h"
 
-#include "miral/application_info.h"
-#include "miral/window_info.h"
-#include "miral/window_manager_tools.h"
+#include <miral/application_info.h>
+#include <miral/window_info.h>
+#include <miral/window_manager_tools.h>
 
 #include <linux/input.h>
 #include <algorithm>
@@ -565,8 +565,6 @@ bool CanonicalWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const*
             scan_code == KEY_TAB)
     {
         tools->focus_next_application();
-        if (auto const window = tools->focused_window())
-            select_active_window(window);
 
         return true;
     }
@@ -717,67 +715,68 @@ void CanonicalWindowManagerPolicy::toggle(MirSurfaceState state)
 
 auto CanonicalWindowManagerPolicy::select_active_window(Window const& hint) -> miral::Window
 {
-    if (hint == active_window_)
-        return hint ;
+    auto const prev_window = active_window();
+
+    if (hint == prev_window)
+        return hint;
 
     if (!hint)
     {
-        if (auto const active_surface = active_window_)
+        if (prev_window)
         {
-            auto& info = tools->info_for(active_surface);
-            if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(info.userdata()))
-            {
-                titlebar->paint_titlebar(0x3F);
-            }
+            tools->set_focus_to({});
+            handle_focus_lost(tools->info_for(prev_window));
         }
 
-        if (active_window_)
-            tools->set_focus_to({});
-
-        active_window_.reset();
         return hint;
     }
 
-    auto const& info_for = tools->info_for(hint);
+    auto const& info_for_hint = tools->info_for(hint);
 
-    if (info_for.can_be_active())
+    if (info_for_hint.can_be_active())
     {
-        if (auto const active_surface = active_window_)
-        {
-            auto& info = tools->info_for(active_surface);
-            if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(info.userdata()))
-            {
-                titlebar->paint_titlebar(0x3F);
-            }
-        }
-        auto& info = tools->info_for(hint);
-        if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(info.userdata()))
-        {
-            titlebar->paint_titlebar(0xFF);
-        }
-        tools->set_focus_to(info_for.window());
-        tools->raise_tree(info_for.window());
-        active_window_ = info_for.window();
+        tools->set_focus_to(hint);
+        tools->raise_tree(hint);
 
-        // Frig to force the spinner to the top
-        if (auto const spinner_session = spinner.session())
-        {
-            auto const& spinner_info = tools->info_for(spinner_session);
+        if (prev_window)
+            handle_focus_lost(tools->info_for(prev_window));
 
-            if (spinner_info.windows().size() > 0)
-                tools->raise_tree(spinner_info.windows()[0]);
-        }
-
+        handle_focus_gained(info_for_hint);
         return hint;
     }
     else
     {
         // Cannot have input focus - try the parent
-        if (auto const parent = info_for.parent())
+        if (auto const parent = info_for_hint.parent())
             return select_active_window(parent);
     }
 
     return {};
+}
+
+void CanonicalWindowManagerPolicy::handle_focus_gained(WindowInfo const& info)
+{
+    if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(info.userdata()))
+        titlebar->paint_titlebar(0xFF);
+
+    active_window_ = info.window();
+
+    // Frig to force the spinner to the top
+    if (auto const spinner_session = spinner.session())
+    {
+        auto const& spinner_info = tools->info_for(spinner_session);
+
+        if (spinner_info.windows().size() > 0)
+            tools->raise_tree(spinner_info.windows()[0]);
+    }
+}
+
+void CanonicalWindowManagerPolicy::handle_focus_lost(WindowInfo const& info)
+{
+    if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(info.userdata()))
+        titlebar->paint_titlebar(0x3F);
+
+    active_window_.reset();
 }
 
 auto CanonicalWindowManagerPolicy::active_window() const

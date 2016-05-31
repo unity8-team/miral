@@ -14,7 +14,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread -g -Werror -Wall -pedantic -Wextra -fPIC -fuse-ld=gold")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -g -std=c++14 -Werror -Wall -fno-strict-aliasing -pedantic -Wnon-virtual-dtor -Wextra -fPIC -fuse-ld=gold")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -g -std=c++14 -Werror -Wall -pedantic -Wnon-virtual-dtor -Wextra -fPIC -fuse-ld=gold")
 set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-z,defs -fuse-ld=gold")
 set (CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} -Wl,-z,defs -fuse-ld=gold")
 set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-z,defs -fuse-ld=gold")
@@ -34,3 +34,9 @@ set(MIRAL_VERSION ${MIRAL_VERSION_MAJOR}.${MIRAL_VERSION_MINOR}.${MIRAL_VERSION_
 add_subdirectory(miral)
 add_subdirectory(miral-shell)
 add_subdirectory(miral-kiosk)
+
+# building the tests is disabled by default because the mirtest-dev package is broken on xenial (lp:1583536)
+option(MIRAL_ENABLE_TESTS "Build tests" OFF)
+if (MIRAL_ENABLE_TESTS)
+add_subdirectory(test)
+endif()
