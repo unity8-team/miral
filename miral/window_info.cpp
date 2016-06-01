@@ -53,6 +53,7 @@ struct miral::WindowInfo::Self
     mir::optional_value<AspectRatio> min_aspect;
     mir::optional_value<AspectRatio> max_aspect;
     mir::optional_value<int> output_id;
+    mir::optional_value<MirOrientationMode> preferred_orientation;
     std::shared_ptr<void> userdata;
 };
 
@@ -546,4 +547,18 @@ void miral::WindowInfo::output_id(mir::optional_value<int> output_id)
 auto miral::WindowInfo::window() const -> Window&
 {
     return self->window;
+}
+
+bool miral::WindowInfo::has_preferred_orientation() const
+{
+    return self->preferred_orientation.is_set();
+}
+
+auto miral::WindowInfo::preferred_orientation() const -> MirOrientationMode
+{
+    return self->preferred_orientation.value();
+}
+void miral::WindowInfo::preferred_orientation(mir::optional_value<MirOrientationMode> preferred_orientation)
+{
+    self->preferred_orientation = preferred_orientation;
 }

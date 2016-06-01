@@ -333,6 +333,7 @@ void CanonicalWindowManagerPolicy::handle_modify_window(
     COPY_IF_SET(min_aspect);
     COPY_IF_SET(max_aspect);
     COPY_IF_SET(output_id);
+    COPY_IF_SET(preferred_orientation);
 
 #undef COPY_IF_SET
 

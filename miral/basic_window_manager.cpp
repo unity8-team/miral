@@ -254,12 +254,12 @@ int miral::BasicWindowManager::set_surface_attribute(
 
     case mir_surface_attrib_visibility:
         // The client really shouldn't be trying to set this.
-        // But as the legacy API exists we treat it as a query
+        // But, as the legacy API exists, we treat it as a query
         return surface->query(mir_surface_attrib_visibility);
 
     case mir_surface_attrib_focus:
         // The client really shouldn't be trying to set this.
-        // But as the legacy API exists we treat it as a query
+        // But, as the legacy API exists, we treat it as a query
         return surface->query(mir_surface_attrib_focus);
 
     case mir_surface_attrib_swapinterval:
@@ -269,7 +269,7 @@ int miral::BasicWindowManager::set_surface_attribute(
     }
 
     std::lock_guard<decltype(mutex)> lock(mutex);
-    auto info = info_for(surface);
+    auto& info = info_for(surface);
     policy->handle_modify_window(info, modification);
 
     switch (attrib)
@@ -281,7 +281,7 @@ int miral::BasicWindowManager::set_surface_attribute(
         return info.state();
 
     case mir_surface_attrib_preferred_orientation:
-        return modification.preferred_orientation().value();
+        return info.preferred_orientation();
         break;
 
     default:
