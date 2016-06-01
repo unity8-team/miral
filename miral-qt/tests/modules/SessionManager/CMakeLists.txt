@@ -1,0 +1,34 @@
+set(
+  SESSION_MANAGER_TEST_SOURCES
+  session_manager_test.cpp
+  session_test.cpp
+  ${MIRAL_QT_SOURCE_DIR}/src/common/debughelpers.cpp
+)
+
+include_directories(
+  ${APPLICATION_API_INCLUDE_DIRS}
+  ${MIRAL_QT_SOURCE_DIR}/src/platforms/mirserver
+  ${MIRAL_QT_SOURCE_DIR}/src/modules
+  ${MIRAL_QT_SOURCE_DIR}/tests/framework
+  ${MIRSERVER_INCLUDE_DIRS}
+)
+
+add_executable(sessionmanager_test ${SESSION_MANAGER_TEST_SOURCES})
+
+add_dependencies(sessionmanager_test qtmir-test-framework-static)
+
+target_link_libraries(
+  sessionmanager_test
+
+  unityapplicationplugin
+
+  Qt5::Test
+
+  -L${CMAKE_BINARY_DIR}/miral-qt/tests/framework
+  qtmir-test-framework-static
+
+  ${GTEST_BOTH_LIBRARIES}
+  ${GMOCK_LIBRARIES}
+)
+
+add_test(SessionManager, sessionmanager_test)

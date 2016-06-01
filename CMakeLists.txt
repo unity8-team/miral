@@ -34,6 +34,10 @@ set(MIRAL_VERSION ${MIRAL_VERSION_MAJOR}.${MIRAL_VERSION_MINOR}.${MIRAL_VERSION_
 add_subdirectory(miral)
 add_subdirectory(miral-shell)
 add_subdirectory(miral-kiosk)
+option(MIRAL_ENABLE_QT "Build Qt integration" OFF)
+if (MIRAL_ENABLE_QT)
+add_subdirectory(miral-qt)
+endif()
 
 # building the tests is disabled by default because the mirtest-dev package is broken on xenial (lp:1583536)
 option(MIRAL_ENABLE_TESTS "Build tests" OFF)
