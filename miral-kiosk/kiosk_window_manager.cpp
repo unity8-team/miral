@@ -125,6 +125,9 @@ void KioskWindowManagerPolicy::handle_modify_window(
 {
     if (modifications.name().is_set())
         window_info.window().rename(modifications.name().value());
+
+    if (modifications.state().is_set())
+        handle_set_state(window_info, modifications.state().value());
 }
 
 void KioskWindowManagerPolicy::handle_delete_window(WindowInfo& /*window_info*/)

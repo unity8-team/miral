@@ -58,8 +58,6 @@ public:
 
     void handle_delete_window(miral::WindowInfo& window_info) override;
 
-    auto handle_set_state(miral::WindowInfo& window_info, MirSurfaceState value) -> MirSurfaceState override;
-
     bool handle_keyboard_event(MirKeyboardEvent const* event) override;
 
     bool handle_touch_event(MirTouchEvent const* event) override;
@@ -91,6 +89,7 @@ private:
     void update_surfaces(miral::ApplicationInfo& info, Rectangle const& old_tile, Rectangle const& new_tile);
     void drag(miral::WindowInfo& window_info, Point to, Point from, Rectangle bounds);
     auto transform_set_state(miral::WindowInfo& window_info, MirSurfaceState value) -> MirSurfaceState;
+    auto handle_set_state(miral::WindowInfo& window_info, MirSurfaceState value) -> MirSurfaceState;
 
     static void clip_to_tile(miral::WindowSpecification& parameters, Rectangle const& tile);
     static void fit_to_new_tile(miral::Window& window, Rectangle const& old_tile, Rectangle const& new_tile);

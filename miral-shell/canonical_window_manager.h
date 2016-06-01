@@ -64,8 +64,6 @@ public:
 
     void handle_delete_window(miral::WindowInfo& window_info) override;
 
-    auto handle_set_state(miral::WindowInfo& window_info, MirSurfaceState value) -> MirSurfaceState override;
-
     bool handle_keyboard_event(MirKeyboardEvent const* event) override;
 
     bool handle_touch_event(MirTouchEvent const* event) override;
@@ -98,6 +96,7 @@ private:
     void apply_resize(miral::WindowInfo& window_info, Point new_pos, Size new_size) const;
     auto transform_set_state(miral::WindowInfo& window_info, MirSurfaceState value) -> MirSurfaceState;
     void generate_decorations_for(miral::WindowInfo& window_info);
+    auto handle_set_state(miral::WindowInfo& window_info, MirSurfaceState value) -> MirSurfaceState;
 
     miral::WindowManagerTools* const tools;
     SpinnerSplash const spinner;
