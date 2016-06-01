@@ -252,12 +252,18 @@ int miral::BasicWindowManager::set_surface_attribute(
         modification.preferred_orientation() = MirOrientationMode(value);
         break;
 
+    case mir_surface_attrib_visibility:
+        // The client really shouldn't be trying to set this.
+        // But as the legacy API exists we treat it as a query
+        return surface->query(mir_surface_attrib_visibility);
+
     case mir_surface_attrib_focus:
-        // TODO The policy ought to mediate this request. But we've never done so.
+        // The client really shouldn't be trying to set this.
+        // But as the legacy API exists we treat it as a query
+        return surface->query(mir_surface_attrib_focus);
 
     case mir_surface_attrib_swapinterval:
     case mir_surface_attrib_dpi:
-    case mir_surface_attrib_visibility:
     default:
         return surface->configure(attrib, value);
     }
@@ -278,9 +284,6 @@ int miral::BasicWindowManager::set_surface_attribute(
     case mir_surface_attrib_preferred_orientation:
         return modification.preferred_orientation().value();
         break;
-
-    case mir_surface_attrib_focus:
-        // TODO
 
     default:
         return 0; // Can't get here anyway
