@@ -48,6 +48,8 @@ struct miral::WindowInfo::Self
     mir::geometry::Height min_height;
     mir::geometry::Width max_width;
     mir::geometry::Height max_height;
+    MirOrientationMode preferred_orientation;
+
     mir::optional_value<mir::geometry::DeltaX> width_inc;
     mir::optional_value<mir::geometry::DeltaY> height_inc;
     mir::optional_value<AspectRatio> min_aspect;
@@ -65,6 +67,7 @@ miral::WindowInfo::Self::Self(Window window, WindowSpecification const& params) 
     min_height{optional_value_or_default(params.min_height())},
     max_width{optional_value_or_default(params.max_width(), Width{std::numeric_limits<int>::max()})},
     max_height{optional_value_or_default(params.max_height(), Height{std::numeric_limits<int>::max()})},
+    preferred_orientation{optional_value_or_default(params.preferred_orientation(), mir_orientation_mode_any)},
     width_inc{params.width_inc()},
     height_inc{params.height_inc()},
     min_aspect{},
@@ -546,4 +549,14 @@ void miral::WindowInfo::output_id(mir::optional_value<int> output_id)
 auto miral::WindowInfo::window() const -> Window&
 {
     return self->window;
+}
+
+auto miral::WindowInfo::preferred_orientation() const -> MirOrientationMode
+{
+    return self->preferred_orientation;
+}
+
+void miral::WindowInfo::preferred_orientation(MirOrientationMode preferred_orientation)
+{
+    self->preferred_orientation = preferred_orientation;
 }

@@ -163,18 +163,16 @@ void TilingWindowManagerPolicy::handle_modify_window(
 {
     if (modifications.name().is_set())
         window_info.window().rename(modifications.name().value());
+
+    if (modifications.state().is_set())
+    {
+        auto state = transform_set_state(window_info, modifications.state().value());
+        window_info.window().set_state(state);
+    }
 }
 
 void TilingWindowManagerPolicy::handle_delete_window(WindowInfo& /*window_info*/)
 {
-}
-
-auto TilingWindowManagerPolicy::handle_set_state(WindowInfo& window_info, MirSurfaceState value)
--> MirSurfaceState
-{
-    auto state = transform_set_state(window_info, value);
-    window_info.window().set_state(state);
-    return state;
 }
 
 auto TilingWindowManagerPolicy::transform_set_state(WindowInfo& window_info, MirSurfaceState value)
@@ -426,7 +424,8 @@ void TilingWindowManagerPolicy::toggle(MirSurfaceState state)
         if (window_info.state() == state)
             state = mir_surface_state_restored;
 
-        handle_set_state(window_info, state);
+        state = transform_set_state(window_info, state);
+        window_info.window().set_state(state);
     }
 }
 

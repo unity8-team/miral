@@ -333,6 +333,7 @@ void CanonicalWindowManagerPolicy::handle_modify_window(
     COPY_IF_SET(min_aspect);
     COPY_IF_SET(max_aspect);
     COPY_IF_SET(output_id);
+    COPY_IF_SET(preferred_orientation);
 
 #undef COPY_IF_SET
 
@@ -359,7 +360,10 @@ void CanonicalWindowManagerPolicy::handle_modify_window(
     }
 
     if (modifications.state().is_set())
-        handle_set_state(window_info, modifications.state().value());
+    {
+        MirSurfaceState value = transform_set_state(window_info, modifications.state().value());
+        window_info.window().set_state(value);
+    }
 }
 
 void CanonicalWindowManagerPolicy::handle_delete_window(WindowInfo& window_info)
@@ -370,14 +374,6 @@ void CanonicalWindowManagerPolicy::handle_delete_window(WindowInfo& window_info)
     {
         tools->destroy(titlebar->window);
     }
-}
-
-auto CanonicalWindowManagerPolicy::handle_set_state(WindowInfo& window_info, MirSurfaceState value)
--> MirSurfaceState
-{
-    auto state = transform_set_state(window_info, value);
-    window_info.window().set_state(state);
-    return state;
 }
 
 auto CanonicalWindowManagerPolicy::transform_set_state(WindowInfo& window_info, MirSurfaceState value)
@@ -704,7 +700,7 @@ void CanonicalWindowManagerPolicy::toggle(MirSurfaceState state)
         if (info.state() == state)
             state = mir_surface_state_restored;
 
-        handle_set_state(info, state);
+        info.window().set_state(transform_set_state(info, state));
     }
 }
 

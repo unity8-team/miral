@@ -232,22 +232,60 @@ void miral::BasicWindowManager::handle_raise_surface(
         policy->handle_raise_window(info_for(surface));
 }
 
-// TODO set_surface_attribute() should map attribute/value pair to policy->handle_modify_window()
 int miral::BasicWindowManager::set_surface_attribute(
     std::shared_ptr<scene::Session> const& /*application*/,
     std::shared_ptr<scene::Surface> const& surface,
     MirSurfaceAttrib attrib,
     int value)
 {
-    std::lock_guard<decltype(mutex)> lock(mutex);
+    WindowSpecification modification;
     switch (attrib)
     {
+    case mir_surface_attrib_type:
+        modification.type() = MirSurfaceType(value);
+        break;
     case mir_surface_attrib_state:
-    {
-        return policy->handle_set_state(info_for(surface), MirSurfaceState(value));
-    }
+        modification.state() = MirSurfaceState(value);
+        break;
+
+    case mir_surface_attrib_preferred_orientation:
+        modification.preferred_orientation() = MirOrientationMode(value);
+        break;
+
+    case mir_surface_attrib_visibility:
+        // The client really shouldn't be trying to set this.
+        // But, as the legacy API exists, we treat it as a query
+        return surface->query(mir_surface_attrib_visibility);
+
+    case mir_surface_attrib_focus:
+        // The client really shouldn't be trying to set this.
+        // But, as the legacy API exists, we treat it as a query
+        return surface->query(mir_surface_attrib_focus);
+
+    case mir_surface_attrib_swapinterval:
+    case mir_surface_attrib_dpi:
     default:
         return surface->configure(attrib, value);
+    }
+
+    std::lock_guard<decltype(mutex)> lock(mutex);
+    auto& info = info_for(surface);
+    policy->handle_modify_window(info, modification);
+
+    switch (attrib)
+    {
+    case mir_surface_attrib_type:
+        return info.type();
+
+    case mir_surface_attrib_state:
+        return info.state();
+
+    case mir_surface_attrib_preferred_orientation:
+        return info.preferred_orientation();
+        break;
+
+    default:
+        return 0; // Can't get here anyway
     }
 }
 

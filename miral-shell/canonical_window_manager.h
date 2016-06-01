@@ -64,8 +64,6 @@ public:
 
     void handle_delete_window(miral::WindowInfo& window_info) override;
 
-    auto handle_set_state(miral::WindowInfo& window_info, MirSurfaceState value) -> MirSurfaceState override;
-
     bool handle_keyboard_event(MirKeyboardEvent const* event) override;
 
     bool handle_touch_event(MirTouchEvent const* event) override;

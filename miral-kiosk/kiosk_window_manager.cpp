@@ -131,20 +131,6 @@ void KioskWindowManagerPolicy::handle_delete_window(WindowInfo& /*window_info*/)
 {
 }
 
-auto KioskWindowManagerPolicy::handle_set_state(WindowInfo& window_info, MirSurfaceState value)
--> MirSurfaceState
-{
-    auto state = transform_set_state(window_info, value);
-    window_info.window().set_state(state);
-    return state;
-}
-
-auto KioskWindowManagerPolicy::transform_set_state(WindowInfo& window_info, MirSurfaceState /*value*/)
--> MirSurfaceState
-{
-    return window_info.state();
-}
-
 void KioskWindowManagerPolicy::handle_raise_window(WindowInfo& window_info)
 {
     tools->select_active_window(window_info.window());

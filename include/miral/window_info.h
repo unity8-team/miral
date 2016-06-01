@@ -105,6 +105,9 @@ struct WindowInfo
     auto output_id() const -> int;
     void output_id(mir::optional_value<int> output_id);
 
+    auto preferred_orientation() const -> MirOrientationMode;
+    void preferred_orientation(MirOrientationMode preferred_orientation);
+
     /// This can be used by client code to store window manager specific information
     auto userdata() const -> std::shared_ptr<void>;
     void userdata(std::shared_ptr<void> userdata);
