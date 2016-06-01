@@ -268,18 +268,17 @@ int miral::BasicWindowManager::set_surface_attribute(
         return surface->configure(attrib, value);
     }
 
-    {
-        std::lock_guard<decltype(mutex)> lock(mutex);
-        policy->handle_modify_window(info_for(surface), modification);
-    }
+    std::lock_guard<decltype(mutex)> lock(mutex);
+    auto info = info_for(surface);
+    policy->handle_modify_window(info, modification);
 
     switch (attrib)
     {
     case mir_surface_attrib_type:
-        return modification.type().value();
+        return info.type();
 
     case mir_surface_attrib_state:
-        return modification.state().value();
+        return info.state();
 
     case mir_surface_attrib_preferred_orientation:
         return modification.preferred_orientation().value();

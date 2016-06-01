@@ -67,9 +67,7 @@ private:
         mir_input_event_modifier_ctrl |
         mir_input_event_modifier_meta;
 
-    auto transform_set_state(miral::WindowInfo& window_info, MirSurfaceState value) -> MirSurfaceState;
     void raise_splash_session() const;
-    auto handle_set_state(miral::WindowInfo& window_info, MirSurfaceState value) -> MirSurfaceState;
 
     miral::WindowManagerTools* const tools;
 
