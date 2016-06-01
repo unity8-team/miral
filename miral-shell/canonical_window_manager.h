@@ -96,7 +96,6 @@ private:
     void apply_resize(miral::WindowInfo& window_info, Point new_pos, Size new_size) const;
     auto transform_set_state(miral::WindowInfo& window_info, MirSurfaceState value) -> MirSurfaceState;
     void generate_decorations_for(miral::WindowInfo& window_info);
-    auto handle_set_state(miral::WindowInfo& window_info, MirSurfaceState value) -> MirSurfaceState;
 
     miral::WindowManagerTools* const tools;
     SpinnerSplash const spinner;
