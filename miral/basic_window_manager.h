@@ -122,6 +122,8 @@ public:
 
     void focus_next_application() override;
 
+    void focus_next_within_application() override;
+
     auto window_at(mir::geometry::Point cursor) const -> Window override;
 
     auto active_display() -> mir::geometry::Rectangle const override;

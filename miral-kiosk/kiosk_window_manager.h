@@ -72,6 +72,7 @@ private:
     miral::WindowManagerTools* const tools;
 
     SwSplash const splash;
+
 };
 
 #endif /* MIRAL_KIOSK_WINDOW_MANAGER_H */

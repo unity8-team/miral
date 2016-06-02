@@ -25,6 +25,8 @@
 #include <mir/shell/surface_ready_observer.h>
 #include <mir/version.h>
 
+#include <algorithm>
+
 using namespace mir;
 
 miral::BasicWindowManager::BasicWindowManager(
@@ -357,6 +359,25 @@ void miral::BasicWindowManager::focus_next_application()
     // Last resort: accept wherever focus_controller placed focus
     auto const focussed_surface = focus_controller->focused_surface();
     select_active_window(focussed_surface ? info_for(focussed_surface).window() : Window{});
+}
+
+void miral::BasicWindowManager::focus_next_within_application()
+{
+    if (auto const prev = active_window())
+    {
+        auto const& siblings = info_for(prev.application()).windows();
+        auto current = find(begin(siblings), end(siblings), prev);
+
+        while (current != end(siblings) && prev == select_active_window(*current))
+            ++current;
+
+        if (current == end(siblings))
+        {
+            current = begin(siblings);
+            while (prev != *current && prev == select_active_window(*current))
+                ++current;
+        }
+    }
 }
 
 auto miral::BasicWindowManager::window_at(geometry::Point cursor) const

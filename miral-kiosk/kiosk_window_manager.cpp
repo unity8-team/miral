@@ -147,29 +147,13 @@ bool KioskWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* eve
             scan_code == KEY_TAB)
     {
         tools->focus_next_application();
-
         return true;
     }
     else if (action == mir_keyboard_action_down &&
             modifiers == mir_input_event_modifier_alt &&
             scan_code == KEY_GRAVE)
     {
-        if (auto const prev = tools->active_window())
-        {
-            auto const& siblings = tools->info_for(prev.application()).windows();
-            auto current = find(begin(siblings), end(siblings), prev);
-
-            while (current != end(siblings) && prev == tools->select_active_window(*current))
-                ++current;
-
-            if (current == end(siblings))
-            {
-                current = begin(siblings);
-                while (prev != *current && prev == tools->select_active_window(*current))
-                    ++current;
-            }
-        }
-
+        tools->focus_next_within_application();
         return true;
     }
 
