@@ -616,12 +616,6 @@ bool CanonicalWindowManagerPolicy::handle_touch_event(MirTouchEvent const* event
         }
     }
 
-    if (!is_drag)
-    {
-        if (auto const& window = tools->window_at(cursor))
-            tools->select_active_window(window);
-    }
-
     bool consumes_event = false;
     if (is_drag)
     {
@@ -637,6 +631,11 @@ bool CanonicalWindowManagerPolicy::handle_touch_event(MirTouchEvent const* event
             consumes_event = true;
             break;
         }
+    }
+    else
+    {
+        if (auto const& window = tools->window_at(cursor))
+            tools->select_active_window(window);
     }
 
     old_cursor = cursor;
