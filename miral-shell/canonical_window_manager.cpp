@@ -616,6 +616,12 @@ bool CanonicalWindowManagerPolicy::handle_touch_event(MirTouchEvent const* event
         }
     }
 
+    if (!is_drag)
+    {
+        if (auto const& window = tools->window_at(cursor))
+            tools->select_active_window(window);
+    }
+
     bool consumes_event = false;
     if (is_drag)
     {
