@@ -128,6 +128,8 @@ public:
 
     void raise_tree(Window const& root) override;
 
+    void move_tree(miral::WindowInfo& root, mir::geometry::Displacement movement) override;
+
     void size_to_output(mir::geometry::Rectangle& rect) override;
 
     bool place_in_output(int id, mir::geometry::Rectangle& rect) override;

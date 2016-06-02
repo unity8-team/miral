@@ -216,6 +216,7 @@ bool miral::WindowInfo::is_visible() const
     }
     return true;
 }
+
 void miral::WindowInfo::constrain_resize(Point& requested_pos, Size& requested_size) const
 {
     bool const left_resize = requested_pos.x != self->window.top_left().x;

@@ -92,9 +92,9 @@ private:
 
     bool resize(miral::Window const& window, Point cursor, Point old_cursor);
     bool drag(miral::Window window, Point to, Point from, Rectangle bounds);
-    void move_tree(miral::WindowInfo& root, Displacement movement) const;
+
     void apply_resize(miral::WindowInfo& window_info, Point new_pos, Size new_size) const;
-    auto transform_set_state(miral::WindowInfo& window_info, MirSurfaceState value) -> MirSurfaceState;
+    void apply_set_state(miral::WindowInfo& window_info, MirSurfaceState value);
     void generate_decorations_for(miral::WindowInfo& window_info);
 
     miral::WindowManagerTools* const tools;

@@ -21,6 +21,8 @@
 
 #include "miral/application.h"
 
+#include <mir/geometry/displacement.h>
+
 #include <functional>
 #include <memory>
 
@@ -63,6 +65,7 @@ public:
     virtual auto active_display() -> mir::geometry::Rectangle const = 0;
     virtual void destroy(Window& window) = 0;
     virtual void raise_tree(Window const& root) = 0;
+    virtual void move_tree(miral::WindowInfo& root, mir::geometry::Displacement movement) = 0;
     virtual void size_to_output(mir::geometry::Rectangle& rect) = 0;
     virtual bool place_in_output(int id, mir::geometry::Rectangle& rect) = 0;
 /** @} */

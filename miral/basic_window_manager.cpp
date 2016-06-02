@@ -432,6 +432,14 @@ void miral::BasicWindowManager::raise_tree(Window const& root)
     focus_controller->raise(windows);
 }
 
+void miral::BasicWindowManager::move_tree(miral::WindowInfo& root, mir::geometry::Displacement movement)
+{
+    root.window().move_to(root.window().top_left() + movement);
+
+    for (auto const& child: root.children())
+        move_tree(info_for(child), movement);
+}
+
 void miral::BasicWindowManager::update_event_timestamp(MirKeyboardEvent const* kev)
 {
     auto iev = mir_keyboard_event_input_event(kev);
