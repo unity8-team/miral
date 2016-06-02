@@ -690,10 +690,14 @@ bool CanonicalWindowManagerPolicy::handle_pointer_event(MirPointerEvent const* e
             {
                 if (auto const parent = tools->info_for(possible_titlebar).parent())
                 {
-                    if (std::static_pointer_cast<CanonicalWindowManagementPolicyData>(tools->info_for(parent).userdata()))
+                    if (auto const& parent_userdata =
+                        std::static_pointer_cast<CanonicalWindowManagementPolicyData>(tools->info_for(parent).userdata()))
                     {
-                        drag(cursor);
-                        consumes_event = true;
+                        if (possible_titlebar == parent_userdata->window)
+                        {
+                            drag(cursor);
+                            consumes_event = true;
+                        }
                     }
                 }
             }
