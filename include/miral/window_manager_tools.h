@@ -62,6 +62,7 @@ public:
     virtual auto select_active_window(Window const& hint) -> Window = 0;
     virtual void drag_active_window(mir::geometry::Displacement movement) = 0;
     virtual void focus_next_application() = 0;
+    virtual void focus_next_within_application() = 0;
     virtual auto window_at(mir::geometry::Point cursor) const -> Window = 0;
     virtual auto active_display() -> mir::geometry::Rectangle const = 0;
     virtual void destroy(Window& window) = 0;
