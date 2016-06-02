@@ -627,7 +627,7 @@ bool CanonicalWindowManagerPolicy::handle_touch_event(MirTouchEvent const* event
     {
         switch (count)
         {
-        case 2:
+        case 4:
             resize(cursor);
             consumes_event = true;
             break;
