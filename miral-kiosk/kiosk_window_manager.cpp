@@ -147,6 +147,7 @@ bool KioskWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* eve
             scan_code == KEY_TAB)
     {
         tools->focus_next_application();
+
         return true;
     }
     else if (action == mir_keyboard_action_down &&
@@ -154,6 +155,7 @@ bool KioskWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* eve
             scan_code == KEY_GRAVE)
     {
         tools->focus_next_within_application();
+
         return true;
     }
 
