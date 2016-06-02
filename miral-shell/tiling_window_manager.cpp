@@ -352,7 +352,7 @@ bool TilingWindowManagerPolicy::handle_touch_event(MirTouchEvent const* event)
     {
         switch (count)
         {
-        case 2:
+        case 4:
             resize(cursor);
             consumes_event = true;
             break;
@@ -362,6 +362,11 @@ bool TilingWindowManagerPolicy::handle_touch_event(MirTouchEvent const* event)
             consumes_event = true;
             break;
         }
+    }
+    else
+    {
+        if (auto const& window = tools->window_at(cursor))
+            tools->select_active_window(window);
     }
 
     old_cursor = cursor;
