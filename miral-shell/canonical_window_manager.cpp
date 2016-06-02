@@ -509,8 +509,11 @@ void CanonicalWindowManagerPolicy::apply_set_state(WindowInfo& window_info, MirS
 
 void CanonicalWindowManagerPolicy::drag(Point cursor)
 {
-    tools->select_active_window(tools->window_at(old_cursor));
-    drag(tools->active_window(), cursor, old_cursor, display_area);
+    if (auto const target = tools->window_at(old_cursor))
+    {
+        tools->select_active_window(target);
+        drag(tools->active_window(), cursor, old_cursor);
+    }
 }
 
 void CanonicalWindowManagerPolicy::handle_raise_window(WindowInfo& window_info)
@@ -813,16 +816,12 @@ void CanonicalWindowManagerPolicy::apply_resize(WindowInfo& window_info, Point n
     tools->move_tree(window_info, new_pos - window_info.window().top_left());
 }
 
-bool CanonicalWindowManagerPolicy::drag(Window window, Point to, Point from, Rectangle /*bounds*/)
+void CanonicalWindowManagerPolicy::drag(Window window, Point to, Point from)
 {
     if (!window)
-        return false;
+        return;
 
     auto& window_info = tools->info_for(window);
-
-    if (!window.input_area_contains(from) &&
-        !std::static_pointer_cast<CanonicalWindowManagementPolicyData>(window_info.userdata()))
-        return false;
 
     auto movement = to - from;
 
@@ -851,10 +850,10 @@ bool CanonicalWindowManagerPolicy::drag(Window window, Point to, Point from, Rec
     case mir_surface_state_maximized:
     case mir_surface_state_fullscreen:
     default:
-        return true;
+        return;
     }
 
     tools->move_tree(window_info, movement);
 
-    return true;
+    return;
 }

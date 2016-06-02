@@ -91,7 +91,7 @@ private:
 
 
     bool resize(miral::Window const& window, Point cursor, Point old_cursor);
-    bool drag(miral::Window window, Point to, Point from, Rectangle bounds);
+    void drag(miral::Window window, Point to, Point from);
 
     void apply_resize(miral::WindowInfo& window_info, Point new_pos, Size new_size) const;
     void apply_set_state(miral::WindowInfo& window_info, MirSurfaceState value);
