@@ -21,6 +21,8 @@
 
 #include "miral/application.h"
 
+#include <mir/geometry/displacement.h>
+
 #include <functional>
 #include <memory>
 
@@ -58,11 +60,13 @@ public:
     virtual void kill_active_application(int sig) = 0;
     virtual auto active_window() const -> Window = 0;
     virtual auto select_active_window(Window const& hint) -> Window = 0;
+    virtual void drag_active_window(mir::geometry::Displacement movement) = 0;
     virtual void focus_next_application() = 0;
     virtual auto window_at(mir::geometry::Point cursor) const -> Window = 0;
     virtual auto active_display() -> mir::geometry::Rectangle const = 0;
     virtual void destroy(Window& window) = 0;
     virtual void raise_tree(Window const& root) = 0;
+    virtual void move_tree(WindowInfo& root, mir::geometry::Displacement movement) = 0;
     virtual void size_to_output(mir::geometry::Rectangle& rect) = 0;
     virtual bool place_in_output(int id, mir::geometry::Rectangle& rect) = 0;
 /** @} */

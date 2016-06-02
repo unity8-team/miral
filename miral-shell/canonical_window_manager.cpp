@@ -287,43 +287,12 @@ void CanonicalWindowManagerPolicy::handle_modify_window(
     WindowSpecification const& modifications)
 {
     auto window_info_tmp = window_info;
-    auto& window = window_info_tmp.window();
-
-    if (modifications.parent().is_set())
-        window_info_tmp.parent(tools->info_for(modifications.parent().value()).window());
-
-    if (modifications.type().is_set() &&
-        window_info_tmp.type() != modifications.type().value())
-    {
-        auto const new_type = modifications.type().value();
-
-        if (!window_info_tmp.can_morph_to(new_type))
-        {
-            throw std::runtime_error("Unsupported window type change");
-        }
-
-        window_info_tmp.type(new_type);
-
-        if (window_info_tmp.must_not_have_parent())
-        {
-            if (modifications.parent().is_set())
-                throw std::runtime_error("Target window type does not support parent");
-
-            window_info_tmp.parent({});
-        }
-        else if (window_info_tmp.must_have_parent())
-        {
-            if (!window_info_tmp.parent())
-                throw std::runtime_error("Target window type requires parent");
-        }
-
-        window.set_type(new_type);
-    }
 
 #define COPY_IF_SET(field)\
         if (modifications.field().is_set())\
             window_info_tmp.field(modifications.field().value())
 
+    COPY_IF_SET(type);
     COPY_IF_SET(min_width);
     COPY_IF_SET(min_height);
     COPY_IF_SET(max_width);
@@ -337,9 +306,40 @@ void CanonicalWindowManagerPolicy::handle_modify_window(
 
 #undef COPY_IF_SET
 
+    if (modifications.parent().is_set())
+        window_info_tmp.parent(tools->info_for(modifications.parent().value()).window());
+
+    if (window_info.type() != window_info_tmp.type())
+    {
+        auto const new_type = window_info_tmp.type();
+
+        if (!window_info.can_morph_to(new_type))
+        {
+            throw std::runtime_error("Unsupported window type change");
+        }
+
+        if (window_info_tmp.must_not_have_parent())
+        {
+            if (modifications.parent().is_set())
+                throw std::runtime_error("Target window type does not support parent");
+
+            window_info_tmp.parent({});
+        }
+        else if (window_info_tmp.must_have_parent())
+        {
+            if (!window_info_tmp.parent())
+                throw std::runtime_error("Target window type requires parent");
+        }
+    }
+
     std::swap(window_info_tmp, window_info);
 
-    if (modifications.parent().is_set() && window_info.parent() != window_info_tmp.parent())
+    auto& window = window_info.window();
+
+    if (window_info.type() != window_info_tmp.type())
+        window.set_type(window_info.type());
+
+    if (window_info.parent() != window_info_tmp.parent())
     {
         if (window_info_tmp.parent())
         {
@@ -375,10 +375,7 @@ void CanonicalWindowManagerPolicy::handle_modify_window(
     }
 
     if (modifications.state().is_set())
-    {
-        MirSurfaceState value = transform_set_state(window_info, modifications.state().value());
-        window_info.window().set_state(value);
-    }
+        apply_set_state(window_info, modifications.state().value());
 }
 
 void CanonicalWindowManagerPolicy::handle_delete_window(WindowInfo& window_info)
@@ -391,8 +388,7 @@ void CanonicalWindowManagerPolicy::handle_delete_window(WindowInfo& window_info)
     }
 }
 
-auto CanonicalWindowManagerPolicy::transform_set_state(WindowInfo& window_info, MirSurfaceState value)
--> MirSurfaceState
+void CanonicalWindowManagerPolicy::apply_set_state(WindowInfo& window_info, MirSurfaceState value)
 {
     switch (value)
     {
@@ -406,7 +402,8 @@ auto CanonicalWindowManagerPolicy::transform_set_state(WindowInfo& window_info, 
         break;
 
     default:
-        return window_info.state();
+        window_info.window().set_state(window_info.state());
+        return;
     }
 
     if (window_info.state() == mir_surface_state_restored)
@@ -426,7 +423,7 @@ auto CanonicalWindowManagerPolicy::transform_set_state(WindowInfo& window_info, 
 
     if (window_info.state() == value)
     {
-        return window_info.state();
+        return;
     }
 
     auto const old_pos = window_info.window().top_left();
@@ -492,29 +489,31 @@ auto CanonicalWindowManagerPolicy::transform_set_state(WindowInfo& window_info, 
             titlebar->window.hide();
         window_info.window().hide();
         window_info.state(value);
-        return value;
+        window_info.window().set_state(window_info.state());
+        return;
 
     default:
         break;
     }
 
-    // TODO It is rather simplistic to move a tree WRT the top_left of the root
-    // TODO when resizing. But for more sophistication we would need to encode
-    // TODO some sensible layout rules.
-    move_tree(window_info, movement);
+    tools->move_tree(window_info, movement);
 
     window_info.state(value);
 
     if (window_info.is_visible())
         window_info.window().show();
 
-    return window_info.state();
+    window_info.window().set_state(window_info.state());
+    return;
 }
 
 void CanonicalWindowManagerPolicy::drag(Point cursor)
 {
-    tools->select_active_window(tools->window_at(old_cursor));
-    drag(tools->active_window(), cursor, old_cursor, display_area);
+    if (auto const target = tools->window_at(old_cursor))
+    {
+        tools->select_active_window(target);
+        tools->drag_active_window(cursor - old_cursor);
+    }
 }
 
 void CanonicalWindowManagerPolicy::handle_raise_window(WindowInfo& window_info)
@@ -691,10 +690,14 @@ bool CanonicalWindowManagerPolicy::handle_pointer_event(MirPointerEvent const* e
             {
                 if (auto const parent = tools->info_for(possible_titlebar).parent())
                 {
-                    if (std::static_pointer_cast<CanonicalWindowManagementPolicyData>(tools->info_for(parent).userdata()))
+                    if (auto const& parent_userdata =
+                        std::static_pointer_cast<CanonicalWindowManagementPolicyData>(tools->info_for(parent).userdata()))
                     {
-                        drag(cursor);
-                        consumes_event = true;
+                        if (possible_titlebar == parent_userdata->window)
+                        {
+                            drag(cursor);
+                            consumes_event = true;
+                        }
                     }
                 }
             }
@@ -715,7 +718,7 @@ void CanonicalWindowManagerPolicy::toggle(MirSurfaceState state)
         if (info.state() == state)
             state = mir_surface_state_restored;
 
-        info.window().set_state(transform_set_state(info, state));
+        apply_set_state(info, state);
     }
 }
 
@@ -814,61 +817,6 @@ void CanonicalWindowManagerPolicy::apply_resize(WindowInfo& window_info, Point n
 
     window_info.window().resize(new_size);
 
-    move_tree(window_info, new_pos-window_info.window().top_left());
+    tools->move_tree(window_info, new_pos - window_info.window().top_left());
 }
 
-bool CanonicalWindowManagerPolicy::drag(Window window, Point to, Point from, Rectangle /*bounds*/)
-{
-    if (!window)
-        return false;
-
-    auto& window_info = tools->info_for(window);
-
-    if (!window.input_area_contains(from) &&
-        !std::static_pointer_cast<CanonicalWindowManagementPolicyData>(window_info.userdata()))
-        return false;
-
-    auto movement = to - from;
-
-    // placeholder - constrain onscreen
-
-    switch (window_info.state())
-    {
-    case mir_surface_state_restored:
-        break;
-
-    // "A vertically maximised window is anchored to the top and bottom of
-    // the available workspace and can have any width."
-    case mir_surface_state_vertmaximized:
-        movement.dy = DeltaY(0);
-        break;
-
-    // "A horizontally maximised window is anchored to the left and right of
-    // the available workspace and can have any height"
-    case mir_surface_state_horizmaximized:
-        movement.dx = DeltaX(0);
-        break;
-
-    // "A maximised window is anchored to the top, bottom, left and right of the
-    // available workspace. For example, if the launcher is always-visible then
-    // the left-edge of the window is anchored to the right-edge of the launcher."
-    case mir_surface_state_maximized:
-    case mir_surface_state_fullscreen:
-    default:
-        return true;
-    }
-
-    move_tree(window_info, movement);
-
-    return true;
-}
-
-void CanonicalWindowManagerPolicy::move_tree(WindowInfo& root, Displacement movement) const
-{
-    root.window().move_to(root.window().top_left() + movement);
-
-    for (auto const& child: root.children())
-    {
-        move_tree(tools->info_for(child), movement);
-    }
-}

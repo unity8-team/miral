@@ -120,6 +120,8 @@ public:
 
     auto select_active_window(Window const& hint) -> Window override;
 
+    void drag_active_window(mir::geometry::Displacement movement) override;
+
     void focus_next_application() override;
 
     auto window_at(mir::geometry::Point cursor) const -> Window override;
@@ -127,6 +129,8 @@ public:
     auto active_display() -> mir::geometry::Rectangle const override;
 
     void raise_tree(Window const& root) override;
+
+    void move_tree(miral::WindowInfo& root, mir::geometry::Displacement movement) override;
 
     void size_to_output(mir::geometry::Rectangle& rect) override;
 
