@@ -120,6 +120,8 @@ public:
 
     auto select_active_window(Window const& hint) -> Window override;
 
+    void drag_active_window(mir::geometry::Displacement movement) override;
+
     void focus_next_application() override;
 
     auto window_at(mir::geometry::Point cursor) const -> Window override;

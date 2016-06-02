@@ -528,6 +528,46 @@ auto miral::BasicWindowManager::select_active_window(Window const& hint) -> mira
     return {};
 }
 
+void miral::BasicWindowManager::drag_active_window(mir::geometry::Displacement movement)
+{
+    auto const window = active_window();
+
+    if (!window)
+        return;
+
+    auto& window_info = info_for(window);
+
+    // placeholder - constrain onscreen
+
+    switch (window_info.state())
+    {
+    case mir_surface_state_restored:
+        break;
+
+        // "A vertically maximised window is anchored to the top and bottom of
+        // the available workspace and can have any width."
+    case mir_surface_state_vertmaximized:
+        movement.dy = DeltaY(0);
+        break;
+
+        // "A horizontally maximised window is anchored to the left and right of
+        // the available workspace and can have any height"
+    case mir_surface_state_horizmaximized:
+        movement.dx = DeltaX(0);
+        break;
+
+        // "A maximised window is anchored to the top, bottom, left and right of the
+        // available workspace. For example, if the launcher is always-visible then
+        // the left-edge of the window is anchored to the right-edge of the launcher."
+    case mir_surface_state_maximized:
+    case mir_surface_state_fullscreen:
+    default:
+        return;
+    }
+
+    move_tree(window_info, movement);
+}
+
 auto miral::BasicWindowManager::can_activate_window_for_session(miral::Application const& session) -> bool
 {
     miral::Window new_focus;

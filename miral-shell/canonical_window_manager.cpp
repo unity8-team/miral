@@ -512,7 +512,7 @@ void CanonicalWindowManagerPolicy::drag(Point cursor)
     if (auto const target = tools->window_at(old_cursor))
     {
         tools->select_active_window(target);
-        drag(tools->active_window(), cursor, old_cursor);
+        tools->drag_active_window(cursor - old_cursor);
     }
 }
 
@@ -816,44 +816,3 @@ void CanonicalWindowManagerPolicy::apply_resize(WindowInfo& window_info, Point n
     tools->move_tree(window_info, new_pos - window_info.window().top_left());
 }
 
-void CanonicalWindowManagerPolicy::drag(Window window, Point to, Point from)
-{
-    if (!window)
-        return;
-
-    auto& window_info = tools->info_for(window);
-
-    auto movement = to - from;
-
-    // placeholder - constrain onscreen
-
-    switch (window_info.state())
-    {
-    case mir_surface_state_restored:
-        break;
-
-    // "A vertically maximised window is anchored to the top and bottom of
-    // the available workspace and can have any width."
-    case mir_surface_state_vertmaximized:
-        movement.dy = DeltaY(0);
-        break;
-
-    // "A horizontally maximised window is anchored to the left and right of
-    // the available workspace and can have any height"
-    case mir_surface_state_horizmaximized:
-        movement.dx = DeltaX(0);
-        break;
-
-    // "A maximised window is anchored to the top, bottom, left and right of the
-    // available workspace. For example, if the launcher is always-visible then
-    // the left-edge of the window is anchored to the right-edge of the launcher."
-    case mir_surface_state_maximized:
-    case mir_surface_state_fullscreen:
-    default:
-        return;
-    }
-
-    tools->move_tree(window_info, movement);
-
-    return;
-}
