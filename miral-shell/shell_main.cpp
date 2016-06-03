@@ -37,7 +37,7 @@ int main(int argc, char const* argv[])
         {
             WindowManagerOptions
                 {
-                    add_window_manager_policy<TitlebarCanonicalWindowManagerPolicy>("titlebar", spinner),
+                    add_window_manager_policy<TitlebarWindowManagerPolicy>("titlebar", spinner),
                     add_window_manager_policy<CanonicalWindowManagerPolicy>("canonical", spinner),
                     add_window_manager_policy<TilingWindowManagerPolicy>("tiling"),
                 },

@@ -21,11 +21,25 @@
 
 #include "canonical_window_manager.h"
 
-class TitlebarCanonicalWindowManagerPolicy : public CanonicalWindowManagerPolicy
+class TitlebarWindowManagerPolicy : public CanonicalWindowManagerPolicy
 {
 public:
-    using CanonicalWindowManagerPolicy::CanonicalWindowManagerPolicy;
-};
+    TitlebarWindowManagerPolicy(miral::WindowManagerTools* const tools, SpinnerSplash const& spinner);
 
+    bool handle_pointer_event(MirPointerEvent const* event) override;
+
+    void advise_new_window(miral::WindowInfo& window_info) override;
+    void advise_focus_lost(miral::WindowInfo const& info) override;
+    void advise_focus_gained(miral::WindowInfo const& info) override;
+    void advise_state_change(miral::WindowInfo const& window_info, MirSurfaceState state) override;
+    void advise_resize(miral::WindowInfo const& window_info, Size const& new_size) override;
+    void advise_delete_window(miral::WindowInfo const& window_info) override;
+
+    void handle_displays_updated(Rectangles const& displays) override;
+private:
+    miral::WindowManagerTools* const tools;
+    Rectangle display_area;
+    Point old_cursor{};
+};
 
 #endif //MIRAL_SHELL_TITLEBAR_WINDOW_MANAGER_H

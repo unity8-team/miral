@@ -17,7 +17,6 @@
  */
 
 #include "canonical_window_manager.h"
-#include "titlebar/canonical_window_management_policy_data.h"
 #include "spinner/splash.h"
 
 #include <miral/application_info.h>
@@ -32,22 +31,9 @@ namespace ms = mir::scene;
 using namespace miral;
 
 // Based on "Mir and Unity: Surfaces, input, and displays (v0.3)"
-
 namespace
 {
 int const title_bar_height = 10;
-Size titlebar_size_for_window(Size window_size)
-{
-    return {window_size.width, Height{title_bar_height}};
-}
-
-Point titlebar_position_for_window(Point window_position)
-{
-    return {
-        window_position.x,
-        window_position.y - DeltaY(title_bar_height)
-    };
-}
 }
 
 CanonicalWindowManagerPolicy::CanonicalWindowManagerPolicy(WindowManagerTools* const tools, SpinnerSplash const& spinner) :
@@ -244,37 +230,10 @@ auto CanonicalWindowManagerPolicy::place_new_surface(
     return parameters;
 }
 
-void CanonicalWindowManagerPolicy::generate_decorations_for(WindowInfo& window_info)
-{
-    Window const& window = window_info.window();
-
-    if (!window_info.needs_titlebar(window_info.type()))
-        return;
-
-    auto format = mir_pixel_format_xrgb_8888;
-    WindowSpecification params;
-    params.size() = titlebar_size_for_window(window.size());
-    params.name() = "decoration";
-    params.pixel_format() = format;
-    params.buffer_usage() = WindowSpecification::BufferUsage::software;
-    params.top_left() = titlebar_position_for_window(window.top_left());
-    params.type() = mir_surface_type_gloss;
-
-    auto& titlebar_info = tools->build_window(window.application(), params);
-    titlebar_info.window().set_alpha(0.9);
-    titlebar_info.parent(window);
-
-    auto data = std::make_shared<CanonicalWindowManagementPolicyData>(titlebar_info.window());
-    window_info.userdata(data);
-    window_info.add_child(titlebar_info.window());
-}
-
 void CanonicalWindowManagerPolicy::advise_new_window(WindowInfo& window_info)
 {
     if (window_info.state() == mir_surface_state_fullscreen)
         fullscreen_surfaces.insert(window_info.window());
-
-    generate_decorations_for(window_info);
 }
 
 void CanonicalWindowManagerPolicy::handle_window_ready(WindowInfo& window_info)
@@ -381,11 +340,6 @@ void CanonicalWindowManagerPolicy::handle_modify_window(
 void CanonicalWindowManagerPolicy::advise_delete_window(WindowInfo const& window_info)
 {
     fullscreen_surfaces.erase(window_info.window());
-
-    if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(window_info.userdata()))
-    {
-        tools->destroy(titlebar->window);
-    }
 }
 
 void CanonicalWindowManagerPolicy::apply_set_state(WindowInfo& window_info, MirSurfaceState value)
@@ -658,28 +612,6 @@ bool CanonicalWindowManagerPolicy::handle_pointer_event(MirPointerEvent const* e
             consumes_event = true;
         }
     }
-    else if (action == mir_pointer_action_motion && !modifiers)
-    {
-        if (mir_pointer_event_button_state(event, mir_pointer_button_primary))
-        {
-            // TODO this is a rather roundabout way to detect a titlebar
-            if (auto const possible_titlebar = tools->window_at(old_cursor))
-            {
-                if (auto const parent = tools->info_for(possible_titlebar).parent())
-                {
-                    if (auto const& parent_userdata =
-                        std::static_pointer_cast<CanonicalWindowManagementPolicyData>(tools->info_for(parent).userdata()))
-                    {
-                        if (possible_titlebar == parent_userdata->window)
-                        {
-                            drag(cursor);
-                            consumes_event = true;
-                        }
-                    }
-                }
-            }
-        }
-    }
 
     resizing = resize_event;
     old_cursor = cursor;
@@ -703,9 +635,6 @@ void CanonicalWindowManagerPolicy::advise_focus_gained(WindowInfo const& info)
 {
     tools->raise_tree(info.window());
 
-    if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(info.userdata()))
-        titlebar->paint_titlebar(0xFF);
-
     // Frig to force the spinner to the top
     if (auto const spinner_session = spinner.session())
     {
@@ -716,10 +645,8 @@ void CanonicalWindowManagerPolicy::advise_focus_gained(WindowInfo const& info)
     }
 }
 
-void CanonicalWindowManagerPolicy::advise_focus_lost(WindowInfo const& info)
+void CanonicalWindowManagerPolicy::advise_focus_lost(WindowInfo const& /*info*/)
 {
-    if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(info.userdata()))
-        titlebar->paint_titlebar(0x3F);
 }
 
 bool CanonicalWindowManagerPolicy::resize(Window const& window, Point cursor, Point old_cursor)
@@ -796,38 +723,10 @@ void CanonicalWindowManagerPolicy::apply_resize(WindowInfo& window_info, Point n
     tools->move_tree(window_info, new_pos - window_info.window().top_left());
 }
 
-void CanonicalWindowManagerPolicy::advise_state_change(WindowInfo const& window_info, MirSurfaceState state)
+void CanonicalWindowManagerPolicy::advise_state_change(WindowInfo const& /*window_info*/, MirSurfaceState /*state*/)
 {
-    if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(window_info.userdata()))
-    {
-        switch (state)
-        {
-        case mir_surface_state_restored:
-            titlebar->window.resize(titlebar_size_for_window(window_info.restore_rect().size));
-            titlebar->window.show();
-            break;
-
-        case mir_surface_state_maximized:
-        case mir_surface_state_vertmaximized:
-        case mir_surface_state_hidden:
-        case mir_surface_state_minimized:
-            titlebar->window.hide();
-            break;
-
-        case mir_surface_state_horizmaximized:
-            titlebar->window.resize(titlebar_size_for_window({display_area.size.width, window_info.restore_rect().size.height}));
-            titlebar->window.show();
-            break;
-
-        case mir_surface_state_fullscreen:
-        default:
-            break;
-        }
-    }
 }
 
-void CanonicalWindowManagerPolicy::advise_resize(WindowInfo const& window_info, Size const& new_size)
+void CanonicalWindowManagerPolicy::advise_resize(WindowInfo const& /*window_info*/, Size const& /*new_size*/)
 {
-    if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(window_info.userdata()))
-        titlebar->window.resize({new_size.width, Height{title_bar_height}});
 }

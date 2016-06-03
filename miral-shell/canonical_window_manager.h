@@ -63,14 +63,14 @@ public:
     void advise_new_window(miral::WindowInfo& window_info) override;
     void advise_focus_lost(miral::WindowInfo const& info) override;
     void advise_focus_gained(miral::WindowInfo const& info) override;
-    void advise_state_change(miral::WindowInfo const& window_info, MirSurfaceState state);
-    void advise_resize(miral::WindowInfo const& window_info, Size const& new_size);
+    void advise_state_change(miral::WindowInfo const& window_info, MirSurfaceState state) override;
+    void advise_resize(miral::WindowInfo const& window_info, Size const& new_size) override;
     void advise_delete_window(miral::WindowInfo const& window_info) override;
 
     void handle_app_info_updated(Rectangles const& displays) override;
     void handle_displays_updated(Rectangles const& displays) override;
 
-private:
+protected:
     static const int modifier_mask =
         mir_input_event_modifier_alt |
         mir_input_event_modifier_shift |
@@ -78,6 +78,7 @@ private:
         mir_input_event_modifier_ctrl |
         mir_input_event_modifier_meta;
 
+private:
     void drag(Point cursor);
     void click(Point cursor);
     bool resize(Point cursor);
@@ -88,7 +89,6 @@ private:
 
     void apply_resize(miral::WindowInfo& window_info, Point new_pos, Size new_size);
     void apply_set_state(miral::WindowInfo& window_info, MirSurfaceState value);
-    void generate_decorations_for(miral::WindowInfo& window_info);
 
     miral::WindowManagerTools* const tools;
     SpinnerSplash const spinner;
