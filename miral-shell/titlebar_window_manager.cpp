@@ -19,6 +19,7 @@
 #include "titlebar_window_manager.h"
 #include "titlebar/canonical_window_management_policy_data.h"
 
+#include <miral/application_info.h>
 #include <miral/window_info.h>
 #include <miral/window_manager_tools.h>
 
@@ -42,8 +43,9 @@ Point titlebar_position_for_window(Point window_position)
 }
 
 TitlebarWindowManagerPolicy::TitlebarWindowManagerPolicy(WindowManagerTools* const tools, SpinnerSplash const& spinner) :
-    CanonicalWindowManagerPolicy(tools, spinner),
-    tools(tools)
+    CanonicalWindowManagerPolicy(tools),
+    tools(tools),
+    spinner{spinner}
 {
 }
 
@@ -134,6 +136,15 @@ void TitlebarWindowManagerPolicy::advise_focus_gained(WindowInfo const& info)
     if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(info.userdata()))
     {
         titlebar->paint_titlebar(0xFF);
+    }
+
+    // Frig to force the spinner to the top
+    if (auto const spinner_session = spinner.session())
+    {
+        auto const& spinner_info = tools->info_for(spinner_session);
+
+        if (spinner_info.windows().size() > 0)
+            tools->raise_tree(spinner_info.windows()[0]);
     }
 }
 

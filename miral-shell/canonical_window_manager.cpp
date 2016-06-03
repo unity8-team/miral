@@ -36,8 +36,8 @@ namespace
 int const title_bar_height = 10;
 }
 
-CanonicalWindowManagerPolicy::CanonicalWindowManagerPolicy(WindowManagerTools* const tools, SpinnerSplash const& spinner) :
-    tools{tools}, spinner{spinner}
+CanonicalWindowManagerPolicy::CanonicalWindowManagerPolicy(WindowManagerTools* const tools) :
+    tools{tools}
 {
 }
 
@@ -440,15 +440,6 @@ void CanonicalWindowManagerPolicy::toggle(MirSurfaceState state)
 void CanonicalWindowManagerPolicy::advise_focus_gained(WindowInfo const& info)
 {
     tools->raise_tree(info.window());
-
-    // Frig to force the spinner to the top
-    if (auto const spinner_session = spinner.session())
-    {
-        auto const& spinner_info = tools->info_for(spinner_session);
-
-        if (spinner_info.windows().size() > 0)
-            tools->raise_tree(spinner_info.windows()[0]);
-    }
 }
 
 void CanonicalWindowManagerPolicy::advise_focus_lost(WindowInfo const& /*info*/)

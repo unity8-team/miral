@@ -19,8 +19,6 @@
 #ifndef MIRAL_SHELL_CANONICAL_WINDOW_MANAGER_H_
 #define MIRAL_SHELL_CANONICAL_WINDOW_MANAGER_H_
 
-#include "spinner/splash.h"
-
 #include <miral/window.h>
 #include <miral/window_management_policy.h>
 
@@ -45,7 +43,7 @@ class CanonicalWindowManagerPolicy  : public miral::WindowManagementPolicy
 {
 public:
 
-    explicit CanonicalWindowManagerPolicy(miral::WindowManagerTools* const tools, SpinnerSplash const& spinner);
+    explicit CanonicalWindowManagerPolicy(miral::WindowManagerTools* const tools);
 
     auto place_new_surface(
         miral::ApplicationInfo const& app_info,
@@ -88,7 +86,6 @@ private:
     bool resize(miral::Window const& window, Point cursor, Point old_cursor);
 
     miral::WindowManagerTools* const tools;
-    SpinnerSplash const spinner;
 
     Rectangle display_area;
     Point old_cursor{};

@@ -19,6 +19,8 @@
 #ifndef MIRAL_SHELL_TITLEBAR_WINDOW_MANAGER_H
 #define MIRAL_SHELL_TITLEBAR_WINDOW_MANAGER_H
 
+#include "spinner/splash.h"
+
 #include "canonical_window_manager.h"
 
 class TitlebarWindowManagerPolicy : public CanonicalWindowManagerPolicy
@@ -38,6 +40,8 @@ public:
     void handle_displays_updated(Rectangles const& displays) override;
 private:
     miral::WindowManagerTools* const tools;
+    SpinnerSplash const spinner;
+
     Rectangle display_area;
     Point old_cursor{};
 };
