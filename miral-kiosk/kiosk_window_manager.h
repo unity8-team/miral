@@ -45,7 +45,7 @@ public:
 
     void handle_modify_window(miral::WindowInfo& window_info, miral::WindowSpecification const& modifications) override;
 
-    void handle_delete_window(miral::WindowInfo& window_info) override;
+    void advise_delete_window(miral::WindowInfo const& window_info) override;
 
     bool handle_keyboard_event(MirKeyboardEvent const* event) override;
 

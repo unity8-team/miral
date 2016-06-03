@@ -171,7 +171,7 @@ void TilingWindowManagerPolicy::handle_modify_window(
     }
 }
 
-void TilingWindowManagerPolicy::handle_delete_window(WindowInfo& /*window_info*/)
+void TilingWindowManagerPolicy::advise_delete_window(WindowInfo const& /*window_info*/)
 {
 }
 

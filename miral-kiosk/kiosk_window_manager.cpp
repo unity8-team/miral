@@ -127,7 +127,7 @@ void KioskWindowManagerPolicy::handle_modify_window(
         window_info.window().rename(modifications.name().value());
 }
 
-void KioskWindowManagerPolicy::handle_delete_window(WindowInfo& /*window_info*/)
+void KioskWindowManagerPolicy::advise_delete_window(WindowInfo const& /*window_info*/)
 {
 }
 

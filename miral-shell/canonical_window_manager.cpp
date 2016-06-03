@@ -378,7 +378,7 @@ void CanonicalWindowManagerPolicy::handle_modify_window(
         apply_set_state(window_info, modifications.state().value());
 }
 
-void CanonicalWindowManagerPolicy::handle_delete_window(WindowInfo& window_info)
+void CanonicalWindowManagerPolicy::advise_delete_window(WindowInfo const& window_info)
 {
     fullscreen_surfaces.erase(window_info.window());
 

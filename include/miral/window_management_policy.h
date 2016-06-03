@@ -41,16 +41,15 @@ public:
 /** @} */
 
 /** @name handle events originating from the client
- * The policy is expected to update the model accordingly
+ * The policy is expected to update the model as appropriate
  *  @{ */
     virtual void handle_window_ready(WindowInfo& window_info) = 0;
     virtual void handle_modify_window(WindowInfo& window_info, WindowSpecification const& modifications) = 0;
     virtual void handle_raise_window(WindowInfo& window_info) = 0;
-    virtual void handle_delete_window(WindowInfo& window_info) = 0;
 /** @} */
 
 /** @name handle events originating from user
- * The policy is expected to interpret and optionally consume the event
+ * The policy is expected to interpret (and optionally consume) the event
  *  @{ */
     virtual bool handle_keyboard_event(MirKeyboardEvent const* event) = 0;
     virtual bool handle_touch_event(MirTouchEvent const* event) = 0;
@@ -62,6 +61,7 @@ public:
     virtual void advise_new_window(WindowInfo& window_info) = 0;
     virtual void advise_focus_lost(WindowInfo const& info) = 0;
     virtual void advise_focus_gained(WindowInfo const& info) = 0;
+    virtual void advise_delete_window(WindowInfo const& window_info) = 0;
 /** @} */
 
 /** @name Changes to the applications or displays

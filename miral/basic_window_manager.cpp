@@ -141,7 +141,7 @@ void miral::BasicWindowManager::remove_surface(
     session_info.remove_window(info.window());
     mru_active_windows.erase(info.window());
 
-    policy->handle_delete_window(info);
+    policy->advise_delete_window(info);
 
     session->destroy_surface(surface);
 
