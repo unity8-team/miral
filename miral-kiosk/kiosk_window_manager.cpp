@@ -196,8 +196,10 @@ bool KioskWindowManagerPolicy::handle_pointer_event(MirPointerEvent const* event
     return false;
 }
 
-void KioskWindowManagerPolicy::raise_splash_session() const
+void KioskWindowManagerPolicy::advise_focus_gained(WindowInfo const& info)
 {
+    tools->raise_tree(info.window());
+
     if (auto session = splash.session().lock())
     {
         auto const& app_info = tools->info_for(session);
@@ -205,11 +207,6 @@ void KioskWindowManagerPolicy::raise_splash_session() const
         for (auto const& s : app_info.windows())
             tools->raise_tree(s);
     }
-}
-
-void KioskWindowManagerPolicy::advise_focus_gained(WindowInfo const& info)
-{
-    tools->raise_tree(info.window());
 }
 
 void KioskWindowManagerPolicy::advise_focus_lost(WindowInfo const& /*info*/)

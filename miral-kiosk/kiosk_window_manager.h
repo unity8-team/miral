@@ -69,8 +69,6 @@ private:
         mir_input_event_modifier_ctrl |
         mir_input_event_modifier_meta;
 
-    void raise_splash_session() const;
-
     miral::WindowManagerTools* const tools;
 
     SwSplash const splash;
