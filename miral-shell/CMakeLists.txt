@@ -14,7 +14,7 @@ add_executable(miral-shell
     shell_main.cpp
     canonical_window_manager.cpp canonical_window_manager.h
     tiling_window_manager.cpp    tiling_window_manager.h
-)
+    titlebar_window_manager.cpp titlebar_window_manager.h)
 
 target_link_libraries(miral-shell
     miral-spinner
