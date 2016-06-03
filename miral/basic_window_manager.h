@@ -132,8 +132,6 @@ public:
 
     void raise_tree(Window const& root) override;
 
-    void move_tree(miral::WindowInfo& root, mir::geometry::Displacement movement) override;
-
     void modify_window(WindowInfo& window_info, WindowSpecification const& modifications) override;
 
     void place_and_size(WindowInfo& root, Point const& new_pos, Size const& new_size) override;
@@ -170,6 +168,8 @@ private:
     void update_event_timestamp(MirTouchEvent const* tev);
 
     auto can_activate_window_for_session(miral::Application const& session) -> bool;
+
+    void move_tree(miral::WindowInfo& root, mir::geometry::Displacement movement);
 };
 }
 
