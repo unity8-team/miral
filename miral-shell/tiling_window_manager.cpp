@@ -580,3 +580,12 @@ void TilingWindowManagerPolicy::advise_focus_gained(WindowInfo const& info)
 void TilingWindowManagerPolicy::advise_focus_lost(WindowInfo const& /*info*/)
 {
 }
+
+void TilingWindowManagerPolicy::advise_state_change(WindowInfo const& /*window_info*/, MirSurfaceState /*state*/)
+{
+}
+
+void TilingWindowManagerPolicy::advise_resize(WindowInfo const& /*window_info*/, Size const& /*new_size*/)
+{
+}
+

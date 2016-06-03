@@ -215,3 +215,11 @@ void KioskWindowManagerPolicy::advise_focus_gained(WindowInfo const& info)
 void KioskWindowManagerPolicy::advise_focus_lost(WindowInfo const& /*info*/)
 {
 }
+
+void KioskWindowManagerPolicy::advise_state_change(WindowInfo const& /*window_info*/, MirSurfaceState /*state*/)
+{
+}
+
+void KioskWindowManagerPolicy::advise_resize(WindowInfo const& /*window_info*/, Size const& /*new_size*/)
+{
+}
