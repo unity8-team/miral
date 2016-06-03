@@ -91,9 +91,6 @@ private:
 
     Rectangle display_area;
     Point old_cursor{};
-    using FullscreenSurfaces = std::set<Window>;
-
-    FullscreenSurfaces fullscreen_surfaces;
 
     bool resizing = false;
     bool left_resize = false;

@@ -156,6 +156,8 @@ private:
     mir::geometry::Point cursor;
     uint64_t last_input_event_timestamp{0};
     miral::MRUWindowList mru_active_windows;
+    using FullscreenSurfaces = std::set<Window>;
+    FullscreenSurfaces fullscreen_surfaces;
 
     // Cache the builder functor for the convenience of policies - this should become unnecessary
     std::function<Window(std::shared_ptr<mir::scene::Session> const& session, WindowSpecification const& params)> surface_builder;

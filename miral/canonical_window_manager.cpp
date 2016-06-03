@@ -48,18 +48,6 @@ void miral::CanonicalWindowManagerPolicy::handle_app_info_updated(Rectangles con
 void miral::CanonicalWindowManagerPolicy::handle_displays_updated(Rectangles const& displays)
 {
     display_area = displays.bounding_rectangle();
-
-    for (auto window : fullscreen_surfaces)
-    {
-        if (window)
-        {
-            auto& info = tools->info_for(window);
-            Rectangle rect{window.top_left(), window.size()};
-
-            tools->place_in_output(info.output_id(), rect);
-            tools->place_and_size(info, rect.top_left, rect.size);
-        }
-    }
 }
 
 bool miral::CanonicalWindowManagerPolicy::resize(Point cursor)
@@ -78,10 +66,8 @@ auto miral::CanonicalWindowManagerPolicy::place_new_surface(
     return request_parameters;
 }
 
-void miral::CanonicalWindowManagerPolicy::advise_new_window(WindowInfo& window_info)
+void miral::CanonicalWindowManagerPolicy::advise_new_window(WindowInfo& /*window_info*/)
 {
-    if (window_info.state() == mir_surface_state_fullscreen)
-        fullscreen_surfaces.insert(window_info.window());
 }
 
 void miral::CanonicalWindowManagerPolicy::handle_window_ready(WindowInfo& window_info)
@@ -96,9 +82,8 @@ void miral::CanonicalWindowManagerPolicy::handle_modify_window(
     tools->modify_window(window_info, modifications);
 }
 
-void miral::CanonicalWindowManagerPolicy::advise_delete_window(WindowInfo const& window_info)
+void miral::CanonicalWindowManagerPolicy::advise_delete_window(WindowInfo const& /*window_info*/)
 {
-    fullscreen_surfaces.erase(window_info.window());
 }
 
 void miral::CanonicalWindowManagerPolicy::drag(Point cursor)
@@ -358,16 +343,8 @@ bool miral::CanonicalWindowManagerPolicy::resize(Window const& window, Point cur
     return true;
 }
 
-void miral::CanonicalWindowManagerPolicy::advise_state_change(WindowInfo const& window_info, MirSurfaceState state)
+void miral::CanonicalWindowManagerPolicy::advise_state_change(WindowInfo const& /*window_info*/, MirSurfaceState /*state*/)
 {
-    if (state != mir_surface_state_fullscreen)
-    {
-        fullscreen_surfaces.erase(window_info.window());
-    }
-    else
-    {
-        fullscreen_surfaces.insert(window_info.window());
-    }
 }
 
 void miral::CanonicalWindowManagerPolicy::advise_resize(WindowInfo const& /*window_info*/, Size const& /*new_size*/)

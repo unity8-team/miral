@@ -107,6 +107,9 @@ auto miral::BasicWindowManager::add_surface(
     if (auto const parent = window_info.parent())
         info_for(parent).add_child(window);
 
+    if (window_info.state() == mir_surface_state_fullscreen)
+        fullscreen_surfaces.insert(window_info.window());
+
     policy->advise_new_window(window_info);
 
     if (window_info.can_be_active())
@@ -147,6 +150,7 @@ void miral::BasicWindowManager::remove_surface(
 
     session_info.remove_window(info.window());
     mru_active_windows.erase(info.window());
+    fullscreen_surfaces.erase(info.window());
 
     policy->advise_delete_window(info);
 
@@ -195,6 +199,19 @@ void miral::BasicWindowManager::add_display(geometry::Rectangle const& area)
 {
     std::lock_guard<decltype(mutex)> lock(mutex);
     displays.add(area);
+
+    for (auto window : fullscreen_surfaces)
+    {
+        if (window)
+        {
+            auto& info = info_for(window);
+            Rectangle rect{window.top_left(), window.size()};
+
+            place_in_output(info.output_id(), rect);
+            place_and_size(info, rect.top_left, rect.size);
+        }
+    }
+
     policy->handle_displays_updated(displays);
 }
 
@@ -202,6 +219,18 @@ void miral::BasicWindowManager::remove_display(geometry::Rectangle const& area)
 {
     std::lock_guard<decltype(mutex)> lock(mutex);
     displays.remove(area);
+    for (auto window : fullscreen_surfaces)
+    {
+        if (window)
+        {
+            auto& info = info_for(window);
+            Rectangle rect{window.top_left(), window.size()};
+
+            place_in_output(info.output_id(), rect);
+            place_and_size(info, rect.top_left, rect.size);
+        }
+    }
+
     policy->handle_displays_updated(displays);
 }
 
@@ -605,6 +634,11 @@ void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirSur
     if (window_info.state() != mir_surface_state_fullscreen)
     {
         window_info.output_id({});
+        fullscreen_surfaces.erase(window_info.window());
+    }
+    else
+    {
+        fullscreen_surfaces.insert(window_info.window());
     }
 
     if (window_info.state() == value)
