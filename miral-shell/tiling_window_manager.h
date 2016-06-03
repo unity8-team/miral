@@ -31,7 +31,7 @@ using namespace mir::geometry;
 // simple tiling algorithm:
 //  o Switch apps: tap or click on the corresponding tile
 //  o Move window: Alt-leftmousebutton drag (three finger drag)
-//  o Resize window: Alt-middle_button drag (two finger drag)
+//  o Resize window: Alt-middle_button drag (four finger drag)
 //  o Maximize/restore current window (to tile size): Alt-F11
 //  o Maximize/restore current window (to tile height): Shift-F11
 //  o Maximize/restore current window (to tile width): Ctrl-F11
