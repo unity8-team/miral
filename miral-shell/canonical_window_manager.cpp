@@ -334,117 +334,14 @@ void CanonicalWindowManagerPolicy::handle_modify_window(
     }
 
     if (modifications.state().is_set())
-        apply_set_state(window_info, modifications.state().value());
+    {
+        tools->set_state(window_info, modifications.state().value());
+    }
 }
 
 void CanonicalWindowManagerPolicy::advise_delete_window(WindowInfo const& window_info)
 {
     fullscreen_surfaces.erase(window_info.window());
-}
-
-void CanonicalWindowManagerPolicy::apply_set_state(WindowInfo& window_info, MirSurfaceState value)
-{
-    switch (value)
-    {
-    case mir_surface_state_restored:
-    case mir_surface_state_maximized:
-    case mir_surface_state_vertmaximized:
-    case mir_surface_state_horizmaximized:
-    case mir_surface_state_fullscreen:
-    case mir_surface_state_hidden:
-    case mir_surface_state_minimized:
-        break;
-
-    default:
-        window_info.window().set_state(window_info.state());
-        return;
-    }
-
-    if (window_info.state() == mir_surface_state_restored)
-    {
-        window_info.restore_rect({window_info.window().top_left(), window_info.window().size()});
-    }
-
-    if (window_info.state() != mir_surface_state_fullscreen)
-    {
-        window_info.output_id({});
-        fullscreen_surfaces.erase(window_info.window());
-    }
-    else
-    {
-        fullscreen_surfaces.insert(window_info.window());
-    }
-
-    if (window_info.state() == value)
-    {
-        return;
-    }
-
-    auto const old_pos = window_info.window().top_left();
-    Displacement movement;
-
-    advise_state_change(window_info, value);
-
-    switch (value)
-    {
-    case mir_surface_state_restored:
-        movement = window_info.restore_rect().top_left - old_pos;
-        window_info.window().resize(window_info.restore_rect().size);
-        break;
-
-    case mir_surface_state_maximized:
-        movement = display_area.top_left - old_pos;
-        window_info.window().resize(display_area.size);
-        break;
-
-    case mir_surface_state_horizmaximized:
-        movement = Point{display_area.top_left.x, window_info.restore_rect().top_left.y} - old_pos;
-        window_info.window().resize({display_area.size.width, window_info.restore_rect().size.height});
-        break;
-
-    case mir_surface_state_vertmaximized:
-        movement = Point{window_info.restore_rect().top_left.x, display_area.top_left.y} - old_pos;
-        window_info.window().resize({window_info.restore_rect().size.width, display_area.size.height});
-        break;
-
-    case mir_surface_state_fullscreen:
-    {
-        Rectangle rect{old_pos, window_info.window().size()};
-
-        if (window_info.has_output_id())
-        {
-            tools->place_in_output(window_info.output_id(), rect);
-        }
-        else
-        {
-            tools->size_to_output(rect);
-        }
-
-        movement = rect.top_left - old_pos;
-        window_info.window().resize(rect.size);
-        break;
-    }
-
-    case mir_surface_state_hidden:
-    case mir_surface_state_minimized:
-        window_info.window().hide();
-        window_info.state(value);
-        window_info.window().set_state(window_info.state());
-        return;
-
-    default:
-        break;
-    }
-
-    tools->move_tree(window_info, movement);
-
-    window_info.state(value);
-
-    if (window_info.is_visible())
-        window_info.window().show();
-
-    window_info.window().set_state(window_info.state());
-    return;
 }
 
 void CanonicalWindowManagerPolicy::drag(Point cursor)
@@ -627,7 +524,7 @@ void CanonicalWindowManagerPolicy::toggle(MirSurfaceState state)
         if (info.state() == state)
             state = mir_surface_state_restored;
 
-        apply_set_state(info, state);
+        tools->set_state(info, state);
     }
 }
 
@@ -716,15 +613,19 @@ void CanonicalWindowManagerPolicy::apply_resize(WindowInfo& window_info, Point n
 {
     window_info.constrain_resize(new_pos, new_size);
 
-    advise_resize(window_info, new_size);
-
-    window_info.window().resize(new_size);
-
-    tools->move_tree(window_info, new_pos - window_info.window().top_left());
+    tools->place_and_size(window_info, new_pos, new_size);
 }
 
-void CanonicalWindowManagerPolicy::advise_state_change(WindowInfo const& /*window_info*/, MirSurfaceState /*state*/)
+void CanonicalWindowManagerPolicy::advise_state_change(WindowInfo const& window_info, MirSurfaceState state)
 {
+    if (state != mir_surface_state_fullscreen)
+    {
+        fullscreen_surfaces.erase(window_info.window());
+    }
+    else
+    {
+        fullscreen_surfaces.insert(window_info.window());
+    }
 }
 
 void CanonicalWindowManagerPolicy::advise_resize(WindowInfo const& /*window_info*/, Size const& /*new_size*/)

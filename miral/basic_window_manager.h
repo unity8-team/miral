@@ -134,6 +134,10 @@ public:
 
     void move_tree(miral::WindowInfo& root, mir::geometry::Displacement movement) override;
 
+    void place_and_size(WindowInfo& root, Point const& new_pos, Size const& new_size) override;
+
+    void set_state(miral::WindowInfo& window_info, MirSurfaceState value) override;
+
     void size_to_output(mir::geometry::Rectangle& rect) override;
 
     bool place_in_output(int id, mir::geometry::Rectangle& rect) override;

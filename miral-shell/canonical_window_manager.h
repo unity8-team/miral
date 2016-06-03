@@ -88,7 +88,6 @@ private:
     bool resize(miral::Window const& window, Point cursor, Point old_cursor);
 
     void apply_resize(miral::WindowInfo& window_info, Point new_pos, Size new_size);
-    void apply_set_state(miral::WindowInfo& window_info, MirSurfaceState value);
 
     miral::WindowManagerTools* const tools;
     SpinnerSplash const spinner;
@@ -102,6 +101,7 @@ private:
     bool resizing = false;
     bool left_resize = false;
     bool top_resize  = false;
+
 };
 
 #endif /* MIRAL_SHELL_CANONICAL_WINDOW_MANAGER_H_ */

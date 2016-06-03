@@ -461,6 +461,115 @@ void miral::BasicWindowManager::move_tree(miral::WindowInfo& root, mir::geometry
         move_tree(info_for(child), movement);
 }
 
+void miral::BasicWindowManager::place_and_size(WindowInfo& root, Point const& new_pos, Size const& new_size)
+{
+    policy->advise_resize(root, new_size);
+    root.window().resize(new_size);
+    move_tree(root, new_pos - root.window().top_left());
+}
+
+void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirSurfaceState value)
+{
+    switch (value)
+    {
+    case mir_surface_state_restored:
+    case mir_surface_state_maximized:
+    case mir_surface_state_vertmaximized:
+    case mir_surface_state_horizmaximized:
+    case mir_surface_state_fullscreen:
+    case mir_surface_state_hidden:
+    case mir_surface_state_minimized:
+        break;
+
+    default:
+        window_info.window().set_state(window_info.state());
+        return;
+    }
+
+    if (window_info.state() == mir_surface_state_restored)
+    {
+        window_info.restore_rect({window_info.window().top_left(), window_info.window().size()});
+    }
+
+    if (window_info.state() != mir_surface_state_fullscreen)
+    {
+        window_info.output_id({});
+    }
+
+    if (window_info.state() == value)
+    {
+        return;
+    }
+
+    auto const old_pos = window_info.window().top_left();
+    Displacement movement;
+
+    policy->advise_state_change(window_info, value);
+
+    auto const display_area = displays.bounding_rectangle();
+
+    switch (value)
+    {
+    case mir_surface_state_restored:
+        movement = window_info.restore_rect().top_left - old_pos;
+        window_info.window().resize(window_info.restore_rect().size);
+        break;
+
+    case mir_surface_state_maximized:
+        movement = display_area.top_left - old_pos;
+        window_info.window().resize(display_area.size);
+        break;
+
+    case mir_surface_state_horizmaximized:
+        movement = Point{display_area.top_left.x, window_info.restore_rect().top_left.y} - old_pos;
+        window_info.window().resize({display_area.size.width, window_info.restore_rect().size.height});
+        break;
+
+    case mir_surface_state_vertmaximized:
+        movement = Point{window_info.restore_rect().top_left.x, display_area.top_left.y} - old_pos;
+        window_info.window().resize({window_info.restore_rect().size.width, display_area.size.height});
+        break;
+
+    case mir_surface_state_fullscreen:
+    {
+        Rectangle rect{old_pos, window_info.window().size()};
+
+        if (window_info.has_output_id())
+        {
+            place_in_output(window_info.output_id(), rect);
+        }
+        else
+        {
+            size_to_output(rect);
+        }
+
+        movement = rect.top_left - old_pos;
+        window_info.window().resize(rect.size);
+        break;
+    }
+
+    case mir_surface_state_hidden:
+    case mir_surface_state_minimized:
+        window_info.window().hide();
+        window_info.state(value);
+        window_info.window().set_state(window_info.state());
+        return;
+
+    default:
+        break;
+    }
+
+    move_tree(window_info, movement);
+
+    window_info.state(value);
+
+    if (window_info.is_visible())
+        window_info.window().show();
+
+    window_info.window().set_state(window_info.state());
+}
+
+
 void miral::BasicWindowManager::update_event_timestamp(MirKeyboardEvent const* kev)
 {
     auto iev = mir_keyboard_event_input_event(kev);
