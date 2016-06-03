@@ -53,7 +53,6 @@ public:
     auto input_area_contains(mir::geometry::Point const& point) const -> bool;
     auto application()  const -> Application;
 
-
     void configure_streams(std::vector<StreamSpecification> const& config);
 
     // Indicates that the Window isn't null
@@ -63,13 +62,8 @@ public:
     void resize(mir::geometry::Size const& size);
     void show();
     void hide();
-    void rename(std::string const& name);
     void move_to(mir::geometry::Point top_left);
-    void set_input_region(std::vector<mir::geometry::Rectangle> const& input_rectangles);
     void set_state(MirSurfaceState state);
-    void set_type(MirSurfaceType type);
-
-    void reset();
 
     void request_client_surface_close() const;
 

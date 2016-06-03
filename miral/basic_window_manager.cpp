@@ -521,7 +521,7 @@ void miral::BasicWindowManager::modify_window(WindowInfo& window_info, WindowSpe
     auto& window = window_info.window();
 
     if (window_info.type() != window_info_tmp.type())
-        window.set_type(window_info.type());
+        std::shared_ptr<scene::Surface>(window)->configure(mir_surface_attrib_type, window_info.type());
 
     if (window_info.parent() != window_info_tmp.parent())
     {
@@ -539,13 +539,13 @@ void miral::BasicWindowManager::modify_window(WindowInfo& window_info, WindowSpe
     }
 
     if (modifications.name().is_set())
-        window.rename(modifications.name().value());
+        std::shared_ptr<scene::Surface>(window)->rename(modifications.name().value());
 
     if (modifications.streams().is_set())
         window.configure_streams(modifications.streams().value());
 
     if (modifications.input_shape().is_set())
-        window.set_input_region(modifications.input_shape().value());
+        std::shared_ptr<scene::Surface>(window)->set_input_region(modifications.input_shape().value());
 
     if (modifications.size().is_set())
     {
