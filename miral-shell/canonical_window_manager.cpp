@@ -91,7 +91,7 @@ bool CanonicalWindowManagerPolicy::resize(Point cursor)
 }
 
 
-auto CanonicalWindowManagerPolicy::handle_place_new_surface(
+auto CanonicalWindowManagerPolicy::place_new_surface(
     miral::ApplicationInfo const& app_info,
     miral::WindowSpecification const& request_parameters)
     -> miral::WindowSpecification
@@ -269,7 +269,7 @@ void CanonicalWindowManagerPolicy::generate_decorations_for(WindowInfo& window_i
     window_info.add_child(titlebar_info.window());
 }
 
-void CanonicalWindowManagerPolicy::handle_new_window(WindowInfo& window_info)
+void CanonicalWindowManagerPolicy::advise_new_window(WindowInfo& window_info)
 {
     if (window_info.state() == mir_surface_state_fullscreen)
         fullscreen_surfaces.insert(window_info.window());
@@ -713,7 +713,7 @@ void CanonicalWindowManagerPolicy::toggle(MirSurfaceState state)
     }
 }
 
-void CanonicalWindowManagerPolicy::handle_focus_gained(WindowInfo const& info)
+void CanonicalWindowManagerPolicy::advise_focus_gained(WindowInfo const& info)
 {
     tools->raise_tree(info.window());
 
@@ -730,7 +730,7 @@ void CanonicalWindowManagerPolicy::handle_focus_gained(WindowInfo const& info)
     }
 }
 
-void CanonicalWindowManagerPolicy::handle_focus_lost(WindowInfo const& info)
+void CanonicalWindowManagerPolicy::advise_focus_lost(WindowInfo const& info)
 {
     if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(info.userdata()))
         titlebar->paint_titlebar(0x3F);

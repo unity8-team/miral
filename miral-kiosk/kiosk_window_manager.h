@@ -30,16 +30,16 @@ class KioskWindowManagerPolicy : public miral::WindowManagementPolicy
 public:
     KioskWindowManagerPolicy(miral::WindowManagerTools* const tools, SwSplash const&);
 
-    void handle_app_info_updated(Rectangles const& displays) override;
-
-    void handle_displays_updated(Rectangles const& displays) override;
-
-    auto handle_place_new_surface(
+    auto place_new_surface(
         miral::ApplicationInfo const& app_info,
         miral::WindowSpecification const& request_parameters)
         -> miral::WindowSpecification override;
 
-    void handle_new_window(miral::WindowInfo& window_info) override;
+    void handle_app_info_updated(Rectangles const& displays) override;
+
+    void handle_displays_updated(Rectangles const& displays) override;
+
+    void advise_new_window(miral::WindowInfo& window_info) override;
 
     void handle_window_ready(miral::WindowInfo& window_info) override;
 
@@ -55,9 +55,9 @@ public:
 
     void handle_raise_window(miral::WindowInfo& window_info) override;
 
-    void handle_focus_lost(miral::WindowInfo const& info) override;
+    void advise_focus_lost(miral::WindowInfo const& info) override;
 
-    void handle_focus_gained(miral::WindowInfo const& info) override;
+    void advise_focus_gained(miral::WindowInfo const& info) override;
 
 private:
     static const int modifier_mask =

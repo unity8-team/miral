@@ -47,34 +47,24 @@ public:
 
     explicit CanonicalWindowManagerPolicy(miral::WindowManagerTools* const tools, SpinnerSplash const& spinner);
 
-    void handle_app_info_updated(Rectangles const& displays) override;
-
-    void handle_displays_updated(Rectangles const& displays) override;
-
-    auto handle_place_new_surface(
+    auto place_new_surface(
         miral::ApplicationInfo const& app_info,
         miral::WindowSpecification const& request_parameters)
         -> miral::WindowSpecification override;
 
-    void handle_new_window(miral::WindowInfo& window_info) override;
-
+    void handle_app_info_updated(Rectangles const& displays) override;
+    void handle_displays_updated(Rectangles const& displays) override;
+    void advise_new_window(miral::WindowInfo& window_info) override;
     void handle_window_ready(miral::WindowInfo& window_info) override;
-
     void handle_modify_window(miral::WindowInfo& window_info, miral::WindowSpecification const& modifications) override;
-
     void handle_delete_window(miral::WindowInfo& window_info) override;
-
     bool handle_keyboard_event(MirKeyboardEvent const* event) override;
-
     bool handle_touch_event(MirTouchEvent const* event) override;
-
     bool handle_pointer_event(MirPointerEvent const* event) override;
-
     void handle_raise_window(miral::WindowInfo& window_info) override;
 
-    void handle_focus_lost(miral::WindowInfo const& info) override;
-
-    void handle_focus_gained(miral::WindowInfo const& info) override;
+    void advise_focus_lost(miral::WindowInfo const& info) override;
+    void advise_focus_gained(miral::WindowInfo const& info) override;
 
 private:
     static const int modifier_mask =
