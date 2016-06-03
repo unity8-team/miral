@@ -137,8 +137,6 @@ public:
 
     void set_state(miral::WindowInfo& window_info, MirSurfaceState value) override;
 
-    void size_to_output(mir::geometry::Rectangle& rect) override;
-
     bool place_in_output(int id, mir::geometry::Rectangle& rect) override;
 
     void invoke_under_lock(std::function<void()> const& callback) override;

@@ -72,7 +72,6 @@ public:
     virtual void place_and_size(WindowInfo& window_info, Point const& new_pos, Size const& new_size) = 0;
     virtual void set_state(WindowInfo& window_info, MirSurfaceState value) = 0;
 
-    virtual void size_to_output(mir::geometry::Rectangle& rect) = 0;
     virtual bool place_in_output(int id, mir::geometry::Rectangle& rect) = 0;
 /** @} */
 

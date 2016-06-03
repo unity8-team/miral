@@ -651,7 +651,7 @@ void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirSur
         }
         else
         {
-            size_to_output(rect);
+            display_layout->size_to_output(rect);
         }
 
         movement = rect.top_left - old_pos;
@@ -713,11 +713,6 @@ void miral::BasicWindowManager::update_event_timestamp(MirTouchEvent const* tev)
             break;
         }
     }
-}
-
-void miral::BasicWindowManager::size_to_output(mir::geometry::Rectangle& rect)
-{
-    display_layout->size_to_output(rect);
 }
 
 bool miral::BasicWindowManager::place_in_output(int id, mir::geometry::Rectangle& rect)
@@ -868,7 +863,7 @@ auto miral::BasicWindowManager::place_new_surface(
 
                 Rectangle display_for_app{default_window.top_left(), default_window.size()};
 
-                size_to_output(display_for_app);
+                display_layout->size_to_output(display_for_app);
 
                 positioned = display_for_app.overlaps(Rectangle{parameters.top_left().value(), parameters.size().value()});
             }
