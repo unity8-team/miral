@@ -38,7 +38,6 @@ namespace mir
 namespace shell { class DisplayLayout; }
 }
 
-/// This is based on mir/examples, but intended to move to miral after building the necessary abstractions
 namespace miral
 {
 using mir::shell::SurfaceSet;

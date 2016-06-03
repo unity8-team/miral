@@ -16,38 +16,36 @@
  * Authored By: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#include "canonical_window_manager.h"
-#include "spinner/splash.h"
+#include "miral/canonical_window_manager.h"
 
-#include <miral/application_info.h>
-#include <miral/window_info.h>
-#include <miral/window_manager_tools.h>
+#include "miral/application_info.h"
+#include "miral/window_info.h"
+#include "miral/window_manager_tools.h"
 
 #include <linux/input.h>
 #include <algorithm>
 #include <csignal>
 
 namespace ms = mir::scene;
-using namespace miral;
 
 // Based on "Mir and Unity: Surfaces, input, and displays (v0.3)"
 
-CanonicalWindowManagerPolicy::CanonicalWindowManagerPolicy(WindowManagerTools* const tools) :
+miral::CanonicalWindowManagerPolicy::CanonicalWindowManagerPolicy(WindowManagerTools* const tools) :
     tools{tools}
 {
 }
 
-void CanonicalWindowManagerPolicy::click(Point cursor)
+void miral::CanonicalWindowManagerPolicy::click(Point cursor)
 {
     if (auto const window = tools->window_at(cursor))
         tools->select_active_window(window);
 }
 
-void CanonicalWindowManagerPolicy::handle_app_info_updated(Rectangles const& /*displays*/)
+void miral::CanonicalWindowManagerPolicy::handle_app_info_updated(Rectangles const& /*displays*/)
 {
 }
 
-void CanonicalWindowManagerPolicy::handle_displays_updated(Rectangles const& displays)
+void miral::CanonicalWindowManagerPolicy::handle_displays_updated(Rectangles const& displays)
 {
     display_area = displays.bounding_rectangle();
 
@@ -64,7 +62,7 @@ void CanonicalWindowManagerPolicy::handle_displays_updated(Rectangles const& dis
     }
 }
 
-bool CanonicalWindowManagerPolicy::resize(Point cursor)
+bool miral::CanonicalWindowManagerPolicy::resize(Point cursor)
 {
     if (!resizing)
         tools->select_active_window(tools->window_at(old_cursor));
@@ -72,7 +70,7 @@ bool CanonicalWindowManagerPolicy::resize(Point cursor)
 }
 
 
-auto CanonicalWindowManagerPolicy::place_new_surface(
+auto miral::CanonicalWindowManagerPolicy::place_new_surface(
     miral::ApplicationInfo const& /*app_info*/,
     miral::WindowSpecification const& request_parameters)
     -> miral::WindowSpecification
@@ -80,30 +78,30 @@ auto CanonicalWindowManagerPolicy::place_new_surface(
     return request_parameters;
 }
 
-void CanonicalWindowManagerPolicy::advise_new_window(WindowInfo& window_info)
+void miral::CanonicalWindowManagerPolicy::advise_new_window(WindowInfo& window_info)
 {
     if (window_info.state() == mir_surface_state_fullscreen)
         fullscreen_surfaces.insert(window_info.window());
 }
 
-void CanonicalWindowManagerPolicy::handle_window_ready(WindowInfo& window_info)
+void miral::CanonicalWindowManagerPolicy::handle_window_ready(WindowInfo& window_info)
 {
     tools->select_active_window(window_info.window());
 }
 
-void CanonicalWindowManagerPolicy::handle_modify_window(
+void miral::CanonicalWindowManagerPolicy::handle_modify_window(
     WindowInfo& window_info,
     WindowSpecification const& modifications)
 {
     tools->modify_window(window_info, modifications);
 }
 
-void CanonicalWindowManagerPolicy::advise_delete_window(WindowInfo const& window_info)
+void miral::CanonicalWindowManagerPolicy::advise_delete_window(WindowInfo const& window_info)
 {
     fullscreen_surfaces.erase(window_info.window());
 }
 
-void CanonicalWindowManagerPolicy::drag(Point cursor)
+void miral::CanonicalWindowManagerPolicy::drag(Point cursor)
 {
     if (auto const target = tools->window_at(old_cursor))
     {
@@ -112,12 +110,12 @@ void CanonicalWindowManagerPolicy::drag(Point cursor)
     }
 }
 
-void CanonicalWindowManagerPolicy::handle_raise_window(WindowInfo& window_info)
+void miral::CanonicalWindowManagerPolicy::handle_raise_window(WindowInfo& window_info)
 {
     tools->select_active_window(window_info.window());
 }
 
-bool CanonicalWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* event)
+bool miral::CanonicalWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* event)
 {
     auto const action = mir_keyboard_event_action(event);
     auto const scan_code = mir_keyboard_event_scan_code(event);
@@ -181,7 +179,7 @@ bool CanonicalWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const*
     return false;
 }
 
-bool CanonicalWindowManagerPolicy::handle_touch_event(MirTouchEvent const* event)
+bool miral::CanonicalWindowManagerPolicy::handle_touch_event(MirTouchEvent const* event)
 {
     auto const count = mir_touch_event_point_count(event);
 
@@ -238,7 +236,7 @@ bool CanonicalWindowManagerPolicy::handle_touch_event(MirTouchEvent const* event
     return consumes_event;
 }
 
-bool CanonicalWindowManagerPolicy::handle_pointer_event(MirPointerEvent const* event)
+bool miral::CanonicalWindowManagerPolicy::handle_pointer_event(MirPointerEvent const* event)
 {
     auto const action = mir_pointer_event_action(event);
     auto const modifiers = mir_pointer_event_modifiers(event) & modifier_mask;
@@ -274,7 +272,7 @@ bool CanonicalWindowManagerPolicy::handle_pointer_event(MirPointerEvent const* e
     return consumes_event;
 }
 
-void CanonicalWindowManagerPolicy::toggle(MirSurfaceState state)
+void miral::CanonicalWindowManagerPolicy::toggle(MirSurfaceState state)
 {
     if (auto const window = tools->active_window())
     {
@@ -287,16 +285,16 @@ void CanonicalWindowManagerPolicy::toggle(MirSurfaceState state)
     }
 }
 
-void CanonicalWindowManagerPolicy::advise_focus_gained(WindowInfo const& info)
+void miral::CanonicalWindowManagerPolicy::advise_focus_gained(WindowInfo const& info)
 {
     tools->raise_tree(info.window());
 }
 
-void CanonicalWindowManagerPolicy::advise_focus_lost(WindowInfo const& /*info*/)
+void miral::CanonicalWindowManagerPolicy::advise_focus_lost(WindowInfo const& /*info*/)
 {
 }
 
-bool CanonicalWindowManagerPolicy::resize(Window const& window, Point cursor, Point old_cursor)
+bool miral::CanonicalWindowManagerPolicy::resize(Window const& window, Point cursor, Point old_cursor)
 {
     if (!window)
         return false;
@@ -360,7 +358,7 @@ bool CanonicalWindowManagerPolicy::resize(Window const& window, Point cursor, Po
     return true;
 }
 
-void CanonicalWindowManagerPolicy::advise_state_change(WindowInfo const& window_info, MirSurfaceState state)
+void miral::CanonicalWindowManagerPolicy::advise_state_change(WindowInfo const& window_info, MirSurfaceState state)
 {
     if (state != mir_surface_state_fullscreen)
     {
@@ -372,6 +370,6 @@ void CanonicalWindowManagerPolicy::advise_state_change(WindowInfo const& window_
     }
 }
 
-void CanonicalWindowManagerPolicy::advise_resize(WindowInfo const& /*window_info*/, Size const& /*new_size*/)
+void miral::CanonicalWindowManagerPolicy::advise_resize(WindowInfo const& /*window_info*/, Size const& /*new_size*/)
 {
 }

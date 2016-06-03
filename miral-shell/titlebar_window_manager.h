@@ -21,9 +21,11 @@
 
 #include "spinner/splash.h"
 
-#include "canonical_window_manager.h"
+#include <miral/canonical_window_manager.h>
 
-class TitlebarWindowManagerPolicy : public CanonicalWindowManagerPolicy
+using namespace mir::geometry;
+
+class TitlebarWindowManagerPolicy : public miral::CanonicalWindowManagerPolicy
 {
 public:
     TitlebarWindowManagerPolicy(miral::WindowManagerTools* const tools, SpinnerSplash const& spinner);
