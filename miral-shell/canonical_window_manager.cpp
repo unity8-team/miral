@@ -429,40 +429,28 @@ void CanonicalWindowManagerPolicy::apply_set_state(WindowInfo& window_info, MirS
     auto const old_pos = window_info.window().top_left();
     Displacement movement;
 
+    advise_state_change(window_info, value);
+
     switch (value)
     {
     case mir_surface_state_restored:
         movement = window_info.restore_rect().top_left - old_pos;
         window_info.window().resize(window_info.restore_rect().size);
-        if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(window_info.userdata()))
-        {
-            titlebar->window.resize(titlebar_size_for_window(window_info.restore_rect().size));
-            titlebar->window.show();
-        }
         break;
 
     case mir_surface_state_maximized:
         movement = display_area.top_left - old_pos;
         window_info.window().resize(display_area.size);
-        if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(window_info.userdata()))
-            titlebar->window.hide();
         break;
 
     case mir_surface_state_horizmaximized:
         movement = Point{display_area.top_left.x, window_info.restore_rect().top_left.y} - old_pos;
         window_info.window().resize({display_area.size.width, window_info.restore_rect().size.height});
-        if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(window_info.userdata()))
-        {
-            titlebar->window.resize(titlebar_size_for_window({display_area.size.width, window_info.restore_rect().size.height}));
-            titlebar->window.show();
-        }
         break;
 
     case mir_surface_state_vertmaximized:
         movement = Point{window_info.restore_rect().top_left.x, display_area.top_left.y} - old_pos;
         window_info.window().resize({window_info.restore_rect().size.width, display_area.size.height});
-        if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(window_info.userdata()))
-            titlebar->window.hide();
         break;
 
     case mir_surface_state_fullscreen:
@@ -485,8 +473,6 @@ void CanonicalWindowManagerPolicy::apply_set_state(WindowInfo& window_info, MirS
 
     case mir_surface_state_hidden:
     case mir_surface_state_minimized:
-        if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(window_info.userdata()))
-            titlebar->window.hide();
         window_info.window().hide();
         window_info.state(value);
         window_info.window().set_state(window_info.state());
@@ -811,3 +797,32 @@ void CanonicalWindowManagerPolicy::apply_resize(WindowInfo& window_info, Point n
     tools->move_tree(window_info, new_pos - window_info.window().top_left());
 }
 
+void CanonicalWindowManagerPolicy::advise_state_change(WindowInfo const& window_info, MirSurfaceState state)
+{
+    if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(window_info.userdata()))
+    {
+        switch (state)
+        {
+        case mir_surface_state_restored:
+            titlebar->window.resize(titlebar_size_for_window(window_info.restore_rect().size));
+            titlebar->window.show();
+            break;
+
+        case mir_surface_state_maximized:
+        case mir_surface_state_vertmaximized:
+        case mir_surface_state_hidden:
+        case mir_surface_state_minimized:
+            titlebar->window.hide();
+            break;
+
+        case mir_surface_state_horizmaximized:
+            titlebar->window.resize(titlebar_size_for_window({display_area.size.width, window_info.restore_rect().size.height}));
+            titlebar->window.show();
+            break;
+
+        case mir_surface_state_fullscreen:
+        default:
+            break;
+        }
+    }
+}
