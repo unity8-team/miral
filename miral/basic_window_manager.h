@@ -134,6 +134,8 @@ public:
 
     void move_tree(miral::WindowInfo& root, mir::geometry::Displacement movement) override;
 
+    void modify_window(WindowInfo& window_info, WindowSpecification const& modifications) override;
+
     void place_and_size(WindowInfo& root, Point const& new_pos, Size const& new_size) override;
 
     void set_state(miral::WindowInfo& window_info, MirSurfaceState value) override;

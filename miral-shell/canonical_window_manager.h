@@ -87,8 +87,6 @@ private:
 
     bool resize(miral::Window const& window, Point cursor, Point old_cursor);
 
-    void apply_resize(miral::WindowInfo& window_info, Point new_pos, Size new_size);
-
     miral::WindowManagerTools* const tools;
     SpinnerSplash const spinner;
 

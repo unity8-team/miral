@@ -461,6 +461,110 @@ void miral::BasicWindowManager::move_tree(miral::WindowInfo& root, mir::geometry
         move_tree(info_for(child), movement);
 }
 
+void miral::BasicWindowManager::modify_window(WindowInfo& window_info, WindowSpecification const& modifications)
+{
+    auto window_info_tmp = window_info;
+
+#define COPY_IF_SET(field)\
+    if (modifications.field().is_set())\
+        window_info_tmp.field(modifications.field().value())
+
+    COPY_IF_SET(type);
+    COPY_IF_SET(min_width);
+    COPY_IF_SET(min_height);
+    COPY_IF_SET(max_width);
+    COPY_IF_SET(max_height);
+    COPY_IF_SET(width_inc);
+    COPY_IF_SET(height_inc);
+    COPY_IF_SET(min_aspect);
+    COPY_IF_SET(max_aspect);
+    COPY_IF_SET(output_id);
+    COPY_IF_SET(preferred_orientation);
+
+#undef COPY_IF_SET
+
+    if (modifications.parent().is_set())
+        window_info_tmp.parent(info_for(modifications.parent().value()).window());
+
+    if (window_info.type() != window_info_tmp.type())
+    {
+        auto const new_type = window_info_tmp.type();
+
+        if (!window_info.can_morph_to(new_type))
+        {
+            throw std::runtime_error("Unsupported window type change");
+        }
+
+        if (window_info_tmp.must_not_have_parent())
+        {
+            if (modifications.parent().is_set())
+                throw std::runtime_error("Target window type does not support parent");
+
+            window_info_tmp.parent({});
+        }
+        else if (window_info_tmp.must_have_parent())
+        {
+            if (!window_info_tmp.parent())
+                throw std::runtime_error("Target window type requires parent");
+        }
+    }
+
+    std::swap(window_info_tmp, window_info);
+
+    auto& window = window_info.window();
+
+    if (window_info.type() != window_info_tmp.type())
+        window.set_type(window_info.type());
+
+    if (window_info.parent() != window_info_tmp.parent())
+    {
+        if (window_info_tmp.parent())
+        {
+            auto& parent_info = info_for(window_info_tmp.parent());
+            parent_info.remove_child(window);
+        }
+
+        if (window_info.parent())
+        {
+            auto& parent_info = info_for(window_info.parent());
+            parent_info.add_child(window);
+        }
+    }
+
+    if (modifications.name().is_set())
+        window.rename(modifications.name().value());
+
+    if (modifications.streams().is_set())
+        window.configure_streams(modifications.streams().value());
+
+    if (modifications.input_shape().is_set())
+        window.set_input_region(modifications.input_shape().value());
+
+    if (modifications.size().is_set())
+    {
+        Point new_pos = window.top_left();
+        Size new_size = modifications.size().value();
+
+        window_info.constrain_resize(new_pos, new_size);
+        place_and_size(window_info, new_pos, new_size);
+    }
+    else if (modifications.min_width().is_set() || modifications.min_height().is_set() ||
+             modifications.max_width().is_set() || modifications.max_height().is_set() ||
+             modifications.width_inc().is_set() || modifications.height_inc().is_set())
+    {
+        Point new_pos = window.top_left();
+        Size new_size = window.size();
+
+        window_info.constrain_resize(new_pos, new_size);
+        place_and_size(window_info, new_pos, new_size);
+    }
+
+    if (modifications.state().is_set())
+    {
+        set_state(window_info, modifications.state().value());
+    }
+}
+
 void miral::BasicWindowManager::place_and_size(WindowInfo& root, Point const& new_pos, Size const& new_size)
 {
     policy->advise_resize(root, new_size);

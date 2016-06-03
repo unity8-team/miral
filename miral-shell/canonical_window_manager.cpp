@@ -245,98 +245,7 @@ void CanonicalWindowManagerPolicy::handle_modify_window(
     WindowInfo& window_info,
     WindowSpecification const& modifications)
 {
-    auto window_info_tmp = window_info;
-
-#define COPY_IF_SET(field)\
-        if (modifications.field().is_set())\
-            window_info_tmp.field(modifications.field().value())
-
-    COPY_IF_SET(type);
-    COPY_IF_SET(min_width);
-    COPY_IF_SET(min_height);
-    COPY_IF_SET(max_width);
-    COPY_IF_SET(max_height);
-    COPY_IF_SET(width_inc);
-    COPY_IF_SET(height_inc);
-    COPY_IF_SET(min_aspect);
-    COPY_IF_SET(max_aspect);
-    COPY_IF_SET(output_id);
-    COPY_IF_SET(preferred_orientation);
-
-#undef COPY_IF_SET
-
-    if (modifications.parent().is_set())
-        window_info_tmp.parent(tools->info_for(modifications.parent().value()).window());
-
-    if (window_info.type() != window_info_tmp.type())
-    {
-        auto const new_type = window_info_tmp.type();
-
-        if (!window_info.can_morph_to(new_type))
-        {
-            throw std::runtime_error("Unsupported window type change");
-        }
-
-        if (window_info_tmp.must_not_have_parent())
-        {
-            if (modifications.parent().is_set())
-                throw std::runtime_error("Target window type does not support parent");
-
-            window_info_tmp.parent({});
-        }
-        else if (window_info_tmp.must_have_parent())
-        {
-            if (!window_info_tmp.parent())
-                throw std::runtime_error("Target window type requires parent");
-        }
-    }
-
-    std::swap(window_info_tmp, window_info);
-
-    auto& window = window_info.window();
-
-    if (window_info.type() != window_info_tmp.type())
-        window.set_type(window_info.type());
-
-    if (window_info.parent() != window_info_tmp.parent())
-    {
-        if (window_info_tmp.parent())
-        {
-            auto& parent_info = tools->info_for(window_info_tmp.parent());
-            parent_info.remove_child(window);
-        }
-
-        if (window_info.parent())
-        {
-            auto& parent_info = tools->info_for(window_info.parent());
-            parent_info.add_child(window);
-        }
-    }
-
-    if (modifications.name().is_set())
-        window.rename(modifications.name().value());
-
-    if (modifications.streams().is_set())
-        window.configure_streams(modifications.streams().value());
-
-    if (modifications.input_shape().is_set())
-        window.set_input_region(modifications.input_shape().value());
-
-    if (modifications.size().is_set())
-    {
-        apply_resize(window_info, window.top_left(), modifications.size().value());
-    }
-    else if (modifications.min_width().is_set() || modifications.min_height().is_set() ||
-             modifications.max_width().is_set() || modifications.max_height().is_set() ||
-             modifications.width_inc().is_set() || modifications.height_inc().is_set())
-    {
-        apply_resize(window_info, window.top_left(), window.size());
-    }
-
-    if (modifications.state().is_set())
-    {
-        tools->set_state(window_info, modifications.state().value());
-    }
+    tools->modify_window(window_info, modifications);
 }
 
 void CanonicalWindowManagerPolicy::advise_delete_window(WindowInfo const& window_info)
@@ -604,16 +513,10 @@ bool CanonicalWindowManagerPolicy::resize(Window const& window, Point cursor, Po
     Size new_size{new_width, new_height};
     Point new_pos = top_left + left_resize*delta.dx + top_resize*delta.dy;
 
-    apply_resize(window_info, new_pos, new_size);
+    window_info.constrain_resize(new_pos, new_size);
+    tools->place_and_size(window_info, new_pos, new_size);
 
     return true;
-}
-
-void CanonicalWindowManagerPolicy::apply_resize(WindowInfo& window_info, Point new_pos, Size new_size)
-{
-    window_info.constrain_resize(new_pos, new_size);
-
-    tools->place_and_size(window_info, new_pos, new_size);
 }
 
 void CanonicalWindowManagerPolicy::advise_state_change(WindowInfo const& window_info, MirSurfaceState state)
