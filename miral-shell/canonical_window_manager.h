@@ -64,6 +64,7 @@ public:
     void advise_focus_lost(miral::WindowInfo const& info) override;
     void advise_focus_gained(miral::WindowInfo const& info) override;
     void advise_state_change(miral::WindowInfo const& window_info, MirSurfaceState state);
+    void advise_resize(miral::WindowInfo const& window_info, Size const& new_size);
     void advise_delete_window(miral::WindowInfo const& window_info) override;
 
     void handle_app_info_updated(Rectangles const& displays) override;
@@ -85,7 +86,7 @@ private:
 
     bool resize(miral::Window const& window, Point cursor, Point old_cursor);
 
-    void apply_resize(miral::WindowInfo& window_info, Point new_pos, Size new_size) const;
+    void apply_resize(miral::WindowInfo& window_info, Point new_pos, Size new_size);
     void apply_set_state(miral::WindowInfo& window_info, MirSurfaceState value);
     void generate_decorations_for(miral::WindowInfo& window_info);
 
@@ -101,7 +102,6 @@ private:
     bool resizing = false;
     bool left_resize = false;
     bool top_resize  = false;
-
 };
 
 #endif /* MIRAL_SHELL_CANONICAL_WINDOW_MANAGER_H_ */

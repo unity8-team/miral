@@ -785,12 +785,11 @@ bool CanonicalWindowManagerPolicy::resize(Window const& window, Point cursor, Po
     return true;
 }
 
-void CanonicalWindowManagerPolicy::apply_resize(WindowInfo& window_info, Point new_pos, Size new_size) const
+void CanonicalWindowManagerPolicy::apply_resize(WindowInfo& window_info, Point new_pos, Size new_size)
 {
     window_info.constrain_resize(new_pos, new_size);
 
-    if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(window_info.userdata()))
-        titlebar->window.resize({new_size.width, Height{title_bar_height}});
+    advise_resize(window_info, new_size);
 
     window_info.window().resize(new_size);
 
@@ -825,4 +824,10 @@ void CanonicalWindowManagerPolicy::advise_state_change(WindowInfo const& window_
             break;
         }
     }
+}
+
+void CanonicalWindowManagerPolicy::advise_resize(WindowInfo const& window_info, Size const& new_size)
+{
+    if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(window_info.userdata()))
+        titlebar->window.resize({new_size.width, Height{title_bar_height}});
 }
