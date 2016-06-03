@@ -161,14 +161,29 @@ void TilingWindowManagerPolicy::handle_modify_window(
     miral::WindowInfo& window_info,
     miral::WindowSpecification const& modifications)
 {
-    if (modifications.name().is_set())
-        window_info.window().rename(modifications.name().value());
+    auto mods = modifications;
 
-    if (modifications.state().is_set())
+    // filter out changes we don't want the client making
+    mods.top_left().consume();
+    mods.size().consume();
+    mods.output_id().consume();
+    mods.edge_attachment().consume();
+    mods.min_width().consume();
+    mods.min_height().consume();
+    mods.max_width().consume();
+    mods.max_height().consume();
+    mods.width_inc().consume();
+    mods.height_inc().consume();
+    mods.min_aspect().consume();
+    mods.max_aspect().consume();
+
+    if (mods.state().is_set())
     {
-        auto state = transform_set_state(window_info, modifications.state().value());
+        auto state = transform_set_state(window_info, mods.state().consume());
         window_info.window().set_state(state);
     }
+
+    tools->modify_window(window_info, mods);
 }
 
 void TilingWindowManagerPolicy::advise_delete_window(WindowInfo const& /*window_info*/)

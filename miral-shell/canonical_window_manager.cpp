@@ -55,12 +55,11 @@ void CanonicalWindowManagerPolicy::handle_displays_updated(Rectangles const& dis
     {
         if (window)
         {
-            auto const& info = tools->info_for(window);
+            auto& info = tools->info_for(window);
             Rectangle rect{window.top_left(), window.size()};
 
             tools->place_in_output(info.output_id(), rect);
-            window.move_to(rect.top_left);
-            window.resize(rect.size);
+            tools->place_and_size(info, rect.top_left, rect.size);
         }
     }
 }
