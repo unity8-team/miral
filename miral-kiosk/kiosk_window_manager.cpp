@@ -43,7 +43,7 @@ void KioskWindowManagerPolicy::handle_displays_updated(Rectangles const& /*displ
 {
 }
 
-auto KioskWindowManagerPolicy::handle_place_new_surface(
+auto KioskWindowManagerPolicy::place_new_surface(
     miral::ApplicationInfo const& /*app_info*/,
     miral::WindowSpecification const& request_parameters)
 -> miral::WindowSpecification
@@ -110,7 +110,7 @@ auto KioskWindowManagerPolicy::handle_place_new_surface(
     return parameters;
 }
 
-void KioskWindowManagerPolicy::handle_new_window(WindowInfo& /*window_info*/)
+void KioskWindowManagerPolicy::advise_new_window(WindowInfo& /*window_info*/)
 {
 }
 
@@ -127,7 +127,7 @@ void KioskWindowManagerPolicy::handle_modify_window(
         window_info.window().rename(modifications.name().value());
 }
 
-void KioskWindowManagerPolicy::handle_delete_window(WindowInfo& /*window_info*/)
+void KioskWindowManagerPolicy::advise_delete_window(WindowInfo const& /*window_info*/)
 {
 }
 
@@ -207,11 +207,11 @@ void KioskWindowManagerPolicy::raise_splash_session() const
     }
 }
 
-void KioskWindowManagerPolicy::handle_focus_gained(WindowInfo const& info)
+void KioskWindowManagerPolicy::advise_focus_gained(WindowInfo const& info)
 {
     tools->raise_tree(info.window());
 }
 
-void KioskWindowManagerPolicy::handle_focus_lost(WindowInfo const& /*info*/)
+void KioskWindowManagerPolicy::advise_focus_lost(WindowInfo const& /*info*/)
 {
 }

@@ -91,7 +91,7 @@ auto miral::BasicWindowManager::add_surface(
         };
 
     auto& session_info = info_for(session);
-    auto& window_info = build_window(session, policy->handle_place_new_surface(session_info, params));
+    auto& window_info = build_window(session, policy->place_new_surface(session_info, params));
 
     auto const window = window_info.window();
 
@@ -100,7 +100,7 @@ auto miral::BasicWindowManager::add_surface(
     if (auto const parent = window_info.parent())
         info_for(parent).add_child(window);
 
-    policy->handle_new_window(window_info);
+    policy->advise_new_window(window_info);
 
     if (window_info.can_be_active())
     {
@@ -141,7 +141,7 @@ void miral::BasicWindowManager::remove_surface(
     session_info.remove_window(info.window());
     mru_active_windows.erase(info.window());
 
-    policy->handle_delete_window(info);
+    policy->advise_delete_window(info);
 
     session->destroy_surface(surface);
 
@@ -520,7 +520,7 @@ auto miral::BasicWindowManager::select_active_window(Window const& hint) -> mira
         if (prev_window)
         {
             focus_controller->set_focus_to(hint.application(), hint);
-            policy->handle_focus_lost(info_for(prev_window));
+            policy->advise_focus_lost(info_for(prev_window));
         }
 
         return hint;
@@ -534,9 +534,9 @@ auto miral::BasicWindowManager::select_active_window(Window const& hint) -> mira
         focus_controller->set_focus_to(hint.application(), hint);
 
         if (prev_window && prev_window != hint)
-            policy->handle_focus_lost(info_for(prev_window));
+            policy->advise_focus_lost(info_for(prev_window));
 
-        policy->handle_focus_gained(info_for_hint);
+        policy->advise_focus_gained(info_for_hint);
         return hint;
     }
     else

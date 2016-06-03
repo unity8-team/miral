@@ -84,7 +84,7 @@ void TilingWindowManagerPolicy::resize(Point cursor)
     }
 }
 
-auto TilingWindowManagerPolicy::handle_place_new_surface(
+auto TilingWindowManagerPolicy::place_new_surface(
     ApplicationInfo const& app_info,
     WindowSpecification const& request_parameters)
     -> WindowSpecification
@@ -148,7 +148,7 @@ auto TilingWindowManagerPolicy::handle_place_new_surface(
     return parameters;
 }
 
-void TilingWindowManagerPolicy::handle_new_window(WindowInfo& /*window_info*/)
+void TilingWindowManagerPolicy::advise_new_window(WindowInfo& /*window_info*/)
 {
 }
 
@@ -171,7 +171,7 @@ void TilingWindowManagerPolicy::handle_modify_window(
     }
 }
 
-void TilingWindowManagerPolicy::handle_delete_window(WindowInfo& /*window_info*/)
+void TilingWindowManagerPolicy::advise_delete_window(WindowInfo const& /*window_info*/)
 {
 }
 
@@ -572,11 +572,11 @@ void TilingWindowManagerPolicy::resize(Window window, Point cursor, Point old_cu
     }
 }
 
-void TilingWindowManagerPolicy::handle_focus_gained(WindowInfo const& info)
+void TilingWindowManagerPolicy::advise_focus_gained(WindowInfo const& info)
 {
     tools->raise_tree(info.window());
 }
 
-void TilingWindowManagerPolicy::handle_focus_lost(WindowInfo const& /*info*/)
+void TilingWindowManagerPolicy::advise_focus_lost(WindowInfo const& /*info*/)
 {
 }
