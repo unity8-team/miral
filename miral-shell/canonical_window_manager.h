@@ -98,6 +98,8 @@ private:
     bool resizing = false;
     bool left_resize = false;
     bool top_resize  = false;
+    float old_touch_pinch_width = 0;
+    float old_touch_pinch_height = 0;
 };
 
 #endif /* MIRAL_SHELL_CANONICAL_WINDOW_MANAGER_H_ */

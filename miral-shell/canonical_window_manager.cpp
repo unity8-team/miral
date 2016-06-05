@@ -616,13 +616,45 @@ bool CanonicalWindowManagerPolicy::handle_touch_event(MirTouchEvent const* event
         }
     }
 
+    float touch_pinch_width = 0;
+    float touch_pinch_height = 0;
+
+    for (auto i = 0U; i != count; ++i)
+    {
+        for (auto j = 0U; j != i; ++j)
+        {
+            int dx = mir_touch_event_axis_value(event, i, mir_touch_axis_x) -
+                     mir_touch_event_axis_value(event, j, mir_touch_axis_x);
+
+            int dy = mir_touch_event_axis_value(event, i, mir_touch_axis_y) -
+                     mir_touch_event_axis_value(event, j, mir_touch_axis_y);
+
+            if (touch_pinch_width < dx)
+                touch_pinch_width = dx;
+
+            if (touch_pinch_height < dy)
+                touch_pinch_height = dy;
+        }
+    }
+
     bool consumes_event = false;
     if (is_drag)
     {
         switch (count)
         {
         case 4:
-            resize(cursor);
+            if (auto window = tools->active_window())
+            {
+                auto const old_size = window.size();
+                auto const old_pos = window.top_left();
+                auto const delta_x = DeltaX{touch_pinch_width - old_touch_pinch_width};
+                auto const delta_y = DeltaY{touch_pinch_height - old_touch_pinch_height};
+
+                auto const new_width = std::max(old_size.width + delta_x, Width{5});
+                auto const new_height = std::max(old_size.height + delta_y, Height{5});
+
+                apply_resize(tools->info_for(window), old_pos, {new_width, new_height});
+            }
             consumes_event = true;
             break;
 
@@ -639,6 +671,8 @@ bool CanonicalWindowManagerPolicy::handle_touch_event(MirTouchEvent const* event
     }
 
     old_cursor = cursor;
+    old_touch_pinch_width = touch_pinch_width;
+    old_touch_pinch_height = touch_pinch_height;
     return consumes_event;
 }
 
