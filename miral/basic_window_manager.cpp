@@ -107,6 +107,9 @@ auto miral::BasicWindowManager::add_surface(
     if (auto const parent = window_info.parent())
         info_for(parent).add_child(window);
 
+    if (window_info.state() == mir_surface_state_fullscreen)
+        fullscreen_surfaces.insert(window_info.window());
+
     policy->advise_new_window(window_info);
 
     if (window_info.can_be_active())
@@ -147,6 +150,7 @@ void miral::BasicWindowManager::remove_surface(
 
     session_info.remove_window(info.window());
     mru_active_windows.erase(info.window());
+    fullscreen_surfaces.erase(info.window());
 
     policy->advise_delete_window(info);
 
@@ -195,6 +199,20 @@ void miral::BasicWindowManager::add_display(geometry::Rectangle const& area)
 {
     std::lock_guard<decltype(mutex)> lock(mutex);
     displays.add(area);
+
+    for (auto window : fullscreen_surfaces)
+    {
+        if (window)
+        {
+            auto& info = info_for(window);
+            Rectangle rect{window.top_left(), window.size()};
+
+            graphics::DisplayConfigurationOutputId id{info.output_id()};
+            display_layout->place_in_output(id, rect);
+            place_and_size(info, rect.top_left, rect.size);
+        }
+    }
+
     policy->handle_displays_updated(displays);
 }
 
@@ -202,6 +220,19 @@ void miral::BasicWindowManager::remove_display(geometry::Rectangle const& area)
 {
     std::lock_guard<decltype(mutex)> lock(mutex);
     displays.remove(area);
+    for (auto window : fullscreen_surfaces)
+    {
+        if (window)
+        {
+            auto& info = info_for(window);
+            Rectangle rect{window.top_left(), window.size()};
+
+            graphics::DisplayConfigurationOutputId id{info.output_id()};
+            display_layout->place_in_output(id, rect);
+            place_and_size(info, rect.top_left, rect.size);
+        }
+    }
+
     policy->handle_displays_updated(displays);
 }
 
@@ -605,6 +636,11 @@ void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirSur
     if (window_info.state() != mir_surface_state_fullscreen)
     {
         window_info.output_id({});
+        fullscreen_surfaces.erase(window_info.window());
+    }
+    else
+    {
+        fullscreen_surfaces.insert(window_info.window());
     }
 
     if (window_info.state() == value)
@@ -647,11 +683,12 @@ void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirSur
 
         if (window_info.has_output_id())
         {
-            place_in_output(window_info.output_id(), rect);
+            graphics::DisplayConfigurationOutputId id{window_info.output_id()};
+            display_layout->place_in_output(id, rect);
         }
         else
         {
-            size_to_output(rect);
+            display_layout->size_to_output(rect);
         }
 
         movement = rect.top_left - old_pos;
@@ -713,16 +750,6 @@ void miral::BasicWindowManager::update_event_timestamp(MirTouchEvent const* tev)
             break;
         }
     }
-}
-
-void miral::BasicWindowManager::size_to_output(mir::geometry::Rectangle& rect)
-{
-    display_layout->size_to_output(rect);
-}
-
-bool miral::BasicWindowManager::place_in_output(int id, mir::geometry::Rectangle& rect)
-{
-    return display_layout->place_in_output(mir::graphics::DisplayConfigurationOutputId{id}, rect);
 }
 
 void miral::BasicWindowManager::invoke_under_lock(std::function<void()> const& callback)
@@ -850,7 +877,8 @@ auto miral::BasicWindowManager::place_new_surface(
     if (parameters.output_id().is_set() && parameters.output_id().value() != 0)
     {
         Rectangle rect{parameters.top_left().value(), parameters.size().value()};
-        place_in_output(parameters.output_id().value(), rect);
+        graphics::DisplayConfigurationOutputId id{parameters.output_id().value()};
+        display_layout->place_in_output(id, rect);
         parameters.top_left() = rect.top_left;
         parameters.size() = rect.size;
         parameters.state() = mir_surface_state_fullscreen;
@@ -868,7 +896,7 @@ auto miral::BasicWindowManager::place_new_surface(
 
                 Rectangle display_for_app{default_window.top_left(), default_window.size()};
 
-                size_to_output(display_for_app);
+                display_layout->size_to_output(display_for_app);
 
                 positioned = display_for_app.overlaps(Rectangle{parameters.top_left().value(), parameters.size().value()});
             }
