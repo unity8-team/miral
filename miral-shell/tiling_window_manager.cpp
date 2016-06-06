@@ -456,9 +456,6 @@ void TilingWindowManagerPolicy::update_tiles(Rectangles const& displays)
 
     tools->for_each_application([&](ApplicationInfo& info)
         {
-            if (!info.userdata())
-                info.userdata(std::make_shared<TilingWindowManagerPolicyData>());
-
             auto& tile = tile_for(info);
 
             auto const x = (total_width * index) / applications;
@@ -600,3 +597,11 @@ void TilingWindowManagerPolicy::advise_resize(WindowInfo const& /*window_info*/,
 {
 }
 
+void TilingWindowManagerPolicy::advise_new_app(miral::ApplicationInfo& application)
+{
+    application.userdata(std::make_shared<TilingWindowManagerPolicyData>());
+}
+
+void TilingWindowManagerPolicy::advise_delete_app(miral::ApplicationInfo const& /*application*/)
+{
+}
