@@ -92,7 +92,7 @@ auto TilingWindowManagerPolicy::place_new_surface(
     auto parameters = request_parameters;
 
     Rectangle const& tile = tile_for(app_info);
-    parameters.top_left() = parameters.top_left().value() + (tile.top_left - Point{0, 0});
+    parameters.top_left() = tile.top_left;
 
     if (parameters.parent().is_set() && parameters.parent().value().lock())
     {
