@@ -5,6 +5,7 @@ include_directories(include SYSTEM ${MIRSERVER_INCLUDE_DIRS})
 add_library(miral SHARED
     application.cpp                   ${CMAKE_SOURCE_DIR}/include/miral/application.h
     application_info.cpp              ${CMAKE_SOURCE_DIR}/include/miral/application_info.h
+    canonical_window_manager.cpp      ${CMAKE_SOURCE_DIR}/include/miral/canonical_window_manager.h
     runner.cpp                        ${CMAKE_SOURCE_DIR}/include/miral/runner.h
     display_configuration_option.cpp  ${CMAKE_SOURCE_DIR}/include/miral/display_configuration_option.h
     quit_on_ctrl_alt_bksp.cpp         ${CMAKE_SOURCE_DIR}/include/miral/quit_on_ctrl_alt_bksp.h

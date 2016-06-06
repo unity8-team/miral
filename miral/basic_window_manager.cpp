@@ -29,6 +29,11 @@
 
 using namespace mir;
 
+namespace
+{
+int const title_bar_height = 10;
+}
+
 miral::BasicWindowManager::BasicWindowManager(
     shell::FocusController* focus_controller,
     std::shared_ptr<shell::DisplayLayout> const& display_layout,
@@ -91,7 +96,9 @@ auto miral::BasicWindowManager::add_surface(
         };
 
     auto& session_info = info_for(session);
-    auto& window_info = build_window(session, policy->place_new_surface(session_info, params));
+
+    auto default_placement = place_new_surface(session_info, params);
+    auto& window_info = build_window(session, policy->place_new_surface(session_info, default_placement));
 
     auto const window = window_info.window();
 
@@ -461,6 +468,219 @@ void miral::BasicWindowManager::move_tree(miral::WindowInfo& root, mir::geometry
         move_tree(info_for(child), movement);
 }
 
+void miral::BasicWindowManager::modify_window(WindowInfo& window_info, WindowSpecification const& modifications)
+{
+    auto window_info_tmp = window_info;
+
+#define COPY_IF_SET(field)\
+    if (modifications.field().is_set())\
+        window_info_tmp.field(modifications.field().value())
+
+    COPY_IF_SET(type);
+    COPY_IF_SET(min_width);
+    COPY_IF_SET(min_height);
+    COPY_IF_SET(max_width);
+    COPY_IF_SET(max_height);
+    COPY_IF_SET(width_inc);
+    COPY_IF_SET(height_inc);
+    COPY_IF_SET(min_aspect);
+    COPY_IF_SET(max_aspect);
+    COPY_IF_SET(output_id);
+    COPY_IF_SET(preferred_orientation);
+
+#undef COPY_IF_SET
+
+    if (modifications.parent().is_set())
+        window_info_tmp.parent(info_for(modifications.parent().value()).window());
+
+    if (window_info.type() != window_info_tmp.type())
+    {
+        auto const new_type = window_info_tmp.type();
+
+        if (!window_info.can_morph_to(new_type))
+        {
+            throw std::runtime_error("Unsupported window type change");
+        }
+
+        if (window_info_tmp.must_not_have_parent())
+        {
+            if (modifications.parent().is_set())
+                throw std::runtime_error("Target window type does not support parent");
+
+            window_info_tmp.parent({});
+        }
+        else if (window_info_tmp.must_have_parent())
+        {
+            if (!window_info_tmp.parent())
+                throw std::runtime_error("Target window type requires parent");
+        }
+    }
+
+    std::swap(window_info_tmp, window_info);
+
+    auto& window = window_info.window();
+
+    if (window_info.type() != window_info_tmp.type())
+        std::shared_ptr<scene::Surface>(window)->configure(mir_surface_attrib_type, window_info.type());
+
+    if (window_info.parent() != window_info_tmp.parent())
+    {
+        if (window_info_tmp.parent())
+        {
+            auto& parent_info = info_for(window_info_tmp.parent());
+            parent_info.remove_child(window);
+        }
+
+        if (window_info.parent())
+        {
+            auto& parent_info = info_for(window_info.parent());
+            parent_info.add_child(window);
+        }
+    }
+
+    if (modifications.name().is_set())
+        std::shared_ptr<scene::Surface>(window)->rename(modifications.name().value());
+
+    if (modifications.streams().is_set())
+        window.configure_streams(modifications.streams().value());
+
+    if (modifications.input_shape().is_set())
+        std::shared_ptr<scene::Surface>(window)->set_input_region(modifications.input_shape().value());
+
+    if (modifications.size().is_set())
+    {
+        Point new_pos = window.top_left();
+        Size new_size = modifications.size().value();
+
+        window_info.constrain_resize(new_pos, new_size);
+        place_and_size(window_info, new_pos, new_size);
+    }
+    else if (modifications.min_width().is_set() || modifications.min_height().is_set() ||
+             modifications.max_width().is_set() || modifications.max_height().is_set() ||
+             modifications.width_inc().is_set() || modifications.height_inc().is_set())
+    {
+        Point new_pos = window.top_left();
+        Size new_size = window.size();
+
+        window_info.constrain_resize(new_pos, new_size);
+        place_and_size(window_info, new_pos, new_size);
+    }
+
+    if (modifications.state().is_set())
+    {
+        set_state(window_info, modifications.state().value());
+    }
+}
+
+void miral::BasicWindowManager::place_and_size(WindowInfo& root, Point const& new_pos, Size const& new_size)
+{
+    policy->advise_resize(root, new_size);
+    root.window().resize(new_size);
+    move_tree(root, new_pos - root.window().top_left());
+}
+
+void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirSurfaceState value)
+{
+    switch (value)
+    {
+    case mir_surface_state_restored:
+    case mir_surface_state_maximized:
+    case mir_surface_state_vertmaximized:
+    case mir_surface_state_horizmaximized:
+    case mir_surface_state_fullscreen:
+    case mir_surface_state_hidden:
+    case mir_surface_state_minimized:
+        break;
+
+    default:
+        window_info.window().set_state(window_info.state());
+        return;
+    }
+
+    if (window_info.state() == mir_surface_state_restored)
+    {
+        window_info.restore_rect({window_info.window().top_left(), window_info.window().size()});
+    }
+
+    if (window_info.state() != mir_surface_state_fullscreen)
+    {
+        window_info.output_id({});
+    }
+
+    if (window_info.state() == value)
+    {
+        return;
+    }
+
+    auto const old_pos = window_info.window().top_left();
+    Displacement movement;
+
+    policy->advise_state_change(window_info, value);
+
+    auto const display_area = displays.bounding_rectangle();
+
+    switch (value)
+    {
+    case mir_surface_state_restored:
+        movement = window_info.restore_rect().top_left - old_pos;
+        window_info.window().resize(window_info.restore_rect().size);
+        break;
+
+    case mir_surface_state_maximized:
+        movement = display_area.top_left - old_pos;
+        window_info.window().resize(display_area.size);
+        break;
+
+    case mir_surface_state_horizmaximized:
+        movement = Point{display_area.top_left.x, window_info.restore_rect().top_left.y} - old_pos;
+        window_info.window().resize({display_area.size.width, window_info.restore_rect().size.height});
+        break;
+
+    case mir_surface_state_vertmaximized:
+        movement = Point{window_info.restore_rect().top_left.x, display_area.top_left.y} - old_pos;
+        window_info.window().resize({window_info.restore_rect().size.width, display_area.size.height});
+        break;
+
+    case mir_surface_state_fullscreen:
+    {
+        Rectangle rect{old_pos, window_info.window().size()};
+
+        if (window_info.has_output_id())
+        {
+            place_in_output(window_info.output_id(), rect);
+        }
+        else
+        {
+            size_to_output(rect);
+        }
+
+        movement = rect.top_left - old_pos;
+        window_info.window().resize(rect.size);
+        break;
+    }
+
+    case mir_surface_state_hidden:
+    case mir_surface_state_minimized:
+        window_info.window().hide();
+        window_info.state(value);
+        window_info.window().set_state(window_info.state());
+        return;
+
+    default:
+        break;
+    }
+
+    move_tree(window_info, movement);
+
+    window_info.state(value);
+
+    if (window_info.is_visible())
+        window_info.window().show();
+
+    window_info.window().set_state(window_info.state());
+}
+
+
 void miral::BasicWindowManager::update_event_timestamp(MirKeyboardEvent const* kev)
 {
     auto iev = mir_keyboard_event_input_event(kev);
@@ -601,4 +821,159 @@ auto miral::BasicWindowManager::can_activate_window_for_session(miral::Applicati
         });
 
     return new_focus;
+}
+
+auto miral::BasicWindowManager::place_new_surface(
+    ApplicationInfo const& app_info,
+    WindowSpecification const& request_parameters)
+-> WindowSpecification
+{
+    auto parameters = request_parameters;
+    auto surf_type = parameters.type().is_set() ? parameters.type().value() : mir_surface_type_normal;
+    bool const needs_titlebar = WindowInfo::needs_titlebar(surf_type);
+
+    if (needs_titlebar)
+        parameters.size() = Size{parameters.size().value().width, parameters.size().value().height + DeltaY{title_bar_height}};
+
+    if (!parameters.state().is_set())
+        parameters.state() = mir_surface_state_restored;
+
+    auto const active_display_area = active_display();
+
+    auto const width = parameters.size().value().width.as_int();
+    auto const height = parameters.size().value().height.as_int();
+
+    bool positioned = false;
+
+    bool const has_parent{parameters.parent().is_set() && parameters.parent().value().lock()};
+
+    if (parameters.output_id().is_set() && parameters.output_id().value() != 0)
+    {
+        Rectangle rect{parameters.top_left().value(), parameters.size().value()};
+        place_in_output(parameters.output_id().value(), rect);
+        parameters.top_left() = rect.top_left;
+        parameters.size() = rect.size;
+        parameters.state() = mir_surface_state_fullscreen;
+        positioned = true;
+    }
+    else if (!has_parent) // No parent => client can't suggest positioning
+    {
+        if (app_info.windows().size() > 0)
+        {
+            if (auto const default_window = app_info.windows()[0])
+            {
+                static Displacement const offset{title_bar_height, title_bar_height};
+
+                parameters.top_left() = default_window.top_left() + offset;
+
+                Rectangle display_for_app{default_window.top_left(), default_window.size()};
+
+                size_to_output(display_for_app);
+
+                positioned = display_for_app.overlaps(Rectangle{parameters.top_left().value(), parameters.size().value()});
+            }
+        }
+    }
+
+    if (has_parent && parameters.aux_rect().is_set() && parameters.edge_attachment().is_set())
+    {
+        auto parent = info_for(parameters.parent().value()).window();
+
+        auto const edge_attachment = parameters.edge_attachment().value();
+        auto const aux_rect = parameters.aux_rect().value();
+        auto const parent_top_left = parent.top_left();
+        auto const top_left = aux_rect.top_left     -Point{} + parent_top_left;
+        auto const top_right= aux_rect.top_right()  -Point{} + parent_top_left;
+        auto const bot_left = aux_rect.bottom_left()-Point{} + parent_top_left;
+
+        if (edge_attachment & mir_edge_attachment_vertical)
+        {
+            if (active_display_area.contains(top_right + Displacement{width, height}))
+            {
+                parameters.top_left() = top_right;
+                positioned = true;
+            }
+            else if (active_display_area.contains(top_left + Displacement{-width, height}))
+            {
+                parameters.top_left() = top_left + Displacement{-width, 0};
+                positioned = true;
+            }
+        }
+
+        if (edge_attachment & mir_edge_attachment_horizontal)
+        {
+            if (active_display_area.contains(bot_left + Displacement{width, height}))
+            {
+                parameters.top_left() = bot_left;
+                positioned = true;
+            }
+            else if (active_display_area.contains(top_left + Displacement{width, -height}))
+            {
+                parameters.top_left() = top_left + Displacement{0, -height};
+                positioned = true;
+            }
+        }
+    }
+    else if (has_parent)
+    {
+        auto parent = info_for(parameters.parent().value()).window();
+        //  o Otherwise, if the dialog is not the same as any previous dialog for the
+        //    same parent window, and/or it does not have user-customized position:
+        //      o It should be optically centered relative to its parent, unless this
+        //        would overlap or cover the title bar of the parent.
+        //      o Otherwise, it should be cascaded vertically (but not horizontally)
+        //        relative to its parent, unless, this would cause at least part of
+        //        it to extend into shell space.
+        auto const parent_top_left = parent.top_left();
+        auto const centred = parent_top_left
+                             + 0.5*(as_displacement(parent.size()) - as_displacement(parameters.size().value()))
+                             - DeltaY{(parent.size().height.as_int()-height)/6};
+
+        parameters.top_left() = centred;
+        positioned = true;
+    }
+
+    if (!positioned)
+    {
+        auto centred = active_display_area.top_left
+                       + 0.5*(as_displacement(active_display_area.size) - as_displacement(parameters.size().value()))
+                       - DeltaY{(active_display_area.size.height.as_int()-height)/6};
+
+        switch (parameters.state().value())
+        {
+        case mir_surface_state_fullscreen:
+        case mir_surface_state_maximized:
+            parameters.top_left() = active_display_area.top_left;
+            parameters.size() = active_display_area.size;
+            break;
+
+        case mir_surface_state_vertmaximized:
+            centred.y = active_display_area.top_left.y;
+            parameters.top_left() = centred;
+            parameters.size() = Size{parameters.size().value().width, active_display_area.size.height};
+            break;
+
+        case mir_surface_state_horizmaximized:
+            centred.x = active_display_area.top_left.x;
+            parameters.top_left() = centred;
+            parameters.size() = Size{active_display_area.size.width, parameters.size().value().height};
+            break;
+
+        default:
+            parameters.top_left() = centred;
+        }
+
+        auto const display_area = displays.bounding_rectangle();
+
+        if (parameters.top_left().value().y < display_area.top_left.y)
+            parameters.top_left() = Point{parameters.top_left().value().x, display_area.top_left.y};
+    }
+
+    if (parameters.state().value() != mir_surface_state_fullscreen && needs_titlebar)
+    {
+        parameters.top_left() = Point{parameters.top_left().value().x, parameters.top_left().value().y + DeltaY{title_bar_height}};
+        parameters.size() = Size{parameters.size().value().width, parameters.size().value().height - DeltaY{title_bar_height}};
+    }
+
+    return parameters;
 }

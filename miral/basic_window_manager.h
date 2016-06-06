@@ -38,7 +38,6 @@ namespace mir
 namespace shell { class DisplayLayout; }
 }
 
-/// This is based on mir/examples, but intended to move to miral after building the necessary abstractions
 namespace miral
 {
 using mir::shell::SurfaceSet;
@@ -132,7 +131,11 @@ public:
 
     void raise_tree(Window const& root) override;
 
-    void move_tree(miral::WindowInfo& root, mir::geometry::Displacement movement) override;
+    void modify_window(WindowInfo& window_info, WindowSpecification const& modifications) override;
+
+    void place_and_size(WindowInfo& root, Point const& new_pos, Size const& new_size) override;
+
+    void set_state(miral::WindowInfo& window_info, MirSurfaceState value) override;
 
     void size_to_output(mir::geometry::Rectangle& rect) override;
 
@@ -164,6 +167,10 @@ private:
     void update_event_timestamp(MirTouchEvent const* tev);
 
     auto can_activate_window_for_session(miral::Application const& session) -> bool;
+
+    auto place_new_surface(ApplicationInfo const& app_info, WindowSpecification const& request_parameters)
+        -> WindowSpecification;
+    void move_tree(miral::WindowInfo& root, mir::geometry::Displacement movement);
 };
 }
 

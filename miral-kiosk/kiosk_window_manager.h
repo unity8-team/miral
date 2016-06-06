@@ -58,6 +58,8 @@ public:
     void advise_focus_lost(miral::WindowInfo const& info) override;
 
     void advise_focus_gained(miral::WindowInfo const& info) override;
+    void advise_state_change(miral::WindowInfo const& window_info, MirSurfaceState state) override;
+    void advise_resize(miral::WindowInfo const& window_info, Size const& new_size) override;
 
 private:
     static const int modifier_mask =
@@ -66,8 +68,6 @@ private:
         mir_input_event_modifier_sym |
         mir_input_event_modifier_ctrl |
         mir_input_event_modifier_meta;
-
-    void raise_splash_session() const;
 
     miral::WindowManagerTools* const tools;
 

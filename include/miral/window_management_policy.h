@@ -29,6 +29,8 @@ class WindowSpecification;
 struct ApplicationInfo;
 struct WindowInfo;
 
+using namespace mir::geometry;
+
 /// The interface through which the policy invoked.
 class WindowManagementPolicy
 {
@@ -61,14 +63,16 @@ public:
     virtual void advise_new_window(WindowInfo& window_info) = 0;
     virtual void advise_focus_lost(WindowInfo const& info) = 0;
     virtual void advise_focus_gained(WindowInfo const& info) = 0;
+    virtual void advise_state_change(WindowInfo const& window_info, MirSurfaceState state) = 0;
+    virtual void advise_resize(WindowInfo const& window_info, Size const& new_size) = 0;
     virtual void advise_delete_window(WindowInfo const& window_info) = 0;
 /** @} */
 
 /** @name Changes to the applications or displays
  * \todo these are very course grained and should probably be replaced
  *  @{ */
-    virtual void handle_app_info_updated(mir::geometry::Rectangles const& displays) = 0;
-    virtual void handle_displays_updated(mir::geometry::Rectangles const& displays) = 0;
+    virtual void handle_app_info_updated(Rectangles const& displays) = 0;
+    virtual void handle_displays_updated(Rectangles const& displays) = 0;
 /** @} */
 
     virtual ~WindowManagementPolicy() = default;

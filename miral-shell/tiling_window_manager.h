@@ -59,6 +59,8 @@ public:
 
     void advise_focus_lost(miral::WindowInfo const& info) override;
     void advise_focus_gained(miral::WindowInfo const& info) override;
+    void advise_state_change(miral::WindowInfo const& window_info, MirSurfaceState state) override;
+    void advise_resize(miral::WindowInfo const& window_info, Size const& new_size) override;
 
 private:
     static const int modifier_mask =
@@ -81,7 +83,7 @@ private:
     auto transform_set_state(miral::WindowInfo& window_info, MirSurfaceState value) -> MirSurfaceState;
 
     static void clip_to_tile(miral::WindowSpecification& parameters, Rectangle const& tile);
-    static void fit_to_new_tile(miral::Window& window, Rectangle const& old_tile, Rectangle const& new_tile);
+    void fit_to_new_tile(miral::Window& window, Rectangle const& old_tile, Rectangle const& new_tile);
     static void resize(miral::Window window, Point cursor, Point old_cursor, Rectangle bounds);
     static void constrained_move(miral::Window window, Displacement& movement, Rectangle const& bounds);
 

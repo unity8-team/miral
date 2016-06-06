@@ -20,6 +20,7 @@
 #define MIRAL_WINDOW_MANAGER_TOOLS_H
 
 #include "miral/application.h"
+#include "window_info.h"
 
 #include <mir/geometry/displacement.h>
 
@@ -67,7 +68,10 @@ public:
     virtual auto active_display() -> mir::geometry::Rectangle const = 0;
     virtual void destroy(Window& window) = 0;
     virtual void raise_tree(Window const& root) = 0;
-    virtual void move_tree(WindowInfo& root, mir::geometry::Displacement movement) = 0;
+    virtual void modify_window(WindowInfo& window_info, WindowSpecification const& modifications) = 0;
+    virtual void place_and_size(WindowInfo& window_info, Point const& new_pos, Size const& new_size) = 0;
+    virtual void set_state(WindowInfo& window_info, MirSurfaceState value) = 0;
+
     virtual void size_to_output(mir::geometry::Rectangle& rect) = 0;
     virtual bool place_in_output(int id, mir::geometry::Rectangle& rect) = 0;
 /** @} */

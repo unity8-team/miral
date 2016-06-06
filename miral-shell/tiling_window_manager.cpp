@@ -161,14 +161,29 @@ void TilingWindowManagerPolicy::handle_modify_window(
     miral::WindowInfo& window_info,
     miral::WindowSpecification const& modifications)
 {
-    if (modifications.name().is_set())
-        window_info.window().rename(modifications.name().value());
+    auto mods = modifications;
 
-    if (modifications.state().is_set())
+    // filter out changes we don't want the client making
+    mods.top_left().consume();
+    mods.size().consume();
+    mods.output_id().consume();
+    mods.edge_attachment().consume();
+    mods.min_width().consume();
+    mods.min_height().consume();
+    mods.max_width().consume();
+    mods.max_height().consume();
+    mods.width_inc().consume();
+    mods.height_inc().consume();
+    mods.min_aspect().consume();
+    mods.max_aspect().consume();
+
+    if (mods.state().is_set())
     {
-        auto state = transform_set_state(window_info, modifications.state().value());
+        auto state = transform_set_state(window_info, mods.state().consume());
         window_info.window().set_state(state);
     }
+
+    tools->modify_window(window_info, mods);
 }
 
 void TilingWindowManagerPolicy::advise_delete_window(WindowInfo const& /*window_info*/)
@@ -462,15 +477,10 @@ void TilingWindowManagerPolicy::update_tiles(Rectangles const& displays)
 
 void TilingWindowManagerPolicy::update_surfaces(ApplicationInfo& info, Rectangle const& old_tile, Rectangle const& new_tile)
 {
-    auto displacement = new_tile.top_left - old_tile.top_left;
-
     for (auto& window : info.windows())
     {
         if (window)
         {
-            auto const old_pos = window.top_left();
-            window.move_to(old_pos + displacement);
-
             fit_to_new_tile(window, old_tile, new_tile);
         }
     }
@@ -488,17 +498,18 @@ void TilingWindowManagerPolicy::clip_to_tile(miral::WindowSpecification& paramet
 
 void TilingWindowManagerPolicy::fit_to_new_tile(miral::Window& window, Rectangle const& old_tile, Rectangle const& new_tile)
 {
-    auto const displacement = window.top_left() - new_tile.top_left;
+    auto const new_pos = window.top_left() + (new_tile.top_left - old_tile.top_left);
+    auto const offset = new_pos - new_tile.top_left;
 
     // For now just scale if was filling width/height of tile
     auto const old_size = window.size();
     auto const scaled_width = old_size.width == old_tile.size.width ? new_tile.size.width : old_size.width;
     auto const scaled_height = old_size.height == old_tile.size.height ? new_tile.size.height : old_size.height;
 
-    auto width = std::min(new_tile.size.width.as_int()-displacement.dx.as_int(), scaled_width.as_int());
-    auto height = std::min(new_tile.size.height.as_int()-displacement.dy.as_int(), scaled_height.as_int());
+    auto width = std::min(new_tile.size.width.as_int()-offset.dx.as_int(), scaled_width.as_int());
+    auto height = std::min(new_tile.size.height.as_int()-offset.dy.as_int(), scaled_height.as_int());
 
-    window.resize({width, height});
+    tools->place_and_size(tools->info_for(window), new_pos, {width, height});
 }
 
 void TilingWindowManagerPolicy::drag(WindowInfo& window_info, Point to, Point from, Rectangle bounds)
@@ -580,3 +591,12 @@ void TilingWindowManagerPolicy::advise_focus_gained(WindowInfo const& info)
 void TilingWindowManagerPolicy::advise_focus_lost(WindowInfo const& /*info*/)
 {
 }
+
+void TilingWindowManagerPolicy::advise_state_change(WindowInfo const& /*window_info*/, MirSurfaceState /*state*/)
+{
+}
+
+void TilingWindowManagerPolicy::advise_resize(WindowInfo const& /*window_info*/, Size const& /*new_size*/)
+{
+}
+
