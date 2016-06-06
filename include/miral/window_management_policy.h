@@ -29,25 +29,51 @@ class WindowSpecification;
 struct ApplicationInfo;
 struct WindowInfo;
 
+using namespace mir::geometry;
+
+/// The interface through which the policy invoked.
 class WindowManagementPolicy
 {
 public:
-    virtual void handle_app_info_updated(mir::geometry::Rectangles const& displays) = 0;
-    virtual void handle_displays_updated(mir::geometry::Rectangles const& displays) = 0;
-    virtual auto handle_place_new_surface(
+/** @name Customize initial window placement
+ *  @{ */
+    virtual auto place_new_surface(
         ApplicationInfo const& app_info,
         WindowSpecification const& request_parameters) -> WindowSpecification = 0;
-    virtual void handle_new_window(WindowInfo& window_info) = 0;
+/** @} */
+
+/** @name handle events originating from the client
+ * The policy is expected to update the model as appropriate
+ *  @{ */
     virtual void handle_window_ready(WindowInfo& window_info) = 0;
     virtual void handle_modify_window(WindowInfo& window_info, WindowSpecification const& modifications) = 0;
-    virtual void handle_delete_window(WindowInfo& window_info) = 0;
+    virtual void handle_raise_window(WindowInfo& window_info) = 0;
+/** @} */
+
+/** @name handle events originating from user
+ * The policy is expected to interpret (and optionally consume) the event
+ *  @{ */
     virtual bool handle_keyboard_event(MirKeyboardEvent const* event) = 0;
     virtual bool handle_touch_event(MirTouchEvent const* event) = 0;
     virtual bool handle_pointer_event(MirPointerEvent const* event) = 0;
-    virtual void handle_raise_window(WindowInfo& window_info) = 0;
+/** @} */
 
-    virtual void handle_focus_lost(miral::WindowInfo const& info) = 0;
-    virtual void handle_focus_gained(miral::WindowInfo const& info) = 0;
+/** @name notification of WM events that the policy may need to track
+ *  @{ */
+    virtual void advise_new_window(WindowInfo& window_info) = 0;
+    virtual void advise_focus_lost(WindowInfo const& info) = 0;
+    virtual void advise_focus_gained(WindowInfo const& info) = 0;
+    virtual void advise_state_change(WindowInfo const& window_info, MirSurfaceState state) = 0;
+    virtual void advise_resize(WindowInfo const& window_info, Size const& new_size) = 0;
+    virtual void advise_delete_window(WindowInfo const& window_info) = 0;
+/** @} */
+
+/** @name Changes to the applications or displays
+ * \todo these are very course grained and should probably be replaced
+ *  @{ */
+    virtual void handle_app_info_updated(Rectangles const& displays) = 0;
+    virtual void handle_displays_updated(Rectangles const& displays) = 0;
+/** @} */
 
     virtual ~WindowManagementPolicy() = default;
     WindowManagementPolicy() = default;

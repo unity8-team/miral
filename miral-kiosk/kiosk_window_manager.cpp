@@ -43,7 +43,7 @@ void KioskWindowManagerPolicy::handle_displays_updated(Rectangles const& /*displ
 {
 }
 
-auto KioskWindowManagerPolicy::handle_place_new_surface(
+auto KioskWindowManagerPolicy::place_new_surface(
     miral::ApplicationInfo const& /*app_info*/,
     miral::WindowSpecification const& request_parameters)
 -> miral::WindowSpecification
@@ -110,7 +110,7 @@ auto KioskWindowManagerPolicy::handle_place_new_surface(
     return parameters;
 }
 
-void KioskWindowManagerPolicy::handle_new_window(WindowInfo& /*window_info*/)
+void KioskWindowManagerPolicy::advise_new_window(WindowInfo& /*window_info*/)
 {
 }
 
@@ -123,11 +123,29 @@ void KioskWindowManagerPolicy::handle_modify_window(
     miral::WindowInfo& window_info,
     miral::WindowSpecification const& modifications)
 {
-    if (modifications.name().is_set())
-        window_info.window().rename(modifications.name().value());
+    auto mods = modifications;
+
+    // filter out changes we don't want the client making
+    mods.top_left().consume();
+    mods.size().consume();
+    mods.output_id().consume();
+    mods.state().consume();
+    mods.preferred_orientation().consume();
+    mods.edge_attachment().consume();
+    mods.min_width().consume();
+    mods.min_height().consume();
+    mods.max_width().consume();
+    mods.max_height().consume();
+    mods.width_inc().consume();
+    mods.height_inc().consume();
+    mods.min_aspect().consume();
+    mods.max_aspect().consume();
+    mods.parent().consume();
+
+    tools->modify_window(window_info, mods);
 }
 
-void KioskWindowManagerPolicy::handle_delete_window(WindowInfo& /*window_info*/)
+void KioskWindowManagerPolicy::advise_delete_window(WindowInfo const& /*window_info*/)
 {
 }
 
@@ -154,21 +172,7 @@ bool KioskWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* eve
             modifiers == mir_input_event_modifier_alt &&
             scan_code == KEY_GRAVE)
     {
-        if (auto const prev = tools->active_window())
-        {
-            auto const& siblings = tools->info_for(prev.application()).windows();
-            auto current = find(begin(siblings), end(siblings), prev);
-
-            while (current != end(siblings) && prev == tools->select_active_window(*current))
-                ++current;
-
-            if (current == end(siblings))
-            {
-                current = begin(siblings);
-                while (prev != *current && prev == tools->select_active_window(*current))
-                    ++current;
-            }
-        }
+        tools->focus_next_within_application();
 
         return true;
     }
@@ -191,6 +195,8 @@ bool KioskWindowManagerPolicy::handle_touch_event(MirTouchEvent const* event)
 
     Point const cursor{total_x/count, total_y/count};
 
+    tools->select_active_window(tools->window_at(cursor));
+
     return false;
 }
 
@@ -210,8 +216,10 @@ bool KioskWindowManagerPolicy::handle_pointer_event(MirPointerEvent const* event
     return false;
 }
 
-void KioskWindowManagerPolicy::raise_splash_session() const
+void KioskWindowManagerPolicy::advise_focus_gained(WindowInfo const& info)
 {
+    tools->raise_tree(info.window());
+
     if (auto session = splash.session().lock())
     {
         auto const& app_info = tools->info_for(session);
@@ -221,11 +229,14 @@ void KioskWindowManagerPolicy::raise_splash_session() const
     }
 }
 
-void KioskWindowManagerPolicy::handle_focus_gained(WindowInfo const& info)
+void KioskWindowManagerPolicy::advise_focus_lost(WindowInfo const& /*info*/)
 {
-    tools->raise_tree(info.window());
 }
 
-void KioskWindowManagerPolicy::handle_focus_lost(WindowInfo const& /*info*/)
+void KioskWindowManagerPolicy::advise_state_change(WindowInfo const& /*window_info*/, MirSurfaceState /*state*/)
+{
+}
+
+void KioskWindowManagerPolicy::advise_resize(WindowInfo const& /*window_info*/, Size const& /*new_size*/)
 {
 }

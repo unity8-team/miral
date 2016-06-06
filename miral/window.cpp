@@ -91,23 +91,11 @@ void miral::Window::hide()
         surface->hide();
 }
 
-void miral::Window::reset()
-{
-    self.reset();
-}
-
 void miral::Window::set_state(MirSurfaceState state)
 {
     if (!self) return;
     if (auto const surface = self->surface.lock())
         surface->configure(mir_surface_attrib_state, state);
-}
-
-void miral::Window::set_type(MirSurfaceType type)
-{
-    if (!self) return;
-    if (auto const surface = self->surface.lock())
-        surface->configure(mir_surface_attrib_type, type);
 }
 
 void miral::Window::move_to(mir::geometry::Point top_left)
@@ -198,20 +186,6 @@ void miral::Window::configure_streams(std::vector<StreamSpecification> const& co
 #endif
         application()->configure_streams(*surface, dest);
     }
-}
-
-void miral::Window::set_input_region(std::vector<mir::geometry::Rectangle> const& input_rectangles)
-{
-    if (!self) return;
-    if (auto const surface = self->surface.lock())
-        surface->set_input_region(input_rectangles);
-}
-
-void miral::Window::rename(std::string const& name)
-{
-    if (!self) return;
-    if (auto const surface = self->surface.lock())
-        surface->rename(name);
 }
 
 bool miral::operator==(Window const& lhs, Window const& rhs)

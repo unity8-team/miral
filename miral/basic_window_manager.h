@@ -38,7 +38,6 @@ namespace mir
 namespace shell { class DisplayLayout; }
 }
 
-/// This is based on mir/examples, but intended to move to miral after building the necessary abstractions
 namespace miral
 {
 using mir::shell::SurfaceSet;
@@ -120,7 +119,11 @@ public:
 
     auto select_active_window(Window const& hint) -> Window override;
 
+    void drag_active_window(mir::geometry::Displacement movement) override;
+
     void focus_next_application() override;
+
+    void focus_next_within_application() override;
 
     auto window_at(mir::geometry::Point cursor) const -> Window override;
 
@@ -128,9 +131,11 @@ public:
 
     void raise_tree(Window const& root) override;
 
-    void size_to_output(mir::geometry::Rectangle& rect) override;
+    void modify_window(WindowInfo& window_info, WindowSpecification const& modifications) override;
 
-    bool place_in_output(int id, mir::geometry::Rectangle& rect) override;
+    void place_and_size(WindowInfo& root, Point const& new_pos, Size const& new_size) override;
+
+    void set_state(miral::WindowInfo& window_info, MirSurfaceState value) override;
 
     void invoke_under_lock(std::function<void()> const& callback) override;
 
@@ -149,6 +154,8 @@ private:
     mir::geometry::Point cursor;
     uint64_t last_input_event_timestamp{0};
     miral::MRUWindowList mru_active_windows;
+    using FullscreenSurfaces = std::set<Window>;
+    FullscreenSurfaces fullscreen_surfaces;
 
     // Cache the builder functor for the convenience of policies - this should become unnecessary
     std::function<Window(std::shared_ptr<mir::scene::Session> const& session, WindowSpecification const& params)> surface_builder;
@@ -158,6 +165,10 @@ private:
     void update_event_timestamp(MirTouchEvent const* tev);
 
     auto can_activate_window_for_session(miral::Application const& session) -> bool;
+
+    auto place_new_surface(ApplicationInfo const& app_info, WindowSpecification const& request_parameters)
+        -> WindowSpecification;
+    void move_tree(miral::WindowInfo& root, mir::geometry::Displacement movement);
 };
 }
 

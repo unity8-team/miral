@@ -31,7 +31,7 @@ using namespace mir::geometry;
 // simple tiling algorithm:
 //  o Switch apps: tap or click on the corresponding tile
 //  o Move window: Alt-leftmousebutton drag (three finger drag)
-//  o Resize window: Alt-middle_button drag (two finger drag)
+//  o Resize window: Alt-middle_button drag (four finger drag)
 //  o Maximize/restore current window (to tile size): Alt-F11
 //  o Maximize/restore current window (to tile height): Shift-F11
 //  o Maximize/restore current window (to tile width): Ctrl-F11
@@ -41,34 +41,26 @@ class TilingWindowManagerPolicy : public miral::WindowManagementPolicy
 public:
     explicit TilingWindowManagerPolicy(miral::WindowManagerTools* const tools);
 
-    void handle_app_info_updated(Rectangles const& displays) override;
-
-    void handle_displays_updated(Rectangles const& displays) override;
-
-    auto handle_place_new_surface(
+    auto place_new_surface(
         miral::ApplicationInfo const& app_info,
         miral::WindowSpecification const& request_parameters)
         -> miral::WindowSpecification override;
 
-    void handle_new_window(miral::WindowInfo& window_info) override;
-
+    void handle_app_info_updated(Rectangles const& displays) override;
+    void handle_displays_updated(Rectangles const& displays) override;
+    void advise_new_window(miral::WindowInfo& window_info) override;
     void handle_window_ready(miral::WindowInfo& window_info) override;
-
     void handle_modify_window(miral::WindowInfo& window_info, miral::WindowSpecification const& modifications) override;
-
-    void handle_delete_window(miral::WindowInfo& window_info) override;
-
+    void advise_delete_window(miral::WindowInfo const& window_info) override;
     bool handle_keyboard_event(MirKeyboardEvent const* event) override;
-
     bool handle_touch_event(MirTouchEvent const* event) override;
-
     bool handle_pointer_event(MirPointerEvent const* event) override;
-
     void handle_raise_window(miral::WindowInfo& window_info) override;
 
-    void handle_focus_lost(miral::WindowInfo const& info) override;
-
-    void handle_focus_gained(miral::WindowInfo const& info) override;
+    void advise_focus_lost(miral::WindowInfo const& info) override;
+    void advise_focus_gained(miral::WindowInfo const& info) override;
+    void advise_state_change(miral::WindowInfo const& window_info, MirSurfaceState state) override;
+    void advise_resize(miral::WindowInfo const& window_info, Size const& new_size) override;
 
 private:
     static const int modifier_mask =
@@ -91,7 +83,7 @@ private:
     auto transform_set_state(miral::WindowInfo& window_info, MirSurfaceState value) -> MirSurfaceState;
 
     static void clip_to_tile(miral::WindowSpecification& parameters, Rectangle const& tile);
-    static void fit_to_new_tile(miral::Window& window, Rectangle const& old_tile, Rectangle const& new_tile);
+    void fit_to_new_tile(miral::Window& window, Rectangle const& old_tile, Rectangle const& new_tile);
     static void resize(miral::Window window, Point cursor, Point old_cursor, Rectangle bounds);
     static void constrained_move(miral::Window window, Displacement& movement, Rectangle const& bounds);
 

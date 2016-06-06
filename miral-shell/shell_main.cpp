@@ -17,14 +17,15 @@
  */
 
 #include "tiling_window_manager.h"
-#include "canonical_window_manager.h"
+#include "titlebar_window_manager.h"
 #include "spinner/splash.h"
 
-#include "miral/display_configuration_option.h"
-#include "miral/runner.h"
-#include "miral/window_management_options.h"
-#include "miral/quit_on_ctrl_alt_bksp.h"
-#include "miral/startup_internal_client.h"
+#include <miral/canonical_window_manager.h>
+#include <miral/display_configuration_option.h>
+#include <miral/runner.h>
+#include <miral/window_management_options.h>
+#include <miral/quit_on_ctrl_alt_bksp.h>
+#include <miral/startup_internal_client.h>
 
 int main(int argc, char const* argv[])
 {
@@ -36,7 +37,8 @@ int main(int argc, char const* argv[])
         {
             WindowManagerOptions
                 {
-                    add_window_manager_policy<CanonicalWindowManagerPolicy>("canonical", spinner),
+                    add_window_manager_policy<TitlebarWindowManagerPolicy>("titlebar", spinner),
+                    add_window_manager_policy<CanonicalWindowManagerPolicy>("canonical"),
                     add_window_manager_policy<TilingWindowManagerPolicy>("tiling"),
                 },
             display_configuration_options,
