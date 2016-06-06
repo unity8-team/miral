@@ -15,6 +15,7 @@ add_library(miral SHARED
     window_specification.cpp          ${CMAKE_SOURCE_DIR}/include/miral/window_specification.h
     startup_internal_client.cpp       ${CMAKE_SOURCE_DIR}/include/miral/startup_internal_client.h
     mru_window_list.cpp               ${CMAKE_SOURCE_DIR}/include/miral/mru_window_list.h
+    set_window_manager.cpp            ${CMAKE_SOURCE_DIR}/include/miral/set_window_manager.h
     basic_window_manager.cpp          basic_window_manager.h
     ${CMAKE_SOURCE_DIR}/include/miral/window_management_policy.h
     ${CMAKE_SOURCE_DIR}/include/miral/window_manager_tools.h
