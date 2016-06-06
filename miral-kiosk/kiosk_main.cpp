@@ -19,7 +19,7 @@
 #include "kiosk_window_manager.h"
 
 #include "miral/runner.h"
-#include "miral/set_window_manager.h"
+#include "miral/set_window_managment_policy.h"
 #include "miral/startup_internal_client.h"
 
 int main(int argc, char const* argv[])
@@ -30,7 +30,7 @@ int main(int argc, char const* argv[])
 
     return MirRunner{argc, argv}.run_with(
         {
-            set_window_manager<KioskWindowManagerPolicy>(splash),
+            set_window_managment_policy<KioskWindowManagerPolicy>(splash),
             StartupInternalClient{"Intro", splash}
         });
 }

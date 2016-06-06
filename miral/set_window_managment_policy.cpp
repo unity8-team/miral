@@ -16,21 +16,21 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#include "miral/set_window_manager.h"
+#include "miral/set_window_managment_policy.h"
 #include "basic_window_manager.h"
 
 #include <mir/server.h>
 
 namespace msh = mir::shell;
 
-miral::SetWindowManager::SetWindowManager(WindowManagementPolicyBuilder const& builder) :
+miral::SetWindowManagmentPolicy::SetWindowManagmentPolicy(WindowManagementPolicyBuilder const& builder) :
     builder{builder}
 {
 }
 
-miral::SetWindowManager::~SetWindowManager() = default;
+miral::SetWindowManagmentPolicy::~SetWindowManagmentPolicy() = default;
 
-void miral::SetWindowManager::operator()(mir::Server& server) const
+void miral::SetWindowManagmentPolicy::operator()(mir::Server& server) const
 {
     server.override_the_window_manager_builder([this, &server](msh::FocusController* focus_controller)
         -> std::shared_ptr<msh::WindowManager>
