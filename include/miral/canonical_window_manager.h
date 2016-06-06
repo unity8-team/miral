@@ -67,6 +67,9 @@ public:
     void advise_resize(WindowInfo const& window_info, Size const& new_size) override;
     void advise_delete_window(WindowInfo const& window_info) override;
 
+    void advise_new_app(miral::ApplicationInfo& application) override;
+    void advise_delete_app(miral::ApplicationInfo const& application) override;
+
     void handle_app_info_updated(Rectangles const& displays) override;
     void handle_displays_updated(Rectangles const& displays) override;
 

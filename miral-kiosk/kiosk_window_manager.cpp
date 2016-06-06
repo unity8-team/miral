@@ -240,3 +240,11 @@ void KioskWindowManagerPolicy::advise_state_change(WindowInfo const& /*window_in
 void KioskWindowManagerPolicy::advise_resize(WindowInfo const& /*window_info*/, Size const& /*new_size*/)
 {
 }
+
+void KioskWindowManagerPolicy::advise_new_app(miral::ApplicationInfo& /*application*/)
+{
+}
+
+void KioskWindowManagerPolicy::advise_delete_app(miral::ApplicationInfo const& /*application*/)
+{
+}

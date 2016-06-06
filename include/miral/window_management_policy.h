@@ -60,6 +60,8 @@ public:
 
 /** @name notification of WM events that the policy may need to track
  *  @{ */
+    virtual void advise_new_app(ApplicationInfo& application) = 0;
+    virtual void advise_delete_app(ApplicationInfo const& application) = 0;
     virtual void advise_new_window(WindowInfo& window_info) = 0;
     virtual void advise_focus_lost(WindowInfo const& info) = 0;
     virtual void advise_focus_gained(WindowInfo const& info) = 0;

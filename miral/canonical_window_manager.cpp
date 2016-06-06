@@ -393,3 +393,11 @@ void miral::CanonicalWindowManagerPolicy::advise_state_change(WindowInfo const& 
 void miral::CanonicalWindowManagerPolicy::advise_resize(WindowInfo const& /*window_info*/, Size const& /*new_size*/)
 {
 }
+
+void miral::CanonicalWindowManagerPolicy::advise_new_app(ApplicationInfo& /*application*/)
+{
+}
+
+void miral::CanonicalWindowManagerPolicy::advise_delete_app(ApplicationInfo const& /*application*/)
+{
+}
