@@ -36,7 +36,7 @@ using namespace mir::geometry;
 // standard window management algorithm:
 //  o Switch apps: tap or click on the corresponding tile
 //  o Move window: Alt-leftmousebutton drag (three finger drag)
-//  o Resize window: Alt-middle_button drag (four finger drag)
+//  o Resize window: Alt-middle_button drag (three finger pinch)
 //  o Maximize/restore current window (to display size): Alt-F11
 //  o Maximize/restore current window (to display height): Shift-F11
 //  o Maximize/restore current window (to display width): Ctrl-F11
@@ -98,8 +98,10 @@ private:
     bool resizing = false;
     bool left_resize = false;
     bool top_resize  = false;
-    float old_touch_pinch_width = 0;
-    float old_touch_pinch_height = 0;
+    int old_touch_pinch_top = 0;
+    int old_touch_pinch_left = 0;
+    int old_touch_pinch_width = 0;
+    int old_touch_pinch_height = 0;
 };
 
 #endif /* MIRAL_SHELL_CANONICAL_WINDOW_MANAGER_H_ */

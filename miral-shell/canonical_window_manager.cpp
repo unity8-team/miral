@@ -598,7 +598,7 @@ bool CanonicalWindowManagerPolicy::handle_touch_event(MirTouchEvent const* event
         total_y += mir_touch_event_axis_value(event, i, mir_touch_axis_y);
     }
 
-    Point const cursor{total_x/count, total_y/count};
+    Point cursor{total_x/count, total_y/count};
 
     bool is_drag = true;
     for (auto i = 0U; i != count; ++i)
@@ -616,8 +616,10 @@ bool CanonicalWindowManagerPolicy::handle_touch_event(MirTouchEvent const* event
         }
     }
 
-    float touch_pinch_width = 0;
-    float touch_pinch_height = 0;
+    int touch_pinch_top = std::numeric_limits<int>::max();
+    int touch_pinch_left = std::numeric_limits<int>::max();
+    int touch_pinch_width = 0;
+    int touch_pinch_height = 0;
 
     for (auto i = 0U; i != count; ++i)
     {
@@ -635,33 +637,39 @@ bool CanonicalWindowManagerPolicy::handle_touch_event(MirTouchEvent const* event
             if (touch_pinch_height < dy)
                 touch_pinch_height = dy;
         }
+
+        int const x = mir_touch_event_axis_value(event, i, mir_touch_axis_x);
+
+        int const y = mir_touch_event_axis_value(event, i, mir_touch_axis_y);
+
+        if (touch_pinch_top > y)
+            touch_pinch_top = y;
+
+        if (touch_pinch_left > x)
+            touch_pinch_left = x;
     }
 
     bool consumes_event = false;
     if (is_drag)
     {
-        switch (count)
+        if (count == 3)
         {
-        case 4:
             if (auto window = tools->active_window())
             {
                 auto const old_size = window.size();
-                auto const old_pos = window.top_left();
-                auto const delta_x = DeltaX{touch_pinch_width - old_touch_pinch_width};
-                auto const delta_y = DeltaY{touch_pinch_height - old_touch_pinch_height};
+                auto const delta_width = DeltaX{touch_pinch_width - old_touch_pinch_width};
+                auto const delta_height = DeltaY{touch_pinch_height - old_touch_pinch_height};
 
-                auto const new_width = std::max(old_size.width + delta_x, Width{5});
-                auto const new_height = std::max(old_size.height + delta_y, Height{5});
+                auto const delta_x = DeltaX{touch_pinch_left - old_touch_pinch_left};
+                auto const delta_y = DeltaY{touch_pinch_top - old_touch_pinch_top};
 
-                apply_resize(tools->info_for(window), old_pos, {new_width, new_height});
+                auto const new_width = std::max(old_size.width + delta_width, Width{5});
+                auto const new_height = std::max(old_size.height + delta_height, Height{5});
+                auto const new_pos = window.top_left() + delta_x + delta_y;
+
+                apply_resize(tools->info_for(window), new_pos, {new_width, new_height});
             }
             consumes_event = true;
-            break;
-
-        case 3:
-            drag(cursor);
-            consumes_event = true;
-            break;
         }
     }
     else
@@ -671,6 +679,8 @@ bool CanonicalWindowManagerPolicy::handle_touch_event(MirTouchEvent const* event
     }
 
     old_cursor = cursor;
+    old_touch_pinch_top = touch_pinch_top;
+    old_touch_pinch_left = touch_pinch_left;
     old_touch_pinch_width = touch_pinch_width;
     old_touch_pinch_height = touch_pinch_height;
     return consumes_event;
