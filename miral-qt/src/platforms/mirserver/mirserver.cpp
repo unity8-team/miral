@@ -17,6 +17,7 @@
 #include <QCoreApplication>
 
 #include "mirserver.h"
+#include "basic_window_manager.h"
 
 // local
 #include "argvHelper.h"
@@ -30,7 +31,7 @@
 #include "sessionlistener.h"
 #include "sessionauthorizer.h"
 #include "qtcompositor.h"
-#include "qteventfeeder.h"
+#include "windowmanagementpolicy.h"
 #include "logging.h"
 
 // std
@@ -87,11 +88,6 @@ MirServer::MirServer(int &argc, char **argv,
     override_the_cursor_images([]
         {
             return std::make_shared<qtmir::MirCursorImages>();
-        });
-
-    override_the_input_dispatcher([&screensModel]
-        {
-            return std::make_shared<QtEventFeeder>(screensModel);
         });
 
     override_the_gl_config([]
@@ -194,16 +190,26 @@ PromptSessionListener *UsingQtMirPromptSessionListener::promptSessionListener()
     return m_promptSessionListener.lock().get();
 }
 
-void UsingQtMirWindowManager::operator()(mir::Server& server)
+void UsingQtMirWindowManager::operator()(MirServer& server)
 {
-    server.override_the_window_manager_builder([this,&server](mir::shell::FocusController*)
-        -> std::shared_ptr<mir::shell::WindowManager>
+    server.override_the_window_manager_builder([this,&server](msh::FocusController* focus_controller)
+        -> std::shared_ptr<msh::WindowManager>
         {
-            auto windowManager = MirWindowManager::create(server.the_shell_display_layout(),
-                    std::static_pointer_cast<::SessionListener>(server.the_session_listener()));
-            m_windowManager = windowManager;
-            return windowManager;
+            auto const display_layout = server.the_shell_display_layout();
+            auto const policy = [&server](miral::WindowManagerTools* tools){
+                return std::make_unique<WindowManagementPolicy>(tools, server.screensModel());
+            };
+
+            return std::make_shared<miral::BasicWindowManager>(focus_controller, display_layout, policy);
         });
+//    server.override_the_window_manager_builder([this,&server](mir::shell::FocusController*)
+//        -> std::shared_ptr<mir::shell::WindowManager>
+//        {
+//            auto windowManager = MirWindowManager::create(server.the_shell_display_layout(),
+//                    std::static_pointer_cast<::SessionListener>(server.the_session_listener()));
+//            m_windowManager = windowManager;
+//            return windowManager;
+//        });
 }
 
 MirWindowManager *UsingQtMirWindowManager::windowManager()
@@ -215,6 +221,11 @@ mir::shell::Shell *MirServer::shell()
 {
     std::weak_ptr<mir::shell::Shell> m_shell = the_shell();
     return m_shell.lock().get();
+}
+
+QSharedPointer<ScreensModel> MirServer::screensModel() const
+{
+    return m_screensModel;
 }
 
 namespace

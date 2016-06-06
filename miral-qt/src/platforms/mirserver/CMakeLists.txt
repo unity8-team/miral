@@ -25,6 +25,7 @@ endforeach(item ${Qt5Gui_PRIVATE_INCLUDE_DIRS})
 
 include_directories(
     ${MIRAL_QT_SOURCE_DIR}/src/common
+    ${CMAKE_SOURCE_DIR}/miral   #FIXME
 
     ${MIRCOMMON_INCLUDE_DIRS}
     ${MIRSERVER_INCLUDE_DIRS}
@@ -79,6 +80,7 @@ set(MIRSERVER_QPA_PLUGIN_SRC
     ubuntutheme.cpp
     clipboard.cpp
     creationhints.cpp
+    windowmanagementpolicy.cpp
     tracepoints.c
 # We need to run moc on these headers
     ${APPLICATION_API_INCLUDEDIR}/unity/shell/application/Mir.h
@@ -91,9 +93,9 @@ add_library(qpa-mirserver SHARED
 target_link_libraries(
     qpa-mirserver
     Qt5PlatformSupport
+    miral
 
     ${MIRSERVER_LDFLAGS}
-    ${MIRCLIENT_LDFLAGS}
     ${URL_DISPATCHER_LDFLAGS}
     ${EGL_LDFLAGS}
     ${GL_LIBRARIES}

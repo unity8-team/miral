@@ -500,13 +500,13 @@ bool QtEventFeeder::dispatch(MirEvent const& event)
 
     switch (mir_input_event_get_type(iev)) {
     case mir_input_event_type_key:
-        dispatchKey(iev);
+        dispatchKey(mir_input_event_get_keyboard_event(iev));
         break;
     case mir_input_event_type_touch:
-        dispatchTouch(iev);
+        dispatchTouch(mir_input_event_get_touch_event(iev));
         break;
     case mir_input_event_type_pointer:
-        dispatchPointer(iev);
+        dispatchPointer(mir_input_event_get_pointer_event(iev));
     default:
         break;
     }
@@ -554,12 +554,13 @@ Qt::MouseButtons getQtMouseButtonsfromMirPointerEvent(MirPointerEvent const* pev
 
     return buttons;
 }
-}
+} // namespace
 
-void QtEventFeeder::dispatchPointer(MirInputEvent const* ev)
+void QtEventFeeder::dispatchPointer(const MirPointerEvent *pev)
 {
-    auto timestamp = qtmir::compressTimestamp<qtmir::Timestamp>(std::chrono::nanoseconds(mir_input_event_get_event_time(ev)));
-    auto pev = mir_input_event_get_pointer_event(ev);
+    auto timestamp = qtmir::compressTimestamp<qtmir::Timestamp>(
+                std::chrono::nanoseconds(mir_input_event_get_event_time(
+                                             mir_pointer_event_input_event(pev))));
     auto action = mir_pointer_event_action(pev);
     qCDebug(QTMIR_MIR_INPUT) << "Received" << qPrintable(mirPointerEventToString(pev));
 
@@ -589,11 +590,12 @@ void QtEventFeeder::dispatchPointer(MirInputEvent const* ev)
     }
 }
 
-void QtEventFeeder::dispatchKey(MirInputEvent const* event)
+void QtEventFeeder::dispatchKey(const MirKeyboardEvent *kev)
 {
-    auto timestamp = qtmir::compressTimestamp<qtmir::Timestamp>(std::chrono::nanoseconds(mir_input_event_get_event_time(event)));
+    auto timestamp = qtmir::compressTimestamp<qtmir::Timestamp>(
+                std::chrono::nanoseconds(mir_input_event_get_event_time(
+                                             mir_keyboard_event_input_event(kev))));
 
-    auto kev = mir_input_event_get_keyboard_event(event);
     xkb_keysym_t xk_sym = mir_keyboard_event_key_code(kev);
 
     // Key modifier and unicode index mapping.
@@ -654,13 +656,14 @@ void QtEventFeeder::dispatchKey(MirInputEvent const* event)
         mir_keyboard_event_modifiers(kev), text, is_auto_rep);
 }
 
-void QtEventFeeder::dispatchTouch(MirInputEvent const* event)
+void QtEventFeeder::dispatchTouch(const MirTouchEvent *tev)
 {
-    auto timestamp = qtmir::compressTimestamp<qtmir::Timestamp>(std::chrono::nanoseconds(mir_input_event_get_event_time(event)));
+    auto timestamp = qtmir::compressTimestamp<qtmir::Timestamp>(
+                std::chrono::nanoseconds(mir_input_event_get_event_time(
+                                             mir_touch_event_input_event(tev))));
 
     tracepoint(qtmirserver, touchEventDispatch_start, std::chrono::nanoseconds(timestamp).count());
 
-    auto tev = mir_input_event_get_touch_event(event);
     qCDebug(QTMIR_MIR_INPUT) << "Received" << qPrintable(mirTouchEventToString(tev));
 
     // FIXME(loicm) Max pressure is device specific. That one is for the Samsung Galaxy Nexus. That
@@ -729,16 +732,6 @@ void QtEventFeeder::dispatchTouch(MirInputEvent const* event)
         touchPoints);
 
     tracepoint(qtmirserver, touchEventDispatch_end, std::chrono::nanoseconds(timestamp).count());
-}
-
-void QtEventFeeder::start()
-{
-    // not used
-}
-
-void QtEventFeeder::stop()
-{
-    // not used
 }
 
 void QtEventFeeder::validateTouches(QWindow *window, ulong timestamp,
