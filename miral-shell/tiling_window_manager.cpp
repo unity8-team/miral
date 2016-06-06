@@ -429,12 +429,27 @@ void TilingWindowManagerPolicy::update_tiles(Rectangles const& displays)
 
 void TilingWindowManagerPolicy::update_surfaces(ApplicationInfo& info, Rectangle const& old_tile, Rectangle const& new_tile)
 {
-    for (auto& window : info.windows())
+    for (auto const& window : info.windows())
     {
         if (window)
         {
-            if (!tools->info_for(window).parent())
-                fit_to_new_tile(window, old_tile, new_tile);
+            auto& window_info = tools->info_for(window);
+
+            if (!window_info.parent())
+            {
+                auto const new_pos = window.top_left() + (new_tile.top_left - old_tile.top_left);
+                auto const offset = new_pos - new_tile.top_left;
+
+                // For now just scale if was filling width/height of tile
+                auto const old_size = window.size();
+                auto const scaled_width  = old_size.width  == old_tile.size.width  ? new_tile.size.width  : old_size.width;
+                auto const scaled_height = old_size.height == old_tile.size.height ? new_tile.size.height : old_size.height;
+
+                auto width  = std::min(new_tile.size.width.as_int()  - offset.dx.as_int(), scaled_width.as_int());
+                auto height = std::min(new_tile.size.height.as_int() - offset.dy.as_int(), scaled_height.as_int());
+
+                tools->place_and_size(window_info, new_pos, {width, height});
+            }
         }
     }
 }
@@ -447,22 +462,6 @@ void TilingWindowManagerPolicy::clip_to_tile(miral::WindowSpecification& paramet
     auto height = std::min(tile.size.height.as_int()-displacement.dy.as_int(), parameters.size().value().height.as_int());
 
     parameters.size() = Size{width, height};
-}
-
-void TilingWindowManagerPolicy::fit_to_new_tile(miral::Window& window, Rectangle const& old_tile, Rectangle const& new_tile)
-{
-    auto const new_pos = window.top_left() + (new_tile.top_left - old_tile.top_left);
-    auto const offset = new_pos - new_tile.top_left;
-
-    // For now just scale if was filling width/height of tile
-    auto const old_size = window.size();
-    auto const scaled_width = old_size.width == old_tile.size.width ? new_tile.size.width : old_size.width;
-    auto const scaled_height = old_size.height == old_tile.size.height ? new_tile.size.height : old_size.height;
-
-    auto width = std::min(new_tile.size.width.as_int()-offset.dx.as_int(), scaled_width.as_int());
-    auto height = std::min(new_tile.size.height.as_int()-offset.dy.as_int(), scaled_height.as_int());
-
-    tools->place_and_size(tools->info_for(window), new_pos, {width, height});
 }
 
 void TilingWindowManagerPolicy::drag(WindowInfo& window_info, Point to, Point from, Rectangle bounds)
