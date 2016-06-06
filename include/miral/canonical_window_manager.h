@@ -89,7 +89,6 @@ private:
 
     WindowManagerTools* const tools;
 
-    Rectangle display_area;
     Point old_cursor{};
 
     bool resizing = false;

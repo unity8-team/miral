@@ -45,9 +45,8 @@ void miral::CanonicalWindowManagerPolicy::handle_app_info_updated(Rectangles con
 {
 }
 
-void miral::CanonicalWindowManagerPolicy::handle_displays_updated(Rectangles const& displays)
+void miral::CanonicalWindowManagerPolicy::handle_displays_updated(Rectangles const& /*displays*/)
 {
-    display_area = displays.bounding_rectangle();
 }
 
 bool miral::CanonicalWindowManagerPolicy::resize(Point cursor)
