@@ -16,15 +16,15 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#ifndef MIRAL_SHELL_CANONICAL_WINDOW_MANAGEMENT_POLICY_DATA_H
-#define MIRAL_SHELL_CANONICAL_WINDOW_MANAGEMENT_POLICY_DATA_H
+#ifndef MIRAL_SHELL_TITLEBAR_USER_DATA_H
+#define MIRAL_SHELL_TITLEBAR_USER_DATA_H
 
 #include <miral/window.h>
 
-class CanonicalWindowManagementPolicyData
+class TitlebarUserData
 {
 public:
-    CanonicalWindowManagementPolicyData(miral::Window window) : window{window} { }
+    TitlebarUserData(miral::Window window) : window{window} { }
 
     void paint_titlebar(int intensity);
 
@@ -38,4 +38,4 @@ private:
     std::shared_ptr<StreamPainter> stream_painter;
 };
 
-#endif //MIRAL_SHELL_CANONICAL_WINDOW_MANAGEMENT_POLICY_DATA_H
+#endif //MIRAL_SHELL_TITLEBAR_USER_DATA_H

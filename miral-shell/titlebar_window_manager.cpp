@@ -17,7 +17,7 @@
  */
 
 #include "titlebar_window_manager.h"
-#include "titlebar/canonical_window_management_policy_data.h"
+#include "titlebar/titlebar_user_data.h"
 
 #include <miral/application_info.h>
 #include <miral/window_info.h>
@@ -70,7 +70,7 @@ bool TitlebarWindowManagerPolicy::handle_pointer_event(MirPointerEvent const* ev
                 if (auto const parent = tools->info_for(possible_titlebar).parent())
                 {
                     if (auto const& parent_userdata =
-                        std::static_pointer_cast<CanonicalWindowManagementPolicyData>(tools->info_for(parent).userdata()))
+                        std::static_pointer_cast<TitlebarUserData>(tools->info_for(parent).userdata()))
                     {
                         if (possible_titlebar == parent_userdata->window)
                         {
@@ -114,7 +114,7 @@ void TitlebarWindowManagerPolicy::advise_new_window(WindowInfo& window_info)
     titlebar_info.window().set_alpha(0.9);
     titlebar_info.parent(window);
 
-    auto data = std::make_shared<CanonicalWindowManagementPolicyData>(titlebar_info.window());
+    auto data = std::make_shared<TitlebarUserData>(titlebar_info.window());
     window_info.userdata(data);
     window_info.add_child(titlebar_info.window());
 }
@@ -123,7 +123,7 @@ void TitlebarWindowManagerPolicy::advise_focus_lost(WindowInfo const& info)
 {
     CanonicalWindowManagerPolicy::advise_focus_lost(info);
 
-    if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(info.userdata()))
+    if (auto const titlebar = std::static_pointer_cast<TitlebarUserData>(info.userdata()))
     {
         titlebar->paint_titlebar(0x3F);
     }
@@ -133,7 +133,7 @@ void TitlebarWindowManagerPolicy::advise_focus_gained(WindowInfo const& info)
 {
     CanonicalWindowManagerPolicy::advise_focus_gained(info);
 
-    if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(info.userdata()))
+    if (auto const titlebar = std::static_pointer_cast<TitlebarUserData>(info.userdata()))
     {
         titlebar->paint_titlebar(0xFF);
     }
@@ -152,7 +152,7 @@ void TitlebarWindowManagerPolicy::advise_state_change(WindowInfo const& window_i
 {
     CanonicalWindowManagerPolicy::advise_state_change(window_info, state);
 
-    if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(window_info.userdata()))
+    if (auto const titlebar = std::static_pointer_cast<TitlebarUserData>(window_info.userdata()))
     {
         switch (state)
         {
@@ -184,7 +184,7 @@ void TitlebarWindowManagerPolicy::advise_resize(WindowInfo const& window_info, S
 {
     CanonicalWindowManagerPolicy::advise_resize(window_info, new_size);
 
-    if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(window_info.userdata()))
+    if (auto const titlebar = std::static_pointer_cast<TitlebarUserData>(window_info.userdata()))
     {
         titlebar->window.resize({new_size.width, Height{title_bar_height}});
     }
@@ -194,7 +194,7 @@ void TitlebarWindowManagerPolicy::advise_delete_window(WindowInfo const& window_
 {
     CanonicalWindowManagerPolicy::advise_delete_window(window_info);
 
-    if (auto const titlebar = std::static_pointer_cast<CanonicalWindowManagementPolicyData>(window_info.userdata()))
+    if (auto const titlebar = std::static_pointer_cast<TitlebarUserData>(window_info.userdata()))
     {
         tools->destroy(titlebar->window);
     }

@@ -16,7 +16,7 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#include "canonical_window_management_policy_data.h"
+#include "titlebar_user_data.h"
 
 // TODO We need a better way to support painting stuff inside the window manager
 #include <mir/frontend/buffer_stream.h>
@@ -28,7 +28,7 @@
 
 using namespace mir::geometry;
 
-struct CanonicalWindowManagementPolicyData::StreamPainter
+struct TitlebarUserData::StreamPainter
 {
     virtual void paint(int) = 0;
     virtual ~StreamPainter() = default;
@@ -37,8 +37,8 @@ struct CanonicalWindowManagementPolicyData::StreamPainter
     StreamPainter& operator=(StreamPainter const&) = delete;
 };
 
-struct CanonicalWindowManagementPolicyData::SwappingPainter
-    : CanonicalWindowManagementPolicyData::StreamPainter
+struct TitlebarUserData::SwappingPainter
+    : TitlebarUserData::StreamPainter
 {
     SwappingPainter(std::shared_ptr<mir::frontend::BufferStream> const& buffer_stream) :
         buffer_stream{buffer_stream}, buffer{nullptr}
@@ -73,8 +73,8 @@ struct CanonicalWindowManagementPolicyData::SwappingPainter
     std::atomic<mir::graphics::Buffer*> buffer;
 };
 
-struct CanonicalWindowManagementPolicyData::AllocatingPainter
-    : CanonicalWindowManagementPolicyData::StreamPainter
+struct TitlebarUserData::AllocatingPainter
+    : TitlebarUserData::StreamPainter
 {
     AllocatingPainter(std::shared_ptr<mir::frontend::BufferStream> const& buffer_stream, Size size) :
         buffer_stream(buffer_stream),
@@ -114,7 +114,7 @@ struct CanonicalWindowManagementPolicyData::AllocatingPainter
     mir::graphics::BufferID back_buffer;
 };
 
-void CanonicalWindowManagementPolicyData::paint_titlebar(int intensity)
+void TitlebarUserData::paint_titlebar(int intensity)
 {
     if (!stream_painter)
     {
