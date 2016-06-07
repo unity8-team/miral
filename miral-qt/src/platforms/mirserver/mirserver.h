@@ -61,10 +61,11 @@ private:
     std::weak_ptr<PromptSessionListener> m_promptSessionListener;
 };
 
+class MirServer;
 class UsingQtMirWindowManager
 {
 public:
-    void operator()(mir::Server& server);
+    void operator()(MirServer& server); // changed from mir::Server to MirServer, as MirServer has things it needs
     MirWindowManager *windowManager();
 
 private:
@@ -100,6 +101,9 @@ public:
     using mir::Server::the_gl_config;
     using mir::Server::the_main_loop;
     using mir::Server::the_prompt_session_manager;
+    // making UsingQtMirWindowManager depend on MirServer causes these to be exported
+    using mir::Server::the_shell_display_layout;
+    using mir::Server::override_the_window_manager_builder;
 
     void stop();
 
@@ -110,6 +114,8 @@ public:
     using UsingQtMirPromptSessionListener::promptSessionListener;
     using UsingQtMirWindowManager::windowManager;
     mir::shell::Shell *shell();
+
+    QSharedPointer<ScreensModel> screensModel() const;
 
 private:
     const QSharedPointer<ScreensModel> m_screensModel;
