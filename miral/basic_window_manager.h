@@ -24,7 +24,7 @@
 #include "miral/window_info.h"
 #include "miral/application.h"
 #include "miral/application_info.h"
-#include "miral/mru_window_list.h"
+#include "mru_window_list.h"
 
 #include "mir/geometry/rectangles.h"
 #include "mir/shell/abstract_shell.h"
