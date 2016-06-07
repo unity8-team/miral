@@ -33,7 +33,7 @@ class WindowManagementPolicy : public QObject, public miral::WindowManagementPol
 {
 public:
     WindowManagementPolicy(const miral::WindowManagerTools *tools,
-                           const QSharedPointer<ScreensModel> &screensModel);
+                           const QSharedPointer<ScreensModel> screensModel);
 
 
     auto place_new_surface(const miral::ApplicationInfo &app_info,
@@ -49,6 +49,9 @@ public:
     bool handle_keyboard_event(const MirKeyboardEvent *event) override;
     bool handle_touch_event(const MirTouchEvent *event) override;
     bool handle_pointer_event(const MirPointerEvent *event) override;
+
+    void advise_new_app(miral::ApplicationInfo &application) override;
+    void advise_delete_app(const miral::ApplicationInfo &application) override;
 
     void advise_new_window(miral::WindowInfo &windowInfo) override;
     void advise_focus_lost(const miral::WindowInfo &info) override;

@@ -17,7 +17,6 @@
 #include <QCoreApplication>
 
 #include "mirserver.h"
-#include "basic_window_manager.h"
 
 // local
 #include "argvHelper.h"
@@ -57,6 +56,7 @@ void usingHiddenCursor(mir::Server& server);
 MirServer::MirServer(int &argc, char **argv,
                      const QSharedPointer<ScreensModel> &screensModel, QObject* parent)
     : QObject(parent)
+    , UsingQtMirWindowManager(screensModel)
     , m_screensModel(screensModel)
 {
     bool unknownArgsFound = false;
@@ -190,26 +190,15 @@ PromptSessionListener *UsingQtMirPromptSessionListener::promptSessionListener()
     return m_promptSessionListener.lock().get();
 }
 
-void UsingQtMirWindowManager::operator()(MirServer& server)
+UsingQtMirWindowManager::UsingQtMirWindowManager(const QSharedPointer<ScreensModel> &model)
+    : m_screensModel(model)
+    , m_policy(miral::set_window_managment_policy<WindowManagementPolicy>(m_screensModel))
 {
-    server.override_the_window_manager_builder([this,&server](msh::FocusController* focus_controller)
-        -> std::shared_ptr<msh::WindowManager>
-        {
-            auto const display_layout = server.the_shell_display_layout();
-            auto const policy = [&server](miral::WindowManagerTools* tools){
-                return std::make_unique<WindowManagementPolicy>(tools, server.screensModel());
-            };
+}
 
-            return std::make_shared<miral::BasicWindowManager>(focus_controller, display_layout, policy);
-        });
-//    server.override_the_window_manager_builder([this,&server](mir::shell::FocusController*)
-//        -> std::shared_ptr<mir::shell::WindowManager>
-//        {
-//            auto windowManager = MirWindowManager::create(server.the_shell_display_layout(),
-//                    std::static_pointer_cast<::SessionListener>(server.the_session_listener()));
-//            m_windowManager = windowManager;
-//            return windowManager;
-//        });
+void UsingQtMirWindowManager::operator()(mir::Server& server)
+{
+    m_policy(server);
 }
 
 MirWindowManager *UsingQtMirWindowManager::windowManager()

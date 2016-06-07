@@ -21,7 +21,7 @@
 #include "miral/window_specification.h"
 
 WindowManagementPolicy::WindowManagementPolicy(const miral::WindowManagerTools *tools,
-                                               const QSharedPointer<ScreensModel> &screensModel)
+                                               const QSharedPointer<ScreensModel> screensModel)
     : m_tools(tools)
     , m_eventFeeder(new QtEventFeeder(screensModel))
 {
@@ -84,6 +84,16 @@ bool WindowManagementPolicy::handle_pointer_event(const MirPointerEvent *event)
 {
     m_eventFeeder->dispatchPointer(event);
     return true;
+}
+
+void WindowManagementPolicy::advise_new_app(miral::ApplicationInfo &/*application*/)
+{
+
+}
+
+void WindowManagementPolicy::advise_delete_app(const miral::ApplicationInfo &/*application*/)
+{
+
 }
 
 void WindowManagementPolicy::advise_state_change(const miral::WindowInfo &/*windowInfo*/, MirSurfaceState /*state*/)

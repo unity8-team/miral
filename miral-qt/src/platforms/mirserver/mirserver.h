@@ -20,6 +20,7 @@
 #include <QObject>
 #include <QSharedPointer>
 #include <mir/server.h>
+#include "miral/set_window_managment_policy.h"
 
 class QtEventFeeder;
 class MirDisplayConfigurationPolicy;
@@ -62,13 +63,17 @@ private:
 };
 
 class MirServer;
+class ScreensModel;
 class UsingQtMirWindowManager
 {
 public:
-    void operator()(MirServer& server); // changed from mir::Server to MirServer, as MirServer has things it needs
+    UsingQtMirWindowManager(const QSharedPointer<ScreensModel> &model);
+    void operator()(mir::Server& server);
     MirWindowManager *windowManager();
 
 private:
+    const QSharedPointer<ScreensModel> &m_screensModel;
+    miral::SetWindowManagmentPolicy m_policy;
     std::weak_ptr<MirWindowManager> m_windowManager;
 };
 
@@ -101,9 +106,6 @@ public:
     using mir::Server::the_gl_config;
     using mir::Server::the_main_loop;
     using mir::Server::the_prompt_session_manager;
-    // making UsingQtMirWindowManager depend on MirServer causes these to be exported
-    using mir::Server::the_shell_display_layout;
-    using mir::Server::override_the_window_manager_builder;
 
     void stop();
 
