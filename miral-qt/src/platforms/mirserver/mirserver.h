@@ -20,6 +20,7 @@
 #include <QObject>
 #include <QSharedPointer>
 #include <mir/server.h>
+#include "miral/set_window_managment_policy.h"
 
 class QtEventFeeder;
 class MirDisplayConfigurationPolicy;
@@ -64,10 +65,13 @@ private:
 class UsingQtMirWindowManager
 {
 public:
+    UsingQtMirWindowManager(const QSharedPointer<ScreensModel> &model);
     void operator()(mir::Server& server);
     MirWindowManager *windowManager();
 
 private:
+    const QSharedPointer<ScreensModel> &m_screensModel;
+    miral::SetWindowManagmentPolicy m_policy;
     std::weak_ptr<MirWindowManager> m_windowManager;
 };
 
@@ -110,6 +114,8 @@ public:
     using UsingQtMirPromptSessionListener::promptSessionListener;
     using UsingQtMirWindowManager::windowManager;
     mir::shell::Shell *shell();
+
+    QSharedPointer<ScreensModel> screensModel() const;
 
 private:
     const QSharedPointer<ScreensModel> m_screensModel;

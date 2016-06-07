@@ -30,7 +30,7 @@
 #include "sessionlistener.h"
 #include "sessionauthorizer.h"
 #include "qtcompositor.h"
-#include "qteventfeeder.h"
+#include "windowmanagementpolicy.h"
 #include "logging.h"
 
 // std
@@ -56,6 +56,7 @@ void usingHiddenCursor(mir::Server& server);
 MirServer::MirServer(int &argc, char **argv,
                      const QSharedPointer<ScreensModel> &screensModel, QObject* parent)
     : QObject(parent)
+    , UsingQtMirWindowManager(screensModel)
     , m_screensModel(screensModel)
 {
     bool unknownArgsFound = false;
@@ -87,11 +88,6 @@ MirServer::MirServer(int &argc, char **argv,
     override_the_cursor_images([]
         {
             return std::make_shared<qtmir::MirCursorImages>();
-        });
-
-    override_the_input_dispatcher([&screensModel]
-        {
-            return std::make_shared<QtEventFeeder>(screensModel);
         });
 
     override_the_gl_config([]
@@ -194,16 +190,15 @@ PromptSessionListener *UsingQtMirPromptSessionListener::promptSessionListener()
     return m_promptSessionListener.lock().get();
 }
 
+UsingQtMirWindowManager::UsingQtMirWindowManager(const QSharedPointer<ScreensModel> &model)
+    : m_screensModel(model)
+    , m_policy(miral::set_window_managment_policy<WindowManagementPolicy>(m_screensModel))
+{
+}
+
 void UsingQtMirWindowManager::operator()(mir::Server& server)
 {
-    server.override_the_window_manager_builder([this,&server](mir::shell::FocusController*)
-        -> std::shared_ptr<mir::shell::WindowManager>
-        {
-            auto windowManager = MirWindowManager::create(server.the_shell_display_layout(),
-                    std::static_pointer_cast<::SessionListener>(server.the_session_listener()));
-            m_windowManager = windowManager;
-            return windowManager;
-        });
+    m_policy(server);
 }
 
 MirWindowManager *UsingQtMirWindowManager::windowManager()
@@ -215,6 +210,11 @@ mir::shell::Shell *MirServer::shell()
 {
     std::weak_ptr<mir::shell::Shell> m_shell = the_shell();
     return m_shell.lock().get();
+}
+
+QSharedPointer<ScreensModel> MirServer::screensModel() const
+{
+    return m_screensModel;
 }
 
 namespace
