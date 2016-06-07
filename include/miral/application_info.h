@@ -19,20 +19,24 @@
 #ifndef MIRAL_APPLICATION_INFO_H
 #define MIRAL_APPLICATION_INFO_H
 
-#include "miral/window.h"
+#include "miral/application.h"
 
 #include <vector>
 
 
 namespace miral
 {
+class Window;
+
 struct ApplicationInfo
 {
     ApplicationInfo();
+    explicit ApplicationInfo(Application const& app);
     ~ApplicationInfo();
     ApplicationInfo(ApplicationInfo const& that);
     auto operator=(ApplicationInfo const& that) -> miral::ApplicationInfo&;
 
+    auto application()  const -> Application;
     auto windows() const -> std::vector <Window>&;
     void add_window(Window const& window);
     void remove_window(Window const& window);
