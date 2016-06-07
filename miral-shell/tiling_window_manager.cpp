@@ -92,56 +92,11 @@ auto TilingWindowManagerPolicy::place_new_surface(
     auto parameters = request_parameters;
 
     Rectangle const& tile = tile_for(app_info);
-    parameters.top_left() = tile.top_left;
 
-    if (parameters.parent().is_set() && parameters.parent().value().lock())
+    if (!parameters.parent().is_set() || !parameters.parent().value().lock())
     {
-        auto parent = tools->info_for(parameters.parent().value()).window();
-        auto const width = parameters.size().value().width.as_int();
-        auto const height = parameters.size().value().height.as_int();
-
-        if (parameters.aux_rect().is_set() && parameters.edge_attachment().is_set())
-        {
-            auto const edge_attachment = parameters.edge_attachment().value();
-            auto const aux_rect = parameters.aux_rect().value();
-            auto const parent_top_left = parent.top_left();
-            auto const top_left = aux_rect.top_left     -Point{} + parent_top_left;
-            auto const top_right= aux_rect.top_right()  -Point{} + parent_top_left;
-            auto const bot_left = aux_rect.bottom_left()-Point{} + parent_top_left;
-
-            if (edge_attachment & mir_edge_attachment_vertical)
-            {
-                if (tile.contains(top_right + Displacement{width, height}))
-                {
-                    parameters.top_left() = top_right;
-                }
-                else if (tile.contains(top_left + Displacement{-width, height}))
-                {
-                    parameters.top_left() = top_left + Displacement{-width, 0};
-                }
-            }
-
-            if (edge_attachment & mir_edge_attachment_horizontal)
-            {
-                if (tile.contains(bot_left + Displacement{width, height}))
-                {
-                    parameters.top_left() = bot_left;
-                }
-                else if (tile.contains(top_left + Displacement{width, -height}))
-                {
-                    parameters.top_left() = top_left + Displacement{0, -height};
-                }
-            }
-        }
-        else
-        {
-            auto const parent_top_left = parent.top_left();
-            auto const centred = parent_top_left
-                                 + 0.5*(as_displacement(parent.size()) - as_displacement(parameters.size().value()))
-                                 - DeltaY{(parent.size().height.as_int()-height)/6};
-
-            parameters.top_left() = centred;
-        }
+        parameters.top_left() = tile.top_left;
+//        parameters.size() = tile.size;
     }
 
     clip_to_tile(parameters, tile);
@@ -474,11 +429,27 @@ void TilingWindowManagerPolicy::update_tiles(Rectangles const& displays)
 
 void TilingWindowManagerPolicy::update_surfaces(ApplicationInfo& info, Rectangle const& old_tile, Rectangle const& new_tile)
 {
-    for (auto& window : info.windows())
+    for (auto const& window : info.windows())
     {
         if (window)
         {
-            fit_to_new_tile(window, old_tile, new_tile);
+            auto& window_info = tools->info_for(window);
+
+            if (!window_info.parent())
+            {
+                auto const new_pos = window.top_left() + (new_tile.top_left - old_tile.top_left);
+                auto const offset = new_pos - new_tile.top_left;
+
+                // For now just scale if was filling width/height of tile
+                auto const old_size = window.size();
+                auto const scaled_width  = old_size.width  == old_tile.size.width  ? new_tile.size.width  : old_size.width;
+                auto const scaled_height = old_size.height == old_tile.size.height ? new_tile.size.height : old_size.height;
+
+                auto width  = std::min(new_tile.size.width.as_int()  - offset.dx.as_int(), scaled_width.as_int());
+                auto height = std::min(new_tile.size.height.as_int() - offset.dy.as_int(), scaled_height.as_int());
+
+                tools->place_and_size(window_info, new_pos, {width, height});
+            }
         }
     }
 }
@@ -491,22 +462,6 @@ void TilingWindowManagerPolicy::clip_to_tile(miral::WindowSpecification& paramet
     auto height = std::min(tile.size.height.as_int()-displacement.dy.as_int(), parameters.size().value().height.as_int());
 
     parameters.size() = Size{width, height};
-}
-
-void TilingWindowManagerPolicy::fit_to_new_tile(miral::Window& window, Rectangle const& old_tile, Rectangle const& new_tile)
-{
-    auto const new_pos = window.top_left() + (new_tile.top_left - old_tile.top_left);
-    auto const offset = new_pos - new_tile.top_left;
-
-    // For now just scale if was filling width/height of tile
-    auto const old_size = window.size();
-    auto const scaled_width = old_size.width == old_tile.size.width ? new_tile.size.width : old_size.width;
-    auto const scaled_height = old_size.height == old_tile.size.height ? new_tile.size.height : old_size.height;
-
-    auto width = std::min(new_tile.size.width.as_int()-offset.dx.as_int(), scaled_width.as_int());
-    auto height = std::min(new_tile.size.height.as_int()-offset.dy.as_int(), scaled_height.as_int());
-
-    tools->place_and_size(tools->info_for(window), new_pos, {width, height});
 }
 
 void TilingWindowManagerPolicy::drag(WindowInfo& window_info, Point to, Point from, Rectangle bounds)
