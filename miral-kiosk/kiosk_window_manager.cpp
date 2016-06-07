@@ -119,6 +119,15 @@ void KioskWindowManagerPolicy::handle_window_ready(WindowInfo& window_info)
     tools->select_active_window(window_info.window());
 }
 
+namespace
+{
+template<typename ValueType>
+void reset(mir::optional_value<ValueType>& option)
+{
+    if (option.is_set()) option.consume();
+}
+}
+
 void KioskWindowManagerPolicy::handle_modify_window(
     miral::WindowInfo& window_info,
     miral::WindowSpecification const& modifications)
@@ -126,21 +135,21 @@ void KioskWindowManagerPolicy::handle_modify_window(
     auto mods = modifications;
 
     // filter out changes we don't want the client making
-    mods.top_left().consume();
-    mods.size().consume();
-    mods.output_id().consume();
-    mods.state().consume();
-    mods.preferred_orientation().consume();
-    mods.edge_attachment().consume();
-    mods.min_width().consume();
-    mods.min_height().consume();
-    mods.max_width().consume();
-    mods.max_height().consume();
-    mods.width_inc().consume();
-    mods.height_inc().consume();
-    mods.min_aspect().consume();
-    mods.max_aspect().consume();
-    mods.parent().consume();
+    reset(mods.top_left());
+    reset(mods.size());
+    reset(mods.output_id());
+    reset(mods.state());
+    reset(mods.preferred_orientation());
+    reset(mods.edge_attachment());
+    reset(mods.min_width());
+    reset(mods.min_height());
+    reset(mods.max_width());
+    reset(mods.max_height());
+    reset(mods.width_inc());
+    reset(mods.height_inc());
+    reset(mods.min_aspect());
+    reset(mods.max_aspect());
+    reset(mods.parent());
 
     tools->modify_window(window_info, mods);
 }
