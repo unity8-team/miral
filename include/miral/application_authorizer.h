@@ -60,15 +60,15 @@ public:
 class BasicSetApplicationAuthorizer
 {
 public:
-    BasicSetApplicationAuthorizer(std::function<std::shared_ptr<ApplicationAuthorizer>()> const& builder);
+    explicit BasicSetApplicationAuthorizer(std::function<std::shared_ptr<ApplicationAuthorizer>()> const& builder);
     ~BasicSetApplicationAuthorizer();
 
     void operator()(mir::Server& server);
     auto the_application_authorizer() const -> std::shared_ptr<ApplicationAuthorizer>;
 
 private:
-    std::function<std::shared_ptr<ApplicationAuthorizer>()> const builder;
-    std::weak_ptr<ApplicationAuthorizer> my_authorizer;
+    struct Self;
+    std::shared_ptr<Self> self;
 };
 
 template<typename Policy>
@@ -76,9 +76,8 @@ class SetApplicationAuthorizer : public BasicSetApplicationAuthorizer
 {
 public:
     template<typename ...Args>
-    SetApplicationAuthorizer(Args& ... args) :
-        BasicSetApplicationAuthorizer{[this, &args...]() -> std::shared_ptr<ApplicationAuthorizer>
-            { return std::make_shared<Policy>(args...); }} {}
+    explicit SetApplicationAuthorizer(Args const& ...args) :
+        BasicSetApplicationAuthorizer{[&args...]() { return std::make_shared<Policy>(args...); }} {}
 
     auto the_custom_application_authorizer() const -> std::shared_ptr<Policy>
         { return std::static_pointer_cast<Policy>(the_application_authorizer()); }

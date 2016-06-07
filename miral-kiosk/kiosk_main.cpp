@@ -19,8 +19,49 @@
 #include "kiosk_window_manager.h"
 
 #include "miral/runner.h"
+#include "miral/application_authorizer.h"
 #include "miral/set_window_managment_policy.h"
 #include "miral/startup_internal_client.h"
+
+#include <cstdlib>
+
+namespace
+{
+bool const startup_only = getenv("MIRAL_KIOSK_STARTUP_ONLY");
+
+struct KioskAuthorizer : miral::ApplicationAuthorizer
+{
+    KioskAuthorizer(SwSplash const& splash) : splash{splash}{}
+
+    virtual bool connection_is_allowed(miral::ApplicationCredentials const& /*creds*/) override
+    {
+        return result || !splash.session().expired();
+    }
+
+    virtual bool configure_display_is_allowed(miral::ApplicationCredentials const& /*creds*/) override
+    {
+        return result || !splash.session().expired();
+    }
+
+    virtual bool set_base_display_configuration_is_allowed(miral::ApplicationCredentials const& /*creds*/) override
+    {
+        return result || !splash.session().expired();
+    }
+
+    virtual bool screencast_is_allowed(miral::ApplicationCredentials const& /*creds*/) override
+    {
+        return result || !splash.session().expired();
+    }
+
+    virtual bool prompt_session_is_allowed(miral::ApplicationCredentials const& /*creds*/) override
+    {
+        return result || !splash.session().expired();
+    }
+
+    bool result = !startup_only;
+    SwSplash splash;
+};
+}
 
 int main(int argc, char const* argv[])
 {
@@ -31,6 +72,7 @@ int main(int argc, char const* argv[])
     return MirRunner{argc, argv}.run_with(
         {
             set_window_managment_policy<KioskWindowManagerPolicy>(splash),
+            SetApplicationAuthorizer<KioskAuthorizer>{splash},
             StartupInternalClient{"Intro", splash}
         });
 }
