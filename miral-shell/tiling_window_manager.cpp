@@ -157,6 +157,15 @@ void TilingWindowManagerPolicy::handle_window_ready(WindowInfo& window_info)
     tools->select_active_window(window_info.window());
 }
 
+namespace
+{
+template<typename ValueType>
+void reset(mir::optional_value<ValueType>& option)
+{
+    if (option.is_set()) option.consume();
+}
+}
+
 void TilingWindowManagerPolicy::handle_modify_window(
     miral::WindowInfo& window_info,
     miral::WindowSpecification const& modifications)
@@ -164,18 +173,18 @@ void TilingWindowManagerPolicy::handle_modify_window(
     auto mods = modifications;
 
     // filter out changes we don't want the client making
-    mods.top_left().consume();
-    mods.size().consume();
-    mods.output_id().consume();
-    mods.edge_attachment().consume();
-    mods.min_width().consume();
-    mods.min_height().consume();
-    mods.max_width().consume();
-    mods.max_height().consume();
-    mods.width_inc().consume();
-    mods.height_inc().consume();
-    mods.min_aspect().consume();
-    mods.max_aspect().consume();
+    reset(mods.top_left());
+    reset(mods.size());
+    reset(mods.output_id());
+    reset(mods.edge_attachment());
+    reset(mods.min_width());
+    reset(mods.min_height());
+    reset(mods.max_width());
+    reset(mods.max_height());
+    reset(mods.width_inc());
+    reset(mods.height_inc());
+    reset(mods.min_aspect());
+    reset(mods.max_aspect());
 
     if (mods.state().is_set())
     {
@@ -560,8 +569,8 @@ void TilingWindowManagerPolicy::resize(Window window, Point cursor, Point old_cu
         auto const old_displacement = old_cursor - top_left;
         auto const new_displacement = cursor - top_left;
 
-        auto const scale_x = new_displacement.dx.as_float()/std::max(1.0f, old_displacement.dx.as_float());
-        auto const scale_y = new_displacement.dy.as_float()/std::max(1.0f, old_displacement.dy.as_float());
+        auto const scale_x = float(new_displacement.dx.as_int())/std::max(1.0f, float(old_displacement.dx.as_int()));
+        auto const scale_y = float(new_displacement.dy.as_int())/std::max(1.0f, float(old_displacement.dy.as_int()));
 
         if (scale_x <= 0.0f || scale_y <= 0.0f) return;
 
