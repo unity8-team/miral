@@ -23,6 +23,7 @@
 #include "miral/set_window_managment_policy.h"
 #include "miral/startup_internal_client.h"
 
+#include <unistd.h>
 #include <cstdlib>
 
 namespace
@@ -33,32 +34,33 @@ struct KioskAuthorizer : miral::ApplicationAuthorizer
 {
     KioskAuthorizer(SwSplash const& splash) : splash{splash}{}
 
-    virtual bool connection_is_allowed(miral::ApplicationCredentials const& /*creds*/) override
+    virtual bool connection_is_allowed(miral::ApplicationCredentials const& creds) override
     {
-        return result || !splash.session().expired();
+        // Allow internal applications and (optionally) only ones that start "immediately"
+        // (For the sake of an example "immediately" means while the spash is running)
+        return getpid() == creds.pid() || !startup_only || splash.session().lock();
     }
 
     virtual bool configure_display_is_allowed(miral::ApplicationCredentials const& /*creds*/) override
     {
-        return result || !splash.session().expired();
+        return false;
     }
 
     virtual bool set_base_display_configuration_is_allowed(miral::ApplicationCredentials const& /*creds*/) override
     {
-        return result || !splash.session().expired();
+        return false;
     }
 
     virtual bool screencast_is_allowed(miral::ApplicationCredentials const& /*creds*/) override
     {
-        return result || !splash.session().expired();
+        return true;
     }
 
     virtual bool prompt_session_is_allowed(miral::ApplicationCredentials const& /*creds*/) override
     {
-        return result || !splash.session().expired();
+        return false;
     }
 
-    bool result = !startup_only;
     SwSplash splash;
 };
 }
