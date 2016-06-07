@@ -62,8 +62,6 @@ private:
     std::weak_ptr<PromptSessionListener> m_promptSessionListener;
 };
 
-class MirServer;
-class ScreensModel;
 class UsingQtMirWindowManager
 {
 public:

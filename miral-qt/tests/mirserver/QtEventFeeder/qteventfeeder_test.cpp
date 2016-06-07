@@ -121,6 +121,7 @@ void QtEventFeederTest::setIrrelevantMockWindowSystemExpectations()
  */
 TEST_F(QtEventFeederTest, GenerateMissingTouchEnd)
 {
+
     setIrrelevantMockWindowSystemExpectations();
 
     EXPECT_CALL(*mockWindowSystem, handleTouchEvent(_,_,_,AllOf(SizeIs(1),
