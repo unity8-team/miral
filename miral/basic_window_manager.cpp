@@ -70,7 +70,7 @@ auto miral::BasicWindowManager::build_window(Application const& application, Win
 void miral::BasicWindowManager::add_session(std::shared_ptr<scene::Session> const& session)
 {
     std::lock_guard<decltype(mutex)> lock(mutex);
-    policy->advise_new_app(app_info[session] = ApplicationInfo());
+    policy->advise_new_app(app_info[session] = ApplicationInfo(session));
     policy->handle_app_info_updated(displays);
 }
 

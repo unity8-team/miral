@@ -17,15 +17,25 @@
  */
 
 #include "miral/application_info.h"
+#include "miral/window.h"
 
 struct miral::ApplicationInfo::Self
 {
+    Self() = default;
+    explicit Self(Application const& app) : app{app} {}
+
+    Application app;
     std::vector<Window> windows;
     std::shared_ptr<void> userdata;
 };
 
 miral::ApplicationInfo::ApplicationInfo() :
     self{std::make_unique<Self>()}
+{
+}
+
+miral::ApplicationInfo::ApplicationInfo(Application const& app) :
+    self{std::make_unique<Self>(app)}
 {
 }
 
