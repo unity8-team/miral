@@ -4,6 +4,7 @@ include_directories(include SYSTEM ${MIRSERVER_INCLUDE_DIRS})
 
 add_library(miral SHARED
     application.cpp                   ${CMAKE_SOURCE_DIR}/include/miral/application.h
+    application_authorizer.cpp        application_authorizer.h
     application_info.cpp              ${CMAKE_SOURCE_DIR}/include/miral/application_info.h
     canonical_window_manager.cpp      ${CMAKE_SOURCE_DIR}/include/miral/canonical_window_manager.h
     runner.cpp                        ${CMAKE_SOURCE_DIR}/include/miral/runner.h
