@@ -50,6 +50,9 @@ public:
     bool handle_touch_event(const MirTouchEvent *event) override;
     bool handle_pointer_event(const MirPointerEvent *event) override;
 
+    void advise_begin() override;
+    void advise_end() override;
+
     void advise_new_app(miral::ApplicationInfo &application) override;
     void advise_delete_app(const miral::ApplicationInfo &application) override;
 

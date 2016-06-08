@@ -129,3 +129,11 @@ void WindowManagementPolicy::advise_focus_gained(const miral::WindowInfo &/*info
 {
 
 }
+
+void WindowManagementPolicy::advise_begin()
+{
+}
+
+void WindowManagementPolicy::advise_end()
+{
+}

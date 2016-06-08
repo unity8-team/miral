@@ -216,3 +216,11 @@ void KioskWindowManagerPolicy::advise_raise(std::vector<miral::Window> const& /*
 void KioskWindowManagerPolicy::advise_move_to(miral::WindowInfo const& /*window_info*/, Point /*top_left*/)
 {
 }
+
+void KioskWindowManagerPolicy::advise_begin()
+{
+}
+
+void KioskWindowManagerPolicy::advise_end()
+{
+}
