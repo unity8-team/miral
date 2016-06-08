@@ -401,3 +401,7 @@ void miral::CanonicalWindowManagerPolicy::advise_new_app(ApplicationInfo& /*appl
 void miral::CanonicalWindowManagerPolicy::advise_delete_app(ApplicationInfo const& /*application*/)
 {
 }
+
+void miral::CanonicalWindowManagerPolicy::advise_raise(std::vector<miral::Window> const& /*windows*/)
+{
+}

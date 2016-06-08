@@ -68,6 +68,9 @@ public:
     virtual void advise_state_change(WindowInfo const& window_info, MirSurfaceState state) = 0;
     virtual void advise_resize(WindowInfo const& window_info, Size const& new_size) = 0;
     virtual void advise_delete_window(WindowInfo const& window_info) = 0;
+
+    /// \note ordering isn't significant - the existing Z-order is maintained
+    virtual void advise_raise(std::vector<Window> const& windows) = 0;
 /** @} */
 
 /** @name Changes to the applications or displays

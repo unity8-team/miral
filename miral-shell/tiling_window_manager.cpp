@@ -569,3 +569,7 @@ void TilingWindowManagerPolicy::advise_new_app(miral::ApplicationInfo& applicati
 void TilingWindowManagerPolicy::advise_delete_app(miral::ApplicationInfo const& /*application*/)
 {
 }
+
+void TilingWindowManagerPolicy::advise_raise(std::vector<miral::Window> const& /*windows*/)
+{
+}

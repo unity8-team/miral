@@ -491,6 +491,7 @@ void miral::BasicWindowManager::raise_tree(Window const& root)
     windows.push_back(root);
     add_children(info_for(root));
 
+    policy->advise_raise(windows);
     focus_controller->raise({begin(windows), end(windows)});
 }
 
