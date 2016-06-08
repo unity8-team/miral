@@ -58,7 +58,10 @@ public:
     virtual bool handle_pointer_event(MirPointerEvent const* event) = 0;
 /** @} */
 
-/** @name notification of WM events that the policy may need to track
+/** @name notification of WM events that the policy may need to track.
+ * With the exception of focus_lost/gained these are pre-notifications.
+ * \note if the policy updates a Window object directly (as opposed to using tools)
+ * no notification is generated.
  *  @{ */
     virtual void advise_new_app(ApplicationInfo& application) = 0;
     virtual void advise_delete_app(ApplicationInfo const& application) = 0;
@@ -68,6 +71,9 @@ public:
     virtual void advise_state_change(WindowInfo const& window_info, MirSurfaceState state) = 0;
     virtual void advise_resize(WindowInfo const& window_info, Size const& new_size) = 0;
     virtual void advise_delete_window(WindowInfo const& window_info) = 0;
+
+    /// \note ordering isn't significant - the existing Z-order will be maintained
+    virtual void advise_raise(std::vector<Window> const& windows) = 0;
 /** @} */
 
 /** @name Changes to the applications or displays

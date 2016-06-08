@@ -69,6 +69,7 @@ public:
 
     void advise_new_app(miral::ApplicationInfo& application) override;
     void advise_delete_app(miral::ApplicationInfo const& application) override;
+    void advise_raise(std::vector<miral::Window> const& windows) override;
 
     void handle_app_info_updated(Rectangles const& displays) override;
     void handle_displays_updated(Rectangles const& displays) override;

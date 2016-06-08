@@ -208,3 +208,7 @@ void KioskWindowManagerPolicy::advise_new_app(miral::ApplicationInfo& /*applicat
 void KioskWindowManagerPolicy::advise_delete_app(miral::ApplicationInfo const& /*application*/)
 {
 }
+
+void KioskWindowManagerPolicy::advise_raise(std::vector<miral::Window> const& /*windows*/)
+{
+}
