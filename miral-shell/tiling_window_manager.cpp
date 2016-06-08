@@ -114,8 +114,10 @@ auto TilingWindowManagerPolicy::place_new_surface(
     return parameters;
 }
 
-void TilingWindowManagerPolicy::advise_new_window(WindowInfo& /*window_info*/)
+void TilingWindowManagerPolicy::advise_new_window(WindowInfo& window_info)
 {
+    if (spinner.session() == window_info.window().application())
+        dirty_tiles = true;
 }
 
 void TilingWindowManagerPolicy::handle_window_ready(WindowInfo& window_info)
