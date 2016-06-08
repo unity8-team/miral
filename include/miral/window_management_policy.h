@@ -69,6 +69,7 @@ public:
     virtual void advise_focus_lost(WindowInfo const& info) = 0;
     virtual void advise_focus_gained(WindowInfo const& info) = 0;
     virtual void advise_state_change(WindowInfo const& window_info, MirSurfaceState state) = 0;
+    virtual void advise_move_to(WindowInfo const& window_info, Point top_left) = 0;
     virtual void advise_resize(WindowInfo const& window_info, Size const& new_size) = 0;
     virtual void advise_delete_window(WindowInfo const& window_info) = 0;
 

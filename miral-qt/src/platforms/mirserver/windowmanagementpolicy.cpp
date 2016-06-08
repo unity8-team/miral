@@ -106,6 +106,10 @@ void WindowManagementPolicy::advise_state_change(const miral::WindowInfo &/*wind
 
 }
 
+void WindowManagementPolicy::advise_move_to(miral::WindowInfo const& /*window_info*/, Point /*top_left*/)
+{
+}
+
 void WindowManagementPolicy::advise_resize(const miral::WindowInfo &/*info*/, const Size &/*newSize*/)
 {
 

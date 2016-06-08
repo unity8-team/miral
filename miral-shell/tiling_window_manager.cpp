@@ -573,3 +573,7 @@ void TilingWindowManagerPolicy::advise_delete_app(miral::ApplicationInfo const& 
 void TilingWindowManagerPolicy::advise_raise(std::vector<miral::Window> const& /*windows*/)
 {
 }
+
+void TilingWindowManagerPolicy::advise_move_to(miral::WindowInfo const& /*window_info*/, Point /*top_left*/)
+{
+}

@@ -59,6 +59,7 @@ public:
 
     void advise_focus_gained(miral::WindowInfo const& info) override;
     void advise_state_change(miral::WindowInfo const& window_info, MirSurfaceState state) override;
+    void advise_move_to(miral::WindowInfo const& window_info, Point top_left) override;
     void advise_resize(miral::WindowInfo const& window_info, Size const& new_size) override;
     void advise_raise(std::vector<miral::Window> const& windows) override;
 
