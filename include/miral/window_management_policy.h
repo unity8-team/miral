@@ -64,10 +64,10 @@ public:
  * no notification is generated.
  *  @{ */
 
-    /// before any related changes begin
+    /// before any related calls begin
     virtual void advise_begin() = 0;
 
-    /// after any related changes end
+    /// after any related calls end
     virtual void advise_end() = 0;
 
     virtual void advise_new_app(ApplicationInfo& application) = 0;
@@ -84,10 +84,9 @@ public:
     virtual void advise_raise(std::vector<Window> const& windows) = 0;
 /** @} */
 
-/** @name Changes to the applications or displays
- * \todo these are very course grained and should probably be replaced
+/** @name Changes to the displays
+ * \todo this is very course grained and should probably be replaced
  *  @{ */
-    virtual void handle_app_info_updated(Rectangles const& displays) = 0;
     virtual void handle_displays_updated(Rectangles const& displays) = 0;
 /** @} */
 

@@ -35,10 +35,6 @@ KioskWindowManagerPolicy::KioskWindowManagerPolicy(WindowManagerTools* const too
 {
 }
 
-void KioskWindowManagerPolicy::handle_app_info_updated(Rectangles const& /*displays*/)
-{
-}
-
 void KioskWindowManagerPolicy::handle_displays_updated(Rectangles const& /*displays*/)
 {
 }

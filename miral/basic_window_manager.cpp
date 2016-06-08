@@ -89,7 +89,6 @@ void miral::BasicWindowManager::add_session(std::shared_ptr<scene::Session> cons
 {
     Locker lock{mutex, policy};
     policy->advise_new_app(app_info[session] = ApplicationInfo(session));
-    policy->handle_app_info_updated(displays);
 }
 
 void miral::BasicWindowManager::remove_session(std::shared_ptr<scene::Session> const& session)
@@ -97,7 +96,6 @@ void miral::BasicWindowManager::remove_session(std::shared_ptr<scene::Session> c
     Locker lock{mutex, policy};
     policy->advise_delete_app(app_info[session]);
     app_info.erase(session);
-    policy->handle_app_info_updated(displays);
 }
 
 auto miral::BasicWindowManager::add_surface(

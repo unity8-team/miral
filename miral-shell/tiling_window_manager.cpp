@@ -60,10 +60,6 @@ void TilingWindowManagerPolicy::click(Point cursor)
     tools->select_active_window(window);
 }
 
-void TilingWindowManagerPolicy::handle_app_info_updated(Rectangles const& /*displays*/)
-{
-}
-
 void TilingWindowManagerPolicy::handle_displays_updated(Rectangles const& displays)
 {
     this->displays = displays;
