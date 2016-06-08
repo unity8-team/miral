@@ -476,20 +476,22 @@ auto miral::BasicWindowManager::active_display()
 
 void miral::BasicWindowManager::raise_tree(Window const& root)
 {
-    SurfaceSet windows;
-    std::function<void(std::weak_ptr<scene::Surface> const& surface)> const add_children =
-        [&,this](std::weak_ptr<scene::Surface> const& surface)
+    std::vector<Window> windows;
+
+    std::function<void(WindowInfo const& info)> const add_children =
+        [&,this](WindowInfo const& info)
             {
-            auto const& info = info_for(surface);
-            windows.insert(begin(info.children()), end(info.children()));
-            for (auto const& child : info.children())
-                add_children(child);
+                for (auto const& child : info.children())
+                {
+                    windows.push_back(child);
+                    add_children(info_for(child));
+                }
             };
 
-    windows.insert(root);
-    add_children(root);
+    windows.push_back(root);
+    add_children(info_for(root));
 
-    focus_controller->raise(windows);
+    focus_controller->raise({begin(windows), end(windows)});
 }
 
 void miral::BasicWindowManager::move_tree(miral::WindowInfo& root, mir::geometry::Displacement movement)
