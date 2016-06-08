@@ -36,10 +36,10 @@ class WindowManagementPolicy
 {
 public:
     /// before any related calls begin
-    virtual void advise_begin() = 0;
+    virtual void advise_begin();
 
     /// after any related calls end
-    virtual void advise_end() = 0;
+    virtual void advise_end();
 
 /** @name Customize initial window placement
  *  @{ */
@@ -70,18 +70,18 @@ public:
  * no notification is generated.
  *  @{ */
 
-    virtual void advise_new_app(ApplicationInfo& application) = 0;
-    virtual void advise_delete_app(ApplicationInfo const& application) = 0;
-    virtual void advise_new_window(WindowInfo& window_info) = 0;
-    virtual void advise_focus_lost(WindowInfo const& info) = 0;
-    virtual void advise_focus_gained(WindowInfo const& info) = 0;
-    virtual void advise_state_change(WindowInfo const& window_info, MirSurfaceState state) = 0;
-    virtual void advise_move_to(WindowInfo const& window_info, Point top_left) = 0;
-    virtual void advise_resize(WindowInfo const& window_info, Size const& new_size) = 0;
-    virtual void advise_delete_window(WindowInfo const& window_info) = 0;
+    virtual void advise_new_app(ApplicationInfo& application);
+    virtual void advise_delete_app(ApplicationInfo const& application);
+    virtual void advise_new_window(WindowInfo& window_info);
+    virtual void advise_focus_lost(WindowInfo const& info);
+    virtual void advise_focus_gained(WindowInfo const& info);
+    virtual void advise_state_change(WindowInfo const& window_info, MirSurfaceState state);
+    virtual void advise_move_to(WindowInfo const& window_info, Point top_left);
+    virtual void advise_resize(WindowInfo const& window_info, Size const& new_size);
+    virtual void advise_delete_window(WindowInfo const& window_info);
 
     /// \note ordering isn't significant - the existing Z-order will be maintained
-    virtual void advise_raise(std::vector<Window> const& windows) = 0;
+    virtual void advise_raise(std::vector<Window> const& windows);
 /** @} */
 
 /** @name Changes to the displays

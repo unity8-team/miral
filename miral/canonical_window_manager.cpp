@@ -61,10 +61,6 @@ auto miral::CanonicalWindowManagerPolicy::place_new_surface(
     return request_parameters;
 }
 
-void miral::CanonicalWindowManagerPolicy::advise_new_window(WindowInfo& /*window_info*/)
-{
-}
-
 void miral::CanonicalWindowManagerPolicy::handle_window_ready(WindowInfo& window_info)
 {
     tools->select_active_window(window_info.window());
@@ -75,10 +71,6 @@ void miral::CanonicalWindowManagerPolicy::handle_modify_window(
     WindowSpecification const& modifications)
 {
     tools->modify_window(window_info, modifications);
-}
-
-void miral::CanonicalWindowManagerPolicy::advise_delete_window(WindowInfo const& /*window_info*/)
-{
 }
 
 void miral::CanonicalWindowManagerPolicy::drag(Point cursor)
@@ -314,10 +306,6 @@ void miral::CanonicalWindowManagerPolicy::advise_focus_gained(WindowInfo const& 
     tools->raise_tree(info.window());
 }
 
-void miral::CanonicalWindowManagerPolicy::advise_focus_lost(WindowInfo const& /*info*/)
-{
-}
-
 bool miral::CanonicalWindowManagerPolicy::resize(Window const& window, Point cursor, Point old_cursor)
 {
     if (!window)
@@ -380,36 +368,4 @@ bool miral::CanonicalWindowManagerPolicy::resize(Window const& window, Point cur
     tools->place_and_size(window_info, new_pos, new_size);
 
     return true;
-}
-
-void miral::CanonicalWindowManagerPolicy::advise_state_change(WindowInfo const& /*window_info*/, MirSurfaceState /*state*/)
-{
-}
-
-void miral::CanonicalWindowManagerPolicy::advise_resize(WindowInfo const& /*window_info*/, Size const& /*new_size*/)
-{
-}
-
-void miral::CanonicalWindowManagerPolicy::advise_new_app(ApplicationInfo& /*application*/)
-{
-}
-
-void miral::CanonicalWindowManagerPolicy::advise_delete_app(ApplicationInfo const& /*application*/)
-{
-}
-
-void miral::CanonicalWindowManagerPolicy::advise_raise(std::vector<miral::Window> const& /*windows*/)
-{
-}
-
-void miral::CanonicalWindowManagerPolicy::advise_move_to(miral::WindowInfo const& /*window_info*/, Point /*top_left*/)
-{
-}
-
-void miral::CanonicalWindowManagerPolicy::advise_begin()
-{
-}
-
-void miral::CanonicalWindowManagerPolicy::advise_end()
-{
 }
