@@ -60,14 +60,14 @@ void TilingWindowManagerPolicy::click(Point cursor)
     tools->select_active_window(window);
 }
 
-void TilingWindowManagerPolicy::handle_app_info_updated(Rectangles const& displays)
+void TilingWindowManagerPolicy::handle_app_info_updated(Rectangles const& /*displays*/)
 {
-    update_tiles(displays);
 }
 
 void TilingWindowManagerPolicy::handle_displays_updated(Rectangles const& displays)
 {
-    update_tiles(displays);
+    this->displays = displays;
+    dirty_tiles = true;
 }
 
 void TilingWindowManagerPolicy::resize(Point cursor)
@@ -564,10 +564,12 @@ void TilingWindowManagerPolicy::advise_resize(WindowInfo const& /*window_info*/,
 void TilingWindowManagerPolicy::advise_new_app(miral::ApplicationInfo& application)
 {
     application.userdata(std::make_shared<TilingWindowManagerPolicyData>());
+    dirty_tiles = true;
 }
 
 void TilingWindowManagerPolicy::advise_delete_app(miral::ApplicationInfo const& /*application*/)
 {
+    dirty_tiles = true;
 }
 
 void TilingWindowManagerPolicy::advise_raise(std::vector<miral::Window> const& /*windows*/)
@@ -584,4 +586,8 @@ void TilingWindowManagerPolicy::advise_begin()
 
 void TilingWindowManagerPolicy::advise_end()
 {
+    if (dirty_tiles)
+        update_tiles(displays);
+
+    dirty_tiles = false;
 }

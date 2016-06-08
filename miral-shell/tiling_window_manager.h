@@ -97,6 +97,8 @@ private:
     miral::WindowManagerTools* const tools;
 
     Point old_cursor{};
+    Rectangles displays;
+    bool dirty_tiles = false;
 };
 
 #endif /* MIRAL_SHELL_TILING_WINDOW_MANAGER_H */
