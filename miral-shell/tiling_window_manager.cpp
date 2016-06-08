@@ -577,3 +577,11 @@ void TilingWindowManagerPolicy::advise_raise(std::vector<miral::Window> const& /
 void TilingWindowManagerPolicy::advise_move_to(miral::WindowInfo const& /*window_info*/, Point /*top_left*/)
 {
 }
+
+void TilingWindowManagerPolicy::advise_begin()
+{
+}
+
+void TilingWindowManagerPolicy::advise_end()
+{
+}

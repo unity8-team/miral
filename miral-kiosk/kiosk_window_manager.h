@@ -55,6 +55,9 @@ public:
 
     void handle_raise_window(miral::WindowInfo& window_info) override;
 
+    void advise_begin() override;
+    void advise_end() override;
+
     void advise_focus_lost(miral::WindowInfo const& info) override;
 
     void advise_focus_gained(miral::WindowInfo const& info) override;

@@ -409,3 +409,11 @@ void miral::CanonicalWindowManagerPolicy::advise_raise(std::vector<miral::Window
 void miral::CanonicalWindowManagerPolicy::advise_move_to(miral::WindowInfo const& /*window_info*/, Point /*top_left*/)
 {
 }
+
+void miral::CanonicalWindowManagerPolicy::advise_begin()
+{
+}
+
+void miral::CanonicalWindowManagerPolicy::advise_end()
+{
+}
