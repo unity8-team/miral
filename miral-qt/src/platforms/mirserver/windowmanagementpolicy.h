@@ -59,6 +59,7 @@ public:
     void advise_state_change(const miral::WindowInfo &info, MirSurfaceState state) override;
     void advise_resize(const miral::WindowInfo &info, const Size &newSize) override;
     void advise_delete_window(const miral::WindowInfo &windowInfo) override;
+    void advise_raise(std::vector<miral::Window> const& windows) override;
 
     void handle_app_info_updated(const Rectangles &displays) override;
     void handle_displays_updated(const Rectangles &displays) override;

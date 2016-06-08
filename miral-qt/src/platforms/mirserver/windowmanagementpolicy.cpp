@@ -68,6 +68,11 @@ void WindowManagementPolicy::advise_delete_window(const miral::WindowInfo &/*win
 
 }
 
+void WindowManagementPolicy::advise_raise(std::vector<miral::Window> const& /*windows*/)
+{
+
+}
+
 bool WindowManagementPolicy::handle_keyboard_event(const MirKeyboardEvent *event)
 {
     m_eventFeeder->dispatchKey(event);
