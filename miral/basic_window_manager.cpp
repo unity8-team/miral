@@ -497,7 +497,10 @@ void miral::BasicWindowManager::raise_tree(Window const& root)
 
 void miral::BasicWindowManager::move_tree(miral::WindowInfo& root, mir::geometry::Displacement movement)
 {
-    root.window().move_to(root.window().top_left() + movement);
+    auto const top_left = root.window().top_left() + movement;
+
+    policy->advise_move_to(root, top_left);
+    root.window().move_to(top_left);
 
     for (auto const& child: root.children())
         move_tree(info_for(child), movement);
