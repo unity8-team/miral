@@ -69,7 +69,6 @@ public:
  * \note if the policy updates a Window object directly (as opposed to using tools)
  * no notification is generated.
  *  @{ */
-
     virtual void advise_new_app(ApplicationInfo& application) = 0;
     virtual void advise_delete_app(ApplicationInfo const& application) = 0;
     virtual void advise_new_window(WindowInfo& window_info) = 0;
