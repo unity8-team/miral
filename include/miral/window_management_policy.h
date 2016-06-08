@@ -35,6 +35,12 @@ using namespace mir::geometry;
 class WindowManagementPolicy
 {
 public:
+    /// before any related calls begin
+    virtual void advise_begin() = 0;
+
+    /// after any related calls end
+    virtual void advise_end() = 0;
+
 /** @name Customize initial window placement
  *  @{ */
     virtual auto place_new_surface(
@@ -63,12 +69,6 @@ public:
  * \note if the policy updates a Window object directly (as opposed to using tools)
  * no notification is generated.
  *  @{ */
-
-    /// before any related calls begin
-    virtual void advise_begin() = 0;
-
-    /// after any related calls end
-    virtual void advise_end() = 0;
 
     virtual void advise_new_app(ApplicationInfo& application) = 0;
     virtual void advise_delete_app(ApplicationInfo const& application) = 0;
