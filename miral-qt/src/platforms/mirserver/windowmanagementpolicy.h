@@ -17,7 +17,7 @@
 #ifndef WINDOWMANAGEMENTPOLICY_H
 #define WINDOWMANAGEMENTPOLICY_H
 
-#include "miral/window_management_policy.h"
+#include "miral/canonical_window_manager.h"
 
 #include "qteventfeeder.h"
 
@@ -29,10 +29,10 @@ using namespace mir::geometry;
 
 class ScreensModel;
 
-class WindowManagementPolicy : public QObject, public miral::WindowManagementPolicy
+class WindowManagementPolicy : public QObject, public miral::CanonicalWindowManagerPolicy
 {
 public:
-    WindowManagementPolicy(const miral::WindowManagerTools *tools,
+    WindowManagementPolicy(miral::WindowManagerTools * const tools,
                            const QSharedPointer<ScreensModel> screensModel);
 
 
@@ -66,7 +66,7 @@ public:
 Q_SIGNALS:
 
 private:
-    const miral::WindowManagerTools *m_tools;
+    const miral::WindowManagerTools * const m_tools;
     const QScopedPointer<QtEventFeeder> m_eventFeeder;
 };
 
