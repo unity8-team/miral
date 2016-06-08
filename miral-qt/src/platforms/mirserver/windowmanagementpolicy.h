@@ -65,7 +65,6 @@ public:
     void advise_delete_window(const miral::WindowInfo &windowInfo) override;
     void advise_raise(std::vector<miral::Window> const& windows) override;
 
-    void handle_app_info_updated(const Rectangles &displays) override;
     void handle_displays_updated(const Rectangles &displays) override;
 
 Q_SIGNALS:

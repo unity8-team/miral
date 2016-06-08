@@ -46,7 +46,6 @@ public:
         miral::WindowSpecification const& request_parameters)
         -> miral::WindowSpecification override;
 
-    void handle_app_info_updated(Rectangles const& displays) override;
     void handle_displays_updated(Rectangles const& displays) override;
     void advise_new_window(miral::WindowInfo& window_info) override;
     void handle_window_ready(miral::WindowInfo& window_info) override;
@@ -97,6 +96,8 @@ private:
     miral::WindowManagerTools* const tools;
 
     Point old_cursor{};
+    Rectangles displays;
+    bool dirty_tiles = false;
 };
 
 #endif /* MIRAL_SHELL_TILING_WINDOW_MANAGER_H */

@@ -35,8 +35,6 @@ public:
         miral::WindowSpecification const& request_parameters)
         -> miral::WindowSpecification override;
 
-    void handle_app_info_updated(Rectangles const& displays) override;
-
     void handle_displays_updated(Rectangles const& displays) override;
 
     void advise_new_window(miral::WindowInfo& window_info) override;

@@ -41,10 +41,6 @@ void miral::CanonicalWindowManagerPolicy::click(Point cursor)
         tools->select_active_window(window);
 }
 
-void miral::CanonicalWindowManagerPolicy::handle_app_info_updated(Rectangles const& /*displays*/)
-{
-}
-
 void miral::CanonicalWindowManagerPolicy::handle_displays_updated(Rectangles const& /*displays*/)
 {
 }

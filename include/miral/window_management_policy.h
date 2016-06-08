@@ -35,6 +35,12 @@ using namespace mir::geometry;
 class WindowManagementPolicy
 {
 public:
+    /// before any related calls begin
+    virtual void advise_begin() = 0;
+
+    /// after any related calls end
+    virtual void advise_end() = 0;
+
 /** @name Customize initial window placement
  *  @{ */
     virtual auto place_new_surface(
@@ -64,12 +70,6 @@ public:
  * no notification is generated.
  *  @{ */
 
-    /// before any related changes begin
-    virtual void advise_begin() = 0;
-
-    /// after any related changes end
-    virtual void advise_end() = 0;
-
     virtual void advise_new_app(ApplicationInfo& application) = 0;
     virtual void advise_delete_app(ApplicationInfo const& application) = 0;
     virtual void advise_new_window(WindowInfo& window_info) = 0;
@@ -84,10 +84,9 @@ public:
     virtual void advise_raise(std::vector<Window> const& windows) = 0;
 /** @} */
 
-/** @name Changes to the applications or displays
- * \todo these are very course grained and should probably be replaced
+/** @name Changes to the displays
+ * \todo this is very course grained and should probably be replaced
  *  @{ */
-    virtual void handle_app_info_updated(Rectangles const& displays) = 0;
     virtual void handle_displays_updated(Rectangles const& displays) = 0;
 /** @} */
 

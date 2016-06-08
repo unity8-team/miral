@@ -25,13 +25,9 @@ WindowManagementPolicy::WindowManagementPolicy(const miral::WindowManagerTools *
     : m_tools(tools)
     , m_eventFeeder(new QtEventFeeder(screensModel))
 {
-}
-
-
-void WindowManagementPolicy::handle_app_info_updated(const Rectangles &/*displays*/)
-{
     Q_UNUSED(m_tools); // REMOVEME once m_tools is used (keep clang happy)
 }
+
 
 void WindowManagementPolicy::handle_displays_updated(const Rectangles &/*displays*/)
 {
