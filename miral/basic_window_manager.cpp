@@ -895,12 +895,9 @@ auto miral::BasicWindowManager::can_activate_window_for_session(miral::Applicati
     return new_focus;
 }
 
-auto miral::BasicWindowManager::place_new_surface(
-    ApplicationInfo const& app_info,
-    WindowSpecification const& request_parameters)
+auto miral::BasicWindowManager::place_new_surface(ApplicationInfo const& app_info, WindowSpecification parameters)
 -> WindowSpecification
 {
-    auto parameters = request_parameters;
     auto surf_type = parameters.type().is_set() ? parameters.type().value() : mir_surface_type_normal;
     bool const needs_titlebar = WindowInfo::needs_titlebar(surf_type);
 
