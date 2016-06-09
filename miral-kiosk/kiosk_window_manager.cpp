@@ -18,9 +18,9 @@
 
 #include "kiosk_window_manager.h"
 
-#include "miral/application_info.h"
-#include "miral/window_info.h"
-#include "miral/window_manager_tools.h"
+#include <miral/application_info.h>
+#include <miral/window_info.h>
+#include <miral/window_manager_tools.h>
 
 #include <linux/input.h>
 
