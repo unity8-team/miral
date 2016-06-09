@@ -21,7 +21,7 @@
 
 #include "sw_splash.h"
 
-#include "miral/window_management_policy.h"
+#include <miral/window_management_policy.h>
 
 using namespace mir::geometry;
 

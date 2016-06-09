@@ -19,8 +19,8 @@
 #ifndef MIRAL_SHELL_TILING_WINDOW_MANAGER_H
 #define MIRAL_SHELL_TILING_WINDOW_MANAGER_H
 
-#include "miral/application.h"
-#include "miral/window_management_policy.h"
+#include <miral/application.h>
+#include <miral/window_management_policy.h>
 
 #include <mir/geometry/displacement.h>
 
