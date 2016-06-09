@@ -53,8 +53,6 @@ public:
     auto input_area_contains(mir::geometry::Point const& point) const -> bool;
     auto application()  const -> Application;
 
-    void configure_streams(std::vector<StreamSpecification> const& config);
-
     // Indicates that the Window isn't null
     operator bool() const;
 
