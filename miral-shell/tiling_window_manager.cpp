@@ -163,10 +163,6 @@ void TilingWindowManagerPolicy::handle_modify_window(
     tools->modify_window(window_info, mods);
 }
 
-void TilingWindowManagerPolicy::advise_delete_window(WindowInfo const& /*window_info*/)
-{
-}
-
 auto TilingWindowManagerPolicy::transform_set_state(WindowInfo& window_info, MirSurfaceState value)
 -> MirSurfaceState
 {
@@ -576,18 +572,6 @@ void TilingWindowManagerPolicy::advise_focus_gained(WindowInfo const& info)
     }
 }
 
-void TilingWindowManagerPolicy::advise_focus_lost(WindowInfo const& /*info*/)
-{
-}
-
-void TilingWindowManagerPolicy::advise_state_change(WindowInfo const& /*window_info*/, MirSurfaceState /*state*/)
-{
-}
-
-void TilingWindowManagerPolicy::advise_resize(WindowInfo const& /*window_info*/, Size const& /*new_size*/)
-{
-}
-
 void TilingWindowManagerPolicy::advise_new_app(miral::ApplicationInfo& application)
 {
     if (spinner.session() == application.application())
@@ -604,19 +588,6 @@ void TilingWindowManagerPolicy::advise_delete_app(miral::ApplicationInfo const& 
 
     dirty_tiles = true;
 }
-
-void TilingWindowManagerPolicy::advise_raise(std::vector<miral::Window> const& /*windows*/)
-{
-}
-
-void TilingWindowManagerPolicy::advise_move_to(miral::WindowInfo const& /*window_info*/, Point /*top_left*/)
-{
-}
-
-void TilingWindowManagerPolicy::advise_begin()
-{
-}
-
 void TilingWindowManagerPolicy::advise_end()
 {
     if (dirty_tiles)
