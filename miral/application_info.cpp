@@ -52,6 +52,11 @@ auto miral::ApplicationInfo::operator=(ApplicationInfo const& that) -> Applicati
     return *this;
 }
 
+auto miral::ApplicationInfo::application() const -> Application
+{
+    return self->app;
+}
+
 auto miral::ApplicationInfo::windows() const -> std::vector <Window>&
 {
     return self->windows;
