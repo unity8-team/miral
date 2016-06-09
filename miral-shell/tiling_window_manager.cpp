@@ -18,9 +18,9 @@
 
 #include "tiling_window_manager.h"
 
-#include "miral/application_info.h"
-#include "miral/window_info.h"
-#include "miral/window_manager_tools.h"
+#include <miral/application_info.h>
+#include <miral/window_info.h>
+#include <miral/window_manager_tools.h>
 
 #include <linux/input.h>
 #include <algorithm>
@@ -49,8 +49,9 @@ inline Rectangle const& tile_for(miral::ApplicationInfo const& app_info)
 
 // Demonstrate implementing a simple tiling algorithm
 
-TilingWindowManagerPolicy::TilingWindowManagerPolicy(WindowManagerTools* const tools) :
-    tools{tools}
+TilingWindowManagerPolicy::TilingWindowManagerPolicy(WindowManagerTools* const tools, SpinnerSplash const& spinner) :
+    tools{tools},
+    spinner{spinner}
 {
 }
 
@@ -87,20 +88,36 @@ auto TilingWindowManagerPolicy::place_new_surface(
 {
     auto parameters = request_parameters;
 
-    Rectangle const& tile = tile_for(app_info);
-
-    if (!parameters.parent().is_set() || !parameters.parent().value().lock())
+    if (app_info.application() != spinner.session())
     {
-        parameters.top_left() = tile.top_left;
-//        parameters.size() = tile.size;
+        Rectangle const& tile = tile_for(app_info);
+
+        if (!parameters.parent().is_set() || !parameters.parent().value().lock())
+        {
+            if (app_info.windows().empty())
+            {
+                parameters.top_left() = tile.top_left;
+                parameters.size() = tile.size;
+            }
+            else
+            {
+                auto top_level_windows = count_if(begin(app_info.windows()), end(app_info.windows()), [this]
+                    (Window const& window){ return !tools->info_for(window).parent(); });
+
+                parameters.top_left() = tile.top_left + top_level_windows*Displacement{15, 15};
+            }
+        }
+
+        clip_to_tile(parameters, tile);
     }
 
-    clip_to_tile(parameters, tile);
     return parameters;
 }
 
-void TilingWindowManagerPolicy::advise_new_window(WindowInfo& /*window_info*/)
+void TilingWindowManagerPolicy::advise_new_window(WindowInfo& window_info)
 {
+    if (spinner.session() == window_info.window().application())
+        dirty_tiles = true;
 }
 
 void TilingWindowManagerPolicy::handle_window_ready(WindowInfo& window_info)
@@ -394,12 +411,15 @@ void TilingWindowManagerPolicy::toggle(MirSurfaceState state)
 auto TilingWindowManagerPolicy::application_under(Point position)
 -> Application
 {
-    return tools->find_application([&](ApplicationInfo const& info) { return tile_for(info).contains(position);});
+    return tools->find_application([&, this](ApplicationInfo const& info)
+        { return spinner.session() != info.application() && tile_for(info).contains(position);});
 }
 
 void TilingWindowManagerPolicy::update_tiles(Rectangles const& displays)
 {
-    auto const applications = tools->count_applications();
+    auto applications = tools->count_applications();
+
+    if (spinner.session()) --applications;
 
     if (applications < 1 || displays.size() < 1) return;
 
@@ -412,6 +432,9 @@ void TilingWindowManagerPolicy::update_tiles(Rectangles const& displays)
 
     tools->for_each_application([&](ApplicationInfo& info)
         {
+            if (spinner.session() == info.application())
+                return;
+
             auto& tile = tile_for(info);
 
             auto const x = (total_width * index) / applications;
@@ -539,16 +562,30 @@ void TilingWindowManagerPolicy::resize(Window window, Point cursor, Point old_cu
 void TilingWindowManagerPolicy::advise_focus_gained(WindowInfo const& info)
 {
     tools->raise_tree(info.window());
+
+    if (auto const spinner_session = spinner.session())
+    {
+        auto const& spinner_info = tools->info_for(spinner_session);
+
+        if (spinner_info.windows().size() > 0)
+            tools->raise_tree(spinner_info.windows()[0]);
+    }
 }
 
 void TilingWindowManagerPolicy::advise_new_app(miral::ApplicationInfo& application)
 {
+    if (spinner.session() == application.application())
+        return;
+
     application.userdata(std::make_shared<TilingWindowManagerPolicyData>());
     dirty_tiles = true;
 }
 
-void TilingWindowManagerPolicy::advise_delete_app(miral::ApplicationInfo const& /*application*/)
+void TilingWindowManagerPolicy::advise_delete_app(miral::ApplicationInfo const& application)
 {
+    if (spinner.session() == application.application())
+        return;
+
     dirty_tiles = true;
 }
 void TilingWindowManagerPolicy::advise_end()

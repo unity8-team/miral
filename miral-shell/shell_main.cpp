@@ -39,7 +39,7 @@ int main(int argc, char const* argv[])
                 {
                     add_window_manager_policy<TitlebarWindowManagerPolicy>("titlebar", spinner),
                     add_window_manager_policy<CanonicalWindowManagerPolicy>("canonical"),
-                    add_window_manager_policy<TilingWindowManagerPolicy>("tiling"),
+                    add_window_manager_policy<TilingWindowManagerPolicy>("tiling", spinner),
                 },
             display_configuration_options,
             QuitOnCtrlAltBkSp{},

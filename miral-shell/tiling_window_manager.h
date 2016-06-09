@@ -19,8 +19,10 @@
 #ifndef MIRAL_SHELL_TILING_WINDOW_MANAGER_H
 #define MIRAL_SHELL_TILING_WINDOW_MANAGER_H
 
-#include "miral/application.h"
-#include "miral/window_management_policy.h"
+#include "spinner/splash.h"
+
+#include <miral/application.h>
+#include <miral/window_management_policy.h>
 
 #include <mir/geometry/displacement.h>
 
@@ -39,7 +41,7 @@ using namespace mir::geometry;
 class TilingWindowManagerPolicy : public miral::WindowManagementPolicy
 {
 public:
-    explicit TilingWindowManagerPolicy(miral::WindowManagerTools* const tools);
+    explicit TilingWindowManagerPolicy(miral::WindowManagerTools* const tools, SpinnerSplash const& spinner);
 
     auto place_new_surface(
         miral::ApplicationInfo const& app_info,
@@ -86,6 +88,7 @@ private:
     static void constrained_move(miral::Window window, Displacement& movement, Rectangle const& bounds);
 
     miral::WindowManagerTools* const tools;
+    SpinnerSplash const spinner;
 
     Point old_cursor{};
     Rectangles displays;
