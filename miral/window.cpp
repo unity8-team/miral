@@ -20,8 +20,6 @@
 
 #include <mir/scene/session.h>
 #include <mir/scene/surface.h>
-#include <mir/scene/surface_creation_parameters.h>
-#include <mir/version.h>
 
 struct miral::Window::Self
 {
@@ -160,32 +158,6 @@ auto miral::Window::input_area_contains(mir::geometry::Point const& point) const
     }
 
     return false;
-}
-
-void miral::Window::configure_streams(std::vector<StreamSpecification> const& config)
-{
-    if (!self) return;
-    if (auto const surface = self->surface.lock())
-    {
-        std::vector<mir::shell::StreamSpecification> dest;
-        dest.reserve(config.size());
-
-#if MIR_SERVER_VERSION < MIR_VERSION_NUMBER(0, 22, 0)
-        for (auto const& stream : config)
-            dest.push_back(mir::shell::StreamSpecification{mir::frontend::BufferStreamId{stream.stream_id.as_value()}, stream.displacement});
-#else
-        for (auto const& stream : config)
-        {
-            dest.push_back(
-                mir::shell::StreamSpecification{
-                    mir::frontend::BufferStreamId{stream.stream_id.as_value()},
-                    stream.displacement,
-                    stream.size
-                });
-        }
-#endif
-        application()->configure_streams(*surface, dest);
-    }
 }
 
 bool miral::operator==(Window const& lhs, Window const& rhs)
