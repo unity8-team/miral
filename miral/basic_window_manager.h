@@ -166,9 +166,10 @@ private:
 
     auto can_activate_window_for_session(miral::Application const& session) -> bool;
 
-    auto place_new_surface(ApplicationInfo const& app_info, WindowSpecification const& request_parameters)
+    auto place_new_surface(ApplicationInfo const& app_info, WindowSpecification parameters)
         -> WindowSpecification;
     void move_tree(miral::WindowInfo& root, mir::geometry::Displacement movement);
+    void erase(miral::WindowInfo const& info);
 };
 }
 

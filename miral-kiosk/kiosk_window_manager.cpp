@@ -101,10 +101,6 @@ void KioskWindowManagerPolicy::handle_modify_window(
     tools->modify_window(window_info, mods);
 }
 
-void KioskWindowManagerPolicy::advise_delete_window(WindowInfo const& /*window_info*/)
-{
-}
-
 void KioskWindowManagerPolicy::handle_raise_window(WindowInfo& window_info)
 {
     tools->select_active_window(window_info.window());

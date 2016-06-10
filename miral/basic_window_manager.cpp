@@ -158,10 +158,9 @@ void miral::BasicWindowManager::remove_surface(
     Locker lock{mutex, policy};
     auto& info = info_for(surface);
 
-    bool const is_active_window{mru_active_windows.top() == info.window()};
+    policy->advise_delete_window(info);
 
-    if (auto const parent = info.parent())
-        info_for(parent).remove_child(info.window());
+    bool const is_active_window{mru_active_windows.top() == info.window()};
 
     auto& session_info = info_for(session);
 
@@ -169,14 +168,11 @@ void miral::BasicWindowManager::remove_surface(
     mru_active_windows.erase(info.window());
     fullscreen_surfaces.erase(info.window());
 
-    policy->advise_delete_window(info);
-
     session->destroy_surface(surface);
 
+    // NB erase() invalidates info, but we want to keep access to "parent".
     auto const parent = info.parent();
-
-    // NB this invalidates info, but we want to keep access to "parent".
-    window_info.erase(surface);
+    erase(info);
 
     if (is_active_window)
     {
@@ -208,8 +204,20 @@ void miral::BasicWindowManager::remove_surface(
 
 void miral::BasicWindowManager::destroy(Window& window)
 {
+    erase(info_for(window));
+
     window.application()->destroy_surface(window);
-    window_info.erase(window);
+}
+
+void miral::BasicWindowManager::erase(miral::WindowInfo const& info)
+{
+    if (auto const parent = info.parent())
+        info_for(parent).remove_child(info.window());
+
+    for (auto& child : info.children())
+        info_for(child).parent({});
+
+    window_info.erase(info.window());
 }
 
 void miral::BasicWindowManager::add_display(geometry::Rectangle const& area)
@@ -895,12 +903,9 @@ auto miral::BasicWindowManager::can_activate_window_for_session(miral::Applicati
     return new_focus;
 }
 
-auto miral::BasicWindowManager::place_new_surface(
-    ApplicationInfo const& app_info,
-    WindowSpecification const& request_parameters)
+auto miral::BasicWindowManager::place_new_surface(ApplicationInfo const& app_info, WindowSpecification parameters)
 -> WindowSpecification
 {
-    auto parameters = request_parameters;
     auto surf_type = parameters.type().is_set() ? parameters.type().value() : mir_surface_type_normal;
     bool const needs_titlebar = WindowInfo::needs_titlebar(surf_type);
 
