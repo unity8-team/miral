@@ -49,9 +49,6 @@ additions to libmiral to expose additional Mir functionality.
    startup. Ideally this should remain visible until a client is launched,
    fade out over the top of the client and resume when the last client exits.
 
- - Launching internal clients. Currently a short animation is played on
-   startup. Shells ought to be able to launch internal clients at any time.
-   
  - launching external clients. There's currently an option to launch e.g. the
    gnome-terminal at startup. This would be better with Ctrl-Alt-T. But note, 
    forking from a running server (with multiple threads and owning system
