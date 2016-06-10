@@ -33,41 +33,11 @@ namespace
 {
 int const title_bar_height = 10;
 
-using SurfaceInfoMap = std::map<std::weak_ptr<mir::scene::Surface>, miral::WindowInfo, std::owner_less<std::weak_ptr<mir::scene::Surface>>>;
-
-#ifdef MIRAL_BASIC_WINDOW_MANAGER_DEBUG
-void validate(SurfaceInfoMap const& window_info)
-{
-    for (auto const& entry : window_info)
-    {
-        if (auto const& parent = entry.second.parent())
-        {
-            auto const found = window_info.find(parent);
-            if (found == window_info.end())
-            {
-                abort();
-            }
-
-            for (auto& child : entry.second.children())
-            {
-                auto const found = window_info.find(child);
-                if (found == window_info.end())
-                {
-                    abort();
-                }
-            }
-        }
-    }
-}
-#endif
-
 struct Locker
 {
-    Locker(std::mutex& mutex, std::unique_ptr<miral::WindowManagementPolicy> const& policy,
-           SurfaceInfoMap const& window_info) :
+    Locker(std::mutex& mutex, std::unique_ptr<miral::WindowManagementPolicy> const& policy) :
         lock{mutex},
-        policy{policy.get()},
-        window_info{window_info}
+        policy{policy.get()}
     {
         policy->advise_begin();
     }
@@ -75,15 +45,10 @@ struct Locker
     ~Locker()
     {
         policy->advise_end();
-
-#ifdef MIRAL_BASIC_WINDOW_MANAGER_DEBUG
-        validate(window_info);
-#endif
     }
 
     std::lock_guard<std::mutex> const lock;
     miral::WindowManagementPolicy* const policy;
-    SurfaceInfoMap const& window_info;
 };
 }
 
@@ -122,13 +87,13 @@ auto miral::BasicWindowManager::build_window(Application const& application, Win
 
 void miral::BasicWindowManager::add_session(std::shared_ptr<scene::Session> const& session)
 {
-    Locker lock{mutex, policy, window_info};
+    Locker lock{mutex, policy};
     policy->advise_new_app(app_info[session] = ApplicationInfo(session));
 }
 
 void miral::BasicWindowManager::remove_session(std::shared_ptr<scene::Session> const& session)
 {
-    Locker lock{mutex, policy, window_info};
+    Locker lock{mutex, policy};
     policy->advise_delete_app(app_info[session]);
     app_info.erase(session);
 }
@@ -139,7 +104,7 @@ auto miral::BasicWindowManager::add_surface(
     std::function<frontend::SurfaceId(std::shared_ptr<scene::Session> const& session, scene::SurfaceCreationParameters const& params)> const& build)
 -> frontend::SurfaceId
 {
-    Locker lock{mutex, policy, window_info};
+    Locker lock{mutex, policy};
     surface_builder = [build](std::shared_ptr<scene::Session> const& session, WindowSpecification const& params)
         {
             scene::SurfaceCreationParameters parameters;
@@ -182,7 +147,7 @@ void miral::BasicWindowManager::modify_surface(
     std::shared_ptr<scene::Surface> const& surface,
     shell::SurfaceSpecification const& modifications)
 {
-    Locker lock{mutex, policy, window_info};
+    Locker lock{mutex, policy};
     policy->handle_modify_window(info_for(surface), modifications);
 }
 
@@ -190,8 +155,7 @@ void miral::BasicWindowManager::remove_surface(
     std::shared_ptr<scene::Session> const& session,
     std::weak_ptr<scene::Surface> const& surface)
 {
-    Locker lock{mutex, policy, window_info};
-
+    Locker lock{mutex, policy};
     auto& info = info_for(surface);
 
     policy->advise_delete_window(info);
@@ -240,9 +204,7 @@ void miral::BasicWindowManager::remove_surface(
 
 void miral::BasicWindowManager::destroy(Window& window)
 {
-    auto& info = info_for(window);
-
-    erase(info);
+    erase(info_for(window));
 
     window.application()->destroy_surface(window);
 }
@@ -260,7 +222,7 @@ void miral::BasicWindowManager::erase(miral::WindowInfo const& info)
 
 void miral::BasicWindowManager::add_display(geometry::Rectangle const& area)
 {
-    Locker lock{mutex, policy, window_info};
+    Locker lock{mutex, policy};
     displays.add(area);
 
     for (auto window : fullscreen_surfaces)
@@ -281,7 +243,7 @@ void miral::BasicWindowManager::add_display(geometry::Rectangle const& area)
 
 void miral::BasicWindowManager::remove_display(geometry::Rectangle const& area)
 {
-    Locker lock{mutex, policy, window_info};
+    Locker lock{mutex, policy};
     displays.remove(area);
     for (auto window : fullscreen_surfaces)
     {
@@ -301,21 +263,21 @@ void miral::BasicWindowManager::remove_display(geometry::Rectangle const& area)
 
 bool miral::BasicWindowManager::handle_keyboard_event(MirKeyboardEvent const* event)
 {
-    Locker lock{mutex, policy, window_info};
+    Locker lock{mutex, policy};
     update_event_timestamp(event);
     return policy->handle_keyboard_event(event);
 }
 
 bool miral::BasicWindowManager::handle_touch_event(MirTouchEvent const* event)
 {
-    Locker lock{mutex, policy, window_info};
+    Locker lock{mutex, policy};
     update_event_timestamp(event);
     return policy->handle_touch_event(event);
 }
 
 bool miral::BasicWindowManager::handle_pointer_event(MirPointerEvent const* event)
 {
-    Locker lock{mutex, policy, window_info};
+    Locker lock{mutex, policy};
     update_event_timestamp(event);
 
     cursor = {
@@ -330,7 +292,7 @@ void miral::BasicWindowManager::handle_raise_surface(
     std::shared_ptr<scene::Surface> const& surface,
     uint64_t timestamp)
 {
-    Locker lock{mutex, policy, window_info};
+    Locker lock{mutex, policy};
     if (timestamp >= last_input_event_timestamp)
         policy->handle_raise_window(info_for(surface));
 }
@@ -371,7 +333,7 @@ int miral::BasicWindowManager::set_surface_attribute(
         return surface->configure(attrib, value);
     }
 
-    Locker lock{mutex, policy, window_info};
+    Locker lock{mutex, policy};
     auto& info = info_for(surface);
     policy->handle_modify_window(info, modification);
 
@@ -845,7 +807,7 @@ void miral::BasicWindowManager::update_event_timestamp(MirTouchEvent const* tev)
 
 void miral::BasicWindowManager::invoke_under_lock(std::function<void()> const& callback)
 {
-    Locker lock{mutex, policy, window_info};
+    Locker lock{mutex, policy};
     callback();
 }
 
