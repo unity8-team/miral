@@ -158,10 +158,9 @@ void miral::BasicWindowManager::remove_surface(
     Locker lock{mutex, policy};
     auto& info = info_for(surface);
 
-    bool const is_active_window{mru_active_windows.top() == info.window()};
+    policy->advise_delete_window(info);
 
-    if (auto const parent = info.parent())
-        info_for(parent).remove_child(info.window());
+    bool const is_active_window{mru_active_windows.top() == info.window()};
 
     auto& session_info = info_for(session);
 
@@ -169,11 +168,28 @@ void miral::BasicWindowManager::remove_surface(
     mru_active_windows.erase(info.window());
     fullscreen_surfaces.erase(info.window());
 
-    policy->advise_delete_window(info);
-
     session->destroy_surface(surface);
 
-    auto const parent = info.parent();
+    auto parent = info.parent();
+
+    {
+        auto const found = this->window_info.find(parent);
+        if (found != this->window_info.end())
+        {
+            found->second.remove_child(info.window());
+        }
+        else
+        {
+            // This looks odd, but during session shutdown we get multiple remove_surface() calls and
+            // we don't know which order windows are processed and the parent might have been deleted
+            parent = {};
+        }
+    }
+
+    for (auto& child : info.children())
+    {
+        info_for(child).parent() = {};
+    }
 
     // NB this invalidates info, but we want to keep access to "parent".
     window_info.erase(surface);
