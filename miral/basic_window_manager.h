@@ -169,6 +169,7 @@ private:
     auto place_new_surface(ApplicationInfo const& app_info, WindowSpecification parameters)
         -> WindowSpecification;
     void move_tree(miral::WindowInfo& root, mir::geometry::Displacement movement);
+    void erase(miral::WindowInfo const& info);
 };
 }
 
