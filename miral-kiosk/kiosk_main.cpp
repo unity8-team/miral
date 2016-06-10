@@ -21,7 +21,7 @@
 #include <miral/runner.h>
 #include <miral/application_authorizer.h>
 #include <miral/set_window_managment_policy.h>
-#include <miral/startup_internal_client.h>
+#include <miral/internal_client.h>
 
 #include <unistd.h>
 #include <cstdlib>

@@ -25,23 +25,26 @@
 #include <miral/runner.h>
 #include <miral/window_management_options.h>
 #include <miral/quit_on_ctrl_alt_bksp.h>
-#include <miral/startup_internal_client.h>
+#include <miral/internal_client.h>
 
 int main(int argc, char const* argv[])
 {
     using namespace miral;
 
     SpinnerSplash spinner;
+    InternalClientLauncher launcher;
+    WindowManagerOptions window_managers
+        {
+            add_window_manager_policy<TitlebarWindowManagerPolicy>("titlebar", spinner),
+            add_window_manager_policy<CanonicalWindowManagerPolicy>("canonical"),
+            add_window_manager_policy<TilingWindowManagerPolicy>("tiling", spinner, launcher),
+        };
 
     return MirRunner{argc, argv}.run_with(
         {
-            WindowManagerOptions
-                {
-                    add_window_manager_policy<TitlebarWindowManagerPolicy>("titlebar", spinner),
-                    add_window_manager_policy<CanonicalWindowManagerPolicy>("canonical"),
-                    add_window_manager_policy<TilingWindowManagerPolicy>("tiling", spinner),
-                },
+            window_managers,
             display_configuration_options,
+            launcher,
             QuitOnCtrlAltBkSp{},
             StartupInternalClient{"Intro", spinner}
         });

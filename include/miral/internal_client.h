@@ -16,8 +16,8 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#ifndef MIRAL_STARTUP_INTERNAL_CLIENT_H
-#define MIRAL_STARTUP_INTERNAL_CLIENT_H
+#ifndef MIRAL_INTERNAL_CLIENT_H
+#define MIRAL_INTERNAL_CLIENT_H
 
 #include <mir_toolkit/client_types.h>
 
@@ -56,6 +56,30 @@ private:
     class Self;
     std::shared_ptr<Self> internal_client;
 };
+
+class InternalClientLauncher
+{
+public:
+    InternalClientLauncher();
+    ~InternalClientLauncher();
+
+    void operator()(mir::Server& server);
+
+    void launch(
+        std::string const& name,
+        std::function<void(MirConnection* connection)> const& client_code,
+        std::function<void(std::weak_ptr<mir::scene::Session> const session)> const& connect_notification) const;
+
+    template <typename ClientObject>
+    void launch(std::string const& name, ClientObject const& client_object) const
+    {
+        launch(name, client_object, client_object);
+    }
+
+private:
+    struct Self;
+    std::shared_ptr<Self> self;
+};
 }
 
-#endif //MIRAL_STARTUP_INTERNAL_CLIENT_H
+#endif //MIRAL_INTERNAL_CLIENT_H
