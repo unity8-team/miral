@@ -170,16 +170,31 @@ void miral::BasicWindowManager::remove_surface(
 
     session->destroy_surface(surface);
 
-    auto const parent = info.parent();
+    auto parent = info.parent();
 
-    if (parent)
+    // This looks odd, but during session shutdown we get multiple remove_surface() calls and
+    // we don't know which order windows are processed and the parent might have been deleted
     {
-        info_for(parent).remove_child(info.window());
+        auto const found = window_info.find(parent);
+        if (found != window_info.end())
+        {
+            found->second.remove_child(info.window());
+        }
+        else
+        {
+            parent = {};
+        }
     }
 
+    // This looks odd, but during session shutdown we get multiple remove_surface() calls and
+    // we don't know which order windows are processed and the child might have been deleted
     for (auto& child : info.children())
     {
-        info_for(child).parent({});
+        auto const found = window_info.find(child);
+        if (found != window_info.end())
+        {
+            found->second.parent({});
+        }
     }
 
     // NB this invalidates info, but we want to keep access to "parent".
