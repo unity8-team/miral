@@ -49,9 +49,11 @@ inline Rectangle const& tile_for(miral::ApplicationInfo const& app_info)
 
 // Demonstrate implementing a simple tiling algorithm
 
-TilingWindowManagerPolicy::TilingWindowManagerPolicy(WindowManagerTools* const tools, SpinnerSplash const& spinner) :
+TilingWindowManagerPolicy::TilingWindowManagerPolicy(WindowManagerTools* const tools, SpinnerSplash const& spinner,
+                                                     miral::InternalClientLauncher const& launcher) :
     tools{tools},
-    spinner{spinner}
+    spinner{spinner},
+    launcher{launcher}
 {
 }
 
@@ -244,6 +246,13 @@ bool TilingWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* ev
     auto const action = mir_keyboard_event_action(event);
     auto const scan_code = mir_keyboard_event_scan_code(event);
     auto const modifiers = mir_keyboard_event_modifiers(event) & modifier_mask;
+
+    if (action == mir_keyboard_action_down && scan_code == KEY_F12 &&
+        (modifiers & modifier_mask) == mir_input_event_modifier_alt)
+    {
+        launcher.launch("Spinner", spinner);
+        return true;
+    }
 
     if (action == mir_keyboard_action_down && scan_code == KEY_F11)
     {

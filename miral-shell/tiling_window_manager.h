@@ -25,6 +25,7 @@
 #include <miral/window_management_policy.h>
 
 #include <mir/geometry/displacement.h>
+#include <miral/internal_client.h>
 
 using namespace mir::geometry;
 
@@ -41,7 +42,8 @@ using namespace mir::geometry;
 class TilingWindowManagerPolicy : public miral::WindowManagementPolicy
 {
 public:
-    explicit TilingWindowManagerPolicy(miral::WindowManagerTools* const tools, SpinnerSplash const& spinner);
+    explicit TilingWindowManagerPolicy(miral::WindowManagerTools* const tools, SpinnerSplash const& spinner,
+                                       miral::InternalClientLauncher const& launcher);
 
     auto place_new_surface(
         miral::ApplicationInfo const& app_info,
@@ -89,7 +91,7 @@ private:
 
     miral::WindowManagerTools* const tools;
     SpinnerSplash const spinner;
-
+    miral::InternalClientLauncher const launcher;
     Point old_cursor{};
     Rectangles displays;
     bool dirty_tiles = false;
