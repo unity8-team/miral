@@ -74,9 +74,7 @@ protected:
         mir_input_event_modifier_meta;
 
 private:
-    void drag(Point cursor);
-    void click(Point cursor);
-    bool resize(Point cursor);
+
     void toggle(MirSurfaceState state);
 
 
