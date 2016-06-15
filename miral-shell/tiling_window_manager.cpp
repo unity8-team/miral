@@ -279,6 +279,7 @@ bool TilingWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* ev
         switch (modifiers & modifier_mask)
         {
         case mir_input_event_modifier_alt:
+            if (tools->active_window().application() != spinner.session())
             tools->kill_active_application(SIGTERM);
 
             return true;
