@@ -23,12 +23,15 @@
 
 #include <miral/canonical_window_manager.h>
 
+namespace miral { class InternalClientLauncher; }
+
 using namespace mir::geometry;
 
 class TitlebarWindowManagerPolicy : public miral::CanonicalWindowManagerPolicy
 {
 public:
-    TitlebarWindowManagerPolicy(miral::WindowManagerTools* const tools, SpinnerSplash const& spinner);
+    TitlebarWindowManagerPolicy(miral::WindowManagerTools* const tools, SpinnerSplash const& spinner, miral::InternalClientLauncher const& launcher);
+    ~TitlebarWindowManagerPolicy();
 
     bool handle_pointer_event(MirPointerEvent const* event) override;
 
@@ -40,9 +43,13 @@ public:
     void advise_delete_window(miral::WindowInfo const& window_info) override;
 
     void handle_displays_updated(Rectangles const& displays) override;
+
 private:
     miral::WindowManagerTools* const tools;
     SpinnerSplash const spinner;
+
+    struct TitlebarProvider;
+    std::unique_ptr<TitlebarProvider> const titlebar_provider;
 
     Rectangle display_area;
     Point old_cursor{};

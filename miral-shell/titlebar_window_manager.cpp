@@ -20,8 +20,14 @@
 #include "titlebar/titlebar_user_data.h"
 
 #include <miral/application_info.h>
+#include <miral/internal_client.h>
 #include <miral/window_info.h>
 #include <miral/window_manager_tools.h>
+
+#include <linux/input.h>
+
+#include <mutex>
+#include <condition_variable>
 
 using namespace miral;
 
@@ -42,12 +48,61 @@ Point titlebar_position_for_window(Point window_position)
 }
 }
 
-TitlebarWindowManagerPolicy::TitlebarWindowManagerPolicy(WindowManagerTools* const tools, SpinnerSplash const& spinner) :
+struct TitlebarWindowManagerPolicy::TitlebarProvider
+{
+    ~TitlebarProvider()
+    {
+        notify_done();
+    }
+
+    void operator()(MirConnection* connection)
+    {
+        std::unique_lock<decltype(mutex)> lock{mutex};
+        this->connection = connection;
+        cv.wait(lock, [this] { return done; });
+    }
+
+    void operator()(std::weak_ptr<mir::scene::Session> const& session)
+    {
+        std::unique_lock<decltype(mutex)> lock{mutex};
+        this->weak_session = session;
+    }
+
+    auto session() const -> std::shared_ptr<mir::scene::Session>
+    {
+        std::unique_lock<decltype(mutex)> lock{mutex};
+        return weak_session.lock();
+    }
+
+    void notify_done()
+    {
+        std::unique_lock<decltype(mutex)> lock{mutex};
+        done = true;
+        cv.notify_one();
+    }
+
+private:
+    std::mutex mutable mutex;
+    MirConnection* connection = nullptr;
+    std::weak_ptr<mir::scene::Session> weak_session;
+
+    std::condition_variable cv;
+    bool done = false;
+};
+
+TitlebarWindowManagerPolicy::TitlebarWindowManagerPolicy(
+    WindowManagerTools* const tools,
+    SpinnerSplash const& spinner,
+    miral::InternalClientLauncher const& launcher) :
     CanonicalWindowManagerPolicy(tools),
     tools(tools),
-    spinner{spinner}
+    spinner{spinner},
+    titlebar_provider{std::make_unique<TitlebarProvider>()}
 {
+    launcher.launch("decorations", *titlebar_provider);
 }
+
+TitlebarWindowManagerPolicy::~TitlebarWindowManagerPolicy() = default;
 
 bool TitlebarWindowManagerPolicy::handle_pointer_event(MirPointerEvent const* event)
 {
