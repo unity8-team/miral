@@ -90,7 +90,7 @@ private:
     static void constrained_move(miral::Window window, Displacement& movement, Rectangle const& bounds);
 
     miral::WindowManagerTools* const tools;
-    SpinnerSplash const spinner;
+    SpinnerSplash spinner;
     miral::InternalClientLauncher const launcher;
     Point old_cursor{};
     Rectangles displays;
