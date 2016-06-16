@@ -11,8 +11,10 @@ install(PROGRAMS ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/miral-run
 
 add_executable(miral-shell
     shell_main.cpp
-    tiling_window_manager.cpp    tiling_window_manager.h
-    titlebar_window_manager.cpp titlebar_window_manager.h)
+    tiling_window_manager.cpp   tiling_window_manager.h
+    titlebar_window_manager.cpp titlebar_window_manager.h
+    titlebar_provider.cpp       titlebar_provider.h
+)
 
 target_link_libraries(miral-shell
     miral-spinner

@@ -27,6 +27,8 @@ namespace miral { class InternalClientLauncher; }
 
 using namespace mir::geometry;
 
+class TitlebarProvider;
+
 class TitlebarWindowManagerPolicy : public miral::CanonicalWindowManagerPolicy
 {
 public:
@@ -48,7 +50,6 @@ private:
     miral::WindowManagerTools* const tools;
     SpinnerSplash const spinner;
 
-    struct TitlebarProvider;
     std::unique_ptr<TitlebarProvider> const titlebar_provider;
 
     Rectangle display_area;
