@@ -41,7 +41,6 @@ public:
     void advise_state_change(miral::WindowInfo const& window_info, MirSurfaceState state) override;
     void advise_resize(miral::WindowInfo const& window_info, Size const& new_size) override;
     void advise_delete_window(miral::WindowInfo const& window_info) override;
-    void advise_move_to(miral::WindowInfo const& window_info, Point top_left) override;
 
     void handle_displays_updated(Rectangles const& displays) override;
 

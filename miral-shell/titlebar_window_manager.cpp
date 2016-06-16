@@ -165,14 +165,6 @@ struct TitlebarWindowManagerPolicy::TitlebarProvider
         }
     }
 
-    void move_titlebar_for(miral::WindowInfo const& window_info, Point top_left)
-    {
-        if (auto window = find_titlebar_window(window_info.window()))
-        {
-            window.move_to(top_left - Displacement{0, title_bar_height});
-        }
-    }
-
     void advise_state_change(WindowInfo const& window_info, MirSurfaceState state, Rectangle const& display_area)
     {
         if (auto window = find_titlebar_window(window_info.window()))
@@ -281,7 +273,6 @@ bool TitlebarWindowManagerPolicy::handle_pointer_event(MirPointerEvent const* ev
     {
         if (mir_pointer_event_button_state(event, mir_pointer_button_primary))
         {
-            // TODO this is a rather roundabout way to detect a titlebar
             if (auto const possible_titlebar = tools->window_at(old_cursor))
             {
                 if (possible_titlebar.application() == titlebar_provider->session())
@@ -368,11 +359,4 @@ void TitlebarWindowManagerPolicy::handle_displays_updated(Rectangles const& disp
     CanonicalWindowManagerPolicy::handle_displays_updated(displays);
 
     display_area = displays.bounding_rectangle();
-}
-
-void TitlebarWindowManagerPolicy::advise_move_to(miral::WindowInfo const& window_info, Point top_left)
-{
-    CanonicalWindowManagerPolicy::advise_move_to(window_info, top_left);
-
-    titlebar_provider->move_titlebar_for(window_info, top_left);
 }
