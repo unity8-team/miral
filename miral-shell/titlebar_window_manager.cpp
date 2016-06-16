@@ -156,8 +156,10 @@ struct TitlebarWindowManagerPolicy::TitlebarProvider
             {
                 auto window = window_info.window();
                 element.second.window = window;
-                auto const& info = tools->info_for(scene_surface);
-                window.move_to(info.window().top_left() - Displacement{0, title_bar_height});
+                auto& parent_info = tools->info_for(scene_surface);
+                parent_info.add_child(window);
+                window_info.parent(parent_info.window());
+                window.move_to(parent_info.window().top_left() - Displacement{0, title_bar_height});
                 break;
             }
         }
@@ -282,22 +284,13 @@ bool TitlebarWindowManagerPolicy::handle_pointer_event(MirPointerEvent const* ev
             // TODO this is a rather roundabout way to detect a titlebar
             if (auto const possible_titlebar = tools->window_at(old_cursor))
             {
-//                if (auto const parent = tools->info_for(possible_titlebar).parent())
-//                {
-//                    if (auto const& parent_userdata =
-//                        std::static_pointer_cast<TitlebarUserData>(tools->info_for(parent).userdata()))
-//                    {
-//                        if (possible_titlebar == parent_userdata->window)
-//                        {
-//                            if (auto const target = tools->window_at(old_cursor))
-//                            {
-//                                tools->select_active_window(target);
-//                                tools->drag_active_window(cursor - old_cursor);
-//                            }
-//                            consumes_event = true;
-//                        }
-//                    }
-//                }
+                if (possible_titlebar.application() == titlebar_provider->session())
+                {
+                    auto const& info = tools->info_for(possible_titlebar);
+                    tools->select_active_window(info.parent());
+                    tools->drag_active_window(cursor - old_cursor);
+                    consumes_event = true;
+                }
             }
         }
     }
