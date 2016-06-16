@@ -431,8 +431,11 @@ void miral::BasicWindowManager::focus_next_within_application()
         auto const& siblings = info_for(prev.application()).windows();
         auto current = find(begin(siblings), end(siblings), prev);
 
-        while (current != end(siblings) && prev == select_active_window(*current))
-            ++current;
+        if (current != end(siblings))
+        {
+            while (++current != end(siblings) && prev == select_active_window(*current))
+                ;
+        }
 
         if (current == end(siblings))
         {

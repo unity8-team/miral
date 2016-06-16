@@ -302,16 +302,15 @@ void TitlebarWindowManagerPolicy::advise_new_window(WindowInfo& window_info)
 {
     CanonicalWindowManagerPolicy::advise_new_window(window_info);
 
-    if (window_info.window().application() == titlebar_provider->session())
+    auto const application = window_info.window().application();
+
+    if (application == titlebar_provider->session())
     {
         titlebar_provider->advise_new_titlebar(window_info);
         return;
     }
 
-    if (!window_info.needs_titlebar(window_info.type()))
-        return;
-
-    if (window_info.window().application() == spinner.session())
+    if (application == spinner.session() || !window_info.needs_titlebar(window_info.type()))
         return;
 
     titlebar_provider->create_titlebar_for(window_info.window());
