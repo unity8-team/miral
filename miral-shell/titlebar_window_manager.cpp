@@ -24,14 +24,13 @@
 #include <miral/window_manager_tools.h>
 
 #include <miral/toolkit/surface_spec.h>
+#include <mir_toolkit/mir_buffer_stream.h>
 
 #include <condition_variable>
 #include <map>
 #include <mutex>
-#include <mir_toolkit/mir_buffer_stream.h>
 #include <cstring>
 #include <sstream>
-#include <iostream>
 
 using namespace miral;
 
@@ -47,6 +46,7 @@ struct TitlebarWindowManagerPolicy::TitlebarProvider
     TitlebarProvider(miral::WindowManagerTools* const tools) : tools{tools} {}
     ~TitlebarProvider()
     {
+        cleanup_leaks();
         notify_done();
     }
 
@@ -80,7 +80,6 @@ struct TitlebarWindowManagerPolicy::TitlebarProvider
             .set_buffer_usage(mir_buffer_usage_software)
             .set_type(mir_surface_type_gloss)
             .set_name(buffer.str().c_str());
-            // Can we set alpha to 0.9?
 
         std::lock_guard<decltype(mutex)> lock{mutex};
         spec.create_surface(insert, &window_to_titlebar[window]);
@@ -96,10 +95,9 @@ struct TitlebarWindowManagerPolicy::TitlebarProvider
 
             char* row = region.vaddr;
 
-            for (int j = 0; j < region.height; j++)
+            for (int j = 0; j != region.height; ++j)
             {
                 memset(row, intensity, 4*region.width);
-
                 row += region.stride;
             }
 
@@ -124,6 +122,7 @@ struct TitlebarWindowManagerPolicy::TitlebarProvider
         {
             // TODO we have a race between create and destroy,
             // but waiting will deadlock: leaking seems the least bad solution
+            // C.f. cleanup_leaks()
         }
     }
 
@@ -132,11 +131,9 @@ struct TitlebarWindowManagerPolicy::TitlebarProvider
         if (window.size().width == size.width)
             return;
 
-        if (auto surface = find_titlebar_surface(window))
+        if (auto titlebar_window = find_titlebar_window(window))
         {
-            SurfaceSpec::for_changes(connection)
-                .set_size(size.width.as_int(), title_bar_height)
-                .apply_to(surface);
+            titlebar_window.resize({size.width, title_bar_height});
         }
     }
 
@@ -234,6 +231,16 @@ private:
         auto const find = window_to_titlebar.find(window);
 
         return (find != window_to_titlebar.end()) ? find->second.window : Window{};
+    }
+
+    void cleanup_leaks() const
+    {
+        std::unique_lock<decltype(mutex)> lock{mutex};
+        for (auto& element : window_to_titlebar)
+        {
+            if (auto const surface = element.second.titlebar.load())
+                mir_surface_release(surface, [](MirSurface*, void*) {}, nullptr);
+        }
     }
 
     void notify_done()
