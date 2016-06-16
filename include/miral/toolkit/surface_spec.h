@@ -55,10 +55,16 @@ public:
         return *this;
     }
 
-    auto set_size(int width, int height)  -> SurfaceSpec&
+    auto set_size(int width, int height) -> SurfaceSpec&
     {
         mir_surface_spec_set_width(*this, width);
         mir_surface_spec_set_height(*this, height);
+        return *this;
+    }
+
+    auto set_name(char const* name) -> SurfaceSpec&
+    {
+        mir_surface_spec_set_name(*this, name);
         return *this;
     }
 

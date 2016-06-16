@@ -538,6 +538,7 @@ void miral::BasicWindowManager::modify_window(WindowInfo& window_info, WindowSpe
     if (modifications.field().is_set())\
         window_info_tmp.field(modifications.field().value())
 
+    COPY_IF_SET(name);
     COPY_IF_SET(type);
     COPY_IF_SET(min_width);
     COPY_IF_SET(min_height);

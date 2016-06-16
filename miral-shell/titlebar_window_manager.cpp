@@ -31,6 +31,8 @@
 #include <mutex>
 #include <mir_toolkit/mir_buffer_stream.h>
 #include <cstring>
+#include <sstream>
+#include <iostream>
 
 using namespace miral;
 
@@ -55,6 +57,7 @@ using namespace miral::toolkit;
 
 struct TitlebarWindowManagerPolicy::TitlebarProvider
 {
+    TitlebarProvider(miral::WindowManagerTools* const tools) : tools{tools} {}
     ~TitlebarProvider()
     {
         notify_done();
@@ -81,10 +84,15 @@ struct TitlebarWindowManagerPolicy::TitlebarProvider
 
     void create_titlebar_for(Window const& window)
     {
+        std::ostringstream buffer;
+
+        buffer << std::shared_ptr<mir::scene::Surface>(window).get();
+
         auto const spec = SurfaceSpec::for_normal_surface(
             connection, window.size().width.as_int(), title_bar_height, mir_pixel_format_xrgb_8888)
             .set_buffer_usage(mir_buffer_usage_software)
-            .set_type(mir_surface_type_gloss);
+            .set_type(mir_surface_type_gloss)
+            .set_name(buffer.str().c_str());
             // Can we set alpha to 0.9?
 
         std::lock_guard<decltype(mutex)> lock{mutex};
@@ -145,6 +153,37 @@ struct TitlebarWindowManagerPolicy::TitlebarProvider
         }
     }
 
+    void advise_new_titlebar(WindowInfo& window_info)
+    {
+        std::istringstream buffer{window_info.name()};
+
+        void* parent = nullptr;
+        buffer >> parent;
+
+        std::lock_guard<decltype(mutex)> lock{mutex};
+
+        for (auto& element : window_to_titlebar)
+        {
+            auto scene_surface = std::shared_ptr<mir::scene::Surface>(element.first);
+            if (scene_surface.get() == parent)
+            {
+                auto window = window_info.window();
+                element.second.window = window;
+                auto const& info = tools->info_for(scene_surface);
+                window.move_to(info.window().top_left() - Displacement{0, title_bar_height});
+                break;
+            }
+        }
+    }
+
+    void move_titlebar_for(miral::WindowInfo const& window_info, Point top_left)
+    {
+        if (auto window = find_titlebar_window(window_info.window()))
+        {
+            window.move_to(top_left - Displacement{0, title_bar_height});
+        }
+    }
+
     void notify_done()
     {
         std::lock_guard<decltype(mutex)> lock{mutex};
@@ -156,6 +195,7 @@ private:
     struct Data
     {
         std::atomic<MirSurface*> titlebar{nullptr};
+        Window window;
     };
 
     static void insert(MirSurface* surface, Data* data)
@@ -165,6 +205,7 @@ private:
 
     using SurfaceMap = std::map<std::weak_ptr<mir::scene::Surface>, Data, std::owner_less<std::weak_ptr<mir::scene::Surface>>>;
 
+    miral::WindowManagerTools* const tools;
     std::mutex mutable mutex;
     MirConnection* connection = nullptr;
     std::weak_ptr<mir::scene::Session> weak_session;
@@ -181,6 +222,15 @@ private:
 
         return (find != window_to_titlebar.end()) ? find->second.titlebar.load() : nullptr;
     }
+
+    Window find_titlebar_window(Window const& window) const
+    {
+        std::lock_guard<decltype(mutex)> lock{mutex};
+
+        auto const find = window_to_titlebar.find(window);
+
+        return (find != window_to_titlebar.end()) ? find->second.window : Window{};
+    }
 };
 
 TitlebarWindowManagerPolicy::TitlebarWindowManagerPolicy(
@@ -190,7 +240,7 @@ TitlebarWindowManagerPolicy::TitlebarWindowManagerPolicy(
     CanonicalWindowManagerPolicy(tools),
     tools(tools),
     spinner{spinner},
-    titlebar_provider{std::make_unique<TitlebarProvider>()}
+    titlebar_provider{std::make_unique<TitlebarProvider>(tools)}
 {
     launcher.launch("decorations", *titlebar_provider);
 }
@@ -244,11 +294,16 @@ void TitlebarWindowManagerPolicy::advise_new_window(WindowInfo& window_info)
 {
     CanonicalWindowManagerPolicy::advise_new_window(window_info);
 
+    if (window_info.window().application() == titlebar_provider->session())
+    {
+        titlebar_provider->advise_new_titlebar(window_info);
+        return;
+    }
+
     if (!window_info.needs_titlebar(window_info.type()))
         return;
 
-    if (window_info.window().application() == spinner.session() ||
-        window_info.window().application() == titlebar_provider->session())
+    if (window_info.window().application() == spinner.session())
         return;
 
     titlebar_provider->create_titlebar_for(window_info.window());
@@ -367,4 +422,11 @@ void TitlebarWindowManagerPolicy::handle_displays_updated(Rectangles const& disp
     CanonicalWindowManagerPolicy::handle_displays_updated(displays);
 
     display_area = displays.bounding_rectangle();
+}
+
+void TitlebarWindowManagerPolicy::advise_move_to(miral::WindowInfo const& window_info, Point top_left)
+{
+    CanonicalWindowManagerPolicy::advise_move_to(window_info, top_left);
+
+    titlebar_provider->move_titlebar_for(window_info, top_left);
 }
