@@ -24,10 +24,13 @@
 #include <miral/window_info.h>
 #include <miral/window_manager_tools.h>
 
-#include <linux/input.h>
-
-#include <mutex>
 #include <condition_variable>
+#include <map>
+#include <mutex>
+#include <mir_toolkit/mir_surface.h>
+#include <mir_toolkit/mir_connection.h>
+#include <mir_toolkit/mir_buffer_stream.h>
+#include <cstring>
 
 using namespace miral;
 
@@ -48,6 +51,59 @@ Point titlebar_position_for_window(Point window_position)
 }
 }
 
+namespace miral
+{
+namespace toolkit
+{
+class Connection
+{
+public:
+    explicit Connection(MirConnection* connection) : self{connection, deleter} {}
+
+    operator MirConnection*() const { return self.get(); }
+
+private:
+    static void deleter(MirConnection* connection) { mir_connection_release(connection); }
+    std::shared_ptr<MirConnection> self;
+};
+
+class SurfaceSpec
+{
+public:
+    explicit SurfaceSpec(MirSurfaceSpec* spec) : self{spec, deleter} {}
+
+    static auto for_normal_surface(MirConnection* connection, int width, int height, MirPixelFormat format) -> SurfaceSpec
+    {
+        return SurfaceSpec{mir_connection_create_spec_for_normal_surface(connection, width, height, format)};
+    }
+
+    void set_buffer_usage(MirBufferUsage usage)
+    {
+        mir_surface_spec_set_buffer_usage(*this, usage);
+    }
+
+    void set_type(MirSurfaceType type)
+    {
+        mir_surface_spec_set_type(*this, type);
+    }
+
+    template<typename Context>
+    void create_surface(void (*callback)(MirSurface*, Context*), Context* context) const
+    {
+        mir_surface_create(*this, reinterpret_cast<mir_surface_callback>(callback), context);
+    }
+
+    operator MirSurfaceSpec*() const { return self.get(); }
+
+private:
+    static void deleter(MirSurfaceSpec* spec) { mir_surface_spec_release(spec); }
+    std::shared_ptr<MirSurfaceSpec> self;
+};
+}
+}
+
+using namespace miral::toolkit;
+
 struct TitlebarWindowManagerPolicy::TitlebarProvider
 {
     ~TitlebarProvider()
@@ -64,30 +120,87 @@ struct TitlebarWindowManagerPolicy::TitlebarProvider
 
     void operator()(std::weak_ptr<mir::scene::Session> const& session)
     {
-        std::unique_lock<decltype(mutex)> lock{mutex};
+        std::lock_guard<decltype(mutex)> lock{mutex};
         this->weak_session = session;
     }
 
     auto session() const -> std::shared_ptr<mir::scene::Session>
     {
-        std::unique_lock<decltype(mutex)> lock{mutex};
+        std::lock_guard<decltype(mutex)> lock{mutex};
         return weak_session.lock();
+    }
+
+    void create_titlebar_for(Window const& window)
+    {
+        auto spec = SurfaceSpec::for_normal_surface(
+            connection, window.size().width.as_int(), title_bar_height, mir_pixel_format_xrgb_8888);
+        spec.set_buffer_usage(mir_buffer_usage_software);
+        spec.set_type(mir_surface_type_gloss);
+        // Can we set alpha to 0.9?
+
+        std::lock_guard<decltype(mutex)> lock{mutex};
+        spec.create_surface(insert, &window_to_titlebar[window]);
+    }
+
+    void paint_titlebar_for(Window const& window, int intensity)
+    {
+        if (auto surface = find_titlebar_surface(window))
+        {
+            MirBufferStream* buffer_stream = mir_surface_get_buffer_stream(surface);
+            MirGraphicsRegion region;
+            mir_buffer_stream_get_graphics_region(buffer_stream, &region);
+
+            char* row = region.vaddr;
+
+            for (int j = 0; j < region.height; j++)
+            {
+                memset(row, intensity, 4*region.width);
+
+                row += region.stride;
+            }
+
+            mir_buffer_stream_swap_buffers(buffer_stream, [](MirBufferStream*, void*) {}, nullptr);
+        }
     }
 
     void notify_done()
     {
-        std::unique_lock<decltype(mutex)> lock{mutex};
+        std::lock_guard<decltype(mutex)> lock{mutex};
         done = true;
         cv.notify_one();
     }
 
 private:
+    struct Data
+    {
+        std::atomic<MirSurface*> titlebar{nullptr};
+        std::condition_variable cv;
+    };
+
+    static void insert(MirSurface* surface, Data* data)
+    {
+        data->titlebar = surface;
+        data->cv.notify_all();
+    }
+
+    using SurfaceMap = std::map<std::weak_ptr<mir::scene::Surface>, Data, std::owner_less<std::weak_ptr<mir::scene::Surface>>>;
+
     std::mutex mutable mutex;
     MirConnection* connection = nullptr;
     std::weak_ptr<mir::scene::Session> weak_session;
 
+    SurfaceMap window_to_titlebar;
     std::condition_variable cv;
     bool done = false;
+
+    MirSurface* find_titlebar_surface(Window const& window) const
+    {
+        std::lock_guard<decltype(mutex)> lock{mutex};
+
+        auto const find = window_to_titlebar.find(window);
+
+        return (find != window_to_titlebar.end()) ? find->second.titlebar.load() : nullptr;
+    }
 };
 
 TitlebarWindowManagerPolicy::TitlebarWindowManagerPolicy(
@@ -154,6 +267,12 @@ void TitlebarWindowManagerPolicy::advise_new_window(WindowInfo& window_info)
     if (!window_info.needs_titlebar(window_info.type()))
         return;
 
+    if (window_info.window().application() == spinner.session() ||
+        window_info.window().application() == titlebar_provider->session())
+        return;
+
+    titlebar_provider->create_titlebar_for(window_info.window());
+
     Window const& window = window_info.window();
 
     auto format = mir_pixel_format_xrgb_8888;
@@ -178,6 +297,8 @@ void TitlebarWindowManagerPolicy::advise_focus_lost(WindowInfo const& info)
 {
     CanonicalWindowManagerPolicy::advise_focus_lost(info);
 
+    titlebar_provider->paint_titlebar_for(info.window(), 0x3F);
+
     if (auto const titlebar = std::static_pointer_cast<TitlebarUserData>(info.userdata()))
     {
         titlebar->paint_titlebar(0x3F);
@@ -187,6 +308,8 @@ void TitlebarWindowManagerPolicy::advise_focus_lost(WindowInfo const& info)
 void TitlebarWindowManagerPolicy::advise_focus_gained(WindowInfo const& info)
 {
     CanonicalWindowManagerPolicy::advise_focus_gained(info);
+
+    titlebar_provider->paint_titlebar_for(info.window(), 0xFF);
 
     if (auto const titlebar = std::static_pointer_cast<TitlebarUserData>(info.userdata()))
     {
