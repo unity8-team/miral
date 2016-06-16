@@ -37,6 +37,9 @@ using namespace miral;
 namespace
 {
 int const title_bar_height = 10;
+
+void null_bufferstream_callback(MirBufferStream*, void*) {}
+void null_surface_callback(MirSurface*, void*) {}
 }
 
 using namespace miral::toolkit;
@@ -101,29 +104,14 @@ struct TitlebarWindowManagerPolicy::TitlebarProvider
                 row += region.stride;
             }
 
-            mir_buffer_stream_swap_buffers(buffer_stream, [](MirBufferStream*, void*) {}, nullptr);
+            mir_buffer_stream_swap_buffers(buffer_stream, &null_bufferstream_callback, nullptr);
         }
     }
 
     void destroy_titlebar_for(Window const& window)
     {
         std::lock_guard<decltype(mutex)> lock{mutex};
-
-        auto const found = window_to_titlebar.find(window);
-
-        if (found != window_to_titlebar.end())
-        {
-            if (auto surface = found->second.titlebar.load())
-                mir_surface_release(surface, [](MirSurface*, void*) {}, nullptr);
-
-            window_to_titlebar.erase(found);
-        }
-        else
-        {
-            // TODO we have a race between create and destroy,
-            // but waiting will deadlock: leaking seems the least bad solution
-            // C.f. cleanup_leaks()
-        }
+        window_to_titlebar.erase(window);
     }
 
     void resize_titlebar_for(Window const& window, Size const& size)
@@ -197,6 +185,12 @@ private:
     {
         std::atomic<MirSurface*> titlebar{nullptr};
         Window window;
+
+        ~Data()
+        {
+            if (auto const surface = titlebar.load())
+                mir_surface_release(surface, &null_surface_callback, nullptr);
+        }
     };
 
     static void insert(MirSurface* surface, Data* data)
@@ -233,14 +227,11 @@ private:
         return (find != window_to_titlebar.end()) ? find->second.window : Window{};
     }
 
-    void cleanup_leaks() const
+    void cleanup_leaks()
     {
         std::unique_lock<decltype(mutex)> lock{mutex};
-        for (auto& element : window_to_titlebar)
-        {
-            if (auto const surface = element.second.titlebar.load())
-                mir_surface_release(surface, [](MirSurface*, void*) {}, nullptr);
-        }
+
+        window_to_titlebar.clear();
     }
 
     void notify_done()
