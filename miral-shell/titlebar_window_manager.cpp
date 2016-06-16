@@ -132,6 +132,20 @@ struct TitlebarWindowManagerPolicy::TitlebarProvider
         }
     }
 
+    void resize_titlebar_for(Window const& window, Size const& size)
+    {
+        if (window.size().width == size.width)
+            return;
+
+        if (auto surface = find_titlebar_surface(window))
+        {
+            auto spec = SurfaceSpec::for_changes(connection);
+            spec.set_size(size.width.as_int(), title_bar_height);
+
+            mir_surface_apply_spec(surface, spec);
+        }
+    }
+
     void notify_done()
     {
         std::lock_guard<decltype(mutex)> lock{mutex};
@@ -328,6 +342,8 @@ void TitlebarWindowManagerPolicy::advise_state_change(WindowInfo const& window_i
 void TitlebarWindowManagerPolicy::advise_resize(WindowInfo const& window_info, Size const& new_size)
 {
     CanonicalWindowManagerPolicy::advise_resize(window_info, new_size);
+
+    titlebar_provider->resize_titlebar_for(window_info.window(), new_size);
 
     if (auto const titlebar = std::static_pointer_cast<TitlebarUserData>(window_info.userdata()))
     {

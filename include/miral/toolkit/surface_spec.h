@@ -38,6 +38,11 @@ public:
         return SurfaceSpec{mir_connection_create_spec_for_normal_surface(connection, width, height, format)};
     }
 
+    static auto for_changes(MirConnection* connection) -> SurfaceSpec
+    {
+        return SurfaceSpec{mir_connection_create_spec_for_changes(connection)};
+    }
+
     void set_buffer_usage(MirBufferUsage usage)
     {
         mir_surface_spec_set_buffer_usage(*this, usage);
@@ -46,6 +51,12 @@ public:
     void set_type(MirSurfaceType type)
     {
         mir_surface_spec_set_type(*this, type);
+    }
+
+    void set_size(int width, int height)
+    {
+        mir_surface_spec_set_width(*this, width);
+        mir_surface_spec_set_height(*this, height);
     }
 
     template<typename Context>
