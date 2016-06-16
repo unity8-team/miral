@@ -43,26 +43,34 @@ public:
         return SurfaceSpec{mir_connection_create_spec_for_changes(connection)};
     }
 
-    void set_buffer_usage(MirBufferUsage usage)
+    auto set_buffer_usage(MirBufferUsage usage) -> SurfaceSpec&
     {
         mir_surface_spec_set_buffer_usage(*this, usage);
+        return *this;
     }
 
-    void set_type(MirSurfaceType type)
+    auto set_type(MirSurfaceType type) -> SurfaceSpec&
     {
         mir_surface_spec_set_type(*this, type);
+        return *this;
     }
 
-    void set_size(int width, int height)
+    auto set_size(int width, int height)  -> SurfaceSpec&
     {
         mir_surface_spec_set_width(*this, width);
         mir_surface_spec_set_height(*this, height);
+        return *this;
     }
 
     template<typename Context>
     void create_surface(void (*callback)(MirSurface*, Context*), Context* context) const
     {
         mir_surface_create(*this, reinterpret_cast<mir_surface_callback>(callback), context);
+    }
+
+    void apply_to(MirSurface* surface)
+    {
+        mir_surface_apply_spec(surface, *this);
     }
 
     operator MirSurfaceSpec*() const { return self.get(); }

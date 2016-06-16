@@ -81,11 +81,11 @@ struct TitlebarWindowManagerPolicy::TitlebarProvider
 
     void create_titlebar_for(Window const& window)
     {
-        auto spec = SurfaceSpec::for_normal_surface(
-            connection, window.size().width.as_int(), title_bar_height, mir_pixel_format_xrgb_8888);
-        spec.set_buffer_usage(mir_buffer_usage_software);
-        spec.set_type(mir_surface_type_gloss);
-        // Can we set alpha to 0.9?
+        auto const spec = SurfaceSpec::for_normal_surface(
+            connection, window.size().width.as_int(), title_bar_height, mir_pixel_format_xrgb_8888)
+            .set_buffer_usage(mir_buffer_usage_software)
+            .set_type(mir_surface_type_gloss);
+            // Can we set alpha to 0.9?
 
         std::lock_guard<decltype(mutex)> lock{mutex};
         spec.create_surface(insert, &window_to_titlebar[window]);
@@ -139,10 +139,9 @@ struct TitlebarWindowManagerPolicy::TitlebarProvider
 
         if (auto surface = find_titlebar_surface(window))
         {
-            auto spec = SurfaceSpec::for_changes(connection);
-            spec.set_size(size.width.as_int(), title_bar_height);
-
-            mir_surface_apply_spec(surface, spec);
+            SurfaceSpec::for_changes(connection)
+                .set_size(size.width.as_int(), title_bar_height)
+                .apply_to(surface);
         }
     }
 
