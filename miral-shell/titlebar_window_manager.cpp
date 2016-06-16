@@ -112,6 +112,26 @@ struct TitlebarWindowManagerPolicy::TitlebarProvider
         }
     }
 
+    void destroy_titlebar_for(Window const& window)
+    {
+        std::lock_guard<decltype(mutex)> lock{mutex};
+
+        auto const found = window_to_titlebar.find(window);
+
+        if (found != window_to_titlebar.end())
+        {
+            if (auto surface = found->second.titlebar.load())
+                mir_surface_release(surface, [](MirSurface*, void*) {}, nullptr);
+
+            window_to_titlebar.erase(found);
+        }
+        else
+        {
+            // TODO we have a race between create and destroy,
+            // but waiting will deadlock: leaking seems the least bad solution
+        }
+    }
+
     void notify_done()
     {
         std::lock_guard<decltype(mutex)> lock{mutex};
@@ -123,13 +143,11 @@ private:
     struct Data
     {
         std::atomic<MirSurface*> titlebar{nullptr};
-        std::condition_variable cv;
     };
 
     static void insert(MirSurface* surface, Data* data)
     {
         data->titlebar = surface;
-        data->cv.notify_all();
     }
 
     using SurfaceMap = std::map<std::weak_ptr<mir::scene::Surface>, Data, std::owner_less<std::weak_ptr<mir::scene::Surface>>>;
@@ -320,6 +338,8 @@ void TitlebarWindowManagerPolicy::advise_resize(WindowInfo const& window_info, S
 void TitlebarWindowManagerPolicy::advise_delete_window(WindowInfo const& window_info)
 {
     CanonicalWindowManagerPolicy::advise_delete_window(window_info);
+
+    titlebar_provider->destroy_titlebar_for(window_info.window());
 
     if (auto const titlebar = std::static_pointer_cast<TitlebarUserData>(window_info.userdata()))
     {
