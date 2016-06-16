@@ -49,8 +49,10 @@ struct TitlebarWindowManagerPolicy::TitlebarProvider
     TitlebarProvider(miral::WindowManagerTools* const tools) : tools{tools} {}
     ~TitlebarProvider()
     {
-        cleanup_leaks();
-        notify_done();
+        std::unique_lock<decltype(mutex)> lock{mutex};
+        window_to_titlebar.clear();
+        done = true;
+        cv.notify_one();
     }
 
     void operator()(MirConnection* connection)
@@ -225,20 +227,6 @@ private:
         auto const find = window_to_titlebar.find(window);
 
         return (find != window_to_titlebar.end()) ? find->second.window : Window{};
-    }
-
-    void cleanup_leaks()
-    {
-        std::unique_lock<decltype(mutex)> lock{mutex};
-
-        window_to_titlebar.clear();
-    }
-
-    void notify_done()
-    {
-        std::lock_guard<decltype(mutex)> lock{mutex};
-        done = true;
-        cv.notify_one();
     }
 };
 
