@@ -171,11 +171,34 @@ struct TitlebarWindowManagerPolicy::TitlebarProvider
         }
     }
 
-    void notify_done()
+    void advise_state_change(WindowInfo const& window_info, MirSurfaceState state, Rectangle const& display_area)
     {
-        std::lock_guard<decltype(mutex)> lock{mutex};
-        done = true;
-        cv.notify_one();
+        if (auto window = find_titlebar_window(window_info.window()))
+        {
+            switch (state)
+            {
+            case mir_surface_state_restored:
+                window.resize({window_info.restore_rect().size.width, title_bar_height});
+                window.show();
+                break;
+
+            case mir_surface_state_maximized:
+            case mir_surface_state_vertmaximized:
+            case mir_surface_state_hidden:
+            case mir_surface_state_minimized:
+                window.hide();
+                break;
+
+            case mir_surface_state_horizmaximized:
+                window.resize({display_area.size.width, title_bar_height});
+                window.show();
+                break;
+
+            case mir_surface_state_fullscreen:
+            default:
+                break;
+            }
+        }
     }
 
 private:
@@ -217,6 +240,13 @@ private:
         auto const find = window_to_titlebar.find(window);
 
         return (find != window_to_titlebar.end()) ? find->second.window : Window{};
+    }
+
+    void notify_done()
+    {
+        std::lock_guard<decltype(mutex)> lock{mutex};
+        done = true;
+        cv.notify_one();
     }
 };
 
@@ -323,32 +353,7 @@ void TitlebarWindowManagerPolicy::advise_state_change(WindowInfo const& window_i
 {
     CanonicalWindowManagerPolicy::advise_state_change(window_info, state);
 
-//    if (auto const titlebar = std::static_pointer_cast<TitlebarUserData>(window_info.userdata()))
-//    {
-//        switch (state)
-//        {
-//        case mir_surface_state_restored:
-//            titlebar->window.resize(titlebar_size_for_window(window_info.restore_rect().size));
-//            titlebar->window.show();
-//            break;
-//
-//        case mir_surface_state_maximized:
-//        case mir_surface_state_vertmaximized:
-//        case mir_surface_state_hidden:
-//        case mir_surface_state_minimized:
-//            titlebar->window.hide();
-//            break;
-//
-//        case mir_surface_state_horizmaximized:
-//            titlebar->window.resize(titlebar_size_for_window({display_area.size.width, window_info.restore_rect().size.height}));
-//            titlebar->window.show();
-//            break;
-//
-//        case mir_surface_state_fullscreen:
-//        default:
-//            break;
-//        }
-//    }
+    titlebar_provider->advise_state_change(window_info, state, display_area);
 }
 
 void TitlebarWindowManagerPolicy::advise_resize(WindowInfo const& window_info, Size const& new_size)
