@@ -24,11 +24,11 @@
 #include <miral/window_info.h>
 #include <miral/window_manager_tools.h>
 
+#include <miral/toolkit/surface_spec.h>
+
 #include <condition_variable>
 #include <map>
 #include <mutex>
-#include <mir_toolkit/mir_surface.h>
-#include <mir_toolkit/mir_connection.h>
 #include <mir_toolkit/mir_buffer_stream.h>
 #include <cstring>
 
@@ -48,57 +48,6 @@ Point titlebar_position_for_window(Point window_position)
         window_position.x,
         window_position.y - DeltaY(title_bar_height)
     };
-}
-}
-
-namespace miral
-{
-namespace toolkit
-{
-class Connection
-{
-public:
-    explicit Connection(MirConnection* connection) : self{connection, deleter} {}
-
-    operator MirConnection*() const { return self.get(); }
-
-private:
-    static void deleter(MirConnection* connection) { mir_connection_release(connection); }
-    std::shared_ptr<MirConnection> self;
-};
-
-class SurfaceSpec
-{
-public:
-    explicit SurfaceSpec(MirSurfaceSpec* spec) : self{spec, deleter} {}
-
-    static auto for_normal_surface(MirConnection* connection, int width, int height, MirPixelFormat format) -> SurfaceSpec
-    {
-        return SurfaceSpec{mir_connection_create_spec_for_normal_surface(connection, width, height, format)};
-    }
-
-    void set_buffer_usage(MirBufferUsage usage)
-    {
-        mir_surface_spec_set_buffer_usage(*this, usage);
-    }
-
-    void set_type(MirSurfaceType type)
-    {
-        mir_surface_spec_set_type(*this, type);
-    }
-
-    template<typename Context>
-    void create_surface(void (*callback)(MirSurface*, Context*), Context* context) const
-    {
-        mir_surface_create(*this, reinterpret_cast<mir_surface_callback>(callback), context);
-    }
-
-    operator MirSurfaceSpec*() const { return self.get(); }
-
-private:
-    static void deleter(MirSurfaceSpec* spec) { mir_surface_spec_release(spec); }
-    std::shared_ptr<MirSurfaceSpec> self;
-};
 }
 }
 
