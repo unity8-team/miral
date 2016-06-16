@@ -55,9 +55,6 @@ public:
         std::shared_ptr<mir::shell::DisplayLayout> const& display_layout,
         WindowManagementPolicyBuilder const& build);
 
-    auto build_window(Application const& application, WindowSpecification const& spec)
-    -> WindowInfo& override;
-
     void add_session(std::shared_ptr<mir::scene::Session> const& session) override;
 
     void remove_session(std::shared_ptr<mir::scene::Session> const& session) override;
@@ -76,8 +73,6 @@ public:
     void remove_surface(
         std::shared_ptr<mir::scene::Session> const& session,
         std::weak_ptr<mir::scene::Surface> const& surface) override;
-
-    void destroy(Window& window) override;
 
     void add_display(mir::geometry::Rectangle const& area) override;
 
@@ -168,6 +163,8 @@ private:
 
     auto place_new_surface(ApplicationInfo const& app_info, WindowSpecification parameters)
         -> WindowSpecification;
+    auto build_window(Application const& application, WindowSpecification const& spec)
+        -> WindowInfo&;
     void move_tree(miral::WindowInfo& root, mir::geometry::Displacement movement);
     void erase(miral::WindowInfo const& info);
 };

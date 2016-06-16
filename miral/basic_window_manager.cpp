@@ -202,13 +202,6 @@ void miral::BasicWindowManager::remove_surface(
     }
 }
 
-void miral::BasicWindowManager::destroy(Window& window)
-{
-    erase(info_for(window));
-
-    window.application()->destroy_surface(window);
-}
-
 void miral::BasicWindowManager::erase(miral::WindowInfo const& info)
 {
     if (auto const parent = info.parent())

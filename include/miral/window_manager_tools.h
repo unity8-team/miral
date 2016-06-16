@@ -49,8 +49,6 @@ public:
  *  I.e. they should only be used by a thread that has called the WindowManagementPolicy methods
  *  (where any necessary locks are held) or via a invoke_under_lock() callback.
  *  @{ */
-    virtual auto build_window(Application const& application, WindowSpecification const& parameters)
-    -> WindowInfo& = 0;
     virtual auto count_applications() const -> unsigned int = 0;
     virtual void for_each_application(std::function<void(ApplicationInfo& info)> const& functor) = 0;
     virtual auto find_application(std::function<bool(ApplicationInfo const& info)> const& predicate)
@@ -66,7 +64,6 @@ public:
     virtual void focus_next_within_application() = 0;
     virtual auto window_at(mir::geometry::Point cursor) const -> Window = 0;
     virtual auto active_display() -> mir::geometry::Rectangle const = 0;
-    virtual void destroy(Window& window) = 0;
     virtual void raise_tree(Window const& root) = 0;
     virtual void modify_window(WindowInfo& window_info, WindowSpecification const& modifications) = 0;
     virtual void place_and_size(WindowInfo& window_info, Point const& new_pos, Size const& new_size) = 0;
