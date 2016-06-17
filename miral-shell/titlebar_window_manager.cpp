@@ -150,6 +150,8 @@ bool TitlebarWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* 
     if (miral::CanonicalWindowManagerPolicy::handle_keyboard_event(event))
         return true;
 
+    // TODO this is a workaround for the lack of a way to detect server exit (Mir bug lp:1593655)
+    // We need to exit the titlebar_provider "client" thread before the server exits
     auto const action = mir_keyboard_event_action(event);
     auto const scan_code = mir_keyboard_event_scan_code(event);
     auto const modifiers = mir_keyboard_event_modifiers(event) & modifier_mask;
