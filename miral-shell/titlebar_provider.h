@@ -54,6 +54,7 @@ private:
     struct Data
     {
         std::atomic<MirSurface*> titlebar{nullptr};
+        std::atomic<int> intensity{0};
         miral::Window window;
 
         ~Data();
@@ -71,7 +72,7 @@ private:
     bool done = false;
 
     static void insert(MirSurface* surface, Data* data);
-    MirSurface* find_titlebar_surface(miral::Window const& window) const;
+    Data* find_titlebar_data(miral::Window const& window);
     miral::Window find_titlebar_window(miral::Window const& window) const;
 };
 

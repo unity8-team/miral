@@ -31,6 +31,23 @@ int const title_bar_height = 10;
 
 void null_bufferstream_callback(MirBufferStream*, void*) {}
 void null_surface_callback(MirSurface*, void*) {}
+
+void paint_surface(MirSurface* surface, int const intensity)
+{
+    MirBufferStream* buffer_stream = mir_surface_get_buffer_stream(surface);
+    MirGraphicsRegion region;
+    mir_buffer_stream_get_graphics_region(buffer_stream, &region);
+
+    char* row = region.vaddr;
+
+    for (int j = 0; j != region.height; ++j)
+    {
+        memset(row, intensity, 4*region.width);
+        row += region.stride;
+    }
+
+    mir_buffer_stream_swap_buffers(buffer_stream, &null_bufferstream_callback, nullptr);
+}
 }
 
 using namespace miral::toolkit;
@@ -88,21 +105,16 @@ void TitlebarProvider::create_titlebar_for(miral::Window const& window)
 
 void TitlebarProvider::paint_titlebar_for(miral::Window const& window, int intensity)
 {
-    if (auto surface = find_titlebar_surface(window))
+    if (auto data = find_titlebar_data(window))
     {
-        MirBufferStream* buffer_stream = mir_surface_get_buffer_stream(surface);
-        MirGraphicsRegion region;
-        mir_buffer_stream_get_graphics_region(buffer_stream, &region);
-
-        char* row = region.vaddr;
-
-        for (int j = 0; j != region.height; ++j)
+        if (auto surface = data->titlebar.load())
         {
-            memset(row, intensity, 4*region.width);
-            row += region.stride;
+            paint_surface(surface, intensity);
         }
-
-        mir_buffer_stream_swap_buffers(buffer_stream, &null_bufferstream_callback, nullptr);
+        else
+        {
+            data->intensity = intensity;
+        }
     }
 }
 
@@ -186,16 +198,18 @@ TitlebarProvider::Data::~Data()
 
 void TitlebarProvider::insert(MirSurface* surface, Data* data)
 {
+    if (auto const intensity = data->intensity.load())
+        paint_surface(surface, intensity);
     data->titlebar = surface;
 }
 
-MirSurface* TitlebarProvider::find_titlebar_surface(miral::Window const& window) const
+TitlebarProvider::Data* TitlebarProvider::find_titlebar_data(miral::Window const& window)
 {
     std::lock_guard<decltype(mutex)> lock{mutex};
 
     auto const find = window_to_titlebar.find(window);
 
-    return (find != window_to_titlebar.end()) ? find->second.titlebar.load() : nullptr;
+    return (find != window_to_titlebar.end()) ? &find->second : nullptr;
 }
 
 miral::Window TitlebarProvider::find_titlebar_window(miral::Window const& window) const
