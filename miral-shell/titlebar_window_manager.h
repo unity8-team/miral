@@ -36,6 +36,7 @@ public:
     ~TitlebarWindowManagerPolicy();
 
     bool handle_pointer_event(MirPointerEvent const* event) override;
+    bool handle_keyboard_event(MirKeyboardEvent const* event) override;
 
     void advise_new_window(miral::WindowInfo& window_info) override;
     void advise_focus_lost(miral::WindowInfo const& info) override;

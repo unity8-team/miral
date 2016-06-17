@@ -48,6 +48,8 @@ public:
     void advise_new_titlebar(miral::WindowInfo& window_info);
     void advise_state_change(miral::WindowInfo const& window_info, MirSurfaceState state, mir::geometry::Rectangle const& display_area);
 
+    void stop();
+
 private:
     struct Data
     {

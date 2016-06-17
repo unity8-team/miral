@@ -24,6 +24,8 @@
 #include <miral/window_info.h>
 #include <miral/window_manager_tools.h>
 
+#include <linux/input.h>
+
 using namespace miral;
 
 
@@ -141,4 +143,22 @@ void TitlebarWindowManagerPolicy::handle_displays_updated(Rectangles const& disp
     CanonicalWindowManagerPolicy::handle_displays_updated(displays);
 
     display_area = displays.bounding_rectangle();
+}
+
+bool TitlebarWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* event)
+{
+    if (miral::CanonicalWindowManagerPolicy::handle_keyboard_event(event))
+        return true;
+
+    auto const action = mir_keyboard_event_action(event);
+    auto const scan_code = mir_keyboard_event_scan_code(event);
+    auto const modifiers = mir_keyboard_event_modifiers(event) & modifier_mask;
+
+    if (action == mir_keyboard_action_down && scan_code == KEY_BACKSPACE &&
+        (modifiers == (mir_input_event_modifier_alt | mir_input_event_modifier_ctrl)))
+    {
+        titlebar_provider->stop();
+    }
+
+    return false;
 }

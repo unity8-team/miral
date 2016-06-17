@@ -40,6 +40,11 @@ TitlebarProvider::TitlebarProvider(miral::WindowManagerTools* const tools) : too
 
 TitlebarProvider::~TitlebarProvider()
 {
+    stop();
+}
+
+void TitlebarProvider::stop()
+{
     std::unique_lock<decltype(mutex)> lock{mutex};
     window_to_titlebar.clear();
     done = true;
