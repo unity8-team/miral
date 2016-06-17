@@ -18,7 +18,6 @@
 
 #include "miral/internal_client.h"
 
-#include <mir_toolkit/mir_connection.h>
 #include <mir/fd.h>
 #include <mir/server.h>
 #include <mir/scene/session.h>
@@ -92,7 +91,7 @@ void InternalClientRunner::run(mir::Server& server)
     thread = std::thread{[this]
         {
             client_code(connection);
-            connection = miral::toolkit::Connection{};
+            connection.reset();
         }};
 }
 

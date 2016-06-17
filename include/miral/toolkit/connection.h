@@ -35,6 +35,8 @@ public:
 
     operator MirConnection*() const { return self.get(); }
 
+    void reset() { self.reset(); }
+
 private:
     static void deleter(MirConnection* connection) { mir_connection_release(connection); }
     std::shared_ptr<MirConnection> self;

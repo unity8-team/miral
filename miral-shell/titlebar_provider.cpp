@@ -59,6 +59,7 @@ TitlebarProvider::~TitlebarProvider()
 {
     stop();
 
+    std::lock_guard<decltype(mutex)> lock{mutex};
     if (closer.joinable()) closer.join();
 }
 
@@ -67,12 +68,12 @@ void TitlebarProvider::stop()
     std::lock_guard<decltype(mutex)> lock{mutex};
     window_to_titlebar.clear();
 
-    if (connection)
+    if (connection && !closer.joinable())
     {
         closer = std::thread{[this]
             {
                 std::lock_guard<decltype(mutex)> lock{mutex};
-                connection = miral::toolkit::Connection{};
+                connection.reset();
             }};
     }
 }
