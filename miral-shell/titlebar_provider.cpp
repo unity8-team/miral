@@ -58,21 +58,29 @@ TitlebarProvider::TitlebarProvider(miral::WindowManagerTools* const tools) : too
 TitlebarProvider::~TitlebarProvider()
 {
     stop();
+
+    if (closer.joinable()) closer.join();
 }
 
 void TitlebarProvider::stop()
 {
-    std::unique_lock<decltype(mutex)> lock{mutex};
+    std::lock_guard<decltype(mutex)> lock{mutex};
     window_to_titlebar.clear();
-    done = true;
-    cv.notify_one();
+
+    if (connection)
+    {
+        closer = std::thread{[this]
+            {
+                std::lock_guard<decltype(mutex)> lock{mutex};
+                connection = miral::toolkit::Connection{};
+            }};
+    }
 }
 
-void TitlebarProvider::operator()(MirConnection* connection)
+void TitlebarProvider::operator()(miral::toolkit::Connection connection)
 {
     std::unique_lock<decltype(mutex)> lock{mutex};
     this->connection = connection;
-    cv.wait(lock, [this] { return done; });
 }
 
 void TitlebarProvider::operator()(std::weak_ptr<mir::scene::Session> const& session)

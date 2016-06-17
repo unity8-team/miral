@@ -35,7 +35,7 @@ class InternalClientRunner
 {
 public:
     InternalClientRunner(std::string name,
-         std::function<void(MirConnection* connection)> client_code,
+         std::function<void(miral::toolkit::Connection connection)> client_code,
          std::function<void(std::weak_ptr<mir::scene::Session> const session)> connect_notification);
 
     void run(mir::Server& server);
@@ -48,8 +48,8 @@ private:
     std::condition_variable mutable cv;
     mir::Fd fd;
     std::weak_ptr<mir::scene::Session> session;
-    MirConnection* connection = nullptr;
-    std::function<void(MirConnection* connection)> const client_code;
+    miral::toolkit::Connection connection;
+    std::function<void(miral::toolkit::Connection connection)> const client_code;
     std::function<void(std::weak_ptr<mir::scene::Session> const session)> connect_notification;
 };
 }
@@ -63,7 +63,7 @@ public:
 
 InternalClientRunner::InternalClientRunner(
     std::string const name,
-    std::function<void(MirConnection* connection)> client_code,
+    std::function<void(miral::toolkit::Connection connection)> client_code,
     std::function<void(std::weak_ptr<mir::scene::Session> const session)> connect_notification) :
     name(name),
     client_code(std::move(client_code)),
@@ -84,7 +84,7 @@ void InternalClientRunner::run(mir::Server& server)
     char connect_string[64] = {0};
     sprintf(connect_string, "fd://%d", fd.operator int());
 
-    connection = mir_connect_sync(connect_string, name.c_str());
+    connection = miral::toolkit::Connection{mir_connect_sync(connect_string, name.c_str())};
 
     std::unique_lock<decltype(mutex)> lock{mutex};
     cv.wait(lock, [&] { return !!session.lock(); });
@@ -92,8 +92,7 @@ void InternalClientRunner::run(mir::Server& server)
     thread = std::thread{[this]
         {
             client_code(connection);
-            mir_connection_release(connection);
-            connection = nullptr;
+            connection = miral::toolkit::Connection{};
         }};
 }
 
@@ -107,7 +106,7 @@ InternalClientRunner::~InternalClientRunner()
 
 miral::StartupInternalClient::StartupInternalClient(
     std::string name,
-    std::function<void(MirConnection* connection)> client_code,
+    std::function<void(toolkit::Connection connection)> client_code,
     std::function<void(std::weak_ptr<mir::scene::Session> const session)> connect_notification) :
     internal_client(std::make_shared<Self>(std::move(name), std::move(client_code), std::move(connect_notification)))
 {
@@ -139,7 +138,7 @@ void miral::InternalClientLauncher::operator()(mir::Server& server)
 
 void miral::InternalClientLauncher::launch(
     std::string const& name,
-    std::function<void(MirConnection* connection)> const& client_code,
+    std::function<void(toolkit::Connection connection)> const& client_code,
     std::function<void(std::weak_ptr<mir::scene::Session> const session)> const& connect_notification) const
 {
     self->runner = std::make_unique<InternalClientRunner>(name, client_code, connect_notification);

@@ -30,6 +30,7 @@ namespace toolkit
 class Connection
 {
 public:
+    Connection() = default;
     explicit Connection(MirConnection* connection) : self{connection, deleter} {}
 
     operator MirConnection*() const { return self.get(); }

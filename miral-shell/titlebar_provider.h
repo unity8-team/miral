@@ -28,7 +28,8 @@
 #include <atomic>
 #include <map>
 #include <mutex>
-#include <condition_variable>
+#include <miral/toolkit/connection.h>
+#include <thread>
 
 class TitlebarProvider
 {
@@ -36,7 +37,7 @@ public:
     TitlebarProvider(miral::WindowManagerTools* const tools);
     ~TitlebarProvider();
 
-    void operator()(MirConnection* connection);
+    void operator()(miral::toolkit::Connection connection);
     void operator()(std::weak_ptr<mir::scene::Session> const& session);
 
     auto session() const -> std::shared_ptr<mir::scene::Session>;
@@ -64,12 +65,11 @@ private:
 
     miral::WindowManagerTools* const tools;
     std::mutex mutable mutex;
-    MirConnection* connection = nullptr;
+    miral::toolkit::Connection connection;
     std::weak_ptr<mir::scene::Session> weak_session;
+    std::thread closer;
 
     SurfaceMap window_to_titlebar;
-    std::condition_variable cv;
-    bool done = false;
 
     static void insert(MirSurface* surface, Data* data);
     Data* find_titlebar_data(miral::Window const& window);

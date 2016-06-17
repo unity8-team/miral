@@ -19,7 +19,7 @@
 #ifndef MIRAL_INTERNAL_CLIENT_H
 #define MIRAL_INTERNAL_CLIENT_H
 
-#include <mir_toolkit/client_types.h>
+#include "miral/toolkit/connection.h"
 
 #include <functional>
 #include <memory>
@@ -41,7 +41,7 @@ class StartupInternalClient
 public:
     explicit StartupInternalClient(
         std::string name,
-        std::function<void(MirConnection* connection)> client_code,
+        std::function<void(toolkit::Connection connection)> client_code,
         std::function<void(std::weak_ptr<mir::scene::Session> const session)> connect_notification);
 
     template <typename ClientObject>
@@ -67,7 +67,7 @@ public:
 
     void launch(
         std::string const& name,
-        std::function<void(MirConnection* connection)> const& client_code,
+        std::function<void(toolkit::Connection connection)> const& client_code,
         std::function<void(std::weak_ptr<mir::scene::Session> const session)> const& connect_notification) const;
 
     template <typename ClientObject>
@@ -75,7 +75,7 @@ public:
     {
         launch(
             name,
-            [&](MirConnection* connection) { client_object(connection); },
+            [&](toolkit::Connection connection) { client_object(connection); },
             [&](std::weak_ptr<mir::scene::Session> const session) { client_object(session); });
     }
 
