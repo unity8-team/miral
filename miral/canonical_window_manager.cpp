@@ -35,23 +35,9 @@ miral::CanonicalWindowManagerPolicy::CanonicalWindowManagerPolicy(WindowManagerT
 {
 }
 
-void miral::CanonicalWindowManagerPolicy::click(Point cursor)
-{
-    if (auto const window = tools->window_at(cursor))
-        tools->select_active_window(window);
-}
-
 void miral::CanonicalWindowManagerPolicy::handle_displays_updated(Rectangles const& /*displays*/)
 {
 }
-
-bool miral::CanonicalWindowManagerPolicy::resize(Point cursor)
-{
-    if (!resizing)
-        tools->select_active_window(tools->window_at(old_cursor));
-    return resize(tools->active_window(), cursor, old_cursor);
-}
-
 
 auto miral::CanonicalWindowManagerPolicy::place_new_surface(
     miral::ApplicationInfo const& /*app_info*/,
@@ -71,15 +57,6 @@ void miral::CanonicalWindowManagerPolicy::handle_modify_window(
     WindowSpecification const& modifications)
 {
     tools->modify_window(window_info, modifications);
-}
-
-void miral::CanonicalWindowManagerPolicy::drag(Point cursor)
-{
-    if (auto const target = tools->window_at(old_cursor))
-    {
-        tools->select_active_window(target);
-        tools->drag_active_window(cursor - old_cursor);
-    }
 }
 
 void miral::CanonicalWindowManagerPolicy::handle_raise_window(WindowInfo& window_info)
@@ -261,29 +238,36 @@ bool miral::CanonicalWindowManagerPolicy::handle_pointer_event(MirPointerEvent c
         mir_pointer_event_axis_value(event, mir_pointer_axis_y)};
 
     bool consumes_event = false;
-    bool resize_event = false;
+    bool is_resize_event = false;
 
     if (action == mir_pointer_action_button_down)
     {
-        click(cursor);
+        if (auto const window = tools->window_at(cursor))
+            tools->select_active_window(window);
     }
     else if (action == mir_pointer_action_motion &&
              modifiers == mir_input_event_modifier_alt)
     {
         if (mir_pointer_event_button_state(event, mir_pointer_button_primary))
         {
-            drag(cursor);
+            if (auto const target = tools->window_at(old_cursor))
+            {
+                tools->select_active_window(target);
+                tools->drag_active_window(cursor - old_cursor);
+            }
             consumes_event = true;
         }
 
         if (mir_pointer_event_button_state(event, mir_pointer_button_tertiary))
         {
-            resize_event = resize(cursor);
+            if (!resizing)
+                tools->select_active_window(tools->window_at(old_cursor));
+            is_resize_event = resize(tools->active_window(), cursor, old_cursor);
             consumes_event = true;
         }
     }
 
-    resizing = resize_event;
+    resizing = is_resize_event;
     old_cursor = cursor;
     return consumes_event;
 }

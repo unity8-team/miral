@@ -18,7 +18,6 @@
 
 #include "miral/internal_client.h"
 
-#include <mir_toolkit/mir_connection.h>
 #include <mir/fd.h>
 #include <mir/server.h>
 #include <mir/scene/session.h>
@@ -35,7 +34,7 @@ class InternalClientRunner
 {
 public:
     InternalClientRunner(std::string name,
-         std::function<void(MirConnection* connection)> client_code,
+         std::function<void(miral::toolkit::Connection connection)> client_code,
          std::function<void(std::weak_ptr<mir::scene::Session> const session)> connect_notification);
 
     void run(mir::Server& server);
@@ -48,8 +47,8 @@ private:
     std::condition_variable mutable cv;
     mir::Fd fd;
     std::weak_ptr<mir::scene::Session> session;
-    MirConnection* connection = nullptr;
-    std::function<void(MirConnection* connection)> const client_code;
+    miral::toolkit::Connection connection;
+    std::function<void(miral::toolkit::Connection connection)> const client_code;
     std::function<void(std::weak_ptr<mir::scene::Session> const session)> connect_notification;
 };
 }
@@ -63,7 +62,7 @@ public:
 
 InternalClientRunner::InternalClientRunner(
     std::string const name,
-    std::function<void(MirConnection* connection)> client_code,
+    std::function<void(miral::toolkit::Connection connection)> client_code,
     std::function<void(std::weak_ptr<mir::scene::Session> const session)> connect_notification) :
     name(name),
     client_code(std::move(client_code)),
@@ -77,14 +76,14 @@ void InternalClientRunner::run(mir::Server& server)
         {
             std::lock_guard<decltype(mutex)> lock_guard{mutex};
             session = std::dynamic_pointer_cast<mir::scene::Session>(mf_session);
-            cv.notify_one();
             connect_notification(session);
+            cv.notify_one();
         });
 
     char connect_string[64] = {0};
     sprintf(connect_string, "fd://%d", fd.operator int());
 
-    connection = mir_connect_sync(connect_string, name.c_str());
+    connection = miral::toolkit::Connection{mir_connect_sync(connect_string, name.c_str())};
 
     std::unique_lock<decltype(mutex)> lock{mutex};
     cv.wait(lock, [&] { return !!session.lock(); });
@@ -92,8 +91,7 @@ void InternalClientRunner::run(mir::Server& server)
     thread = std::thread{[this]
         {
             client_code(connection);
-            mir_connection_release(connection);
-            connection = nullptr;
+            connection.reset();
         }};
 }
 
@@ -107,7 +105,7 @@ InternalClientRunner::~InternalClientRunner()
 
 miral::StartupInternalClient::StartupInternalClient(
     std::string name,
-    std::function<void(MirConnection* connection)> client_code,
+    std::function<void(toolkit::Connection connection)> client_code,
     std::function<void(std::weak_ptr<mir::scene::Session> const session)> connect_notification) :
     internal_client(std::make_shared<Self>(std::move(name), std::move(client_code), std::move(connect_notification)))
 {
@@ -129,6 +127,7 @@ miral::StartupInternalClient::~StartupInternalClient() = default;
 struct miral::InternalClientLauncher::Self
 {
     mir::Server* server = nullptr;
+    std::unique_ptr<InternalClientRunner> runner;
 };
 
 void miral::InternalClientLauncher::operator()(mir::Server& server)
@@ -138,11 +137,11 @@ void miral::InternalClientLauncher::operator()(mir::Server& server)
 
 void miral::InternalClientLauncher::launch(
     std::string const& name,
-    std::function<void(MirConnection* connection)> const& client_code,
+    std::function<void(toolkit::Connection connection)> const& client_code,
     std::function<void(std::weak_ptr<mir::scene::Session> const session)> const& connect_notification) const
 {
-    self->server->the_main_loop()->enqueue(this, [=]
-        { InternalClientRunner{name, client_code, connect_notification}.run(*self->server); });
+    self->runner = std::make_unique<InternalClientRunner>(name, client_code, connect_notification);
+    self->server->the_main_loop()->enqueue(this, [this] { self->runner->run(*self->server); });
 }
 
 miral::InternalClientLauncher::InternalClientLauncher() : self{std::make_shared<Self>()} {}

@@ -134,7 +134,7 @@ auto miral::BasicWindowManager::add_surface(
         std::shared_ptr<scene::Surface> const scene_surface = window_info.window();
         scene_surface->add_observer(std::make_shared<shell::SurfaceReadyObserver>(
             [this, &window_info](std::shared_ptr<scene::Session> const&, std::shared_ptr<scene::Surface> const&)
-                { policy->handle_window_ready(window_info); },
+                { Locker lock{mutex, policy}; policy->handle_window_ready(window_info); },
             session,
             scene_surface));
     }
@@ -431,8 +431,11 @@ void miral::BasicWindowManager::focus_next_within_application()
         auto const& siblings = info_for(prev.application()).windows();
         auto current = find(begin(siblings), end(siblings), prev);
 
-        while (current != end(siblings) && prev == select_active_window(*current))
-            ++current;
+        if (current != end(siblings))
+        {
+            while (++current != end(siblings) && prev == select_active_window(*current))
+                ;
+        }
 
         if (current == end(siblings))
         {
@@ -538,6 +541,7 @@ void miral::BasicWindowManager::modify_window(WindowInfo& window_info, WindowSpe
     if (modifications.field().is_set())\
         window_info_tmp.field(modifications.field().value())
 
+    COPY_IF_SET(name);
     COPY_IF_SET(type);
     COPY_IF_SET(min_width);
     COPY_IF_SET(min_height);
