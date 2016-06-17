@@ -125,7 +125,7 @@ auto miral::BasicWindowManager::add_surface(
         std::shared_ptr<scene::Surface> const scene_surface = window_info.window();
         scene_surface->add_observer(std::make_shared<shell::SurfaceReadyObserver>(
             [this, &window_info](std::shared_ptr<scene::Session> const&, std::shared_ptr<scene::Surface> const&)
-                { policy->handle_window_ready(window_info); },
+                { Locker lock{mutex, policy}; policy->handle_window_ready(window_info); },
             session,
             scene_surface));
     }
