@@ -69,15 +69,6 @@ auto miral::BasicWindowManager::build_window(Application const& application, Win
 {
     auto spec = spec_;
 
-#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 22, 0)
-    // Quick, dirty hack to support titlebar creation - really need an API for buffer stream creation
-    if (!spec.content_id().is_set() && !spec.streams().is_set())
-    {
-        mir::graphics::BufferProperties properties(spec.size().value(), spec.pixel_format().value(), mir::graphics::BufferUsage::software);
-        spec.content_id() = BufferStreamId{application->create_buffer_stream(properties).as_value()};
-    }
-#endif
-
     auto result = surface_builder(application, spec);
     auto& info = window_info.emplace(result, WindowInfo{result, spec}).first->second;
     if (spec.parent().is_set() && spec.parent().value().lock())
@@ -134,7 +125,7 @@ auto miral::BasicWindowManager::add_surface(
         std::shared_ptr<scene::Surface> const scene_surface = window_info.window();
         scene_surface->add_observer(std::make_shared<shell::SurfaceReadyObserver>(
             [this, &window_info](std::shared_ptr<scene::Session> const&, std::shared_ptr<scene::Surface> const&)
-                { policy->handle_window_ready(window_info); },
+                { Locker lock{mutex, policy}; policy->handle_window_ready(window_info); },
             session,
             scene_surface));
     }
@@ -200,13 +191,6 @@ void miral::BasicWindowManager::remove_surface(
         // Fallback to cycling through applications
         focus_next_application();
     }
-}
-
-void miral::BasicWindowManager::destroy(Window& window)
-{
-    erase(info_for(window));
-
-    window.application()->destroy_surface(window);
 }
 
 void miral::BasicWindowManager::erase(miral::WindowInfo const& info)
@@ -431,8 +415,11 @@ void miral::BasicWindowManager::focus_next_within_application()
         auto const& siblings = info_for(prev.application()).windows();
         auto current = find(begin(siblings), end(siblings), prev);
 
-        while (current != end(siblings) && prev == select_active_window(*current))
-            ++current;
+        if (current != end(siblings))
+        {
+            while (++current != end(siblings) && prev == select_active_window(*current))
+                ;
+        }
 
         if (current == end(siblings))
         {
@@ -538,6 +525,7 @@ void miral::BasicWindowManager::modify_window(WindowInfo& window_info, WindowSpe
     if (modifications.field().is_set())\
         window_info_tmp.field(modifications.field().value())
 
+    COPY_IF_SET(name);
     COPY_IF_SET(type);
     COPY_IF_SET(min_width);
     COPY_IF_SET(min_height);

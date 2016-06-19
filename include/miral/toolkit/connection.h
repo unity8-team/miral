@@ -16,26 +16,32 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#ifndef MIRAL_SHELL_TITLEBAR_USER_DATA_H
-#define MIRAL_SHELL_TITLEBAR_USER_DATA_H
+#ifndef MIRAL_TOOLKIT_CONNECTION_H
+#define MIRAL_TOOLKIT_CONNECTION_H
 
-#include <miral/window.h>
+#include <mir_toolkit/mir_connection.h>
 
-class TitlebarUserData
+#include <memory>
+
+namespace miral
+{
+namespace toolkit
+{
+class Connection
 {
 public:
-    TitlebarUserData(miral::Window window) : window{window} { }
+    Connection() = default;
+    explicit Connection(MirConnection* connection) : self{connection, deleter} {}
 
-    void paint_titlebar(int intensity);
+    operator MirConnection*() const { return self.get(); }
 
-    miral::Window window;
+    void reset() { self.reset(); }
 
 private:
-    struct StreamPainter;
-    struct AllocatingPainter;
-    struct SwappingPainter;
-
-    std::shared_ptr<StreamPainter> stream_painter;
+    static void deleter(MirConnection* connection) { mir_connection_release(connection); }
+    std::shared_ptr<MirConnection> self;
 };
+}
+}
 
-#endif //MIRAL_SHELL_TITLEBAR_USER_DATA_H
+#endif //MIRAL_TOOLKIT_CONNECTION_H
