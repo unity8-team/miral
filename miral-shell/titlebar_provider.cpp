@@ -60,45 +60,23 @@ TitlebarProvider::TitlebarProvider(miral::WindowManagerTools* const tools) : too
 TitlebarProvider::~TitlebarProvider()
 {
     stop();
-
-    std::lock_guard<decltype(mutex)> lock{mutex};
-    if (worker.joinable()) worker.join();
-}
-
-void TitlebarProvider::do_work()
-{
-    while (!work_done)
-    {
-        WorkQueue::value_type work;
-        {
-            std::unique_lock<decltype(work_mutex)> lock{work_mutex};
-            work_cv.wait(lock, [this] { return !work_queue.empty(); });
-            work = work_queue.front();
-            work_queue.pop();
-        }
-
-        work();
-    }
 }
 
 void TitlebarProvider::stop()
 {
-    std::lock_guard<decltype(work_mutex)> lock{work_mutex};
-    work_queue.push([this]
+    enqueue_work([this]
         {
             window_to_titlebar.clear();
             connection.reset();
-            work_done = true;
+            stop_work();
         });
-
-    work_cv.notify_one();
 }
 
 void TitlebarProvider::operator()(miral::toolkit::Connection connection)
 {
     std::unique_lock<decltype(mutex)> lock{mutex};
     this->connection = connection;
-    worker = std::thread{[this] { do_work(); }};
+    start_work();
 }
 
 void TitlebarProvider::operator()(std::weak_ptr<mir::scene::Session> const& session)
@@ -115,8 +93,7 @@ auto TitlebarProvider::session() const -> std::shared_ptr<mir::scene::Session>
 
 void TitlebarProvider::create_titlebar_for(miral::Window const& window)
 {
-    std::lock_guard<decltype(work_mutex)> lock{work_mutex};
-    work_queue.push([this, window]
+    enqueue_work([this, window]
         {
             std::ostringstream buffer;
 
@@ -131,8 +108,6 @@ void TitlebarProvider::create_titlebar_for(miral::Window const& window)
             std::lock_guard<decltype(mutex)> lock{mutex};
             spec.create_surface(insert, &window_to_titlebar[window]);
         });
-
-    work_cv.notify_one();
 }
 
 void TitlebarProvider::paint_titlebar_for(miral::Window const& window, int intensity)
@@ -141,13 +116,7 @@ void TitlebarProvider::paint_titlebar_for(miral::Window const& window, int inten
     {
         if (auto surface = data->titlebar.load())
         {
-            std::lock_guard<decltype(work_mutex)> lock{work_mutex};
-            work_queue.push([this, surface, intensity]
-                {
-                    paint_surface(surface, intensity);
-                });
-
-            work_cv.notify_one();
+            enqueue_work([this, surface, intensity]{ paint_surface(surface, intensity); });
         }
         else
         {
@@ -158,14 +127,11 @@ void TitlebarProvider::paint_titlebar_for(miral::Window const& window, int inten
 
 void TitlebarProvider::destroy_titlebar_for(miral::Window const& window)
 {
-    std::lock_guard<decltype(work_mutex)> lock{work_mutex};
-     work_queue.push([this, window]
+    enqueue_work([this, window]
         {
             std::lock_guard<decltype(mutex)> lock{mutex};
             window_to_titlebar.erase(window);
         });
-
-    work_cv.notify_one();
 }
 
 void TitlebarProvider::resize_titlebar_for(miral::Window const& window, Size const& size)
@@ -244,13 +210,8 @@ void TitlebarProvider::insert(MirSurface* surface, Data* data)
 {
     if (auto const intensity = data->intensity.load())
     {
-//        std::lock_guard<decltype(work_mutex)> lock{work_mutex};
-//        work_queue.push([this, surface, intensity]
-//            {
-//                paint_surface(surface, intensity);
-//            });
-//
-//        work_cv.notify_one();
+        // TODO This really ought to be enqueued on the worker thread,
+        //      but we don't have a reference to the worker
         paint_surface(surface, intensity);
     }
     data->titlebar = surface;
@@ -274,3 +235,40 @@ miral::Window TitlebarProvider::find_titlebar_window(miral::Window const& window
     return (find != window_to_titlebar.end()) ? find->second.window : miral::Window{};
 }
 
+Worker::~Worker()
+{
+    if (worker.joinable()) worker.join();
+}
+
+void Worker::do_work()
+{
+    while (!work_done)
+    {
+        WorkQueue::value_type work;
+        {
+            std::unique_lock<decltype(work_mutex)> lock{work_mutex};
+            work_cv.wait(lock, [this] { return !work_queue.empty(); });
+            work = work_queue.front();
+            work_queue.pop();
+        }
+
+        work();
+    }
+}
+
+void Worker::enqueue_work(std::function<void()> const& functor)
+{
+    std::lock_guard<decltype(work_mutex)> lock{work_mutex};
+    work_queue.push(functor);
+    work_cv.notify_one();
+}
+
+void Worker::start_work()
+{
+    worker = std::thread{[this] { do_work(); }};
+}
+
+void Worker::stop_work()
+{
+    enqueue_work([this] { work_done = true; });
+}
