@@ -30,6 +30,9 @@
 #include <mutex>
 #include <miral/toolkit/connection.h>
 #include <thread>
+#include <condition_variable>
+#include <queue>
+
 
 class TitlebarProvider
 {
@@ -62,18 +65,26 @@ private:
     };
 
     using SurfaceMap = std::map<std::weak_ptr<mir::scene::Surface>, Data, std::owner_less<std::weak_ptr<mir::scene::Surface>>>;
+    using WorkQueue = std::queue<std::function<void()>>;
 
     miral::WindowManagerTools* const tools;
     std::mutex mutable mutex;
     miral::toolkit::Connection connection;
     std::weak_ptr<mir::scene::Session> weak_session;
-    std::thread closer;
+
+    std::mutex mutable work_mutex;
+    std::condition_variable work_cv;
+    WorkQueue work_queue;
+    bool work_done = false;
+    std::thread worker;
 
     SurfaceMap window_to_titlebar;
 
     static void insert(MirSurface* surface, Data* data);
     Data* find_titlebar_data(miral::Window const& window);
     miral::Window find_titlebar_window(miral::Window const& window) const;
+
+    void do_work();
 };
 
 
