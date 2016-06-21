@@ -50,6 +50,9 @@ public:
     bool handle_touch_event(const MirTouchEvent *event) override;
     bool handle_pointer_event(const MirPointerEvent *event) override;
 
+    void advise_begin() override;
+    void advise_end() override;
+
     void advise_new_app(miral::ApplicationInfo &application) override;
     void advise_delete_app(const miral::ApplicationInfo &application) override;
 
@@ -57,10 +60,11 @@ public:
     void advise_focus_lost(const miral::WindowInfo &info) override;
     void advise_focus_gained(const miral::WindowInfo &info) override;
     void advise_state_change(const miral::WindowInfo &info, MirSurfaceState state) override;
+    void advise_move_to(miral::WindowInfo const& window_info, Point top_left) override;
     void advise_resize(const miral::WindowInfo &info, const Size &newSize) override;
     void advise_delete_window(const miral::WindowInfo &windowInfo) override;
+    void advise_raise(std::vector<miral::Window> const& windows) override;
 
-    void handle_app_info_updated(const Rectangles &displays) override;
     void handle_displays_updated(const Rectangles &displays) override;
 
 Q_SIGNALS:
@@ -73,7 +77,6 @@ Q_SIGNALS:
 //    // requires Qt::BlockingQueuedConnection!!
 //    void sessionAboutToCreateSurface(const miral::ApplicationInfo &app_info,
 //                                     const miral::WindowSpecification &request_parameters);
-
 
 private:
     const miral::WindowManagerTools *m_tools;

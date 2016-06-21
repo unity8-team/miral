@@ -60,17 +60,9 @@ public:
     bool handle_touch_event(MirTouchEvent const* event) override;
     bool handle_pointer_event(MirPointerEvent const* event) override;
 
-    void advise_new_window(WindowInfo& window_info) override;
-    void advise_focus_lost(WindowInfo const& info) override;
+
     void advise_focus_gained(WindowInfo const& info) override;
-    void advise_state_change(WindowInfo const& window_info, MirSurfaceState state) override;
-    void advise_resize(WindowInfo const& window_info, Size const& new_size) override;
-    void advise_delete_window(WindowInfo const& window_info) override;
 
-    void advise_new_app(miral::ApplicationInfo& application) override;
-    void advise_delete_app(miral::ApplicationInfo const& application) override;
-
-    void handle_app_info_updated(Rectangles const& displays) override;
     void handle_displays_updated(Rectangles const& displays) override;
 
 protected:
@@ -82,9 +74,7 @@ protected:
         mir_input_event_modifier_meta;
 
 private:
-    void drag(Point cursor);
-    void click(Point cursor);
-    bool resize(Point cursor);
+
     void toggle(MirSurfaceState state);
 
 

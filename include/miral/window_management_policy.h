@@ -35,6 +35,12 @@ using namespace mir::geometry;
 class WindowManagementPolicy
 {
 public:
+    /// before any related calls begin
+    virtual void advise_begin();
+
+    /// after any related calls end
+    virtual void advise_end();
+
 /** @name Customize initial window placement
  *  @{ */
     virtual auto place_new_surface(
@@ -58,22 +64,28 @@ public:
     virtual bool handle_pointer_event(MirPointerEvent const* event) = 0;
 /** @} */
 
-/** @name notification of WM events that the policy may need to track
+/** @name notification of WM events that the policy may need to track.
+ * With the exception of focus_lost/gained these are pre-notifications.
+ * \note if the policy updates a Window object directly (as opposed to using tools)
+ * no notification is generated.
  *  @{ */
-    virtual void advise_new_app(ApplicationInfo& application) = 0;
-    virtual void advise_delete_app(ApplicationInfo const& application) = 0;
-    virtual void advise_new_window(WindowInfo& window_info) = 0;
-    virtual void advise_focus_lost(WindowInfo const& info) = 0;
-    virtual void advise_focus_gained(WindowInfo const& info) = 0;
-    virtual void advise_state_change(WindowInfo const& window_info, MirSurfaceState state) = 0;
-    virtual void advise_resize(WindowInfo const& window_info, Size const& new_size) = 0;
-    virtual void advise_delete_window(WindowInfo const& window_info) = 0;
+    virtual void advise_new_app(ApplicationInfo& application);
+    virtual void advise_delete_app(ApplicationInfo const& application);
+    virtual void advise_new_window(WindowInfo& window_info);
+    virtual void advise_focus_lost(WindowInfo const& info);
+    virtual void advise_focus_gained(WindowInfo const& info);
+    virtual void advise_state_change(WindowInfo const& window_info, MirSurfaceState state);
+    virtual void advise_move_to(WindowInfo const& window_info, Point top_left);
+    virtual void advise_resize(WindowInfo const& window_info, Size const& new_size);
+    virtual void advise_delete_window(WindowInfo const& window_info);
+
+    /// \note ordering isn't significant - the existing Z-order will be maintained
+    virtual void advise_raise(std::vector<Window> const& windows);
 /** @} */
 
-/** @name Changes to the applications or displays
- * \todo these are very course grained and should probably be replaced
+/** @name Changes to the displays
+ * \todo this is very course grained and should probably be replaced
  *  @{ */
-    virtual void handle_app_info_updated(Rectangles const& displays) = 0;
     virtual void handle_displays_updated(Rectangles const& displays) = 0;
 /** @} */
 

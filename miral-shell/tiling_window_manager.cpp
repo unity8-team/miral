@@ -18,9 +18,9 @@
 
 #include "tiling_window_manager.h"
 
-#include "miral/application_info.h"
-#include "miral/window_info.h"
-#include "miral/window_manager_tools.h"
+#include <miral/application_info.h>
+#include <miral/window_info.h>
+#include <miral/window_manager_tools.h>
 
 #include <linux/input.h>
 #include <algorithm>
@@ -49,8 +49,11 @@ inline Rectangle const& tile_for(miral::ApplicationInfo const& app_info)
 
 // Demonstrate implementing a simple tiling algorithm
 
-TilingWindowManagerPolicy::TilingWindowManagerPolicy(WindowManagerTools* const tools) :
-    tools{tools}
+TilingWindowManagerPolicy::TilingWindowManagerPolicy(WindowManagerTools* const tools, SpinnerSplash const& spinner,
+                                                     miral::InternalClientLauncher const& launcher) :
+    tools{tools},
+    spinner{spinner},
+    launcher{launcher}
 {
 }
 
@@ -60,14 +63,10 @@ void TilingWindowManagerPolicy::click(Point cursor)
     tools->select_active_window(window);
 }
 
-void TilingWindowManagerPolicy::handle_app_info_updated(Rectangles const& displays)
-{
-    update_tiles(displays);
-}
-
 void TilingWindowManagerPolicy::handle_displays_updated(Rectangles const& displays)
 {
-    update_tiles(displays);
+    this->displays = displays;
+    dirty_tiles = true;
 }
 
 void TilingWindowManagerPolicy::resize(Point cursor)
@@ -91,70 +90,50 @@ auto TilingWindowManagerPolicy::place_new_surface(
 {
     auto parameters = request_parameters;
 
-    Rectangle const& tile = tile_for(app_info);
-    parameters.top_left() = tile.top_left;
-
-    if (parameters.parent().is_set() && parameters.parent().value().lock())
+    if (app_info.application() != spinner.session())
     {
-        auto parent = tools->info_for(parameters.parent().value()).window();
-        auto const width = parameters.size().value().width.as_int();
-        auto const height = parameters.size().value().height.as_int();
+        Rectangle const& tile = tile_for(app_info);
 
-        if (parameters.aux_rect().is_set() && parameters.edge_attachment().is_set())
+        if (!parameters.parent().is_set() || !parameters.parent().value().lock())
         {
-            auto const edge_attachment = parameters.edge_attachment().value();
-            auto const aux_rect = parameters.aux_rect().value();
-            auto const parent_top_left = parent.top_left();
-            auto const top_left = aux_rect.top_left     -Point{} + parent_top_left;
-            auto const top_right= aux_rect.top_right()  -Point{} + parent_top_left;
-            auto const bot_left = aux_rect.bottom_left()-Point{} + parent_top_left;
-
-            if (edge_attachment & mir_edge_attachment_vertical)
+            if (app_info.windows().empty())
             {
-                if (tile.contains(top_right + Displacement{width, height}))
-                {
-                    parameters.top_left() = top_right;
-                }
-                else if (tile.contains(top_left + Displacement{-width, height}))
-                {
-                    parameters.top_left() = top_left + Displacement{-width, 0};
-                }
+                parameters.top_left() = tile.top_left;
+                parameters.size() = tile.size;
             }
-
-            if (edge_attachment & mir_edge_attachment_horizontal)
+            else
             {
-                if (tile.contains(bot_left + Displacement{width, height}))
-                {
-                    parameters.top_left() = bot_left;
-                }
-                else if (tile.contains(top_left + Displacement{width, -height}))
-                {
-                    parameters.top_left() = top_left + Displacement{0, -height};
-                }
+                auto top_level_windows = count_if(begin(app_info.windows()), end(app_info.windows()), [this]
+                    (Window const& window){ return !tools->info_for(window).parent(); });
+
+                parameters.top_left() = tile.top_left + top_level_windows*Displacement{15, 15};
             }
         }
-        else
-        {
-            auto const parent_top_left = parent.top_left();
-            auto const centred = parent_top_left
-                                 + 0.5*(as_displacement(parent.size()) - as_displacement(parameters.size().value()))
-                                 - DeltaY{(parent.size().height.as_int()-height)/6};
 
-            parameters.top_left() = centred;
-        }
+        clip_to_tile(parameters, tile);
     }
 
-    clip_to_tile(parameters, tile);
     return parameters;
 }
 
-void TilingWindowManagerPolicy::advise_new_window(WindowInfo& /*window_info*/)
+void TilingWindowManagerPolicy::advise_new_window(WindowInfo& window_info)
 {
+    if (spinner.session() == window_info.window().application())
+        dirty_tiles = true;
 }
 
 void TilingWindowManagerPolicy::handle_window_ready(WindowInfo& window_info)
 {
     tools->select_active_window(window_info.window());
+}
+
+namespace
+{
+template<typename ValueType>
+void reset(mir::optional_value<ValueType>& option)
+{
+    if (option.is_set()) option.consume();
+}
 }
 
 void TilingWindowManagerPolicy::handle_modify_window(
@@ -164,18 +143,18 @@ void TilingWindowManagerPolicy::handle_modify_window(
     auto mods = modifications;
 
     // filter out changes we don't want the client making
-    mods.top_left().consume();
-    mods.size().consume();
-    mods.output_id().consume();
-    mods.edge_attachment().consume();
-    mods.min_width().consume();
-    mods.min_height().consume();
-    mods.max_width().consume();
-    mods.max_height().consume();
-    mods.width_inc().consume();
-    mods.height_inc().consume();
-    mods.min_aspect().consume();
-    mods.max_aspect().consume();
+    reset(mods.top_left());
+    reset(mods.size());
+    reset(mods.output_id());
+    reset(mods.edge_attachment());
+    reset(mods.min_width());
+    reset(mods.min_height());
+    reset(mods.max_width());
+    reset(mods.max_height());
+    reset(mods.width_inc());
+    reset(mods.height_inc());
+    reset(mods.min_aspect());
+    reset(mods.max_aspect());
 
     if (mods.state().is_set())
     {
@@ -184,10 +163,6 @@ void TilingWindowManagerPolicy::handle_modify_window(
     }
 
     tools->modify_window(window_info, mods);
-}
-
-void TilingWindowManagerPolicy::advise_delete_window(WindowInfo const& /*window_info*/)
-{
 }
 
 auto TilingWindowManagerPolicy::transform_set_state(WindowInfo& window_info, MirSurfaceState value)
@@ -272,6 +247,13 @@ bool TilingWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* ev
     auto const scan_code = mir_keyboard_event_scan_code(event);
     auto const modifiers = mir_keyboard_event_modifiers(event) & modifier_mask;
 
+    if (action == mir_keyboard_action_down && scan_code == KEY_F12 &&
+        (modifiers & modifier_mask) == mir_input_event_modifier_alt)
+    {
+        launcher.launch("Spinner", spinner);
+        return true;
+    }
+
     if (action == mir_keyboard_action_down && scan_code == KEY_F11)
     {
         switch (modifiers & modifier_mask)
@@ -297,6 +279,7 @@ bool TilingWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* ev
         switch (modifiers & modifier_mask)
         {
         case mir_input_event_modifier_alt:
+            if (tools->active_window().application() != spinner.session())
             tools->kill_active_application(SIGTERM);
 
             return true;
@@ -438,12 +421,15 @@ void TilingWindowManagerPolicy::toggle(MirSurfaceState state)
 auto TilingWindowManagerPolicy::application_under(Point position)
 -> Application
 {
-    return tools->find_application([&](ApplicationInfo const& info) { return tile_for(info).contains(position);});
+    return tools->find_application([&, this](ApplicationInfo const& info)
+        { return spinner.session() != info.application() && tile_for(info).contains(position);});
 }
 
 void TilingWindowManagerPolicy::update_tiles(Rectangles const& displays)
 {
-    auto const applications = tools->count_applications();
+    auto applications = tools->count_applications();
+
+    if (spinner.session()) --applications;
 
     if (applications < 1 || displays.size() < 1) return;
 
@@ -456,6 +442,9 @@ void TilingWindowManagerPolicy::update_tiles(Rectangles const& displays)
 
     tools->for_each_application([&](ApplicationInfo& info)
         {
+            if (spinner.session() == info.application())
+                return;
+
             auto& tile = tile_for(info);
 
             auto const x = (total_width * index) / applications;
@@ -474,11 +463,27 @@ void TilingWindowManagerPolicy::update_tiles(Rectangles const& displays)
 
 void TilingWindowManagerPolicy::update_surfaces(ApplicationInfo& info, Rectangle const& old_tile, Rectangle const& new_tile)
 {
-    for (auto& window : info.windows())
+    for (auto const& window : info.windows())
     {
         if (window)
         {
-            fit_to_new_tile(window, old_tile, new_tile);
+            auto& window_info = tools->info_for(window);
+
+            if (!window_info.parent())
+            {
+                auto const new_pos = window.top_left() + (new_tile.top_left - old_tile.top_left);
+                auto const offset = new_pos - new_tile.top_left;
+
+                // For now just scale if was filling width/height of tile
+                auto const old_size = window.size();
+                auto const scaled_width  = old_size.width  == old_tile.size.width  ? new_tile.size.width  : old_size.width;
+                auto const scaled_height = old_size.height == old_tile.size.height ? new_tile.size.height : old_size.height;
+
+                auto width  = std::min(new_tile.size.width.as_int()  - offset.dx.as_int(), scaled_width.as_int());
+                auto height = std::min(new_tile.size.height.as_int() - offset.dy.as_int(), scaled_height.as_int());
+
+                tools->place_and_size(window_info, new_pos, {width, height});
+            }
         }
     }
 }
@@ -491,22 +496,6 @@ void TilingWindowManagerPolicy::clip_to_tile(miral::WindowSpecification& paramet
     auto height = std::min(tile.size.height.as_int()-displacement.dy.as_int(), parameters.size().value().height.as_int());
 
     parameters.size() = Size{width, height};
-}
-
-void TilingWindowManagerPolicy::fit_to_new_tile(miral::Window& window, Rectangle const& old_tile, Rectangle const& new_tile)
-{
-    auto const new_pos = window.top_left() + (new_tile.top_left - old_tile.top_left);
-    auto const offset = new_pos - new_tile.top_left;
-
-    // For now just scale if was filling width/height of tile
-    auto const old_size = window.size();
-    auto const scaled_width = old_size.width == old_tile.size.width ? new_tile.size.width : old_size.width;
-    auto const scaled_height = old_size.height == old_tile.size.height ? new_tile.size.height : old_size.height;
-
-    auto width = std::min(new_tile.size.width.as_int()-offset.dx.as_int(), scaled_width.as_int());
-    auto height = std::min(new_tile.size.height.as_int()-offset.dy.as_int(), scaled_height.as_int());
-
-    tools->place_and_size(tools->info_for(window), new_pos, {width, height});
 }
 
 void TilingWindowManagerPolicy::drag(WindowInfo& window_info, Point to, Point from, Rectangle bounds)
@@ -560,8 +549,8 @@ void TilingWindowManagerPolicy::resize(Window window, Point cursor, Point old_cu
         auto const old_displacement = old_cursor - top_left;
         auto const new_displacement = cursor - top_left;
 
-        auto const scale_x = new_displacement.dx.as_float()/std::max(1.0f, old_displacement.dx.as_float());
-        auto const scale_y = new_displacement.dy.as_float()/std::max(1.0f, old_displacement.dy.as_float());
+        auto const scale_x = float(new_displacement.dx.as_int())/std::max(1.0f, float(old_displacement.dx.as_int()));
+        auto const scale_y = float(new_displacement.dy.as_int())/std::max(1.0f, float(old_displacement.dy.as_int()));
 
         if (scale_x <= 0.0f || scale_y <= 0.0f) return;
 
@@ -583,25 +572,36 @@ void TilingWindowManagerPolicy::resize(Window window, Point cursor, Point old_cu
 void TilingWindowManagerPolicy::advise_focus_gained(WindowInfo const& info)
 {
     tools->raise_tree(info.window());
-}
 
-void TilingWindowManagerPolicy::advise_focus_lost(WindowInfo const& /*info*/)
-{
-}
+    if (auto const spinner_session = spinner.session())
+    {
+        auto const& spinner_info = tools->info_for(spinner_session);
 
-void TilingWindowManagerPolicy::advise_state_change(WindowInfo const& /*window_info*/, MirSurfaceState /*state*/)
-{
-}
-
-void TilingWindowManagerPolicy::advise_resize(WindowInfo const& /*window_info*/, Size const& /*new_size*/)
-{
+        if (spinner_info.windows().size() > 0)
+            tools->raise_tree(spinner_info.windows()[0]);
+    }
 }
 
 void TilingWindowManagerPolicy::advise_new_app(miral::ApplicationInfo& application)
 {
+    if (spinner.session() == application.application())
+        return;
+
     application.userdata(std::make_shared<TilingWindowManagerPolicyData>());
+    dirty_tiles = true;
 }
 
-void TilingWindowManagerPolicy::advise_delete_app(miral::ApplicationInfo const& /*application*/)
+void TilingWindowManagerPolicy::advise_delete_app(miral::ApplicationInfo const& application)
 {
+    if (spinner.session() == application.application())
+        return;
+
+    dirty_tiles = true;
+}
+void TilingWindowManagerPolicy::advise_end()
+{
+    if (dirty_tiles)
+        update_tiles(displays);
+
+    dirty_tiles = false;
 }

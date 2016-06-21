@@ -4,6 +4,7 @@ include_directories(include SYSTEM ${MIRSERVER_INCLUDE_DIRS})
 
 add_library(miral SHARED
     application.cpp                   ${CMAKE_SOURCE_DIR}/include/miral/application.h
+    application_authorizer.cpp        ${CMAKE_SOURCE_DIR}/include/miral/application_authorizer.h
     application_info.cpp              ${CMAKE_SOURCE_DIR}/include/miral/application_info.h
     canonical_window_manager.cpp      ${CMAKE_SOURCE_DIR}/include/miral/canonical_window_manager.h
     runner.cpp                        ${CMAKE_SOURCE_DIR}/include/miral/runner.h
@@ -13,11 +14,11 @@ add_library(miral SHARED
     window_info.cpp                   ${CMAKE_SOURCE_DIR}/include/miral/window_info.h
     window_management_options.cpp     ${CMAKE_SOURCE_DIR}/include/miral/window_management_options.h
     window_specification.cpp          ${CMAKE_SOURCE_DIR}/include/miral/window_specification.h
-    startup_internal_client.cpp       ${CMAKE_SOURCE_DIR}/include/miral/startup_internal_client.h
-    mru_window_list.cpp               ${CMAKE_SOURCE_DIR}/include/miral/mru_window_list.h
+    internal_client.cpp               ${CMAKE_SOURCE_DIR}/include/miral/internal_client.h
+    mru_window_list.cpp               mru_window_list.h
     set_window_managment_policy.cpp   ${CMAKE_SOURCE_DIR}/include/miral/set_window_managment_policy.h
     basic_window_manager.cpp          basic_window_manager.h
-    ${CMAKE_SOURCE_DIR}/include/miral/window_management_policy.h
+    window_management_policy.cpp      ${CMAKE_SOURCE_DIR}/include/miral/window_management_policy.h
     ${CMAKE_SOURCE_DIR}/include/miral/window_manager_tools.h
     ${CMAKE_SOURCE_DIR}/include/miral/stream_specification.h
 )

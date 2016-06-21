@@ -24,11 +24,11 @@
 #include "miral/window_info.h"
 #include "miral/application.h"
 #include "miral/application_info.h"
-#include "miral/mru_window_list.h"
+#include "mru_window_list.h"
 
-#include "mir/geometry/rectangles.h"
-#include "mir/shell/abstract_shell.h"
-#include "mir/shell/window_manager.h"
+#include <mir/geometry/rectangles.h>
+#include <mir/shell/abstract_shell.h>
+#include <mir/shell/window_manager.h>
 
 #include <map>
 #include <mutex>
@@ -166,9 +166,10 @@ private:
 
     auto can_activate_window_for_session(miral::Application const& session) -> bool;
 
-    auto place_new_surface(ApplicationInfo const& app_info, WindowSpecification const& request_parameters)
+    auto place_new_surface(ApplicationInfo const& app_info, WindowSpecification parameters)
         -> WindowSpecification;
     void move_tree(miral::WindowInfo& root, mir::geometry::Displacement movement);
+    void erase(miral::WindowInfo const& info);
 };
 }
 

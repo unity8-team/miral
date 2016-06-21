@@ -18,9 +18,9 @@
 
 #include "kiosk_window_manager.h"
 
-#include "miral/application_info.h"
-#include "miral/window_info.h"
-#include "miral/window_manager_tools.h"
+#include <miral/application_info.h>
+#include <miral/window_info.h>
+#include <miral/window_manager_tools.h>
 
 #include <linux/input.h>
 
@@ -32,10 +32,6 @@ using namespace miral;
 KioskWindowManagerPolicy::KioskWindowManagerPolicy(WindowManagerTools* const tools, SwSplash const& splash) :
     tools{tools},
     splash{splash}
-{
-}
-
-void KioskWindowManagerPolicy::handle_app_info_updated(Rectangles const& /*displays*/)
 {
 }
 
@@ -51,59 +47,10 @@ auto KioskWindowManagerPolicy::place_new_surface(
     auto parameters = request_parameters;
 
     Rectangle const active_display = tools->active_display();
-    parameters.top_left() = parameters.top_left().value() + (active_display.top_left - Point{0, 0});
 
-    if (parameters.parent().is_set() && parameters.parent().value().lock())
+    if (!parameters.parent().is_set() || !parameters.parent().value().lock())
     {
-        auto parent = tools->info_for(parameters.parent().value()).window();
-        auto const width = parameters.size().value().width.as_int();
-        auto const height = parameters.size().value().height.as_int();
-
-        if (parameters.aux_rect().is_set() && parameters.edge_attachment().is_set())
-        {
-            auto const edge_attachment = parameters.edge_attachment().value();
-            auto const aux_rect = parameters.aux_rect().value();
-            auto const parent_top_left = parent.top_left();
-            auto const top_left = aux_rect.top_left     -Point{} + parent_top_left;
-            auto const top_right= aux_rect.top_right()  -Point{} + parent_top_left;
-            auto const bot_left = aux_rect.bottom_left()-Point{} + parent_top_left;
-
-            if (edge_attachment & mir_edge_attachment_vertical)
-            {
-                if (active_display.contains(top_right + Displacement{width, height}))
-                {
-                    parameters.top_left() = top_right;
-                }
-                else if (active_display.contains(top_left + Displacement{-width, height}))
-                {
-                    parameters.top_left() = top_left + Displacement{-width, 0};
-                }
-            }
-
-            if (edge_attachment & mir_edge_attachment_horizontal)
-            {
-                if (active_display.contains(bot_left + Displacement{width, height}))
-                {
-                    parameters.top_left() = bot_left;
-                }
-                else if (active_display.contains(top_left + Displacement{width, -height}))
-                {
-                    parameters.top_left() = top_left + Displacement{0, -height};
-                }
-            }
-        }
-        else
-        {
-            auto const parent_top_left = parent.top_left();
-            auto const centred = parent_top_left
-                                 + 0.5*(as_displacement(parent.size()) - as_displacement(parameters.size().value()))
-                                 - DeltaY{(parent.size().height.as_int()-height)/6};
-
-            parameters.top_left() = centred;
-        }
-    }
-    else
-    {
+        parameters.top_left() = active_display.top_left;
         parameters.size() = active_display.size;
     }
 
@@ -119,6 +66,15 @@ void KioskWindowManagerPolicy::handle_window_ready(WindowInfo& window_info)
     tools->select_active_window(window_info.window());
 }
 
+namespace
+{
+template<typename ValueType>
+void reset(mir::optional_value<ValueType>& option)
+{
+    if (option.is_set()) option.consume();
+}
+}
+
 void KioskWindowManagerPolicy::handle_modify_window(
     miral::WindowInfo& window_info,
     miral::WindowSpecification const& modifications)
@@ -126,27 +82,23 @@ void KioskWindowManagerPolicy::handle_modify_window(
     auto mods = modifications;
 
     // filter out changes we don't want the client making
-    mods.top_left().consume();
-    mods.size().consume();
-    mods.output_id().consume();
-    mods.state().consume();
-    mods.preferred_orientation().consume();
-    mods.edge_attachment().consume();
-    mods.min_width().consume();
-    mods.min_height().consume();
-    mods.max_width().consume();
-    mods.max_height().consume();
-    mods.width_inc().consume();
-    mods.height_inc().consume();
-    mods.min_aspect().consume();
-    mods.max_aspect().consume();
-    mods.parent().consume();
+    reset(mods.top_left());
+    reset(mods.size());
+    reset(mods.output_id());
+    reset(mods.state());
+    reset(mods.preferred_orientation());
+    reset(mods.edge_attachment());
+    reset(mods.min_width());
+    reset(mods.min_height());
+    reset(mods.max_width());
+    reset(mods.max_height());
+    reset(mods.width_inc());
+    reset(mods.height_inc());
+    reset(mods.min_aspect());
+    reset(mods.max_aspect());
+    reset(mods.parent());
 
     tools->modify_window(window_info, mods);
-}
-
-void KioskWindowManagerPolicy::advise_delete_window(WindowInfo const& /*window_info*/)
-{
 }
 
 void KioskWindowManagerPolicy::handle_raise_window(WindowInfo& window_info)
@@ -246,5 +198,21 @@ void KioskWindowManagerPolicy::advise_new_app(miral::ApplicationInfo& /*applicat
 }
 
 void KioskWindowManagerPolicy::advise_delete_app(miral::ApplicationInfo const& /*application*/)
+{
+}
+
+void KioskWindowManagerPolicy::advise_raise(std::vector<miral::Window> const& /*windows*/)
+{
+}
+
+void KioskWindowManagerPolicy::advise_move_to(miral::WindowInfo const& /*window_info*/, Point /*top_left*/)
+{
+}
+
+void KioskWindowManagerPolicy::advise_begin()
+{
+}
+
+void KioskWindowManagerPolicy::advise_end()
 {
 }

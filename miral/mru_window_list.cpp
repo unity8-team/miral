@@ -16,7 +16,7 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#include <miral/mru_window_list.h>
+#include "mru_window_list.h"
 
 #include <algorithm>
 

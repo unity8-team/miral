@@ -5,7 +5,7 @@ include_directories(include SYSTEM ${MIRSERVER_INCLUDE_DIRS})
 
 
 add_library(miral-titlebar STATIC
-    canonical_window_management_policy_data.cpp canonical_window_management_policy_data.h
+        titlebar_user_data.cpp titlebar_user_data.h
 )
 
 target_link_libraries(miral-titlebar

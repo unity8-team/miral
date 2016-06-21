@@ -25,12 +25,7 @@ WindowManagementPolicy::WindowManagementPolicy(const miral::WindowManagerTools *
     : m_tools(tools)
     , m_eventFeeder(new QtEventFeeder(screensModel))
 {
-}
-
-
-void WindowManagementPolicy::handle_app_info_updated(const Rectangles &/*displays*/)
-{
-
+    Q_UNUSED(m_tools); // REMOVEME once m_tools is used (keep clang happy)
 }
 
 void WindowManagementPolicy::handle_displays_updated(const Rectangles &/*displays*/)
@@ -68,6 +63,11 @@ void WindowManagementPolicy::advise_delete_window(const miral::WindowInfo &/*win
 
 }
 
+void WindowManagementPolicy::advise_raise(const std::vector<miral::Window> &/*windows*/)
+{
+
+}
+
 bool WindowManagementPolicy::handle_keyboard_event(const MirKeyboardEvent *event)
 {
     m_eventFeeder->dispatchKey(event);
@@ -101,6 +101,10 @@ void WindowManagementPolicy::advise_state_change(const miral::WindowInfo &/*wind
 
 }
 
+void WindowManagementPolicy::advise_move_to(const miral::WindowInfo &/*window_info*/, Point /*top_left*/)
+{
+}
+
 void WindowManagementPolicy::advise_resize(const miral::WindowInfo &/*info*/, const Size &/*newSize*/)
 {
 
@@ -119,4 +123,12 @@ void WindowManagementPolicy::advise_focus_lost(const miral::WindowInfo &/*info*/
 void WindowManagementPolicy::advise_focus_gained(const miral::WindowInfo &/*info*/)
 {
 
+}
+
+void WindowManagementPolicy::advise_begin()
+{
+}
+
+void WindowManagementPolicy::advise_end()
+{
 }

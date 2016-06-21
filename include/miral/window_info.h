@@ -25,11 +25,6 @@
 #include <mir/geometry/rectangles.h>
 #include <mir/optional_value.h>
 
-namespace mir
-{
-namespace shell { struct SurfaceSpecification; }
-}
-
 namespace miral
 {
 struct WindowInfo

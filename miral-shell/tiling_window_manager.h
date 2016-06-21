@@ -19,10 +19,13 @@
 #ifndef MIRAL_SHELL_TILING_WINDOW_MANAGER_H
 #define MIRAL_SHELL_TILING_WINDOW_MANAGER_H
 
-#include "miral/application.h"
-#include "miral/window_management_policy.h"
+#include "spinner/splash.h"
+
+#include <miral/application.h>
+#include <miral/window_management_policy.h>
 
 #include <mir/geometry/displacement.h>
+#include <miral/internal_client.h>
 
 using namespace mir::geometry;
 
@@ -39,29 +42,26 @@ using namespace mir::geometry;
 class TilingWindowManagerPolicy : public miral::WindowManagementPolicy
 {
 public:
-    explicit TilingWindowManagerPolicy(miral::WindowManagerTools* const tools);
+    explicit TilingWindowManagerPolicy(miral::WindowManagerTools* const tools, SpinnerSplash const& spinner,
+                                       miral::InternalClientLauncher const& launcher);
 
     auto place_new_surface(
         miral::ApplicationInfo const& app_info,
         miral::WindowSpecification const& request_parameters)
         -> miral::WindowSpecification override;
 
-    void handle_app_info_updated(Rectangles const& displays) override;
     void handle_displays_updated(Rectangles const& displays) override;
-    void advise_new_window(miral::WindowInfo& window_info) override;
     void handle_window_ready(miral::WindowInfo& window_info) override;
     void handle_modify_window(miral::WindowInfo& window_info, miral::WindowSpecification const& modifications) override;
-    void advise_delete_window(miral::WindowInfo const& window_info) override;
     bool handle_keyboard_event(MirKeyboardEvent const* event) override;
     bool handle_touch_event(MirTouchEvent const* event) override;
     bool handle_pointer_event(MirPointerEvent const* event) override;
     void handle_raise_window(miral::WindowInfo& window_info) override;
 
-    void advise_focus_lost(miral::WindowInfo const& info) override;
-    void advise_focus_gained(miral::WindowInfo const& info) override;
-    void advise_state_change(miral::WindowInfo const& window_info, MirSurfaceState state) override;
-    void advise_resize(miral::WindowInfo const& window_info, Size const& new_size) override;
+    void advise_end() override;
 
+    void advise_new_window(miral::WindowInfo& window_info) override;
+    void advise_focus_gained(miral::WindowInfo const& info) override;
     void advise_new_app(miral::ApplicationInfo& application) override;
     void advise_delete_app(miral::ApplicationInfo const& application) override;
 
@@ -86,13 +86,15 @@ private:
     auto transform_set_state(miral::WindowInfo& window_info, MirSurfaceState value) -> MirSurfaceState;
 
     static void clip_to_tile(miral::WindowSpecification& parameters, Rectangle const& tile);
-    void fit_to_new_tile(miral::Window& window, Rectangle const& old_tile, Rectangle const& new_tile);
     static void resize(miral::Window window, Point cursor, Point old_cursor, Rectangle bounds);
     static void constrained_move(miral::Window window, Displacement& movement, Rectangle const& bounds);
 
     miral::WindowManagerTools* const tools;
-
+    SpinnerSplash spinner;
+    miral::InternalClientLauncher const launcher;
     Point old_cursor{};
+    Rectangles displays;
+    bool dirty_tiles = false;
 };
 
 #endif /* MIRAL_SHELL_TILING_WINDOW_MANAGER_H */

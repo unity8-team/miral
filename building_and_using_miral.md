@@ -86,3 +86,11 @@ Create a miral-shell config file:
     $ echo startup-apps=gnome-terminal > ~/.config/miral-shell.config
     ...
     $ bin/miral-shell
+
+
+Running Qt applications
+-----------------------
+
+To run Qt applications under Mir you may need to install qtubuntu-desktop:
+
+    $ sudo apt-get install qtubuntu-desktop

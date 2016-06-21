@@ -16,19 +16,22 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#include "canonical_window_management_policy_data.h"
+#include "titlebar_user_data.h"
 
 // TODO We need a better way to support painting stuff inside the window manager
 #include <mir/frontend/buffer_stream.h>
 #include <mir/graphics/buffer.h>
 #include <mir/graphics/buffer_properties.h>
+#include <mir/scene/session.h>
 #include <mir/scene/surface.h>
+
+#include <mir/version.h>
 
 #include <atomic>
 
 using namespace mir::geometry;
 
-struct CanonicalWindowManagementPolicyData::StreamPainter
+struct TitlebarUserData::StreamPainter
 {
     virtual void paint(int) = 0;
     virtual ~StreamPainter() = default;
@@ -37,8 +40,8 @@ struct CanonicalWindowManagementPolicyData::StreamPainter
     StreamPainter& operator=(StreamPainter const&) = delete;
 };
 
-struct CanonicalWindowManagementPolicyData::SwappingPainter
-    : CanonicalWindowManagementPolicyData::StreamPainter
+struct TitlebarUserData::SwappingPainter
+    : TitlebarUserData::StreamPainter
 {
     SwappingPainter(std::shared_ptr<mir::frontend::BufferStream> const& buffer_stream) :
         buffer_stream{buffer_stream}, buffer{nullptr}
@@ -73,23 +76,46 @@ struct CanonicalWindowManagementPolicyData::SwappingPainter
     std::atomic<mir::graphics::Buffer*> buffer;
 };
 
-struct CanonicalWindowManagementPolicyData::AllocatingPainter
-    : CanonicalWindowManagementPolicyData::StreamPainter
+struct TitlebarUserData::AllocatingPainter
+    : TitlebarUserData::StreamPainter
 {
-    AllocatingPainter(std::shared_ptr<mir::frontend::BufferStream> const& buffer_stream, Size size) :
+    AllocatingPainter(
+        std::shared_ptr<mir::frontend::BufferStream> const& buffer_stream,
+#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 24, 0)
+        std::shared_ptr<mir::scene::Session> const& session,
+#endif
+    Size size) :
         buffer_stream(buffer_stream),
+#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 24, 0)
+        session(session),
+#endif
         properties({
                        size,
                        buffer_stream->pixel_format(),
                        mir::graphics::BufferUsage::software
                    }),
+#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 24, 0)
+        front_buffer(session->create_buffer(properties)),
+        back_buffer(session->create_buffer(properties))
+#else
         front_buffer(buffer_stream->allocate_buffer(properties)),
         back_buffer(buffer_stream->allocate_buffer(properties))
+#endif
     {
     }
 
     void paint(int intensity) override
     {
+#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 24, 0)
+        auto buffer = session->get_buffer(back_buffer);
+
+        auto const format = buffer->pixel_format();
+        auto const sz = buffer->size().height.as_int() *
+                        buffer->size().width.as_int() * MIR_BYTES_PER_PIXEL(format);
+        std::vector<unsigned char> pixels(sz, intensity);
+        buffer->write(pixels.data(), sz);
+        buffer_stream->swap_buffers(buffer.get(), [](mir::graphics::Buffer*){});
+#else
         buffer_stream->with_buffer(back_buffer,
             [this, intensity](mir::graphics::Buffer& buffer)
             {
@@ -99,29 +125,41 @@ struct CanonicalWindowManagementPolicyData::AllocatingPainter
                 buffer.write(pixels.data(), sz);
                 buffer_stream->swap_buffers(&buffer, [](mir::graphics::Buffer*){});
             });
+#endif
         std::swap(front_buffer, back_buffer);
     }
 
     ~AllocatingPainter()
     {
+#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 24, 0)
+        session->destroy_buffer(front_buffer);
+        session->destroy_buffer(back_buffer);
+#else
         buffer_stream->remove_buffer(front_buffer);
         buffer_stream->remove_buffer(back_buffer);
+#endif
     }
 
     std::shared_ptr<mir::frontend::BufferStream> const buffer_stream;
+    std::shared_ptr<mir::scene::Session> const session;
     mir::graphics::BufferProperties properties;
     mir::graphics::BufferID front_buffer;
     mir::graphics::BufferID back_buffer;
 };
 
-void CanonicalWindowManagementPolicyData::paint_titlebar(int intensity)
+void TitlebarUserData::paint_titlebar(int intensity)
 {
     if (!stream_painter)
     {
         auto stream = std::shared_ptr<mir::scene::Surface>(window)->primary_buffer_stream();
         try
         {
-            stream_painter = std::make_shared<AllocatingPainter>(stream, window.size());
+            stream_painter = std::make_shared<AllocatingPainter>(
+                stream,
+#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 24, 0)
+                window.application(),
+#endif
+            window.size());
         }
         catch (...)
         {

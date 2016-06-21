@@ -44,7 +44,6 @@ public:
     MOCK_METHOD1(resume_processing_for,void (void const*));
 
     MOCK_METHOD1(create_alarm, std::unique_ptr<mir::time::Alarm>(std::function<void()> const& callback));
-    MOCK_METHOD1(create_alarm, std::unique_ptr<mir::time::Alarm>(std::shared_ptr<mir::LockableCallback> const& callback));
 };
 
 #endif // MOCKMAINLOOP_H
