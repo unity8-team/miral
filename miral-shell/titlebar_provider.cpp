@@ -66,6 +66,7 @@ void TitlebarProvider::stop()
 {
     enqueue_work([this]
         {
+            std::lock_guard<decltype(mutex)> lock{mutex};
             window_to_titlebar.clear();
             connection.reset();
             stop_work();
@@ -74,7 +75,6 @@ void TitlebarProvider::stop()
 
 void TitlebarProvider::operator()(miral::toolkit::Connection connection)
 {
-    std::unique_lock<decltype(mutex)> lock{mutex};
     this->connection = connection;
     start_work();
 }
@@ -120,7 +120,8 @@ void TitlebarProvider::paint_titlebar_for(miral::Window const& window, int inten
         }
         else
         {
-            data->intensity = intensity;
+            data->on_create = [this, intensity](MirSurface* surface)
+                { enqueue_work([this, surface, intensity]{ paint_surface(surface, intensity); }); };
         }
     }
 }
@@ -208,12 +209,7 @@ TitlebarProvider::Data::~Data()
 
 void TitlebarProvider::insert(MirSurface* surface, Data* data)
 {
-    if (auto const intensity = data->intensity.load())
-    {
-        // TODO This really ought to be enqueued on the worker thread,
-        //      but we don't have a reference to the worker
-        paint_surface(surface, intensity);
-    }
+    data->on_create(surface);
     data->titlebar = surface;
 }
 

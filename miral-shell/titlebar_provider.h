@@ -78,7 +78,7 @@ private:
     struct Data
     {
         std::atomic<MirSurface*> titlebar{nullptr};
-        std::atomic<int> intensity{0};
+        std::function<void(MirSurface* surface)> on_create{[](MirSurface*){}};
         miral::Window window;
 
         ~Data();
