@@ -15,6 +15,13 @@ set(MIRAL_QT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
+find_package (ECM 1.7.0 QUIET NO_MODULE)
+if (ECM_FOUND)
+    # Provides us with -DECM_ENABLE_SANITIZERS='X'
+    # Where X can be address, thread, memory, leak, undefined
+    include("${ECM_MODULE_DIR}/ECMEnableSanitizers.cmake")
+endif()
+
 # add custom cmake modules
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
 
@@ -83,7 +90,7 @@ pkg_check_modules(LTTNG lttng-ust)
 pkg_check_modules(GSETTINGS_QT REQUIRED gsettings-qt)
 pkg_check_modules(QTDBUSTEST libqtdbustest-1 REQUIRED)
 pkg_check_modules(QTDBUSMOCK libqtdbusmock-1 REQUIRED)
-pkg_check_modules(APPLICATION_API REQUIRED unity-shell-application=17)
+pkg_check_modules(APPLICATION_API REQUIRED unity-shell-application=18)
 
 include_directories(${APPLICATION_API_INCLUDE_DIRS})
 

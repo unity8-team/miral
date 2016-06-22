@@ -78,6 +78,7 @@ MirOpenGLContext::MirOpenGLContext(
     formatCopy.setRenderableType(QSurfaceFormat::OpenGLES);
 
     m_format = q_glFormatFromConfig(eglDisplay, eglConfig, formatCopy);
+    mirContext->release_current(); // Need to release as it doesn't happen when GLContext goes out of scope
 
     // FIXME: the temporary gl context created by Mir does not have the attributes we specified
     // in the GLConfig, so need to set explicitly for now
@@ -101,6 +102,7 @@ MirOpenGLContext::MirOpenGLContext(
     QObject::connect(m_logger, &QOpenGLDebugLogger::messageLogged,
                      this, &MirOpenGLContext::onGlDebugMessageLogged, Qt::DirectConnection);
 #endif // debug
+    mirContext->release_current(); // Need to release as it doesn't happen when GLContext goes out of scope
 }
 
 QSurfaceFormat MirOpenGLContext::format() const
@@ -124,7 +126,7 @@ static bool needsFBOReadBackWorkaround()
     static bool set = false;
     static bool needsWorkaround = false;
 
-    if (!set) {
+    if (Q_UNLIKELY(!set)) {
         const char *rendererString = reinterpret_cast<const char *>(glGetString(GL_RENDERER));
         // Keep in sync with qtubuntu
         needsWorkaround = qstrncmp(rendererString, "Mali-400", 8) == 0
@@ -149,7 +151,7 @@ bool MirOpenGLContext::makeCurrent(QPlatformSurface *surface)
 
     // ultimately calls Mir's DisplayBuffer::make_current()
     ScreenWindow *screenWindow = static_cast<ScreenWindow*>(surface);
-    if (screenWindow) {
+    if (Q_LIKELY(screenWindow)) {
         m_currentWindow = screenWindow;
         screenWindow->makeCurrent();
 
