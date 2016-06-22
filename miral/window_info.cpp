@@ -39,7 +39,7 @@ struct miral::WindowInfo::Self
     Self(Window window, WindowSpecification const& params);
 
     Window window;
-    std::string name;
+    mir::optional_value<std::string> name;
     MirSurfaceType type;
     MirSurfaceState state;
     mir::geometry::Rectangle restore_rect;
@@ -565,9 +565,14 @@ void miral::WindowInfo::preferred_orientation(MirOrientationMode preferred_orien
 }
 
 
+bool miral::WindowInfo::has_name() const
+{
+    return self->name.is_set();
+}
+
 auto miral::WindowInfo::name() const -> std::string
 {
-    return self->name;
+    return self->name.value();
 }
 
 void miral::WindowInfo::name(std::string const& name)

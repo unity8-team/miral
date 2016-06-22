@@ -52,6 +52,7 @@ struct WindowInfo
 
     auto window() const -> Window&;
 
+    bool has_name() const;
     auto name() const -> std::string;
     void name(std::string const& name);
 
