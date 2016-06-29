@@ -79,7 +79,6 @@ private:
     ApplicationManager* m_applicationManager;
     static SessionManager *the_session_manager;
 
-    QList<Session*> m_sessions;
     QHash<const mir::scene::PromptSession *, SessionInterface *> m_mirPromptToSessionHash;
 };
 

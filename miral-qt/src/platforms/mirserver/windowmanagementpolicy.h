@@ -68,6 +68,15 @@ public:
     void handle_displays_updated(const Rectangles &displays) override;
 
 Q_SIGNALS:
+//    void sessionCreatedSurface(mir::scene::Session const*,
+//                               std::shared_ptr<mir::scene::Surface> const&,
+//                               std::shared_ptr<SurfaceObserver> const&,
+//                               qtmir::CreationHints);
+//    void sessionDestroyingSurface(mir::scene::Session const*, std::shared_ptr<mir::scene::Surface> const&);
+
+//    // requires Qt::BlockingQueuedConnection!!
+//    void sessionAboutToCreateSurface(const miral::ApplicationInfo &app_info,
+//                                     const miral::WindowSpecification &request_parameters);
 
 private:
     const miral::WindowManagerTools *m_tools;

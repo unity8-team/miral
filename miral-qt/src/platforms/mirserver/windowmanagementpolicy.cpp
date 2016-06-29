@@ -28,7 +28,6 @@ WindowManagementPolicy::WindowManagementPolicy(const miral::WindowManagerTools *
     Q_UNUSED(m_tools); // REMOVEME once m_tools is used (keep clang happy)
 }
 
-
 void WindowManagementPolicy::handle_displays_updated(const Rectangles &/*displays*/)
 {
 
@@ -64,7 +63,7 @@ void WindowManagementPolicy::advise_delete_window(const miral::WindowInfo &/*win
 
 }
 
-void WindowManagementPolicy::advise_raise(std::vector<miral::Window> const& /*windows*/)
+void WindowManagementPolicy::advise_raise(const std::vector<miral::Window> &/*windows*/)
 {
 
 }
@@ -102,7 +101,7 @@ void WindowManagementPolicy::advise_state_change(const miral::WindowInfo &/*wind
 
 }
 
-void WindowManagementPolicy::advise_move_to(miral::WindowInfo const& /*window_info*/, Point /*top_left*/)
+void WindowManagementPolicy::advise_move_to(const miral::WindowInfo &/*window_info*/, Point /*top_left*/)
 {
 }
 

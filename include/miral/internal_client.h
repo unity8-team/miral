@@ -19,7 +19,7 @@
 #ifndef MIRAL_INTERNAL_CLIENT_H
 #define MIRAL_INTERNAL_CLIENT_H
 
-#include "miral/toolkit/connection.h"
+#include <miral/toolkit/connection.h>
 
 #include <functional>
 #include <memory>
