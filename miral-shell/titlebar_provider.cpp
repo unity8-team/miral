@@ -34,6 +34,12 @@ void null_surface_callback(MirSurface*, void*) {}
 void paint_surface(MirSurface* surface, int const intensity)
 {
     MirBufferStream* buffer_stream = mir_surface_get_buffer_stream(surface);
+
+    // TODO sometimes buffer_stream is nullptr - find out why (and fix).
+    // (Only observed when creating a lot of clients at once)
+    if (!buffer_stream)
+        return;
+
     MirGraphicsRegion region;
     mir_buffer_stream_get_graphics_region(buffer_stream, &region);
 
