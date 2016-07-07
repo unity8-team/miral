@@ -85,6 +85,7 @@ void TitlebarWindowManagerPolicy::advise_new_window(WindowInfo& window_info)
     if (application == titlebar_provider->session())
     {
         titlebar_provider->advise_new_titlebar(window_info);
+        tools->raise_tree(window_info.parent());
         return;
     }
 
