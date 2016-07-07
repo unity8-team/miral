@@ -885,7 +885,7 @@ auto miral::BasicWindowManager::can_activate_window_for_session(miral::Applicati
         {
             // select_active_window() calls set_focus_to() which updates mru_active_windows and changes window
             auto const w = window;
-            return w.application() != session || !(new_focus = miral::BasicWindowManager::select_active_window(w));
+            return w.application() != session || !(new_focus = select_active_window(w));
         });
 
     return new_focus;
