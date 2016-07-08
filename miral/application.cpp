@@ -20,10 +20,17 @@
 
 #include <mir/scene/session.h>
 
+#include <unistd.h>
+
 #include <csignal>
 
 void miral::kill(Application const& application, int sig)
 {
     if (application)
-        ::kill(application->process_id(), sig);
+    {
+        auto const pid = application->process_id();
+
+        if (pid != getpid())
+            ::kill(pid, sig);
+    }
 }
