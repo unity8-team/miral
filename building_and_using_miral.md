@@ -28,11 +28,8 @@ This creates libmiral.so in the lib directory and an example shell
     $ bin/miral-shell
     
 With the default options this runs in a window on X (which is convenient for
-development). To run independently of X you need to grant access to the 
-graphics hardware and specify a VT to run in. For example:
+development). 
 
-    $ sudo bin/miral-shell --vt 4 --arw-file --file $XDG_RUNTIME_DIR/mir_socket
-    
 The miral-shell example is simple, don’t expect to see a sophisticated launcher
 by default. You can start mir apps from the command-line. For example:
  
@@ -43,6 +40,17 @@ toolkit has a Mir backend). Any that assume the existence of an X11 and bypass
 the toolkit my making X11 protocol calls will have problems though.
 
 To exit from miral-shell press Ctrl-Alt-BkSp.
+
+To run independently of X11 you need to grant access to the graphics hardware
+(by running as root) and specify a VT to run in. For example:
+
+    $ sudo bin/miral-shell --vt 4 --arw-file --file $XDG_RUNTIME_DIR/mir_socket
+    
+For convenient testing there's a "testrun" script that wraps this command to
+start the server (as root) and then launches the gnome-terminal (as the current
+user):
+ 
+    $ ../scripts/testrun
 
 
 Running applications on Miral
