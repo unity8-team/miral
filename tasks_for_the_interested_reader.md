@@ -36,7 +36,7 @@ additions to libmiral to expose additional Mir functionality.
    
  - Titlebars. The "tiling" window does not offer them at all.
    
- - Titlebars. GTK+ apps provide their own titlebars, bettter integration is
+ - Titlebars. GTK+ apps provide their own titlebars, better integration is
    needed.
    
  - Keyboard layouts. It should be possible to configure and use non-US keyboard
