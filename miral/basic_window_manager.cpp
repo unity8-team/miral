@@ -690,7 +690,8 @@ void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirSur
     }
 
     auto const old_pos = window_info.window().top_left();
-    Displacement movement;
+    Point position;
+    Size size;
 
     policy->advise_state_change(window_info, value);
 
@@ -699,23 +700,23 @@ void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirSur
     switch (value)
     {
     case mir_surface_state_restored:
-        movement = window_info.restore_rect().top_left - old_pos;
-        window_info.window().resize(window_info.restore_rect().size);
+        position = window_info.restore_rect().top_left;
+        size = window_info.restore_rect().size;
         break;
 
     case mir_surface_state_maximized:
-        movement = display_area.top_left - old_pos;
-        window_info.window().resize(display_area.size);
+        position = display_area.top_left;
+        size = display_area.size;
         break;
 
     case mir_surface_state_horizmaximized:
-        movement = Point{display_area.top_left.x, window_info.restore_rect().top_left.y} - old_pos;
-        window_info.window().resize({display_area.size.width, window_info.restore_rect().size.height});
+        position = {display_area.top_left.x, window_info.restore_rect().top_left.y};
+        size = {display_area.size.width, window_info.restore_rect().size.height};
         break;
 
     case mir_surface_state_vertmaximized:
-        movement = Point{window_info.restore_rect().top_left.x, display_area.top_left.y} - old_pos;
-        window_info.window().resize({window_info.restore_rect().size.width, display_area.size.height});
+        position = {window_info.restore_rect().top_left.x, display_area.top_left.y};
+        size = {window_info.restore_rect().size.width, display_area.size.height};
         break;
 
     case mir_surface_state_fullscreen:
@@ -732,8 +733,8 @@ void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirSur
             display_layout->size_to_output(rect);
         }
 
-        movement = rect.top_left - old_pos;
-        window_info.window().resize(rect.size);
+        position = rect.top_left;
+        size = rect.size;
         break;
     }
 
@@ -748,8 +749,7 @@ void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirSur
         break;
     }
 
-    move_tree(window_info, movement);
-
+    place_and_size(window_info, position, size);
     window_info.state(value);
 
     if (window_info.is_visible())
