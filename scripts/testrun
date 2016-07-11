@@ -1,11 +1,14 @@
 #! /bin/bash
 
 # Usage: testrun [<build dir> [<switches passed to miral-shell>]]
+
 socket=${XDG_RUNTIME_DIR}/mir_socket
-builddir=build/
+builddir=$(dirname $0)/../build/
 if [ $# -gt 0 ]; then builddir=$1/; shift; fi
 
+if [ -e "${socket}" ]; then echo "Error: '${socket}' already exists"; exit 1 ;fi
+
 sudo ls >> /dev/null
-sudo ${builddir}bin/miral-shell --vt 5 --arw-file --file ${socket} $* &
+sudo ${builddir}bin/miral-shell --vt 4 --arw-file --file ${socket} $* &
 while [ ! -e "${socket}" ]; do echo "waiting for ${socket}"; sleep 1 ;done
 ${builddir}bin/miral-run gnome-terminal&
