@@ -45,7 +45,7 @@ public:
     void advise_resize(miral::WindowInfo const& window_info, Size const& new_size) override;
     void advise_delete_window(miral::WindowInfo const& window_info) override;
 
-    void handle_displays_updated(Rectangles const& displays) override;
+    void advise_displays_updated(Rectangles const& displays) override;
 
 private:
     miral::WindowManagerTools* const tools;

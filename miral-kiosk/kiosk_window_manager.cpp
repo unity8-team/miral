@@ -35,10 +35,6 @@ KioskWindowManagerPolicy::KioskWindowManagerPolicy(WindowManagerTools* const too
 {
 }
 
-void KioskWindowManagerPolicy::handle_displays_updated(Rectangles const& /*displays*/)
-{
-}
-
 auto KioskWindowManagerPolicy::place_new_surface(
     miral::ApplicationInfo const& /*app_info*/,
     miral::WindowSpecification const& request_parameters)

@@ -60,10 +60,7 @@ public:
     bool handle_touch_event(MirTouchEvent const* event) override;
     bool handle_pointer_event(MirPointerEvent const* event) override;
 
-
     void advise_focus_gained(WindowInfo const& info) override;
-
-    void handle_displays_updated(Rectangles const& displays) override;
 
 protected:
     static const int modifier_mask =

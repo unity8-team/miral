@@ -139,9 +139,9 @@ void TitlebarWindowManagerPolicy::advise_delete_window(WindowInfo const& window_
     titlebar_provider->destroy_titlebar_for(window_info.window());
 }
 
-void TitlebarWindowManagerPolicy::handle_displays_updated(Rectangles const& displays)
+void TitlebarWindowManagerPolicy::advise_displays_updated(Rectangles const& displays)
 {
-    CanonicalWindowManagerPolicy::handle_displays_updated(displays);
+    CanonicalWindowManagerPolicy::advise_displays_updated(displays);
 
     display_area = displays.bounding_rectangle();
 }
