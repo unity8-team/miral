@@ -14,12 +14,10 @@ There are some aspects of the current interface that are of concern for the
 stability of the ABI. In particular, classes with accessible data members or
 with virtual function tables can only be modified in restricted ways.
  
- - There's duplicated logic managing the "info" data across the different window
-   management policies that should handled by the MirAL BasicWindowManager.
-   
  - There are neither tests of MirAL code, nor of the sample code using it.
    (This comes from its origin as a proof-of-concept "spike", but needs
    correcting.) The test doubles supplied by mir-test-tools should be helpful.
+   (NB the version of mir-test-tools in Xenial is broken. lp:1583536)
    
  - There's a lack of documentation of the preconditions and postconditions of
    the API.
@@ -32,14 +30,13 @@ To make use of miral-shell more satisfying there are a lot of pieces of work
 needed. Some are simple improvements to the sample shell, other may need 
 additions to libmiral to expose additional Mir functionality.
 
- - Titlebars. The default "canonical" window management strategy paints
-   grey rectangles for titlebars. The "tiling" window does not offer them
-   at all. They should contain the window title and sizing controls.
+ - Titlebars. The default "titlebar" window management strategy paints
+   grey rectangles for titlebars.  They should contain the window title and
+   sizing controls.
    
- - Titlebars. The approach to titlebars uses Mir ABIs, an alternative
-   approach wrapped by MirAL is needed.
+ - Titlebars. The "tiling" window does not offer them at all.
    
-   Titlebars. GTK+ apps provide their own titlebars, bettter integration is
+ - Titlebars. GTK+ apps provide their own titlebars, better integration is
    needed.
    
  - Keyboard layouts. It should be possible to configure and use non-US keyboard
