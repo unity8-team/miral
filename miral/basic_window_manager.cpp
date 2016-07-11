@@ -736,6 +736,21 @@ void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirSur
         window_info.window().hide();
         window_info.state(value);
         window_info.window().set_state(window_info.state());
+        if (window_info.window() == active_window())
+        {
+            mru_active_windows.erase(window_info.window());
+
+            // Try to activate to recently active window of any application
+            {
+                Window new_focus;
+
+                mru_active_windows.enumerate([&](Window& window)
+                    {
+                        auto const w = window;
+                        return !(new_focus = select_active_window(w));
+                    });
+            }
+        }
         return;
 
     default:
