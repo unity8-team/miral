@@ -81,7 +81,6 @@ void KioskWindowManagerPolicy::handle_modify_window(
     reset(mods.top_left());
     reset(mods.size());
     reset(mods.output_id());
-    reset(mods.state());
     reset(mods.preferred_orientation());
     reset(mods.edge_attachment());
     reset(mods.min_width());
