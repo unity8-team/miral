@@ -49,19 +49,7 @@ public:
 
     void handle_raise_window(miral::WindowInfo& window_info) override;
 
-    void advise_begin() override;
-    void advise_end() override;
-
-    void advise_focus_lost(miral::WindowInfo const& info) override;
-
     void advise_focus_gained(miral::WindowInfo const& info) override;
-    void advise_state_change(miral::WindowInfo const& window_info, MirSurfaceState state) override;
-    void advise_move_to(miral::WindowInfo const& window_info, Point top_left) override;
-    void advise_resize(miral::WindowInfo const& window_info, Size const& new_size) override;
-    void advise_raise(std::vector<miral::Window> const& windows) override;
-
-    void advise_new_app(miral::ApplicationInfo& application) override;
-    void advise_delete_app(miral::ApplicationInfo const& application) override;
 
 private:
     static const int modifier_mask =

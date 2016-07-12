@@ -176,39 +176,3 @@ void KioskWindowManagerPolicy::advise_focus_gained(WindowInfo const& info)
             tools->raise_tree(s);
     }
 }
-
-void KioskWindowManagerPolicy::advise_focus_lost(WindowInfo const& /*info*/)
-{
-}
-
-void KioskWindowManagerPolicy::advise_state_change(WindowInfo const& /*window_info*/, MirSurfaceState /*state*/)
-{
-}
-
-void KioskWindowManagerPolicy::advise_resize(WindowInfo const& /*window_info*/, Size const& /*new_size*/)
-{
-}
-
-void KioskWindowManagerPolicy::advise_new_app(miral::ApplicationInfo& /*application*/)
-{
-}
-
-void KioskWindowManagerPolicy::advise_delete_app(miral::ApplicationInfo const& /*application*/)
-{
-}
-
-void KioskWindowManagerPolicy::advise_raise(std::vector<miral::Window> const& /*windows*/)
-{
-}
-
-void KioskWindowManagerPolicy::advise_move_to(miral::WindowInfo const& /*window_info*/, Point /*top_left*/)
-{
-}
-
-void KioskWindowManagerPolicy::advise_begin()
-{
-}
-
-void KioskWindowManagerPolicy::advise_end()
-{
-}
