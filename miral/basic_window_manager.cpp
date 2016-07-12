@@ -741,7 +741,7 @@ void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirSur
         policy->advise_state_change(window_info, value);
         window_info.window().hide();
         window_info.state(value);
-        window_info.window().set_state(window_info.state());
+        window_info.window().set_state(value);
         if (window_info.window() == active_window())
         {
             mru_active_windows.erase(window_info.window());

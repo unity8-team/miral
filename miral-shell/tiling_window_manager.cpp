@@ -174,13 +174,15 @@ auto TilingWindowManagerPolicy::transform_set_state(WindowInfo& window_info, Mir
     case mir_surface_state_maximized:
     case mir_surface_state_vertmaximized:
     case mir_surface_state_horizmaximized:
+    case mir_surface_state_hidden:
         break;
 
     default:
         return window_info.state();
     }
 
-    if (window_info.state() == mir_surface_state_restored)
+    if (window_info.state() == mir_surface_state_restored ||
+        window_info.state() == mir_surface_state_hidden)
     {
         window_info.restore_rect({window_info.window().top_left(), window_info.window().size()});
     }
@@ -214,11 +216,19 @@ auto TilingWindowManagerPolicy::transform_set_state(WindowInfo& window_info, Mir
         drag(window_info, {window_info.restore_rect().top_left.x, tile.top_left.y}, window_info.window().top_left(), tile);
         break;
 
+    case mir_surface_state_hidden:
+        window_info.window().hide();
+        break;
+
     default:
         break;
     }
 
     window_info.state(value);
+
+    if (window_info.is_visible())
+        window_info.window().show();
+
     return value;
 }
 
