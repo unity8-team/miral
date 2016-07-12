@@ -28,7 +28,7 @@ WindowManagementPolicy::WindowManagementPolicy(const miral::WindowManagerTools *
     Q_UNUSED(m_tools); // REMOVEME once m_tools is used (keep clang happy)
 }
 
-void WindowManagementPolicy::handle_displays_updated(const Rectangles &/*displays*/)
+void WindowManagementPolicy::advise_displays_updated(const Rectangles&/*displays*/)
 {
 
 }

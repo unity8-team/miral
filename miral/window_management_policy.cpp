@@ -30,3 +30,4 @@ void miral::WindowManagementPolicy::advise_move_to(WindowInfo const& /*window_in
 void miral::WindowManagementPolicy::advise_resize(WindowInfo const& /*window_info*/, Size const& /*new_size*/) {}
 void miral::WindowManagementPolicy::advise_delete_window(WindowInfo const& /*window_info*/) {}
 void miral::WindowManagementPolicy::advise_raise(std::vector<Window> const& /*windows*/) {}
+void miral::WindowManagementPolicy::advise_displays_updated(Rectangles const& /*displays*/) {}

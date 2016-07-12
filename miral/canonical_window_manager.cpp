@@ -35,10 +35,6 @@ miral::CanonicalWindowManagerPolicy::CanonicalWindowManagerPolicy(WindowManagerT
 {
 }
 
-void miral::CanonicalWindowManagerPolicy::handle_displays_updated(Rectangles const& /*displays*/)
-{
-}
-
 auto miral::CanonicalWindowManagerPolicy::place_new_surface(
     miral::ApplicationInfo const& /*app_info*/,
     miral::WindowSpecification const& request_parameters)

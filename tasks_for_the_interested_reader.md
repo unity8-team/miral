@@ -71,7 +71,8 @@ additions to libmiral to expose additional Mir functionality.
    compositing effects. E.g. specifying a module (or modules) to load.
    
  - Display configuration. There needs to be a useful abstraction of outputs
-   and geometry. See src/modules/Unity/Screens/screens.h in lp:qtmir.
+   and geometry. See miral-qt/src/modules/Unity/Screens/screens.h and 
+   ScreensModel::update() in miral-qt/src/platforms/mirserver/screensmodel.cpp.
    (Or maybe an internal client can use the client APIs?)
    
  - Cursor images. lp:qtmir stubs the cursor images and paints the cursor in its

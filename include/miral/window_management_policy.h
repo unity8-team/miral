@@ -86,7 +86,7 @@ public:
 /** @name Changes to the displays
  * \todo this is very course grained and should probably be replaced
  *  @{ */
-    virtual void handle_displays_updated(Rectangles const& displays) = 0;
+    virtual void advise_displays_updated(Rectangles const& displays);
 /** @} */
 
     virtual ~WindowManagementPolicy() = default;
