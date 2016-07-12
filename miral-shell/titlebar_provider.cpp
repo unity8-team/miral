@@ -177,31 +177,22 @@ void TitlebarProvider::advise_new_titlebar(miral::WindowInfo& window_info)
     }
 }
 
-void TitlebarProvider::advise_state_change(miral::WindowInfo const& window_info, MirSurfaceState state, Rectangle const& display_area)
+void TitlebarProvider::advise_state_change(miral::WindowInfo const& window_info, MirSurfaceState state)
 {
-    if (auto window = find_titlebar_window(window_info.window()))
+    if (auto titlebar = find_titlebar_window(window_info.window()))
     {
         switch (state)
         {
-        case mir_surface_state_restored:
-            window.resize({window_info.restore_rect().size.width, title_bar_height});
-            window.show();
-            break;
-
         case mir_surface_state_maximized:
         case mir_surface_state_vertmaximized:
         case mir_surface_state_hidden:
         case mir_surface_state_minimized:
-            window.hide();
-            break;
-
-        case mir_surface_state_horizmaximized:
-            window.resize({display_area.size.width, title_bar_height});
-            window.show();
-            break;
-
         case mir_surface_state_fullscreen:
+            titlebar.hide();
+            break;
+
         default:
+            titlebar.show();
             break;
         }
     }

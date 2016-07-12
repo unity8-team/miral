@@ -45,15 +45,12 @@ public:
     void advise_resize(miral::WindowInfo const& window_info, Size const& new_size) override;
     void advise_delete_window(miral::WindowInfo const& window_info) override;
 
-    void advise_displays_updated(Rectangles const& displays) override;
-
 private:
     miral::WindowManagerTools* const tools;
     SpinnerSplash const spinner;
 
     std::unique_ptr<TitlebarProvider> const titlebar_provider;
 
-    Rectangle display_area;
     Point old_cursor{};
 };
 

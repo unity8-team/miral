@@ -122,7 +122,7 @@ void TitlebarWindowManagerPolicy::advise_state_change(WindowInfo const& window_i
 {
     CanonicalWindowManagerPolicy::advise_state_change(window_info, state);
 
-    titlebar_provider->advise_state_change(window_info, state, display_area);
+    titlebar_provider->advise_state_change(window_info, state);
 }
 
 void TitlebarWindowManagerPolicy::advise_resize(WindowInfo const& window_info, Size const& new_size)
@@ -137,13 +137,6 @@ void TitlebarWindowManagerPolicy::advise_delete_window(WindowInfo const& window_
     CanonicalWindowManagerPolicy::advise_delete_window(window_info);
 
     titlebar_provider->destroy_titlebar_for(window_info.window());
-}
-
-void TitlebarWindowManagerPolicy::advise_displays_updated(Rectangles const& displays)
-{
-    CanonicalWindowManagerPolicy::advise_displays_updated(displays);
-
-    display_area = displays.bounding_rectangle();
 }
 
 bool TitlebarWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* event)
