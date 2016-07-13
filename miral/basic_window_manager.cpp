@@ -769,10 +769,10 @@ void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirSur
                 Window new_focus;
 
                 mru_active_windows.enumerate([&](Window& window)
-                                                 {
-                                                 auto const w = window;
-                                                 return !(new_focus = select_active_window(w));
-                                                 });
+                    {
+                        auto const w = window;
+                        return !(new_focus = select_active_window(w));
+                    });
             }
         }
         return;
@@ -915,11 +915,11 @@ auto miral::BasicWindowManager::can_activate_window_for_session(miral::Applicati
     miral::Window new_focus;
 
     mru_active_windows.enumerate([&](miral::Window& window)
-                                     {
-                                     // select_active_window() calls set_focus_to() which updates mru_active_windows and changes window
-                                     auto const w = window;
-                                     return w.application() != session || !(new_focus = select_active_window(w));
-                                     });
+        {
+            // select_active_window() calls set_focus_to() which updates mru_active_windows and changes window
+            auto const w = window;
+            return w.application() != session || !(new_focus = select_active_window(w));
+        });
 
     return new_focus;
 }
