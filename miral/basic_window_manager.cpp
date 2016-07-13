@@ -669,12 +669,18 @@ void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirSur
         return;
     }
 
-    if (window_info.state() == mir_surface_state_restored)
+    switch (window_info.state())
     {
+    case mir_surface_state_restored:
+    case mir_surface_state_hidden:
         window_info.restore_rect({window_info.window().top_left(), window_info.window().size()});
+        break;
+
+    default:
+        break;
     }
 
-    if (window_info.state() != mir_surface_state_fullscreen)
+    if (value != mir_surface_state_fullscreen)
     {
         window_info.output_id({});
         fullscreen_surfaces.erase(window_info.window());
