@@ -23,7 +23,7 @@ add_library(miral SHARED
                                         ${CMAKE_SOURCE_DIR}/include/miral/stream_specification.h
                                         ${CMAKE_SOURCE_DIR}/include/miral/toolkit/surface_spec.h
                                         ${CMAKE_SOURCE_DIR}/include/miral/toolkit/connection.h
-)
+        output.cpp output.h)
 
 target_link_libraries(miral
     PUBLIC
