@@ -53,10 +53,6 @@ auto KioskWindowManagerPolicy::place_new_surface(
     return parameters;
 }
 
-void KioskWindowManagerPolicy::advise_new_window(WindowInfo& /*window_info*/)
-{
-}
-
 void KioskWindowManagerPolicy::handle_window_ready(WindowInfo& window_info)
 {
     tools->select_active_window(window_info.window());
