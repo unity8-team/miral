@@ -20,7 +20,99 @@
 
 #include <mir/graphics/display_configuration.h>
 
-miral::Output::Output(const mir::graphics::DisplayConfigurationOutput& /*output*/)
+miral::Output::Output(const mir::graphics::DisplayConfigurationOutput& output) :
+    self{std::make_shared<mir::graphics::DisplayConfigurationOutput>(output)}
 {
+}
 
+miral::Output::Output(Output const&) = default;
+miral::Output& miral::Output::operator=(Output const&) = default;
+miral::Output::~Output() = default;
+
+auto miral::Output::type() const -> Type
+{
+    return Type(self->type);
+}
+
+auto miral::Output::physical_size() const -> PhysicalSize
+{
+    auto const& size = self->physical_size_mm;
+    return PhysicalSize{size.width.as_int(), size.height.as_int()};
+}
+
+auto miral::Output::connected() const -> bool
+{
+    return self->connected;
+}
+
+auto miral::Output::used() const -> bool
+{
+    return self->used;
+}
+
+auto miral::Output::pixel_format() const -> MirPixelFormat
+{
+    return self->current_format;
+}
+
+auto miral::Output::refresh_rate() const -> double
+{
+    return self->modes[self->current_mode_index].vrefresh_hz;
+}
+
+auto miral::Output::power_mode() const -> MirPowerMode
+{
+    return self->power_mode;
+}
+
+auto miral::Output::orientaton() const -> MirOrientation
+{
+    return self->orientation;
+}
+
+auto miral::Output::scale() const -> float
+{
+    return self->scale;
+}
+
+auto miral::Output::form_factor() const -> MirFormFactor
+{
+    return self->form_factor;
+}
+
+auto miral::Output::extents() const -> Rectangle
+{
+    return Rectangle{self->top_left, self->modes[self->current_mode_index].size};
+
+}
+
+auto miral::Output::valid() const -> bool
+{
+    return self->valid();
+}
+
+auto miral::Output::is_same_output(Output const& other) const -> bool
+{
+    return self->card_id == other.self->card_id && self->id == other.self->id;
+}
+
+bool miral::operator==(Output::PhysicalSize const& lhs, Output::PhysicalSize const& rhs)
+{
+    return lhs.width == rhs.width && lhs.height == rhs.height;
+}
+
+auto miral::equivalent_display_area(Output const& lhs, Output const& rhs) -> bool
+{
+    // Eliminate the cases where one or both output isn't available
+    auto const lhs_bad = !lhs.valid() || !lhs.used() || !lhs.connected() || lhs.power_mode() != mir_power_mode_on;
+    auto const rhs_bad = !rhs.valid() || !rhs.used() || !rhs.connected() || rhs.power_mode() != mir_power_mode_on;
+    if (lhs_bad || rhs_bad) return lhs_bad == rhs_bad;
+
+    return lhs.extents() == rhs.extents() &&
+           lhs.form_factor() == rhs.form_factor() &&
+           lhs.orientaton() == rhs.orientaton() &&
+           lhs.pixel_format() == rhs.pixel_format() &&
+           lhs.physical_size() == rhs.physical_size() &&
+           lhs.scale() == rhs.scale() &&
+           lhs.type() == rhs.type();
 }

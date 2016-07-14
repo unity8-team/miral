@@ -26,15 +26,7 @@
 
 #include <memory>
 
-namespace mir
-{
-namespace graphics
-{
-namespace detail { struct GraphicsConfOutputIdTag; }
-typedef IntWrapper<detail::GraphicsConfOutputIdTag> DisplayConfigurationOutputId;
-class DisplayConfigurationOutput;
-}
-}
+namespace mir { namespace graphics { class DisplayConfigurationOutput; } }
 
 namespace miral
 {
@@ -44,8 +36,8 @@ class Output
 {
 public:
 
-    struct PhysicalSize { float width; float height; };
-//    struct Mode { Size size; double vrefresh_hz; };
+    struct PhysicalSize { int width; int height; };
+//    struct Mode { Size size; double vrefresh_hz; }; Not needed (unless we publish "supported modes")
 
     enum class Type
     {
@@ -66,10 +58,10 @@ public:
         edp
     };
 
-    Output(const mir::graphics::DisplayConfigurationOutput &output);
-
-    /// The output's id.
-    auto id() const -> mir::graphics::DisplayConfigurationOutputId;
+    explicit Output(const mir::graphics::DisplayConfigurationOutput &output);
+    Output(Output const&);
+    Output& operator=(Output const&);
+    ~Output();
 
     /// The type of the output.
     auto type() const -> Type;
@@ -89,7 +81,7 @@ public:
     /// refresh_rate in Hz
     auto refresh_rate() const -> double;
 
-    /// Current power mode **/
+    /// Current power mode
     auto power_mode() const -> MirPowerMode;
 
     auto orientaton() const -> MirOrientation;
@@ -106,9 +98,17 @@ public:
 
     auto valid() const -> bool;
 
+    auto is_same_output(Output const& other) const -> bool;
+
 private:
     std::shared_ptr<mir::graphics::DisplayConfigurationOutput> self;
 };
+
+bool operator==(Output::PhysicalSize const& lhs, Output::PhysicalSize const& rhs);
+inline bool operator!=(Output::PhysicalSize const& lhs, Output::PhysicalSize const& rhs)
+{ return !(lhs == rhs); }
+
+auto equivalent_display_area(Output const& lhs, Output const& rhs) -> bool;
 }
 
 
