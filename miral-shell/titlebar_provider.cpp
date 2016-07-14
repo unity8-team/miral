@@ -134,11 +134,22 @@ void TitlebarProvider::paint_titlebar_for(miral::Window const& window, int inten
 
 void TitlebarProvider::destroy_titlebar_for(miral::Window const& window)
 {
-    enqueue_work([this, window]
+    if (auto data = find_titlebar_data(window))
+    {
+        if (auto surface = data->titlebar.exchange(nullptr))
         {
-            std::lock_guard<decltype(mutex)> lock{mutex};
-            window_to_titlebar.erase(window);
-        });
+            enqueue_work([surface]
+                 {
+                     mir_surface_release(surface, &null_surface_callback, nullptr);
+                 });
+        }
+
+        enqueue_work([this, window]
+            {
+                std::lock_guard<decltype(mutex)> lock{mutex};
+                window_to_titlebar.erase(window);
+            });
+    }
 }
 
 void TitlebarProvider::resize_titlebar_for(miral::Window const& window, Size const& size)
@@ -200,7 +211,7 @@ void TitlebarProvider::advise_state_change(miral::WindowInfo const& window_info,
 
 TitlebarProvider::Data::~Data()
 {
-    if (auto const surface = titlebar.load())
+    if (auto surface = titlebar.exchange(nullptr))
         mir_surface_release(surface, &null_surface_callback, nullptr);
 }
 
