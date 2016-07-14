@@ -163,6 +163,8 @@ private:
 
     auto place_new_surface(ApplicationInfo const& app_info, WindowSpecification parameters)
         -> WindowSpecification;
+    auto place_relative(miral::WindowSpecification& parameters) -> bool;
+
     auto build_window(Application const& application, WindowSpecification const& spec)
         -> WindowInfo&;
     void move_tree(miral::WindowInfo& root, mir::geometry::Displacement movement);

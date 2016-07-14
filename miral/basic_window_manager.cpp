@@ -517,8 +517,19 @@ void miral::BasicWindowManager::move_tree(miral::WindowInfo& root, mir::geometry
         move_tree(info_for(child), movement);
 }
 
-void miral::BasicWindowManager::modify_window(WindowInfo& window_info, WindowSpecification const& modifications)
+void miral::BasicWindowManager::modify_window(WindowInfo& window_info, WindowSpecification const& modifications_)
 {
+    // Need a mutable copy to update relative placement
+    auto modifications = modifications_;
+    if (modifications.aux_rect().is_set() && modifications.edge_attachment().is_set())
+    {
+        if (!modifications.parent().is_set())
+            modifications.parent() = window_info.parent();
+
+        if (modifications.parent().is_set())
+            place_relative(modifications);
+    }
+
     auto window_info_tmp = window_info;
 
 #define COPY_IF_SET(field)\
@@ -619,10 +630,16 @@ void miral::BasicWindowManager::modify_window(WindowInfo& window_info, WindowSpe
     if (modifications.input_shape().is_set())
         std::shared_ptr<scene::Surface>(window)->set_input_region(modifications.input_shape().value());
 
-    if (modifications.size().is_set())
+    if (modifications.size().is_set() || modifications.top_left().is_set())
     {
         Point new_pos = window.top_left();
-        Size new_size = modifications.size().value();
+        Size new_size = window.size();
+
+        if (modifications.size().is_set())
+            new_size = modifications.size().value();
+
+        if (modifications.top_left().is_set())
+            new_pos = modifications.top_left().value();
 
         window_info.constrain_resize(new_pos, new_size);
         place_and_size(window_info, new_pos, new_size);
@@ -919,8 +936,6 @@ auto miral::BasicWindowManager::place_new_surface(ApplicationInfo const& app_inf
         parameters.state() = mir_surface_state_restored;
 
     auto const active_display_area = active_display();
-
-    auto const width = parameters.size().value().width.as_int();
     auto const height = parameters.size().value().height.as_int();
 
     bool positioned = false;
@@ -958,42 +973,7 @@ auto miral::BasicWindowManager::place_new_surface(ApplicationInfo const& app_inf
 
     if (has_parent && parameters.aux_rect().is_set() && parameters.edge_attachment().is_set())
     {
-        auto parent = info_for(parameters.parent().value()).window();
-
-        auto const edge_attachment = parameters.edge_attachment().value();
-        auto const aux_rect = parameters.aux_rect().value();
-        auto const parent_top_left = parent.top_left();
-        auto const top_left = aux_rect.top_left     -Point{} + parent_top_left;
-        auto const top_right= aux_rect.top_right()  -Point{} + parent_top_left;
-        auto const bot_left = aux_rect.bottom_left()-Point{} + parent_top_left;
-
-        if (edge_attachment & mir_edge_attachment_vertical)
-        {
-            if (active_display_area.contains(top_right + Displacement{width, height}))
-            {
-                parameters.top_left() = top_right;
-                positioned = true;
-            }
-            else if (active_display_area.contains(top_left + Displacement{-width, height}))
-            {
-                parameters.top_left() = top_left + Displacement{-width, 0};
-                positioned = true;
-            }
-        }
-
-        if (edge_attachment & mir_edge_attachment_horizontal)
-        {
-            if (active_display_area.contains(bot_left + Displacement{width, height}))
-            {
-                parameters.top_left() = bot_left;
-                positioned = true;
-            }
-            else if (active_display_area.contains(top_left + Displacement{width, -height}))
-            {
-                parameters.top_left() = top_left + Displacement{0, -height};
-                positioned = true;
-            }
-        }
+        positioned = place_relative(parameters);
     }
     else if (has_parent)
     {
@@ -1057,4 +1037,50 @@ auto miral::BasicWindowManager::place_new_surface(ApplicationInfo const& app_inf
     }
 
     return parameters;
+}
+
+bool miral::BasicWindowManager::place_relative(miral::WindowSpecification& parameters)
+{
+    auto result = false;
+    auto const active_display_area = active_display();
+    auto const width = parameters.size().value().width.as_int();
+    auto const height = parameters.size().value().height.as_int();
+
+    auto parent = info_for(parameters.parent().value()).window();
+
+    auto const edge_attachment = parameters.edge_attachment().value();
+    auto const aux_rect = parameters.aux_rect().value();
+    auto const parent_top_left = parent.top_left();
+    auto const top_left = aux_rect.top_left     -Point{} + parent_top_left;
+    auto const top_right= aux_rect.top_right()  -Point{} + parent_top_left;
+    auto const bot_left = aux_rect.bottom_left()-Point{} + parent_top_left;
+
+    if (edge_attachment & mir_edge_attachment_vertical)
+        {
+            if (active_display_area.contains(top_right + Displacement{width, height}))
+            {
+                parameters.top_left() = top_right;
+                result = true;
+            }
+            else if (active_display_area.contains(top_left + Displacement{-width, height}))
+            {
+                parameters.top_left() = top_left + Displacement{-width, 0};
+                result = true;
+            }
+        }
+
+    if (edge_attachment & mir_edge_attachment_horizontal)
+        {
+            if (active_display_area.contains(bot_left + Displacement{width, height}))
+            {
+                parameters.top_left() = bot_left;
+                result = true;
+            }
+            else if (active_display_area.contains(top_left + Displacement{width, -height}))
+            {
+                parameters.top_left() = top_left + Displacement{0, -height};
+                result = true;
+            }
+        }
+    return result;
 }
