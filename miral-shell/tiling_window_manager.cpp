@@ -253,7 +253,7 @@ auto TilingWindowManagerPolicy::transform_set_state(WindowInfo& window_info, Mir
     {
         window_info.window().show();
     }
-    else
+    else if (window_info.window() == tools->active_window())
     {
         tools->select_active_window(window_info.parent());
     }
