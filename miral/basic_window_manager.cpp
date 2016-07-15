@@ -619,16 +619,10 @@ void miral::BasicWindowManager::modify_window(WindowInfo& window_info, WindowSpe
     if (modifications.input_shape().is_set())
         std::shared_ptr<scene::Surface>(window)->set_input_region(modifications.input_shape().value());
 
-    if (modifications.size().is_set() || modifications.top_left().is_set())
+    if (modifications.size().is_set())
     {
         Point new_pos = window.top_left();
-        Size new_size = window.size();
-
-        if (modifications.size().is_set())
-            new_size = modifications.size().value();
-
-        if (modifications.top_left().is_set())
-            new_pos = modifications.top_left().value();
+        Size new_size = modifications.size().value();
 
         window_info.constrain_resize(new_pos, new_size);
         place_and_size(window_info, new_pos, new_size);
