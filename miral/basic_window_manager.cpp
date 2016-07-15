@@ -693,6 +693,24 @@ void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirSur
         window_info.restore_rect({window_info.window().top_left(), window_info.window().size()});
         break;
 
+    case mir_surface_state_vertmaximized:
+    {
+        auto restore_rect = window_info.restore_rect();
+        restore_rect.top_left.x = window_info.window().top_left().x;
+        restore_rect.size.width = window_info.window().size().width;
+        window_info.restore_rect(restore_rect);
+        break;
+    }
+
+    case mir_surface_state_horizmaximized:
+    {
+        auto restore_rect = window_info.restore_rect();
+        restore_rect.top_left.y = window_info.window().top_left().y;
+        restore_rect.size.height= window_info.window().size().height;
+        window_info.restore_rect(restore_rect);
+        break;
+    }
+
     default:
         break;
     }
@@ -758,7 +776,7 @@ void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirSur
         policy->advise_state_change(window_info, value);
         window_info.window().hide();
         window_info.state(value);
-        window_info.window().set_state(window_info.state());
+        window_info.window().set_state(value);
         if (window_info.window() == active_window())
         {
             mru_active_windows.erase(window_info.window());
