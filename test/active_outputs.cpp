@@ -82,3 +82,11 @@ TEST_F(ActiveOutputs, on_startup_listener_is_advised)
     start_server();
     stop_server();
 }
+
+TEST_F(ActiveOutputs, on_stopping_listener_is_advised)
+{
+    start_server();
+
+    EXPECT_CALL(active_outputs_listener, advise_delete_output(_)).Times(AtLeast(1));
+    stop_server();
+}
