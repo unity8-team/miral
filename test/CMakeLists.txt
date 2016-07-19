@@ -8,6 +8,7 @@ include_directories(
 
 add_executable(miral-test
     mru_window_list.cpp
+    active_outputs.cpp
 )
 
 target_link_libraries(miral-test

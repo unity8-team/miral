@@ -43,7 +43,7 @@ public:
     virtual void advise_delete_output(Output const& output);
 
 protected:
-    ~ActiveOutputsListener() = default;
+    virtual ~ActiveOutputsListener() = default;
     ActiveOutputsListener(ActiveOutputsListener const&) = delete;
     ActiveOutputsListener operator=(ActiveOutputsListener const&) = delete;
 };
