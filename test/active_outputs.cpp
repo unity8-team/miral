@@ -22,7 +22,9 @@
 #include "mir_test_framework/headless_test.h"
 
 #include "mir/test/doubles/fake_display.h"
+#include "mir/test/doubles/stub_display_configuration.h"
 #include "mir/test/fake_shared.h"
+#include "mir/test/signal.h"
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
@@ -47,7 +49,10 @@ struct MockActiveOutputsListener : ActiveOutputsListener
     MOCK_METHOD1(advise_delete_output, void(Output const&));
 };
 
-std::vector<Rectangle> const output_rects{{{0,0}, {640,480}}};
+std::vector<Rectangle> const output_rects{
+    {{0,0}, {640,480}},
+    {{640,0}, {640,480}}
+};
 
 struct ActiveOutputs : mtf::HeadlessTest
 {
@@ -83,10 +88,19 @@ TEST_F(ActiveOutputs, on_startup_listener_is_advised)
     stop_server();
 }
 
-TEST_F(ActiveOutputs, on_stopping_listener_is_advised)
+TEST_F(ActiveOutputs, when_output_unplugged_listener_is_advised)
 {
     start_server();
 
+    mtd::StubDisplayConfig changed_stub_display_config{1};
+
+    mt::Signal signal;
+    ON_CALL(active_outputs_listener, advise_end()).WillByDefault(Invoke([&]{signal.raise(); }));
+
     EXPECT_CALL(active_outputs_listener, advise_delete_output(_)).Times(AtLeast(1));
+    display.emit_configuration_change_event(mt::fake_shared(changed_stub_display_config));
+    signal.wait_for(std::chrono::seconds(1));
+
     stop_server();
+    ASSERT_TRUE(signal.raised());
 }

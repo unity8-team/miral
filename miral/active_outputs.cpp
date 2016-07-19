@@ -23,6 +23,7 @@
 #include <mir/graphics/display_configuration.h>
 #include <mir/server.h>
 
+#include <algorithm>
 #include <vector>
 
 void miral::ActiveOutputsListener::advise_begin() {}
@@ -37,6 +38,7 @@ struct miral::ActiveOutputsMonitor::Self : mir::graphics::DisplayConfigurationRe
     virtual void new_configuration(mir::graphics::DisplayConfiguration const& configuration) override;
 
     std::vector<ActiveOutputsListener*> listeners;
+    std::vector<Output> outputs;
 };
 
 miral::ActiveOutputsMonitor::ActiveOutputsMonitor() :
@@ -67,11 +69,42 @@ void miral::ActiveOutputsMonitor::Self::initial_configuration(mir::graphics::Dis
 
 void miral::ActiveOutputsMonitor::Self::new_configuration(mir::graphics::DisplayConfiguration const& configuration)
 {
+    decltype(outputs) current_outputs;
+
     for (auto const l : listeners)
-    {
         l->advise_begin();
-        configuration.for_each_output([l](mir::graphics::DisplayConfigurationOutput const& output)
-            { l->advise_create_output(Output(output)); });
-        l->advise_end();
+
+    configuration.for_each_output([&current_outputs, this](mir::graphics::DisplayConfigurationOutput const& output)
+        {
+            Output o{output};
+            auto op = find_if(begin(outputs), end(outputs), [&](Output const& oo) { return oo.is_same_output(o); });
+
+            for (auto const l : listeners)
+            {
+                if (op == end(outputs))
+                {
+                    l->advise_create_output(o);
+                }
+                else if (!equivalent_display_area(o, *op))
+                {
+                    l->advise_update_output(o, *op);
+                }
+            }
+
+            current_outputs.push_back(o);
+        });
+
+    for (auto const& o : outputs)
+    {
+        auto op = find_if(begin(current_outputs), end(current_outputs), [&](Output const& oo)
+            { return oo.is_same_output(o); });
+
+        if (op == end(current_outputs))
+            for (auto const l : listeners)
+                l->advise_delete_output(o);
     }
+
+    current_outputs.swap(outputs);
+    for (auto const l : listeners)
+        l->advise_end();
 }
