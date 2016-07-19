@@ -39,13 +39,15 @@ namespace
 {
 struct MockActiveOutputsListener : ActiveOutputsListener
 {
-    MOCK_CONST_METHOD0(advise_begin, void());
-    MOCK_CONST_METHOD0(advise_end, void());
+    MOCK_METHOD0(advise_begin, void());
+    MOCK_METHOD0(advise_end, void());
 
-    MOCK_CONST_METHOD1(advise_create_output, void(Output const&));
-    MOCK_CONST_METHOD2(advise_update_output, void(Output const&, Output const&));
-    MOCK_CONST_METHOD1(advise_delete_output, void(Output const&));
+    MOCK_METHOD1(advise_create_output, void(Output const&));
+    MOCK_METHOD2(advise_update_output, void(Output const&, Output const&));
+    MOCK_METHOD1(advise_delete_output, void(Output const&));
 };
+
+std::vector<Rectangle> const output_rects{{{0,0}, {640,480}}};
 
 struct ActiveOutputs : mtf::HeadlessTest
 {
@@ -68,9 +70,9 @@ struct ActiveOutputs : mtf::HeadlessTest
         mtf::HeadlessTest::TearDown();
     }
 
-    mtd::FakeDisplay display;
+    mtd::FakeDisplay display{output_rects};
     ActiveOutputsMonitor active_outputs_monitor;
-    MockActiveOutputsListener active_outputs_listener;
+    NiceMock<MockActiveOutputsListener> active_outputs_listener;
 };
 }
 
