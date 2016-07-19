@@ -79,16 +79,16 @@ void miral::ActiveOutputsMonitor::Self::new_configuration(mir::graphics::Display
             Output o{output};
             auto op = find_if(begin(outputs), end(outputs), [&](Output const& oo) { return oo.is_same_output(o); });
 
-            for (auto const l : listeners)
+
+            if (op == end(outputs))
             {
-                if (op == end(outputs))
-                {
+                for (auto const l : listeners)
                     l->advise_create_output(o);
-                }
-                else if (!equivalent_display_area(o, *op))
-                {
+            }
+            else if (!equivalent_display_area(o, *op))
+            {
+                for (auto const l : listeners)
                     l->advise_update_output(o, *op);
-                }
             }
 
             current_outputs.push_back(o);

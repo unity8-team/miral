@@ -78,6 +78,12 @@ struct ActiveOutputs : mtf::HeadlessTest
     mtd::FakeDisplay display{output_rects};
     ActiveOutputsMonitor active_outputs_monitor;
     NiceMock<MockActiveOutputsListener> active_outputs_listener;
+
+    void update_outputs(std::vector<Rectangle> const& displays)
+    {
+        mtd::StubDisplayConfig changed_stub_display_config{displays};
+        display.emit_configuration_change_event(mt::fake_shared(changed_stub_display_config));
+    }
 };
 }
 
@@ -92,13 +98,11 @@ TEST_F(ActiveOutputs, when_output_unplugged_listener_is_advised)
 {
     start_server();
 
-    mtd::StubDisplayConfig changed_stub_display_config{1};
-
     mt::Signal signal;
     ON_CALL(active_outputs_listener, advise_end()).WillByDefault(Invoke([&]{signal.raise(); }));
 
     EXPECT_CALL(active_outputs_listener, advise_delete_output(_)).Times(AtLeast(1));
-    display.emit_configuration_change_event(mt::fake_shared(changed_stub_display_config));
+    update_outputs({{{0,0}, {640,480}}});
     signal.wait_for(std::chrono::seconds(1));
 
     stop_server();
