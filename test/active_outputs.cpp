@@ -91,21 +91,30 @@ struct ActiveOutputs : mtf::HeadlessTest
         ASSERT_TRUE(signal.raised());
     }
 };
+
+struct RunServer
+{
+    RunServer(mtf::HeadlessTest* self) : self{self} { self->start_server(); }
+    ~RunServer() { self->stop_server(); }
+
+    mtf::HeadlessTest* const self;
+};
 }
 
 TEST_F(ActiveOutputs, on_startup_listener_is_advised)
 {
-    EXPECT_CALL(active_outputs_listener, advise_create_output(_)).Times(AtLeast(1));
-    start_server();
-    stop_server();
+    EXPECT_CALL(active_outputs_listener, advise_create_output(_)).Times(2);
+    RunServer runner{this};
+
+    Mock::VerifyAndClearExpectations(&active_outputs_listener); // before shutdown
 }
 
 TEST_F(ActiveOutputs, when_output_unplugged_listener_is_advised)
 {
-    start_server();
+    RunServer runner{this};
 
-    EXPECT_CALL(active_outputs_listener, advise_delete_output(_)).Times(AtLeast(1));
+    EXPECT_CALL(active_outputs_listener, advise_delete_output(_)).Times(1);
     update_outputs({{{0,0}, {640,480}}});
 
-    stop_server();
+    Mock::VerifyAndClearExpectations(&active_outputs_listener); // before shutdown
 }
