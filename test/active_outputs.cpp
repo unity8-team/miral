@@ -81,8 +81,14 @@ struct ActiveOutputs : mtf::HeadlessTest
 
     void update_outputs(std::vector<Rectangle> const& displays)
     {
+        mt::Signal signal;
+        EXPECT_CALL(active_outputs_listener, advise_end()).WillOnce(Invoke([&]{signal.raise(); }));
+
         mtd::StubDisplayConfig changed_stub_display_config{displays};
         display.emit_configuration_change_event(mt::fake_shared(changed_stub_display_config));
+
+        signal.wait_for(std::chrono::seconds(10));
+        ASSERT_TRUE(signal.raised());
     }
 };
 }
@@ -98,13 +104,8 @@ TEST_F(ActiveOutputs, when_output_unplugged_listener_is_advised)
 {
     start_server();
 
-    mt::Signal signal;
-    ON_CALL(active_outputs_listener, advise_end()).WillByDefault(Invoke([&]{signal.raise(); }));
-
     EXPECT_CALL(active_outputs_listener, advise_delete_output(_)).Times(AtLeast(1));
     update_outputs({{{0,0}, {640,480}}});
-    signal.wait_for(std::chrono::seconds(1));
 
     stop_server();
-    ASSERT_TRUE(signal.raised());
 }

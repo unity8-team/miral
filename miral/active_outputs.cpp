@@ -55,7 +55,11 @@ void miral::ActiveOutputsMonitor::add_listener(ActiveOutputsListener* listener)
     self->listeners.push_back(listener);
 }
 
-void miral::ActiveOutputsMonitor::delete_listener(ActiveOutputsListener* /*listener*/) { /*TODO*/ }
+void miral::ActiveOutputsMonitor::delete_listener(ActiveOutputsListener* listener)
+{
+    auto const new_end = std::remove(self->listeners.begin(), self->listeners.end(), listener);
+    self->listeners.erase(new_end, self->listeners.end());
+}
 
 void miral::ActiveOutputsMonitor::operator()(mir::Server& server)
 {
