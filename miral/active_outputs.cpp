@@ -24,6 +24,7 @@
 #include <mir/server.h>
 
 #include <algorithm>
+#include <mutex>
 #include <vector>
 
 void miral::ActiveOutputsListener::advise_begin() {}
@@ -37,6 +38,7 @@ struct miral::ActiveOutputsMonitor::Self : mir::graphics::DisplayConfigurationRe
     virtual void initial_configuration(mir::graphics::DisplayConfiguration const& configuration) override;
     virtual void new_configuration(mir::graphics::DisplayConfiguration const& configuration) override;
 
+    std::mutex mutex;
     std::vector<ActiveOutputsListener*> listeners;
     std::vector<Output> outputs;
 };
@@ -52,17 +54,23 @@ miral::ActiveOutputsMonitor& miral::ActiveOutputsMonitor::operator=(ActiveOutput
 
 void miral::ActiveOutputsMonitor::add_listener(ActiveOutputsListener* listener)
 {
+    std::lock_guard<decltype(self->mutex)> lock{self->mutex};
+
     self->listeners.push_back(listener);
 }
 
 void miral::ActiveOutputsMonitor::delete_listener(ActiveOutputsListener* listener)
 {
+    std::lock_guard<decltype(self->mutex)> lock{self->mutex};
+
     auto const new_end = std::remove(self->listeners.begin(), self->listeners.end(), listener);
     self->listeners.erase(new_end, self->listeners.end());
 }
 
 void miral::ActiveOutputsMonitor::operator()(mir::Server& server)
 {
+    std::lock_guard<decltype(self->mutex)> lock{self->mutex};
+
     server.override_the_display_configuration_report([this]{ return self; });
 }
 
@@ -73,6 +81,8 @@ void miral::ActiveOutputsMonitor::Self::initial_configuration(mir::graphics::Dis
 
 void miral::ActiveOutputsMonitor::Self::new_configuration(mir::graphics::DisplayConfiguration const& configuration)
 {
+    std::lock_guard<decltype(mutex)> lock{mutex};
+
     decltype(outputs) current_outputs;
 
     for (auto const l : listeners)
