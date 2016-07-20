@@ -19,12 +19,14 @@
 #include "../miral/active_outputs.h"
 #include "../miral/output.h"
 
-#include "mir_test_framework/headless_test.h"
+#include <mir/shell/display_configuration_controller.h>
 
-#include "mir/test/doubles/fake_display.h"
-#include "mir/test/doubles/stub_display_configuration.h"
-#include "mir/test/fake_shared.h"
-#include "mir/test/signal.h"
+#include <mir_test_framework/headless_test.h>
+
+#include <mir/test/doubles/fake_display.h>
+#include <mir/test/doubles/stub_display_configuration.h>
+#include <mir/test/fake_shared.h>
+#include <mir/test/signal.h>
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
@@ -90,6 +92,23 @@ struct ActiveOutputs : mtf::HeadlessTest
         signal.wait_for(std::chrono::seconds(10));
         ASSERT_TRUE(signal.raised());
     }
+
+    void invert_outputs_in_base_configuration()
+    {
+        mt::Signal signal;
+        EXPECT_CALL(active_outputs_listener, advise_end()).WillOnce(Invoke([&]{signal.raise(); }));
+
+        auto configuration = server.the_display()->configuration();
+        configuration->for_each_output([](mg::UserDisplayConfigurationOutput& output)
+            {
+                output.orientation = mir_orientation_inverted;
+            });
+
+        server.the_display_configuration_controller()->set_base_configuration(std::move(configuration));
+
+        signal.wait_for(std::chrono::seconds(10));
+        ASSERT_TRUE(signal.raised());
+    }
 };
 
 struct RunServer
@@ -103,6 +122,8 @@ struct RunServer
 
 TEST_F(ActiveOutputs, on_startup_listener_is_advised)
 {
+    InSequence seq;
+    EXPECT_CALL(active_outputs_listener, advise_begin());
     EXPECT_CALL(active_outputs_listener, advise_create_output(_)).Times(2);
     RunServer runner{this};
 
@@ -113,6 +134,8 @@ TEST_F(ActiveOutputs, when_output_unplugged_listener_is_advised)
 {
     RunServer runner{this};
 
+    InSequence seq;
+    EXPECT_CALL(active_outputs_listener, advise_begin());
     EXPECT_CALL(active_outputs_listener, advise_delete_output(_)).Times(1);
     update_outputs({{{0,0}, {640,480}}});
 
@@ -126,6 +149,8 @@ TEST_F(ActiveOutputs, when_output_added_listener_is_advised)
     auto new_output_rects = output_rects;
     new_output_rects.emplace_back(Point{1280,0}, Size{640,480});
 
+    InSequence seq;
+    EXPECT_CALL(active_outputs_listener, advise_begin());
     EXPECT_CALL(active_outputs_listener, advise_create_output(_)).Times(1);
     update_outputs(new_output_rects);
 
@@ -139,8 +164,22 @@ TEST_F(ActiveOutputs, when_output_resized_listener_is_advised)
     auto new_output_rects = output_rects;
     new_output_rects[1] = {Point{640,0}, Size{1080,768}};
 
+    InSequence seq;
+    EXPECT_CALL(active_outputs_listener, advise_begin());
     EXPECT_CALL(active_outputs_listener, advise_update_output(_, _)).Times(1);
     update_outputs(new_output_rects);
+
+    Mock::VerifyAndClearExpectations(&active_outputs_listener); // before shutdown
+}
+
+TEST_F(ActiveOutputs, when_base_configuration_is_updated_listener_is_advised)
+{
+    RunServer runner{this};
+
+    InSequence seq;
+    EXPECT_CALL(active_outputs_listener, advise_begin());
+    EXPECT_CALL(active_outputs_listener, advise_update_output(_, _)).Times(2);
+    invert_outputs_in_base_configuration();
 
     Mock::VerifyAndClearExpectations(&active_outputs_listener); // before shutdown
 }
