@@ -118,3 +118,29 @@ TEST_F(ActiveOutputs, when_output_unplugged_listener_is_advised)
 
     Mock::VerifyAndClearExpectations(&active_outputs_listener); // before shutdown
 }
+
+TEST_F(ActiveOutputs, when_output_added_listener_is_advised)
+{
+    RunServer runner{this};
+
+    auto new_output_rects = output_rects;
+    new_output_rects.emplace_back(Point{1280,0}, Size{640,480});
+
+    EXPECT_CALL(active_outputs_listener, advise_create_output(_)).Times(1);
+    update_outputs(new_output_rects);
+
+    Mock::VerifyAndClearExpectations(&active_outputs_listener); // before shutdown
+}
+
+TEST_F(ActiveOutputs, when_output_resized_listener_is_advised)
+{
+    RunServer runner{this};
+
+    auto new_output_rects = output_rects;
+    new_output_rects[1] = {Point{640,0}, Size{1080,768}};
+
+    EXPECT_CALL(active_outputs_listener, advise_update_output(_, _)).Times(1);
+    update_outputs(new_output_rects);
+
+    Mock::VerifyAndClearExpectations(&active_outputs_listener); // before shutdown
+}
