@@ -20,6 +20,7 @@
 #define MIRAL_ACTIVE_OUTPUTS_H
 
 #include <memory>
+#include <vector>
 
 namespace mir { class Server; }
 
@@ -61,9 +62,11 @@ public:
 
     void operator()(mir::Server& server);
 
+    void process_outputs(std::function<void(std::vector<Output> const& outputs)> const& functor) const;
+
 private:
     struct Self;
-    std::shared_ptr <Self> self;
+    std::shared_ptr<Self> self;
 };
 }
 

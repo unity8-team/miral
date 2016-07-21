@@ -183,3 +183,23 @@ TEST_F(ActiveOutputs, when_base_configuration_is_updated_listener_is_advised)
 
     Mock::VerifyAndClearExpectations(&active_outputs_listener); // before shutdown
 }
+
+TEST_F(ActiveOutputs, available_to_process)
+{
+    RunServer runner{this};
+
+    active_outputs_monitor.process_outputs([](std::vector<Output> const& outputs)
+        { EXPECT_THAT(outputs.size(), Eq(output_rects.size())); });
+}
+
+TEST_F(ActiveOutputs, updates_are_available_to_process)
+{
+    RunServer runner{this};
+
+    auto new_output_rects = output_rects;
+    new_output_rects.emplace_back(Point{1280,0}, Size{640,480});
+    update_outputs(new_output_rects);
+
+    active_outputs_monitor.process_outputs([&](std::vector<Output> const& outputs)
+        { EXPECT_THAT(outputs.size(), Eq(new_output_rects.size())); });
+}
