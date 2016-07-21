@@ -26,7 +26,7 @@
 
 #include <memory>
 
-namespace mir { namespace graphics { class DisplayConfigurationOutput; } }
+namespace mir { namespace graphics { struct DisplayConfigurationOutput; } }
 
 namespace miral
 {
