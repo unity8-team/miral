@@ -37,7 +37,6 @@ class Output
 public:
 
     struct PhysicalSize { int width; int height; };
-//    struct Mode { Size size; double vrefresh_hz; }; Not needed (unless we publish "supported modes")
 
     enum class Type
     {
@@ -110,6 +109,5 @@ inline bool operator!=(Output::PhysicalSize const& lhs, Output::PhysicalSize con
 
 auto equivalent_display_area(Output const& lhs, Output const& rhs) -> bool;
 }
-
 
 #endif //MIRAL_OUTPUT_H

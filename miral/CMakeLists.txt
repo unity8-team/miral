@@ -3,12 +3,14 @@ pkg_check_modules(MIRSERVER mirserver>=0.20 REQUIRED)
 include_directories(include SYSTEM ${MIRSERVER_INCLUDE_DIRS})
 
 add_library(miral SHARED
+    active_outputs.cpp                  ../include/miral/active_outputs.h
     application.cpp                     ${CMAKE_SOURCE_DIR}/include/miral/application.h
     application_authorizer.cpp          ${CMAKE_SOURCE_DIR}/include/miral/application_authorizer.h
     application_info.cpp                ${CMAKE_SOURCE_DIR}/include/miral/application_info.h
     canonical_window_manager.cpp        ${CMAKE_SOURCE_DIR}/include/miral/canonical_window_manager.h
     runner.cpp                          ${CMAKE_SOURCE_DIR}/include/miral/runner.h
     display_configuration_option.cpp    ${CMAKE_SOURCE_DIR}/include/miral/display_configuration_option.h
+    output.cpp                          ../include/miral/output.h
     quit_on_ctrl_alt_bksp.cpp           ${CMAKE_SOURCE_DIR}/include/miral/quit_on_ctrl_alt_bksp.h
     window.cpp                          ${CMAKE_SOURCE_DIR}/include/miral/window.h
     window_info.cpp                     ${CMAKE_SOURCE_DIR}/include/miral/window_info.h
@@ -23,7 +25,7 @@ add_library(miral SHARED
                                         ${CMAKE_SOURCE_DIR}/include/miral/stream_specification.h
                                         ${CMAKE_SOURCE_DIR}/include/miral/toolkit/surface_spec.h
                                         ${CMAKE_SOURCE_DIR}/include/miral/toolkit/connection.h
-        output.cpp output.h active_outputs.cpp active_outputs.h)
+)
 
 target_link_libraries(miral
     PUBLIC
