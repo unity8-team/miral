@@ -74,7 +74,6 @@ void launch_startup_app(std::string socket_file, std::string app)
         }
         while (std::chrono::steady_clock::now() < time_limit);
 
-        unsetenv("DISPLAY");                                // Discourage toolkits from using X11
         setenv("GDK_BACKEND", "mir", true);                 // configure GTK to use Mir
         setenv("QT_QPA_PLATFORM", "ubuntumirclient", true); // configure Qt to use Mir
         unsetenv("QT_QPA_PLATFORMTHEME");                   // Discourage Qt from unsupported theme
