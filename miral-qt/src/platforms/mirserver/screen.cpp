@@ -211,7 +211,6 @@ void Screen::setMirDisplayConfiguration(const mir::graphics::DisplayConfiguratio
 
     // Output data - each output has a unique id and corresponding type. Can be multiple cards.
     m_outputId = screen.id;
-    m_cardId = screen.card_id;
     m_type = screen.type;
 
     // Physical screen size
@@ -219,10 +218,7 @@ void Screen::setMirDisplayConfiguration(const mir::graphics::DisplayConfiguratio
     m_physicalSize.setHeight(screen.physical_size_mm.height.as_float());
 
     // Screen capabilities
-    m_modes = screen.modes;
     m_currentModeIndex = screen.current_mode_index;
-    m_preferredModeIndex = screen.preferred_mode_index;
-    m_pixelFormats = screen.pixel_formats;
 
     // Current Pixel Format & depth
     m_format = qImageFormatFromMirPixelFormat(screen.current_format);
