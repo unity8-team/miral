@@ -74,7 +74,7 @@ void miral::ActiveOutputsMonitor::operator()(mir::Server& server)
     server.override_the_display_configuration_report([this]{ return self; });
 }
 
-void miral::ActiveOutputsMonitor::process_outputs(
+void miral::ActiveOutputsMonitor::for_each_output(
     std::function<void(std::vector<Output> const& outputs)> const& functor) const
 {
     std::lock_guard<decltype(self->mutex)> lock{self->mutex};
