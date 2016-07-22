@@ -59,5 +59,4 @@ private:
     int old_touch_pinch_height = 0;
 };
 
-
 #endif //MIRAL_EXAMPLE_EVENT_HANDLING_POLICY_H

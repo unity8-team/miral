@@ -19,13 +19,7 @@
 #ifndef MIRAL_CANONICAL_WINDOW_MANAGER_H_
 #define MIRAL_CANONICAL_WINDOW_MANAGER_H_
 
-#include <miral/window.h>
 #include <miral/window_management_policy.h>
-
-#include <mir/geometry/displacement.h>
-
-#include <atomic>
-#include <set>
 
 namespace miral
 {
