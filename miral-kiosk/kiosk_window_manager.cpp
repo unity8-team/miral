@@ -24,8 +24,6 @@
 
 #include <linux/input.h>
 
-#include <algorithm>
-
 namespace ms = mir::scene;
 using namespace miral;
 
