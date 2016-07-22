@@ -35,7 +35,7 @@
 namespace mir
 {
 namespace scene { class Surface; }
-namespace shell { class StreamSpecification; }
+namespace shell { struct StreamSpecification; }
 }
 
 namespace miral
