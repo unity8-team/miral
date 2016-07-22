@@ -23,9 +23,6 @@
 
 namespace miral
 {
-using namespace mir::geometry;
-
-// Based on "Mir and Unity: Surfaces, input, and displays (v0.3)"
 class CanonicalWindowManagerPolicy  : public WindowManagementPolicy
 {
 public:
