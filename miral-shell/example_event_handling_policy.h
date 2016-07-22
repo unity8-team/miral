@@ -23,16 +23,14 @@
 
 using namespace mir::geometry;
 
-class TitlebarProvider;
-
-// standard window management algorithm:
-//  o Switch apps: tap or click on the corresponding tile
+// example event handling:
+//  o Switch apps: Alt+Tab, tap or click on the corresponding window
+//  o Switch window: Alt+`, tap or click on the corresponding window
 //  o Move window: Alt-leftmousebutton drag (three finger drag)
 //  o Resize window: Alt-middle_button drag (three finger pinch)
 //  o Maximize/restore current window (to display size): Alt-F11
 //  o Maximize/restore current window (to display height): Shift-F11
 //  o Maximize/restore current window (to display width): Ctrl-F11
-//  o client requests to maximize, vertically maximize & restore
 class ExampleEventHandlingPolicy : public miral::CanonicalWindowManagerPolicy
 {
 public:
