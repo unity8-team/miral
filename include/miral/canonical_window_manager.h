@@ -41,13 +41,6 @@ public:
     void advise_focus_gained(WindowInfo const& info) override;
 
 protected:
-    static const int modifier_mask =
-        mir_input_event_modifier_alt |
-        mir_input_event_modifier_shift |
-        mir_input_event_modifier_sym |
-        mir_input_event_modifier_ctrl |
-        mir_input_event_modifier_meta;
-
     miral::WindowManagerTools* const tools;
 };
 }

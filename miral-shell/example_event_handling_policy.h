@@ -40,6 +40,14 @@ public:
     bool handle_touch_event(MirTouchEvent const* event) override;
     bool handle_pointer_event(MirPointerEvent const* event) override;
 
+protected:
+    static const int modifier_mask =
+        mir_input_event_modifier_alt |
+        mir_input_event_modifier_shift |
+        mir_input_event_modifier_sym |
+        mir_input_event_modifier_ctrl |
+        mir_input_event_modifier_meta;
+
 private:
     void toggle(MirSurfaceState state);
 
