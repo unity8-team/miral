@@ -83,7 +83,7 @@ public:
     /// Current power mode
     auto power_mode() const -> MirPowerMode;
 
-    auto orientaton() const -> MirOrientation;
+    auto orientation() const -> MirOrientation;
 
     /// Requested scale factor for this output, for HiDPI support
     auto scale() const -> float;

@@ -65,7 +65,7 @@ auto miral::Output::power_mode() const -> MirPowerMode
     return self->power_mode;
 }
 
-auto miral::Output::orientaton() const -> MirOrientation
+auto miral::Output::orientation() const -> MirOrientation
 {
     return self->orientation;
 }
@@ -110,7 +110,7 @@ auto miral::equivalent_display_area(Output const& lhs, Output const& rhs) -> boo
 
     return lhs.extents() == rhs.extents() &&
            lhs.form_factor() == rhs.form_factor() &&
-           lhs.orientaton() == rhs.orientaton() &&
+        lhs.orientation() == rhs.orientation() &&
            lhs.pixel_format() == rhs.pixel_format() &&
         lhs.physical_size_mm() == rhs.physical_size_mm() &&
            lhs.scale() == rhs.scale() &&
