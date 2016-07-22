@@ -1,5 +1,5 @@
 find_package(GtestGmock REQUIRED)
-pkg_check_modules(MIRTEST REQUIRED mirtest)
+
 include_directories(
         ${MIRTEST_INCLUDE_DIRS}
         ${GMOCK_INCLUDE_DIR}
