@@ -36,7 +36,7 @@ class Output
 {
 public:
 
-    struct PhysicalSize { int width; int height; };
+    struct PhysicalSizeMM { int width; int height; };
 
     enum class Type
     {
@@ -66,7 +66,7 @@ public:
     auto type() const -> Type;
 
     /// The physical size of the output.
-    auto physical_size() const -> PhysicalSize;
+    auto physical_size_mm() const -> PhysicalSizeMM;
 
     /// Whether the output is connected.
     auto connected() const -> bool;
@@ -103,8 +103,8 @@ private:
     std::shared_ptr<mir::graphics::DisplayConfigurationOutput> self;
 };
 
-bool operator==(Output::PhysicalSize const& lhs, Output::PhysicalSize const& rhs);
-inline bool operator!=(Output::PhysicalSize const& lhs, Output::PhysicalSize const& rhs)
+bool operator==(Output::PhysicalSizeMM const& lhs, Output::PhysicalSizeMM const& rhs);
+inline bool operator!=(Output::PhysicalSizeMM const& lhs, Output::PhysicalSizeMM const& rhs)
 { return !(lhs == rhs); }
 
 auto equivalent_display_area(Output const& lhs, Output const& rhs) -> bool;

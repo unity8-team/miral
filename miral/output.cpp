@@ -34,10 +34,10 @@ auto miral::Output::type() const -> Type
     return Type(self->type);
 }
 
-auto miral::Output::physical_size() const -> PhysicalSize
+auto miral::Output::physical_size_mm() const -> PhysicalSizeMM
 {
     auto const& size = self->physical_size_mm;
-    return PhysicalSize{size.width.as_int(), size.height.as_int()};
+    return PhysicalSizeMM{size.width.as_int(), size.height.as_int()};
 }
 
 auto miral::Output::connected() const -> bool
@@ -96,7 +96,7 @@ auto miral::Output::is_same_output(Output const& other) const -> bool
     return self->card_id == other.self->card_id && self->id == other.self->id;
 }
 
-bool miral::operator==(Output::PhysicalSize const& lhs, Output::PhysicalSize const& rhs)
+bool miral::operator==(Output::PhysicalSizeMM const& lhs, Output::PhysicalSizeMM const& rhs)
 {
     return lhs.width == rhs.width && lhs.height == rhs.height;
 }
@@ -112,7 +112,7 @@ auto miral::equivalent_display_area(Output const& lhs, Output const& rhs) -> boo
            lhs.form_factor() == rhs.form_factor() &&
            lhs.orientaton() == rhs.orientaton() &&
            lhs.pixel_format() == rhs.pixel_format() &&
-           lhs.physical_size() == rhs.physical_size() &&
+        lhs.physical_size_mm() == rhs.physical_size_mm() &&
            lhs.scale() == rhs.scale() &&
            lhs.type() == rhs.type();
 }
