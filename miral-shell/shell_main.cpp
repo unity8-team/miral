@@ -20,7 +20,6 @@
 #include "titlebar_window_manager.h"
 #include "spinner/splash.h"
 
-#include <miral/canonical_window_manager.h>
 #include <miral/display_configuration_option.h>
 #include <miral/runner.h>
 #include <miral/window_management_options.h>
@@ -36,7 +35,7 @@ int main(int argc, char const* argv[])
     WindowManagerOptions window_managers
         {
             add_window_manager_policy<TitlebarWindowManagerPolicy>("titlebar", spinner, launcher),
-            add_window_manager_policy<CanonicalWindowManagerPolicy>("canonical"),
+            add_window_manager_policy<ExampleEventHandlingPolicy>("canonical"),
             add_window_manager_policy<TilingWindowManagerPolicy>("tiling", spinner, launcher),
         };
 

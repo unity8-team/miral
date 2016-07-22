@@ -19,9 +19,9 @@
 #ifndef MIRAL_SHELL_TITLEBAR_WINDOW_MANAGER_H
 #define MIRAL_SHELL_TITLEBAR_WINDOW_MANAGER_H
 
-#include "spinner/splash.h"
+#include "example_event_handling_policy.h"
 
-#include <miral/canonical_window_manager.h>
+#include "spinner/splash.h"
 
 namespace miral { class InternalClientLauncher; }
 
@@ -29,7 +29,7 @@ using namespace mir::geometry;
 
 class TitlebarProvider;
 
-class TitlebarWindowManagerPolicy : public miral::CanonicalWindowManagerPolicy
+class TitlebarWindowManagerPolicy : public ExampleEventHandlingPolicy
 {
 public:
     TitlebarWindowManagerPolicy(miral::WindowManagerTools* const tools, SpinnerSplash const& spinner, miral::InternalClientLauncher const& launcher);
@@ -46,7 +46,6 @@ public:
     void advise_delete_window(miral::WindowInfo const& window_info) override;
 
 private:
-    miral::WindowManagerTools* const tools;
     SpinnerSplash const spinner;
 
     std::unique_ptr<TitlebarProvider> const titlebar_provider;
