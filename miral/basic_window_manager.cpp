@@ -25,6 +25,8 @@
 #include <mir/shell/surface_ready_observer.h>
 #include <mir/version.h>
 
+#include <boost/throw_exception.hpp>
+
 #include <algorithm>
 
 using namespace mir;
@@ -139,7 +141,9 @@ void miral::BasicWindowManager::modify_surface(
     shell::SurfaceSpecification const& modifications)
 {
     Locker lock{mutex, policy};
-    policy->handle_modify_window(info_for(surface), modifications);
+    auto& info = info_for(surface);
+    validate_modification_request(info, modifications);
+    policy->handle_modify_window(info, modifications);
 }
 
 void miral::BasicWindowManager::remove_surface(
@@ -319,6 +323,8 @@ int miral::BasicWindowManager::set_surface_attribute(
 
     Locker lock{mutex, policy};
     auto& info = info_for(surface);
+
+    validate_modification_request(info, modification);
     policy->handle_modify_window(info, modification);
 
     switch (attrib)
@@ -1098,4 +1104,59 @@ auto miral::BasicWindowManager::place_relative(Point const& parent_top_left, Win
         }
 
     return result;
+}
+
+void miral::BasicWindowManager::validate_modification_request(
+    WindowInfo const& window_info,
+    WindowSpecification const& modifications) const
+{
+    auto target_type = window_info.type();
+
+    if (modifications.type().is_set())
+    {
+        auto const original_type = target_type;
+
+        target_type = modifications.type().value();
+
+        switch (original_type)
+        {
+        case mir_surface_type_normal:
+        case mir_surface_type_utility:
+        case mir_surface_type_dialog:
+        case mir_surface_type_satellite:
+            switch (target_type)
+            {
+            case mir_surface_type_normal:
+            case mir_surface_type_utility:
+            case mir_surface_type_dialog:
+            case mir_surface_type_satellite:
+                break;
+
+            default:
+                BOOST_THROW_EXCEPTION(std::runtime_error("Invalid surface type change"));
+            }
+
+        case mir_surface_type_menu:
+            switch (target_type)
+            {
+            case mir_surface_type_menu:
+            case mir_surface_type_satellite:
+                break;
+
+            default:
+                BOOST_THROW_EXCEPTION(std::runtime_error("Invalid surface type change"));
+            }
+
+        case mir_surface_type_gloss:
+        case mir_surface_type_freestyle:
+        case mir_surface_type_inputmethod:
+        case mir_surface_type_tip:
+            if (target_type != original_type)
+                BOOST_THROW_EXCEPTION(std::runtime_error("Invalid surface type change"));
+            break;
+
+        default:
+            BOOST_THROW_EXCEPTION(std::runtime_error("Invalid surface type"));
+        }
+    }
 }
