@@ -936,11 +936,8 @@ auto miral::BasicWindowManager::can_activate_window_for_session(miral::Applicati
 auto miral::BasicWindowManager::place_new_surface(ApplicationInfo const& app_info, WindowSpecification parameters)
 -> WindowSpecification
 {
-    auto surf_type = parameters.type().is_set() ? parameters.type().value() : mir_surface_type_normal;
-    bool const needs_titlebar = WindowInfo::needs_titlebar(surf_type);
-
-    if (needs_titlebar)
-        parameters.size() = Size{parameters.size().value().width, parameters.size().value().height + DeltaY{title_bar_height}};
+    if (!parameters.type().is_set())
+        parameters.type() = mir_surface_type_normal;
 
     if (!parameters.state().is_set())
         parameters.state() = mir_surface_state_restored;
@@ -1044,12 +1041,6 @@ auto miral::BasicWindowManager::place_new_surface(ApplicationInfo const& app_inf
 
         if (parameters.top_left().value().y < display_area.top_left.y)
             parameters.top_left() = Point{parameters.top_left().value().x, display_area.top_left.y};
-    }
-
-    if (parameters.state().value() != mir_surface_state_fullscreen && needs_titlebar)
-    {
-        parameters.top_left() = Point{parameters.top_left().value().x, parameters.top_left().value().y + DeltaY{title_bar_height}};
-        parameters.size() = Size{parameters.size().value().width, parameters.size().value().height - DeltaY{title_bar_height}};
     }
 
     return parameters;
