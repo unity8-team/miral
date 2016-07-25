@@ -117,6 +117,20 @@ bool KioskWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* eve
 
         return true;
     }
+    else if (action == mir_keyboard_action_down && scan_code == KEY_F4)
+    {
+        switch (modifiers & modifier_mask)
+        {
+        case mir_input_event_modifier_alt:
+            if (auto const window = tools->active_window())
+                window.request_client_surface_close();
+
+            return true;
+
+        default:
+            break;
+        }
+    }
 
     return false;
 }
