@@ -20,6 +20,7 @@
 #include "windowmodelinterface.h"
 
 #include "miral/window_info.h"
+#include <mir/frontend/surface_id.h>
 
 #include <QPair>
 
@@ -32,13 +33,16 @@ public:
 
     void addWindow(const miral::WindowInfo &windowInfo);
     void removeWindow(const miral::WindowInfo &windowInfo);
-    void focusWindow(const miral::WindowInfo &windowInfo, bool focus);
-    void moveWindow(miral::WindowInfo &windowInfo, mir::geometry::Point topLeft);
-    void resizeWindow(miral::WindowInfo &windowInfo, mir::geometry::Size newSize);
+
+    void moveWindow(const miral::WindowInfo &windowInfo, mir::geometry::Point topLeft);
+    void resizeWindow(const miral::WindowInfo &windowInfo, mir::geometry::Size newSize);
+
+    void focusWindow(const miral::WindowInfo &windowInfo, const bool focus);
     void raiseWindows(const std::vector<miral::Window> &windows);  //window?? Not WindowInfo??
 
 private:
-    QVector<QPair<miral::WindowInfo, WindowInfo>> m_windowStack;
+    QVector<mir::frontend::SurfaceId> m_windowIdStack;
+    unsigned int m_focusedWindowIndex;
 };
 
 #endif // WINDOWMODEL_H

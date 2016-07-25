@@ -22,25 +22,27 @@
 #include <QPoint>
 #include <QVector>
 
+#include <mir/scene/surface.h>
 
 struct WindowInfo {
     QSize size;
     QPoint position;
     bool focused;
+    const std::shared_ptr<mir::scene::Surface> surface;
 
     enum class DirtyStates {
       Size = 1,
       Position = 2,
-      Focused = 4
+      Focus = 4
     };
 };
 
-struct NumberedWindowList {
+struct NumberedWindow {
     const unsigned int index;
     const WindowInfo windowInfo;
 };
 
-struct ChangedWindowList {
+struct DirtiedWindow {
     const unsigned int index;
     const WindowInfo windowInfo;
     const WindowInfo::DirtyStates dirtyWindowInfo;
@@ -54,9 +56,9 @@ public:
     virtual ~WindowModelInterface() = default;
 
 Q_SIGNALS:
-    void windowsAdded(const NumberedWindowList);
-    void windowsRemoved(const NumberedWindowList);
-    void windowsChanged(const ChangedWindowList);
+    void windowAdded(const NumberedWindow);
+    void windowRemoved(const unsigned int index);
+    void windowChanged(const DirtiedWindow);
 
 private:
     Q_DISABLE_COPY(WindowModelInterface)
