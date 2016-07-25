@@ -14,7 +14,7 @@ add_executable(miral-shell
     tiling_window_manager.cpp   tiling_window_manager.h
     titlebar_window_manager.cpp titlebar_window_manager.h
     titlebar_provider.cpp       titlebar_provider.h
-        example_event_handling_policy.cpp example_event_handling_policy.h)
+)
 
 target_link_libraries(miral-shell
     miral-spinner

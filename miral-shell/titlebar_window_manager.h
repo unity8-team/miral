@@ -19,7 +19,7 @@
 #ifndef MIRAL_SHELL_TITLEBAR_WINDOW_MANAGER_H
 #define MIRAL_SHELL_TITLEBAR_WINDOW_MANAGER_H
 
-#include "example_event_handling_policy.h"
+#include <miral/canonical_window_manager.h>
 
 #include "spinner/splash.h"
 
@@ -29,13 +29,22 @@ using namespace mir::geometry;
 
 class TitlebarProvider;
 
-class TitlebarWindowManagerPolicy : public ExampleEventHandlingPolicy
+class TitlebarWindowManagerPolicy : public miral::CanonicalWindowManagerPolicy
 {
 public:
     TitlebarWindowManagerPolicy(miral::WindowManagerTools* const tools, SpinnerSplash const& spinner, miral::InternalClientLauncher const& launcher);
     ~TitlebarWindowManagerPolicy();
 
+    // example event handling:
+    //  o Switch apps: Alt+Tab, tap or click on the corresponding window
+    //  o Switch window: Alt+`, tap or click on the corresponding window
+    //  o Move window: Alt-leftmousebutton drag (three finger drag)
+    //  o Resize window: Alt-middle_button drag (three finger pinch)
+    //  o Maximize/restore current window (to display size): Alt-F11
+    //  o Maximize/restore current window (to display height): Shift-F11
+    //  o Maximize/restore current window (to display width): Ctrl-F11
     bool handle_pointer_event(MirPointerEvent const* event) override;
+    bool handle_touch_event(MirTouchEvent const* event) override;
     bool handle_keyboard_event(MirKeyboardEvent const* event) override;
 
     void advise_new_window(miral::WindowInfo& window_info) override;
@@ -45,12 +54,33 @@ public:
     void advise_resize(miral::WindowInfo const& window_info, Size const& new_size) override;
     void advise_delete_window(miral::WindowInfo const& window_info) override;
 
+protected:
+    static const int modifier_mask =
+        mir_input_event_modifier_alt |
+        mir_input_event_modifier_shift |
+        mir_input_event_modifier_sym |
+        mir_input_event_modifier_ctrl |
+        mir_input_event_modifier_meta;
+
 private:
+    void toggle(MirSurfaceState state);
+
+    bool resize(miral::Window const& window, Point cursor, Point old_cursor);
+
+    Point old_cursor{};
+
+    bool resizing = false;
+    bool left_resize = false;
+    bool top_resize  = false;
+
+    int old_touch_pinch_top = 0;
+    int old_touch_pinch_left = 0;
+    int old_touch_pinch_width = 0;
+    int old_touch_pinch_height = 0;
+
     SpinnerSplash const spinner;
 
     std::unique_ptr<TitlebarProvider> const titlebar_provider;
-
-    Point old_cursor{};
 };
 
 #endif //MIRAL_SHELL_TITLEBAR_WINDOW_MANAGER_H
