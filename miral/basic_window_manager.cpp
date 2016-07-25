@@ -1156,7 +1156,32 @@ void miral::BasicWindowManager::validate_modification_request(
             break;
 
         default:
-            BOOST_THROW_EXCEPTION(std::runtime_error("Invalid surface type"));
+            break;
         }
+    }
+
+    switch (target_type)
+    {
+    case mir_surface_type_normal:
+    case mir_surface_type_utility:
+        if (modifications.parent().is_set() ? modifications.parent().value().lock() : window_info.parent())
+            BOOST_THROW_EXCEPTION(std::runtime_error("Surface type must not have a parent"));
+        break;
+
+    case mir_surface_type_satellite:
+    case mir_surface_type_gloss:
+    case mir_surface_type_tip:
+        if (modifications.parent().is_set() ? !modifications.parent().value().lock() : !window_info.parent())
+            BOOST_THROW_EXCEPTION(std::runtime_error("Surface type must have a parent"));
+        break;
+
+    case mir_surface_type_inputmethod:
+    case mir_surface_type_dialog:
+    case mir_surface_type_menu:
+    case mir_surface_type_freestyle:
+        break;
+
+    default:
+        BOOST_THROW_EXCEPTION(std::runtime_error("Invalid surface type"));
     }
 }
