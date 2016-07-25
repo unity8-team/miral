@@ -31,9 +31,9 @@ struct WindowInfo {
     const std::shared_ptr<mir::scene::Surface> surface;
 
     enum class DirtyStates {
-      Size = 1,
-      Position = 2,
-      Focus = 4
+        Size = 1,
+        Position = 2,
+        Focus = 4
     };
 };
 
