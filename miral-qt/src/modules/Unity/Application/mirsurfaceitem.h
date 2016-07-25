@@ -109,7 +109,6 @@ protected:
 
     QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *) override;
 
-    void componentComplete() override;
     void releaseResources() override;
 
 private Q_SLOTS:
@@ -123,7 +122,6 @@ private Q_SLOTS:
     void onCompositorSwappedBuffers();
 
     void onWindowChanged(QQuickWindow *window);
-    void updateScreen(QScreen *screen);
 
 private:
     void ensureTextureProvider();
