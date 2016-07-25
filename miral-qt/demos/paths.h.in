@@ -34,7 +34,25 @@ inline QString qmlDirectory() {
     if (isRunningInstalled()) {
         return QString("@CMAKE_INSTALL_PREFIX@/@QTMIR_DATA_DIR@/");
     } else {
-        return QString("@CMAKE_SOURCE_DIR@/demos/");
+        return QString("@CMAKE_SOURCE_DIR@/miral-qt/demos/");
     }
 }
+
+inline QString qmlPluginDirectory() {
+    if (isRunningInstalled()) {
+        return QString("@QML_MODULE_INSTALL_DIR@/");
+    } else {
+        return QString("@CMAKE_BINARY_DIR@/miral-qt/src/modules/");
+    }
+}
+
+inline QString qpaPluginDirectory() {
+    if (isRunningInstalled()) {
+        return QString("@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_LIBDIR@/qt5/plugins/platforms/");
+    } else {
+        //return QString("@CMAKE_BINARY_DIR@/miral-qt/src/platforms/mirserver/"); //miral moving it out of here
+        return QString("@CMAKE_BINARY_DIR@/lib/");
+    }
+}
+
 #endif
