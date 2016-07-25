@@ -35,24 +35,29 @@ public:
     TitlebarWindowManagerPolicy(miral::WindowManagerTools* const tools, SpinnerSplash const& spinner, miral::InternalClientLauncher const& launcher);
     ~TitlebarWindowManagerPolicy();
 
-    // example event handling:
-    //  o Switch apps: Alt+Tab, tap or click on the corresponding window
-    //  o Switch window: Alt+`, tap or click on the corresponding window
-    //  o Move window: Alt-leftmousebutton drag (three finger drag)
-    //  o Resize window: Alt-middle_button drag (three finger pinch)
-    //  o Maximize/restore current window (to display size): Alt-F11
-    //  o Maximize/restore current window (to display height): Shift-F11
-    //  o Maximize/restore current window (to display width): Ctrl-F11
+    /** @name example event handling:
+     *  o Switch apps: Alt+Tab, tap or click on the corresponding window
+     *  o Switch window: Alt+`, tap or click on the corresponding window
+     *  o Move window: Alt-leftmousebutton drag (three finger drag)
+     *  o Resize window: Alt-middle_button drag (three finger pinch)
+     *  o Maximize/restore current window (to display size): Alt-F11
+     *  o Maximize/restore current window (to display height): Shift-F11
+     *  o Maximize/restore current window (to display width): Ctrl-F11
+     *  @{ */
     bool handle_pointer_event(MirPointerEvent const* event) override;
     bool handle_touch_event(MirTouchEvent const* event) override;
     bool handle_keyboard_event(MirKeyboardEvent const* event) override;
+    /** @} */
 
+    /** @name track events that affect titlebar
+     *  @{ */
     void advise_new_window(miral::WindowInfo& window_info) override;
     void advise_focus_lost(miral::WindowInfo const& info) override;
     void advise_focus_gained(miral::WindowInfo const& info) override;
     void advise_state_change(miral::WindowInfo const& window_info, MirSurfaceState state) override;
     void advise_resize(miral::WindowInfo const& window_info, Size const& new_size) override;
     void advise_delete_window(miral::WindowInfo const& window_info) override;
+    /** @} */
 
 protected:
     static const int modifier_mask =
