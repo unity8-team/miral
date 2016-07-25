@@ -37,7 +37,6 @@ public:
     using miral::CanonicalWindowManagerPolicy::CanonicalWindowManagerPolicy;
 
     bool handle_touch_event(MirTouchEvent const* event) override;
-    bool handle_pointer_event(MirPointerEvent const* event) override;
 
 protected:
     static const int modifier_mask =

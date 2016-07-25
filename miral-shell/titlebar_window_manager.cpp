@@ -45,14 +45,41 @@ TitlebarWindowManagerPolicy::~TitlebarWindowManagerPolicy() = default;
 
 bool TitlebarWindowManagerPolicy::handle_pointer_event(MirPointerEvent const* event)
 {
-    auto consumes_event = ExampleEventHandlingPolicy::handle_pointer_event(event);
-
     auto const action = mir_pointer_event_action(event);
     auto const modifiers = mir_pointer_event_modifiers(event) & modifier_mask;
     Point const cursor{
         mir_pointer_event_axis_value(event, mir_pointer_axis_x),
         mir_pointer_event_axis_value(event, mir_pointer_axis_y)};
 
+    bool consumes_event = false;
+    bool is_resize_event = false;
+
+    if (action == mir_pointer_action_button_down)
+    {
+        if (auto const window = tools->window_at(cursor))
+            tools->select_active_window(window);
+    }
+    else if (action == mir_pointer_action_motion &&
+             modifiers == mir_input_event_modifier_alt)
+    {
+        if (mir_pointer_event_button_state(event, mir_pointer_button_primary))
+        {
+            if (auto const target = tools->window_at(old_cursor))
+            {
+                tools->select_active_window(target);
+                tools->drag_active_window(cursor - old_cursor);
+            }
+            consumes_event = true;
+        }
+
+        if (mir_pointer_event_button_state(event, mir_pointer_button_tertiary))
+        {
+            if (!resizing)
+                tools->select_active_window(tools->window_at(old_cursor));
+            is_resize_event = resize(tools->active_window(), cursor, old_cursor);
+            consumes_event = true;
+        }
+    }
 
     if (!consumes_event && action == mir_pointer_action_motion && !modifiers)
     {
@@ -71,6 +98,7 @@ bool TitlebarWindowManagerPolicy::handle_pointer_event(MirPointerEvent const* ev
         }
     }
 
+    resizing = is_resize_event;
     old_cursor = cursor;
     return consumes_event;
 }
