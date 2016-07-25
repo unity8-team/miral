@@ -1184,4 +1184,15 @@ void miral::BasicWindowManager::validate_modification_request(
     default:
         BOOST_THROW_EXCEPTION(std::runtime_error("Invalid surface type"));
     }
+
+    if (modifications.size().is_set())
+    {
+        auto const size = modifications.size().value();
+
+        if (size.width <= Width{0})
+            BOOST_THROW_EXCEPTION(std::runtime_error("width must be positive"));
+
+        if (size.height <= Height{0})
+            BOOST_THROW_EXCEPTION(std::runtime_error("height must be positive"));
+    }
 }
