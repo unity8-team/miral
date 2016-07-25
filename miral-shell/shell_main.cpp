@@ -35,7 +35,6 @@ int main(int argc, char const* argv[])
     WindowManagerOptions window_managers
         {
             add_window_manager_policy<TitlebarWindowManagerPolicy>("titlebar", spinner, launcher),
-            add_window_manager_policy<ExampleEventHandlingPolicy>("canonical"),
             add_window_manager_policy<TilingWindowManagerPolicy>("tiling", spinner, launcher),
         };
 

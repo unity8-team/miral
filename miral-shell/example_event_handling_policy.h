@@ -36,7 +36,6 @@ class ExampleEventHandlingPolicy : public miral::CanonicalWindowManagerPolicy
 public:
     using miral::CanonicalWindowManagerPolicy::CanonicalWindowManagerPolicy;
 
-    bool handle_keyboard_event(MirKeyboardEvent const* event) override;
     bool handle_touch_event(MirTouchEvent const* event) override;
     bool handle_pointer_event(MirPointerEvent const* event) override;
 
@@ -48,7 +47,7 @@ protected:
         mir_input_event_modifier_ctrl |
         mir_input_event_modifier_meta;
 
-private:
+protected:
     void toggle(MirSurfaceState state);
 
     bool resize(miral::Window const& window, Point cursor, Point old_cursor);

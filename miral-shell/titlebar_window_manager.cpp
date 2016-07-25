@@ -25,6 +25,7 @@
 #include <miral/window_manager_tools.h>
 
 #include <linux/input.h>
+#include <csignal>
 
 using namespace miral;
 
@@ -140,15 +141,67 @@ void TitlebarWindowManagerPolicy::advise_delete_window(WindowInfo const& window_
 
 bool TitlebarWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* event)
 {
-    if (ExampleEventHandlingPolicy::handle_keyboard_event(event))
-        return true;
-
-    // TODO this is a workaround for the lack of a way to detect server exit (Mir bug lp:1593655)
-    // We need to exit the titlebar_provider "client" thread before the server exits
     auto const action = mir_keyboard_event_action(event);
     auto const scan_code = mir_keyboard_event_scan_code(event);
     auto const modifiers = mir_keyboard_event_modifiers(event) & modifier_mask;
 
+    if (action == mir_keyboard_action_down && scan_code == KEY_F11)
+    {
+        switch (modifiers)
+        {
+        case mir_input_event_modifier_alt:
+            toggle(mir_surface_state_maximized);
+            return true;
+
+        case mir_input_event_modifier_shift:
+            toggle(mir_surface_state_vertmaximized);
+            return true;
+
+        case mir_input_event_modifier_ctrl:
+            toggle(mir_surface_state_horizmaximized);
+            return true;
+
+        default:
+            break;
+        }
+    }
+    else if (action == mir_keyboard_action_down && scan_code == KEY_F4)
+    {
+        switch (modifiers & modifier_mask)
+        {
+        case mir_input_event_modifier_alt:
+            tools->kill_active_application(SIGTERM);
+            return true;
+
+        case mir_input_event_modifier_ctrl:
+            if (auto const window = tools->active_window())
+                window.request_client_surface_close();
+
+            return true;
+
+        default:
+            break;
+        }
+    }
+    else if (action == mir_keyboard_action_down &&
+             modifiers == mir_input_event_modifier_alt &&
+             scan_code == KEY_TAB)
+    {
+        tools->focus_next_application();
+
+        return true;
+    }
+    else if (action == mir_keyboard_action_down &&
+             modifiers == mir_input_event_modifier_alt &&
+             scan_code == KEY_GRAVE)
+    {
+        tools->focus_next_within_application();
+
+        return true;
+    }
+
+    // TODO this is a workaround for the lack of a way to detect server exit (Mir bug lp:1593655)
+    // We need to exit the titlebar_provider "client" thread before the server exits
     if (action == mir_keyboard_action_down && scan_code == KEY_BACKSPACE &&
         (modifiers == (mir_input_event_modifier_alt | mir_input_event_modifier_ctrl)))
     {

@@ -21,7 +21,6 @@
 #include <miral/window_manager_tools.h>
 
 #include <linux/input.h>
-#include <csignal>
 
 #include <limits>
 
@@ -102,70 +101,6 @@ bool ExampleEventHandlingPolicy::resize(Window const& window, Point cursor, Poin
     tools->place_and_size(window_info, new_pos, new_size);
 
     return true;
-}
-
-bool ExampleEventHandlingPolicy::handle_keyboard_event(MirKeyboardEvent const* event)
-{
-    auto const action = mir_keyboard_event_action(event);
-    auto const scan_code = mir_keyboard_event_scan_code(event);
-    auto const modifiers = mir_keyboard_event_modifiers(event) & modifier_mask;
-
-    if (action == mir_keyboard_action_down && scan_code == KEY_F11)
-    {
-        switch (modifiers)
-        {
-        case mir_input_event_modifier_alt:
-            toggle(mir_surface_state_maximized);
-            return true;
-
-        case mir_input_event_modifier_shift:
-            toggle(mir_surface_state_vertmaximized);
-            return true;
-
-        case mir_input_event_modifier_ctrl:
-            toggle(mir_surface_state_horizmaximized);
-            return true;
-
-        default:
-            break;
-        }
-    }
-    else if (action == mir_keyboard_action_down && scan_code == KEY_F4)
-    {
-        switch (modifiers & modifier_mask)
-        {
-        case mir_input_event_modifier_alt:
-            tools->kill_active_application(SIGTERM);
-            return true;
-
-        case mir_input_event_modifier_ctrl:
-            if (auto const window = tools->active_window())
-                window.request_client_surface_close();
-
-            return true;
-
-        default:
-            break;
-        }
-    }
-    else if (action == mir_keyboard_action_down &&
-             modifiers == mir_input_event_modifier_alt &&
-             scan_code == KEY_TAB)
-    {
-        tools->focus_next_application();
-
-        return true;
-    }
-    else if (action == mir_keyboard_action_down &&
-             modifiers == mir_input_event_modifier_alt &&
-             scan_code == KEY_GRAVE)
-    {
-        tools->focus_next_within_application();
-
-        return true;
-    }
-
-    return false;
 }
 
 bool ExampleEventHandlingPolicy::handle_touch_event(MirTouchEvent const* event)
