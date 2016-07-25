@@ -25,7 +25,7 @@ WindowManagementPolicy::WindowManagementPolicy(const miral::WindowManagerTools *
     : m_tools(tools)
     , m_eventFeeder(new QtEventFeeder(screensModel))
 {
-    Q_UNUSED(m_tools); // REMOVEME once m_tools is used (keep clang happy)
+
 }
 
 void WindowManagementPolicy::advise_displays_updated(const Rectangles&/*displays*/)
@@ -103,6 +103,7 @@ void WindowManagementPolicy::advise_state_change(const miral::WindowInfo &/*wind
 
 void WindowManagementPolicy::advise_move_to(const miral::WindowInfo &/*window_info*/, Point /*top_left*/)
 {
+
 }
 
 void WindowManagementPolicy::advise_resize(const miral::WindowInfo &/*info*/, const Size &/*newSize*/)
