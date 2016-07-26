@@ -35,6 +35,9 @@ public:
     TitlebarWindowManagerPolicy(miral::WindowManagerTools* const tools, SpinnerSplash const& spinner, miral::InternalClientLauncher const& launcher);
     ~TitlebarWindowManagerPolicy();
 
+    virtual miral::WindowSpecification place_new_surface(
+        miral::ApplicationInfo const& app_info, miral::WindowSpecification const& request_parameters) override;
+
     /** @name example event handling:
      *  o Switch apps: Alt+Tab, tap or click on the corresponding window
      *  o Switch window: Alt+`, tap or click on the corresponding window

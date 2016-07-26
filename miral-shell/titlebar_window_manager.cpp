@@ -29,6 +29,10 @@
 
 using namespace miral;
 
+namespace
+{
+int const title_bar_height = 10;
+}
 
 TitlebarWindowManagerPolicy::TitlebarWindowManagerPolicy(
     WindowManagerTools* const tools,
@@ -414,4 +418,17 @@ bool TitlebarWindowManagerPolicy::resize(Window const& window, Point cursor, Poi
     tools->place_and_size(window_info, new_pos, new_size);
 
     return true;
+}
+
+WindowSpecification TitlebarWindowManagerPolicy::place_new_surface(
+    ApplicationInfo const& app_info, WindowSpecification const& request_parameters)
+{
+    auto parameters = CanonicalWindowManagerPolicy::place_new_surface(app_info, request_parameters);
+
+    bool const needs_titlebar = WindowInfo::needs_titlebar(parameters.type().value());
+
+    if (parameters.state().value() != mir_surface_state_fullscreen && needs_titlebar)
+        parameters.top_left() = Point{parameters.top_left().value().x, parameters.top_left().value().y + DeltaY{title_bar_height}};
+
+    return parameters;
 }

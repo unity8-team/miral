@@ -28,71 +28,9 @@ namespace ms = mir::scene;
 using namespace miral;
 
 KioskWindowManagerPolicy::KioskWindowManagerPolicy(WindowManagerTools* const tools, SwSplash const& splash) :
-    tools{tools},
+    CanonicalWindowManagerPolicy{tools},
     splash{splash}
 {
-}
-
-auto KioskWindowManagerPolicy::place_new_surface(
-    miral::ApplicationInfo const& /*app_info*/,
-    miral::WindowSpecification const& request_parameters)
--> miral::WindowSpecification
-{
-    auto parameters = request_parameters;
-
-    Rectangle const active_display = tools->active_display();
-
-    if (!parameters.parent().is_set() || !parameters.parent().value().lock())
-    {
-        parameters.top_left() = active_display.top_left;
-        parameters.size() = active_display.size;
-    }
-
-    return parameters;
-}
-
-void KioskWindowManagerPolicy::handle_window_ready(WindowInfo& window_info)
-{
-    tools->select_active_window(window_info.window());
-}
-
-namespace
-{
-template<typename ValueType>
-void reset(mir::optional_value<ValueType>& option)
-{
-    if (option.is_set()) option.consume();
-}
-}
-
-void KioskWindowManagerPolicy::handle_modify_window(
-    miral::WindowInfo& window_info,
-    miral::WindowSpecification const& modifications)
-{
-    auto mods = modifications;
-
-    // filter out changes we don't want the client making
-    reset(mods.top_left());
-    reset(mods.size());
-    reset(mods.output_id());
-    reset(mods.preferred_orientation());
-    reset(mods.edge_attachment());
-    reset(mods.min_width());
-    reset(mods.min_height());
-    reset(mods.max_width());
-    reset(mods.max_height());
-    reset(mods.width_inc());
-    reset(mods.height_inc());
-    reset(mods.min_aspect());
-    reset(mods.max_aspect());
-    reset(mods.parent());
-
-    tools->modify_window(window_info, mods);
-}
-
-void KioskWindowManagerPolicy::handle_raise_window(WindowInfo& window_info)
-{
-    tools->select_active_window(window_info.window());
 }
 
 bool KioskWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* event)
@@ -173,7 +111,7 @@ bool KioskWindowManagerPolicy::handle_pointer_event(MirPointerEvent const* event
 
 void KioskWindowManagerPolicy::advise_focus_gained(WindowInfo const& info)
 {
-    tools->raise_tree(info.window());
+    CanonicalWindowManagerPolicy::advise_focus_gained(info);
 
     if (auto session = splash.session().lock())
     {
