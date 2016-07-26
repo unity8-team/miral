@@ -109,7 +109,6 @@ protected:
 
     QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *) override;
 
-    void componentComplete() override;
     void releaseResources() override;
 
 private Q_SLOTS:
@@ -123,13 +122,11 @@ private Q_SLOTS:
     void onCompositorSwappedBuffers();
 
     void onWindowChanged(QQuickWindow *window);
-    void updateScreen(QScreen *screen);
 
 private:
     void ensureTextureProvider();
 
-    bool hasTouchInsideUbuntuKeyboard(const QList<QTouchEvent::TouchPoint> &touchPoints);
-    bool isMouseInsideUbuntuKeyboard(const QMouseEvent *event);
+    bool hasTouchInsideInputRegion(const QList<QTouchEvent::TouchPoint> &touchPoints);
 
     QString appId() const;
     void endCurrentTouchSequence(ulong timestamp);

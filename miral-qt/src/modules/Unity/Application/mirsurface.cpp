@@ -219,6 +219,7 @@ MirSurface::MirSurface(std::shared_ptr<mir::scene::Surface> surface,
         connect(observer.get(), &SurfaceObserver::shellChromeChanged, this, [&](MirShellChrome shell_chrome) {
             setShellChrome(static_cast<Mir::ShellChrome>(shell_chrome));
         });
+        connect(observer.get(), &SurfaceObserver::inputBoundsChanged, this, &MirSurface::setInputBounds);
         observer->setListener(this);
     }
 
@@ -277,12 +278,15 @@ void MirSurface::onAttributeChanged(const MirSurfaceAttrib attribute, const int 
 {
     switch (attribute) {
     case mir_surface_attrib_type:
+        DEBUG_MSG << " type = " << mirSurfaceTypeToStr(state());
         Q_EMIT typeChanged(type());
         break;
     case mir_surface_attrib_state:
+        DEBUG_MSG << " state = " << mirSurfaceStateToStr(state());
         Q_EMIT stateChanged(state());
         break;
     case mir_surface_attrib_visibility:
+        DEBUG_MSG << " visible = " << visible();
         Q_EMIT visibleChanged(visible());
         break;
     default:
@@ -451,6 +455,11 @@ void MirSurface::setViewActiveFocus(qintptr viewId, bool value)
         m_activelyFocusedViews.remove(viewId);
         updateActiveFocus();
     }
+}
+
+bool MirSurface::activeFocus() const
+{
+    return !m_activelyFocusedViews.empty();
 }
 
 void MirSurface::updateActiveFocus()
@@ -779,8 +788,8 @@ void MirSurface::updateVisibility()
     if (newVisible != visible()) {
         DEBUG_MSG << "(" << newVisible << ")";
 
-        m_surface->configure(mir_surface_attrib_visibility,
-                             newVisible ? mir_surface_visibility_exposed : mir_surface_visibility_occluded);
+//        m_surface->configure(mir_surface_attrib_visibility, // FIXME(GERRY)
+//                             newVisible ? mir_surface_visibility_exposed : mir_surface_visibility_occluded);
     }
 }
 
@@ -871,13 +880,22 @@ void MirSurface::setShellChrome(Mir::ShellChrome shellChrome)
     }
 }
 
-void MirSurface::setScreen(QScreen *screen)
+bool MirSurface::inputAreaContains(const QPoint &point) const
 {
-    using namespace mir::geometry;
-    // in Mir, this means moving the surface in Mir's scene to the matching display
-    auto targetScreenTopLeftPx = screen->geometry().topLeft(); // * screen->devicePixelRatio(); GERRY?
-    DEBUG_MSG << "moved to" << targetScreenTopLeftPx << "px";
-    m_surface->move_to(Point{ X{targetScreenTopLeftPx.x()}, Y{targetScreenTopLeftPx.y()} });
+    bool result;
+
+
+    // Can't use it due to https://bugs.launchpad.net/mir/+bug/1598936
+    // FIXME: Use the line below instead of m_inputBounds once this bug gets fixed.
+    //result = m_surface->input_area_contains(mir::geometry::Point(point.x(), point.y()));
+
+    if (m_inputBounds.isNull()) {
+        result = true;
+    } else {
+        result = m_inputBounds.contains(point);
+    }
+
+    return result;
 }
 
 void MirSurface::setCursor(const QCursor &cursor)
@@ -971,6 +989,11 @@ bool MirSurface::focused() const
     return m_focused;
 }
 
+QRect MirSurface::inputBounds() const
+{
+    return m_inputBounds;
+}
+
 void MirSurface::requestFocus()
 {
     DEBUG_MSG << "()";
@@ -1010,5 +1033,14 @@ void MirSurface::setCloseTimer(AbstractTimer *timer)
 
     if (timerWasRunning) {
         m_closeTimer->start();
+    }
+}
+
+void MirSurface::setInputBounds(const QRect &rect)
+{
+    if (m_inputBounds != rect) {
+        DEBUG_MSG << "(" << rect << ")";
+        m_inputBounds = rect;
+        Q_EMIT inputBoundsChanged(m_inputBounds);
     }
 }

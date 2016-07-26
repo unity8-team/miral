@@ -25,6 +25,8 @@
 #include <mir/shell/surface_ready_observer.h>
 #include <mir/version.h>
 
+#include <boost/throw_exception.hpp>
+
 #include <algorithm>
 
 using namespace mir;
@@ -139,7 +141,9 @@ void miral::BasicWindowManager::modify_surface(
     shell::SurfaceSpecification const& modifications)
 {
     Locker lock{mutex, policy};
-    policy->handle_modify_window(info_for(surface), modifications);
+    auto& info = info_for(surface);
+    validate_modification_request(info, modifications);
+    policy->handle_modify_window(info, modifications);
 }
 
 void miral::BasicWindowManager::remove_surface(
@@ -319,6 +323,8 @@ int miral::BasicWindowManager::set_surface_attribute(
 
     Locker lock{mutex, policy};
     auto& info = info_for(surface);
+
+    validate_modification_request(info, modification);
     policy->handle_modify_window(info, modification);
 
     switch (attrib)
@@ -778,15 +784,11 @@ void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirSur
             mru_active_windows.erase(window_info.window());
 
             // Try to activate to recently active window of any application
-            {
-                Window new_focus;
-
-                mru_active_windows.enumerate([&](Window& window)
-                    {
-                        auto const w = window;
-                        return !(new_focus = select_active_window(w));
-                    });
-            }
+            mru_active_windows.enumerate([&](Window& window)
+                {
+                    auto const w = window;
+                    return !(select_active_window(w));
+                });
         }
         return;
 
@@ -940,11 +942,8 @@ auto miral::BasicWindowManager::can_activate_window_for_session(miral::Applicati
 auto miral::BasicWindowManager::place_new_surface(ApplicationInfo const& app_info, WindowSpecification parameters)
 -> WindowSpecification
 {
-    auto surf_type = parameters.type().is_set() ? parameters.type().value() : mir_surface_type_normal;
-    bool const needs_titlebar = WindowInfo::needs_titlebar(surf_type);
-
-    if (needs_titlebar)
-        parameters.size() = Size{parameters.size().value().width, parameters.size().value().height + DeltaY{title_bar_height}};
+    if (!parameters.type().is_set())
+        parameters.type() = mir_surface_type_normal;
 
     if (!parameters.state().is_set())
         parameters.state() = mir_surface_state_restored;
@@ -1050,12 +1049,6 @@ auto miral::BasicWindowManager::place_new_surface(ApplicationInfo const& app_inf
             parameters.top_left() = Point{parameters.top_left().value().x, display_area.top_left.y};
     }
 
-    if (parameters.state().value() != mir_surface_state_fullscreen && needs_titlebar)
-    {
-        parameters.top_left() = Point{parameters.top_left().value().x, parameters.top_left().value().y + DeltaY{title_bar_height}};
-        parameters.size() = Size{parameters.size().value().width, parameters.size().value().height - DeltaY{title_bar_height}};
-    }
-
     return parameters;
 }
 
@@ -1098,4 +1091,95 @@ auto miral::BasicWindowManager::place_relative(Point const& parent_top_left, Win
         }
 
     return result;
+}
+
+void miral::BasicWindowManager::validate_modification_request(
+    WindowInfo const& window_info,
+    WindowSpecification const& modifications) const
+{
+    auto target_type = window_info.type();
+
+    if (modifications.type().is_set())
+    {
+        auto const original_type = target_type;
+
+        target_type = modifications.type().value();
+
+        switch (original_type)
+        {
+        case mir_surface_type_normal:
+        case mir_surface_type_utility:
+        case mir_surface_type_dialog:
+        case mir_surface_type_satellite:
+            switch (target_type)
+            {
+            case mir_surface_type_normal:
+            case mir_surface_type_utility:
+            case mir_surface_type_dialog:
+            case mir_surface_type_satellite:
+                break;
+
+            default:
+                BOOST_THROW_EXCEPTION(std::runtime_error("Invalid surface type change"));
+            }
+
+        case mir_surface_type_menu:
+            switch (target_type)
+            {
+            case mir_surface_type_menu:
+            case mir_surface_type_satellite:
+                break;
+
+            default:
+                BOOST_THROW_EXCEPTION(std::runtime_error("Invalid surface type change"));
+            }
+
+        case mir_surface_type_gloss:
+        case mir_surface_type_freestyle:
+        case mir_surface_type_inputmethod:
+        case mir_surface_type_tip:
+            if (target_type != original_type)
+                BOOST_THROW_EXCEPTION(std::runtime_error("Invalid surface type change"));
+            break;
+
+        default:
+            break;
+        }
+    }
+
+    switch (target_type)
+    {
+    case mir_surface_type_normal:
+    case mir_surface_type_utility:
+        if (modifications.parent().is_set() ? modifications.parent().value().lock() : window_info.parent())
+            BOOST_THROW_EXCEPTION(std::runtime_error("Surface type must not have a parent"));
+        break;
+
+    case mir_surface_type_satellite:
+    case mir_surface_type_gloss:
+    case mir_surface_type_tip:
+        if (modifications.parent().is_set() ? !modifications.parent().value().lock() : !window_info.parent())
+            BOOST_THROW_EXCEPTION(std::runtime_error("Surface type must have a parent"));
+        break;
+
+    case mir_surface_type_inputmethod:
+    case mir_surface_type_dialog:
+    case mir_surface_type_menu:
+    case mir_surface_type_freestyle:
+        break;
+
+    default:
+        BOOST_THROW_EXCEPTION(std::runtime_error("Invalid surface type"));
+    }
+
+    if (modifications.size().is_set())
+    {
+        auto const size = modifications.size().value();
+
+        if (size.width <= Width{0})
+            BOOST_THROW_EXCEPTION(std::runtime_error("width must be positive"));
+
+        if (size.height <= Height{0})
+            BOOST_THROW_EXCEPTION(std::runtime_error("height must be positive"));
+    }
 }

@@ -18,8 +18,6 @@
 
 #include "miral/window_info.h"
 
-#include <mir/geometry/size.h>
-
 #include <limits>
 
 using namespace mir::geometry;

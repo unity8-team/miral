@@ -33,16 +33,20 @@
 
 int main(int argc, const char *argv[])
 {
+    setenv("QT_QPA_PLATFORM_PLUGIN_PATH", qPrintable(::qpaPluginDirectory()), 1 /* overwrite */);
+    setenv("QT_QPA_PLATFORM", "mirserver", 1 /* overwrite */);
+
     QGuiApplication::setApplicationName("qml-demo-shell");
     QGuiApplication *application;
 
     application = new QGuiApplication(argc, (char**)argv);
     QQuickView* view = new QQuickView();
+    view->engine()->addImportPath(::qmlPluginDirectory());
     view->setResizeMode(QQuickView::SizeRootObjectToView);
-    view->setColor("black");
+    view->setColor("lightgray");
     view->setTitle("Demo Shell");
     
-    QUrl source(::qmlDirectory() + "qtmir-demo-shell/qml-demo-shell.qml");
+    QUrl source(::qmlDirectory() + "qml-demo-shell/windowModel.qml");
 
     view->setSource(source);
     QObject::connect(view->engine(), SIGNAL(quit()), application, SLOT(quit()));

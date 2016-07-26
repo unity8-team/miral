@@ -20,7 +20,6 @@
 #include "mirsurfaceitem.h"
 #include "mirfocuscontroller.h"
 #include "logging.h"
-#include "ubuntukeyboardinfo.h"
 #include "tracepoints.h" // generated from tracepoints.tp
 #include "timestamp.h"
 
@@ -103,10 +102,6 @@ MirSurfaceItem::MirSurfaceItem(QQuickItem *parent)
     setSmooth(true);
     setFlag(QQuickItem::ItemHasContents, true); //so scene graph will render this item
 
-    if (!UbuntuKeyboardInfo::instance()) {
-        new UbuntuKeyboardInfo;
-    }
-
     m_updateMirSurfaceSizeTimer.setSingleShot(true);
     m_updateMirSurfaceSizeTimer.setInterval(1);
     connect(&m_updateMirSurfaceSizeTimer, &QTimer::timeout, this, &MirSurfaceItem::updateMirSurfaceSize);
@@ -114,14 +109,6 @@ MirSurfaceItem::MirSurfaceItem(QQuickItem *parent)
     connect(this, &QQuickItem::activeFocusChanged, this, &MirSurfaceItem::updateMirSurfaceActiveFocus);
     connect(this, &QQuickItem::visibleChanged, this, &MirSurfaceItem::updateMirSurfaceVisibility);
     connect(this, &QQuickItem::windowChanged, this, &MirSurfaceItem::onWindowChanged);
-}
-
-void MirSurfaceItem::componentComplete()
-{
-    QQuickItem::componentComplete();
-    if (window()) {
-        updateScreen(window()->screen());
-    }
 }
 
 MirSurfaceItem::~MirSurfaceItem()
@@ -298,17 +285,9 @@ QSGNode *MirSurfaceItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *
 
 void MirSurfaceItem::mousePressEvent(QMouseEvent *event)
 {
-    if (m_consumesInput && m_surface && m_surface->live()) {
-        if (type() == Mir::InputMethodType) {
-            // FIXME: Hack to get the VKB use case working while we don't have the proper solution in place.
-            if (isMouseInsideUbuntuKeyboard(event)) {
-                m_surface->mousePressEvent(event);
-            } else {
-                event->ignore();
-            }
-        } else {
-            m_surface->mousePressEvent(event);
-        }
+    auto mousePos = event->localPos().toPoint();
+    if (m_consumesInput && m_surface && m_surface->live() && m_surface->inputAreaContains(mousePos)) {
+        m_surface->mousePressEvent(event);
     } else {
         event->ignore();
     }
@@ -479,49 +458,24 @@ bool MirSurfaceItem::processTouchEvent(
         return false;
     }
 
-    bool accepted = true;
-    if (type() == Mir::InputMethodType && eventType == QEvent::TouchBegin) {
-        // FIXME: Hack to get the VKB use case working while we don't have the proper solution in place.
-        if (hasTouchInsideUbuntuKeyboard(touchPoints)) {
-            validateAndDeliverTouchEvent(eventType, timestamp, mods, touchPoints, touchPointStates);
-        } else {
-            accepted = false;
-        }
-
-    } else {
-        // NB: If we are getting QEvent::TouchUpdate or QEvent::TouchEnd it's because we've
-        // previously accepted the corresponding QEvent::TouchBegin
-        validateAndDeliverTouchEvent(eventType, timestamp, mods, touchPoints, touchPointStates);
+    if (eventType == QEvent::TouchBegin && !hasTouchInsideInputRegion(touchPoints)) {
+        return false;
     }
-    return accepted;
+
+    validateAndDeliverTouchEvent(eventType, timestamp, mods, touchPoints, touchPointStates);
+
+    return true;
 }
 
-bool MirSurfaceItem::hasTouchInsideUbuntuKeyboard(const QList<QTouchEvent::TouchPoint> &touchPoints)
+bool MirSurfaceItem::hasTouchInsideInputRegion(const QList<QTouchEvent::TouchPoint> &touchPoints)
 {
-    UbuntuKeyboardInfo *ubuntuKeyboardInfo = UbuntuKeyboardInfo::instance();
-
     for (int i = 0; i < touchPoints.count(); ++i) {
         QPoint pos = touchPoints.at(i).pos().toPoint();
-        if (pos.x() >= ubuntuKeyboardInfo->x()
-                && pos.x() <= (ubuntuKeyboardInfo->x() + ubuntuKeyboardInfo->width())
-                && pos.y() >= ubuntuKeyboardInfo->y()
-                && pos.y() <= (ubuntuKeyboardInfo->y() + ubuntuKeyboardInfo->height())) {
+        if (m_surface->inputAreaContains(pos)) {
             return true;
         }
     }
     return false;
-}
-
-bool MirSurfaceItem::isMouseInsideUbuntuKeyboard(const QMouseEvent *event)
-{
-    UbuntuKeyboardInfo *ubuntuKeyboardInfo = UbuntuKeyboardInfo::instance();
-
-    const QPointF &pos = event->localPos();
-
-    return pos.x() >= ubuntuKeyboardInfo->x()
-        && pos.x() <= (ubuntuKeyboardInfo->x() + ubuntuKeyboardInfo->width())
-        && pos.y() >= ubuntuKeyboardInfo->y()
-        && pos.y() <= (ubuntuKeyboardInfo->y() + ubuntuKeyboardInfo->height());
 }
 
 Mir::State MirSurfaceItem::surfaceState() const
@@ -670,9 +624,6 @@ void MirSurfaceItem::setSurface(unity::shell::application::MirSurfaceInterface *
         updateMirSurfaceSize();
         setImplicitSize(m_surface->size().width(), m_surface->size().height());
         updateMirSurfaceVisibility();
-        if (window()) {
-            updateScreen(window()->screen());
-        }
 
         // Qt::ArrowCursor is the default when no cursor has been explicitly set, so no point forwarding it.
         if (m_surface->cursor().shape() != Qt::ArrowCursor) {
@@ -713,16 +664,6 @@ void MirSurfaceItem::onWindowChanged(QQuickWindow *window)
     if (m_window) {
         connect(m_window, &QQuickWindow::frameSwapped, this, &MirSurfaceItem::onCompositorSwappedBuffers,
                 Qt::DirectConnection);
-
-        updateScreen(m_window->screen());
-        connect(m_window, &QQuickWindow::screenChanged, this, &MirSurfaceItem::updateScreen);
-    }
-}
-
-void MirSurfaceItem::updateScreen(QScreen *screen)
-{
-    if (screen && m_surface) {
-        m_surface->setScreen(screen);
     }
 }
 

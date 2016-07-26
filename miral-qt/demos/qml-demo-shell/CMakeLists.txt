@@ -1,4 +1,4 @@
-set(DEMO_SHELL qtmir-demo-shell)
+set(DEMO_SHELL qml-demo-shell)
 
 include_directories(
     ${Qt5Gui_PRIVATE_INCLUDE_DIRS}
