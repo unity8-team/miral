@@ -24,6 +24,16 @@
 
 #include <mir/scene/surface.h>
 
+namespace qtmir {
+// miral::WindowInfo has a copy constructor, but implicitly shares a Self object between each
+// copy. If a miral::WindowInfo copy is sent over signal/slot connection across thread boundaries,
+// it could be changed in a Mir thread before the slot processes it.
+//
+// This is undesirable as we need to update the GUI thread model in a consistent way.
+//
+// Instead we duplicate the miral::WindowInfo data, in a way that can be sent over signal/slot
+// connections safely.
+
 struct WindowInfo {
     QSize size;
     QPoint position;
@@ -37,16 +47,18 @@ struct WindowInfo {
     };
 };
 
+// We assign each Window with a unique ID that both Mir-side and Qt-side WindowModels can share
 struct NumberedWindow {
-    const unsigned int index;
-    const WindowInfo windowInfo;
+    unsigned int index;
+    WindowInfo windowInfo;
 };
 
 struct DirtiedWindow {
-    const unsigned int index;
-    const WindowInfo windowInfo;
-    const WindowInfo::DirtyStates dirtyWindowInfo;
+    unsigned int index;
+    WindowInfo windowInfo;
+    WindowInfo::DirtyStates dirtyWindowInfo;
 };
+
 
 class WindowModelInterface : public QObject
 {
@@ -63,5 +75,10 @@ Q_SIGNALS:
 private:
     Q_DISABLE_COPY(WindowModelInterface)
 };
+
+} // namespace qtmir
+
+Q_DECLARE_METATYPE(qtmir::NumberedWindow)
+Q_DECLARE_METATYPE(qtmir::DirtiedWindow)
 
 #endif // WINDOWMODELINTERFACE_H

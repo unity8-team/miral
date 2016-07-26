@@ -24,6 +24,8 @@
 
 #include <QPair>
 
+namespace qtmir {
+
 class WindowModel : public WindowModelInterface
 {
     Q_OBJECT
@@ -44,5 +46,7 @@ private:
     QVector<mir::frontend::SurfaceId> m_windowIdStack;
     unsigned int m_focusedWindowIndex;
 };
+
+} // namespace qtmir
 
 #endif // WINDOWMODEL_H

@@ -15,11 +15,25 @@
  */
 
 #include "windowmodel.h"
+
+#include "mirqtconversion.h"
 #include <QDebug>
+
+/*
+ * WindowModel - tracks Mir Window Manager operations and duplicates the window stack
+ * that Mir has created internally. Any changes to this model are emitted as change
+ * signals to the Qt GUI thread which will effectively duplicate this model again.
+ *
+ *
+ */
+
+using namespace qtmir;
 
 WindowModel::WindowModel()
 {
     qDebug("WindowModel::WindowModel");
+    qRegisterMetaType<NumberedWindow>();
+    qRegisterMetaType<DirtiedWindow>();
 }
 
 WindowModel::~WindowModel()
@@ -30,13 +44,14 @@ WindowModel::~WindowModel()
 void WindowModel::addWindow(const miral::WindowInfo &windowInfo)
 {
     qDebug("WindowModel::addWindow");
-    m_windowIdStack.push_front(windowInfo.window().surface_id());
+    auto stackPosition = static_cast<unsigned int>(m_windowIdStack.count());
+    m_windowIdStack.push_back(windowInfo.window().surface_id()); // ASSUMPTION: Mir should tell us where in stack
 
-    QSize size(windowInfo.window().size().width.as_int(),windowInfo.window().size().height.as_int());
-    QPoint position(windowInfo.window().top_left().x.as_int(), windowInfo.window().top_left().y.as_int());
+    QSize size = toQSize(windowInfo.window().size());
+    QPoint position = toQPoint(windowInfo.window().top_left());
 
     WindowInfo info{ size, position, false, windowInfo.window() };
-    NumberedWindow window{ 0, info };
+    NumberedWindow window{ stackPosition, info };
     Q_EMIT windowAdded(window);
 }
 
@@ -62,8 +77,8 @@ void WindowModel::focusWindow(const miral::WindowInfo &windowInfo, const bool fo
     }
     auto upos = static_cast<unsigned int>(pos);
     m_focusedWindowIndex = upos;
-    QSize size(windowInfo.window().size().width.as_int(),windowInfo.window().size().height.as_int());
-    QPoint position(windowInfo.window().top_left().x.as_int(), windowInfo.window().top_left().y.as_int());
+    QSize size = toQSize(windowInfo.window().size());
+    QPoint position = toQPoint(windowInfo.window().top_left());
 
     WindowInfo info{ size, position, focus, windowInfo.window() };
     DirtiedWindow window{ upos, info, WindowInfo::DirtyStates::Focus};
@@ -79,8 +94,8 @@ void WindowModel::moveWindow(const miral::WindowInfo &windowInfo, mir::geometry:
     }
     auto upos = static_cast<unsigned int>(pos);
     const bool focused = (m_focusedWindowIndex == upos);
-    QSize size(windowInfo.window().size().width.as_int(),windowInfo.window().size().height.as_int());
-    QPoint position(topLeft.x.as_int(), topLeft.y.as_int());
+    QSize size = toQSize(windowInfo.window().size());
+    QPoint position = toQPoint(topLeft);
 
     WindowInfo info{ size, position, focused, windowInfo.window() };
     DirtiedWindow window{ upos, info, WindowInfo::DirtyStates::Position};
@@ -96,8 +111,8 @@ void WindowModel::resizeWindow(const miral::WindowInfo &windowInfo, mir::geometr
     }
     auto upos = static_cast<unsigned int>(pos);
     const bool focused = (m_focusedWindowIndex == upos);
-    QSize size(newSize.width.as_int(), newSize.height.as_int());
-    QPoint position(windowInfo.window().top_left().x.as_int(), windowInfo.window().top_left().y.as_int());
+    QSize size = toQSize(newSize);
+    QPoint position = toQPoint(windowInfo.window().top_left());
 
     WindowInfo info{ size, position, focused, windowInfo.window() };
     DirtiedWindow window{ upos, info, WindowInfo::DirtyStates::Size};
