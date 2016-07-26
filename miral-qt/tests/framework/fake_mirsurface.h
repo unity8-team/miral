@@ -76,6 +76,7 @@ public:
     Mir::ShellChrome shellChrome() const override { return Mir::NormalChrome; }
 
     bool focused() const override { return false; }
+    QRect inputBounds() const override { return QRect(0,0,10,10); }
 
     void requestFocus() override {
         Q_EMIT focusRequested();
@@ -110,6 +111,7 @@ public:
     void setFocused(bool focus) override;
 
     void setViewActiveFocus(qintptr, bool) override {};
+    bool activeFocus() const override { return false; }
 
     void mousePressEvent(QMouseEvent *) override;
     void mouseMoveEvent(QMouseEvent *) override;
@@ -131,6 +133,8 @@ public:
     QCursor cursor() const override { return QCursor(); }
 
     SessionInterface* session() override { return m_session; }
+
+    bool inputAreaContains(const QPoint &) const override { return true; }
 
 public Q_SLOTS:
     void onCompositorSwappedBuffers() override;
