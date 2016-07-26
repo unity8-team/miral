@@ -24,7 +24,7 @@
  * that Mir has created internally. Any changes to this model are emitted as change
  * signals to the Qt GUI thread which will effectively duplicate this model again.
  *
- *
+ * Use a window ID as a shared identifier between this Mir-side model and the Qt-side model
  */
 
 using namespace qtmir;
