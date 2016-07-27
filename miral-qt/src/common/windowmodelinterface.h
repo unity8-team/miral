@@ -41,7 +41,7 @@ struct WindowInfo {
     };
 };
 
-// We assign each Window with a unique ID that both Mir-side and Qt-side WindowModels can share
+// We assign each Window with an index which corresponds to the position it has in the window stack.
 struct NumberedWindow {
     unsigned int index;
     WindowInfo windowInfo;
