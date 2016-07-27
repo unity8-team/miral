@@ -27,7 +27,7 @@
 namespace ms = mir::scene;
 using namespace miral;
 
-KioskWindowManagerPolicy::KioskWindowManagerPolicy(WindowManagerToolsIndirect const& tools, SwSplash const& splash) :
+KioskWindowManagerPolicy::KioskWindowManagerPolicy(WindowManagerTools const& tools, SwSplash const& splash) :
     CanonicalWindowManagerPolicy{tools},
     splash{splash}
 {

@@ -36,7 +36,7 @@ struct ApplicationInfo;
 class WindowSpecification;
 
 // The interface through which the policy instructs the controller.
-class WindowManagerTools
+class WindowManagerToolsImplementation
 {
 public:
 /** @name Update Model
@@ -74,10 +74,10 @@ public:
     virtual void invoke_under_lock(std::function<void()> const& callback) = 0;
 /** @} */
 
-    virtual ~WindowManagerTools() = default;
-    WindowManagerTools() = default;
-    WindowManagerTools(WindowManagerTools const&) = delete;
-    WindowManagerTools& operator=(WindowManagerTools const&) = delete;
+    virtual ~WindowManagerToolsImplementation() = default;
+    WindowManagerToolsImplementation() = default;
+    WindowManagerToolsImplementation(WindowManagerToolsImplementation const&) = delete;
+    WindowManagerToolsImplementation& operator=(WindowManagerToolsImplementation const&) = delete;
 };
 }
 

@@ -42,12 +42,12 @@ namespace miral
 {
 using mir::shell::SurfaceSet;
 using WindowManagementPolicyBuilder =
-    std::function<std::unique_ptr<miral::WindowManagementPolicy>(miral::WindowManagerToolsIndirect const& tools)>;
+    std::function<std::unique_ptr<miral::WindowManagementPolicy>(miral::WindowManagerTools const& tools)>;
 
 /// A policy based window manager.
 /// This takes care of the management of any meta implementation held for the sessions and windows.
 class BasicWindowManager : public virtual mir::shell::WindowManager,
-    protected WindowManagerTools
+    protected WindowManagerToolsImplementation
 {
 public:
     BasicWindowManager(

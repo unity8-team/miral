@@ -57,7 +57,7 @@ private:
 class TitlebarProvider : Worker
 {
 public:
-    TitlebarProvider(miral::WindowManagerTools* const tools);
+    TitlebarProvider(miral::WindowManagerTools const& tools);
     ~TitlebarProvider();
 
     void operator()(miral::toolkit::Connection connection);
@@ -86,7 +86,7 @@ private:
 
     using SurfaceMap = std::map<std::weak_ptr<mir::scene::Surface>, Data, std::owner_less<std::weak_ptr<mir::scene::Surface>>>;
 
-    miral::WindowManagerTools* const tools;
+    miral::WindowManagerTools tools;
     std::mutex mutable mutex;
     miral::toolkit::Connection connection;
     std::weak_ptr<mir::scene::Session> weak_session;

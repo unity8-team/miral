@@ -35,7 +35,7 @@ int const title_bar_height = 10;
 }
 
 TitlebarWindowManagerPolicy::TitlebarWindowManagerPolicy(
-    WindowManagerTools* const tools,
+    WindowManagerTools const& tools,
     SpinnerSplash const& spinner,
     miral::InternalClientLauncher const& launcher) :
     CanonicalWindowManagerPolicy(tools),

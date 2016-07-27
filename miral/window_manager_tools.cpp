@@ -19,66 +19,66 @@
 #include "miral/window_manager_tools.h"
 #include "window_manager_tools_implementation.h"
 
-miral::WindowManagerToolsIndirect::WindowManagerToolsIndirect(WindowManagerTools* tools) :
+miral::WindowManagerTools::WindowManagerTools(WindowManagerToolsImplementation* tools) :
     tools{tools}
 {
 }
 
-miral::WindowManagerToolsIndirect::WindowManagerToolsIndirect(WindowManagerToolsIndirect const&) = default;
-miral::WindowManagerToolsIndirect& miral::WindowManagerToolsIndirect::operator=(WindowManagerToolsIndirect const&) = default;
-miral::WindowManagerToolsIndirect::~WindowManagerToolsIndirect() = default;
+miral::WindowManagerTools::WindowManagerTools(WindowManagerTools const&) = default;
+miral::WindowManagerTools& miral::WindowManagerTools::operator=(WindowManagerTools const&) = default;
+miral::WindowManagerTools::~WindowManagerTools() = default;
 
-auto miral::WindowManagerToolsIndirect::count_applications() const -> unsigned int
+auto miral::WindowManagerTools::count_applications() const -> unsigned int
 { return tools->count_applications(); }
 
-void miral::WindowManagerToolsIndirect::for_each_application(std::function<void(ApplicationInfo& info)> const& functor)
+void miral::WindowManagerTools::for_each_application(std::function<void(ApplicationInfo& info)> const& functor)
 { tools->for_each_application(functor); }
 
-auto miral::WindowManagerToolsIndirect::find_application(std::function<bool(ApplicationInfo const& info)> const& predicate)
+auto miral::WindowManagerTools::find_application(std::function<bool(ApplicationInfo const& info)> const& predicate)
 -> Application
 { return tools->find_application(predicate); }
 
-auto miral::WindowManagerToolsIndirect::info_for(std::weak_ptr<mir::scene::Session> const& session) const -> ApplicationInfo&
+auto miral::WindowManagerTools::info_for(std::weak_ptr<mir::scene::Session> const& session) const -> ApplicationInfo&
 { return tools->info_for(session); }
 
-auto miral::WindowManagerToolsIndirect::info_for(std::weak_ptr<mir::scene::Surface> const& surface) const -> WindowInfo&
+auto miral::WindowManagerTools::info_for(std::weak_ptr<mir::scene::Surface> const& surface) const -> WindowInfo&
 { return tools->info_for(surface); }
 
-auto miral::WindowManagerToolsIndirect::info_for(Window const& window) const -> WindowInfo&
+auto miral::WindowManagerTools::info_for(Window const& window) const -> WindowInfo&
 { return tools->info_for(window); }
 
-void miral::WindowManagerToolsIndirect::kill_active_application(int sig)
+void miral::WindowManagerTools::kill_active_application(int sig)
 { tools->kill_active_application(sig); }
 
-auto miral::WindowManagerToolsIndirect::active_window() const -> Window
+auto miral::WindowManagerTools::active_window() const -> Window
 { return tools->active_window(); }
 
-auto miral::WindowManagerToolsIndirect::select_active_window(Window const& hint) -> Window
+auto miral::WindowManagerTools::select_active_window(Window const& hint) -> Window
 { return tools->select_active_window(hint); }
 
-void miral::WindowManagerToolsIndirect::drag_active_window(mir::geometry::Displacement movement)
+void miral::WindowManagerTools::drag_active_window(mir::geometry::Displacement movement)
 { tools->drag_active_window(movement); }
 
-void miral::WindowManagerToolsIndirect::focus_next_application()
+void miral::WindowManagerTools::focus_next_application()
 { tools->focus_next_application(); }
 
-void miral::WindowManagerToolsIndirect::focus_next_within_application()
+void miral::WindowManagerTools::focus_next_within_application()
 { tools->focus_next_within_application(); }
 
-auto miral::WindowManagerToolsIndirect::window_at(mir::geometry::Point cursor) const -> Window
+auto miral::WindowManagerTools::window_at(mir::geometry::Point cursor) const -> Window
 { return tools->window_at(cursor); }
 
-auto miral::WindowManagerToolsIndirect::active_display() -> mir::geometry::Rectangle const
+auto miral::WindowManagerTools::active_display() -> mir::geometry::Rectangle const
 { return tools->active_display(); }
 
-void miral::WindowManagerToolsIndirect::raise_tree(Window const& root)
+void miral::WindowManagerTools::raise_tree(Window const& root)
 { tools->raise_tree(root); }
 
-void miral::WindowManagerToolsIndirect::modify_window(WindowInfo& window_info, WindowSpecification const& modifications)
+void miral::WindowManagerTools::modify_window(WindowInfo& window_info, WindowSpecification const& modifications)
 { tools->modify_window(window_info,modifications); }
 
-void miral::WindowManagerToolsIndirect::place_and_size(WindowInfo& window_info, Point const& new_pos, Size const& new_size)
+void miral::WindowManagerTools::place_and_size(WindowInfo& window_info, Point const& new_pos, Size const& new_size)
 { tools->place_and_size(window_info, new_pos, new_size); }
 
-void miral::WindowManagerToolsIndirect::set_state(WindowInfo& window_info, MirSurfaceState value)
+void miral::WindowManagerTools::set_state(WindowInfo& window_info, MirSurfaceState value)
 { tools->set_state(window_info, value); }

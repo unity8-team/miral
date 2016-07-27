@@ -25,7 +25,7 @@ namespace ms = mir::scene;
 
 // Based on "Mir and Unity: Surfaces, input, and displays (v0.3)"
 
-miral::CanonicalWindowManagerPolicy::CanonicalWindowManagerPolicy(WindowManagerToolsIndirect const& tools) :
+miral::CanonicalWindowManagerPolicy::CanonicalWindowManagerPolicy(WindowManagerTools const& tools) :
     tools{tools}
 {
 }

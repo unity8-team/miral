@@ -28,7 +28,7 @@ class CanonicalWindowManagerPolicy  : public WindowManagementPolicy
 {
 public:
 
-    explicit CanonicalWindowManagerPolicy(WindowManagerToolsIndirect const& tools);
+    explicit CanonicalWindowManagerPolicy(WindowManagerTools const& tools);
 
     auto place_new_surface(
         ApplicationInfo const& app_info,
@@ -42,7 +42,7 @@ public:
     void advise_focus_gained(WindowInfo const& info) override;
 
 protected:
-    WindowManagerToolsIndirect tools;
+    WindowManagerTools tools;
 };
 }
 

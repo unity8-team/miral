@@ -39,15 +39,15 @@ struct WindowInfo;
 struct ApplicationInfo;
 class WindowSpecification;
 
-class WindowManagerTools;
+class WindowManagerToolsImplementation;
 
-class WindowManagerToolsIndirect
+class WindowManagerTools
 {
 public:
-    WindowManagerToolsIndirect(WindowManagerTools* tools);
-    WindowManagerToolsIndirect(WindowManagerToolsIndirect const&);
-    WindowManagerToolsIndirect& operator=(WindowManagerToolsIndirect const&);
-    ~WindowManagerToolsIndirect();
+    WindowManagerTools(WindowManagerToolsImplementation* tools);
+    WindowManagerTools(WindowManagerTools const&);
+    WindowManagerTools& operator=(WindowManagerTools const&);
+    ~WindowManagerTools();
 
 /** @name Update Model
  *  These functions assume that the BasicWindowManager data structures can be accessed freely.
@@ -85,7 +85,7 @@ public:
 /** @} */
 
 private:
-    WindowManagerTools* tools;
+    WindowManagerToolsImplementation* tools;
 };
 }
 

@@ -32,7 +32,7 @@ class TitlebarProvider;
 class TitlebarWindowManagerPolicy : public miral::CanonicalWindowManagerPolicy
 {
 public:
-    TitlebarWindowManagerPolicy(miral::WindowManagerToolsIndirect const& tools, SpinnerSplash const& spinner, miral::InternalClientLauncher const& launcher);
+    TitlebarWindowManagerPolicy(miral::WindowManagerTools const& tools, SpinnerSplash const& spinner, miral::InternalClientLauncher const& launcher);
     ~TitlebarWindowManagerPolicy();
 
     virtual miral::WindowSpecification place_new_surface(
