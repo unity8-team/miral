@@ -21,7 +21,7 @@ add_library(miral SHARED
     set_window_managment_policy.cpp     ${CMAKE_SOURCE_DIR}/include/miral/set_window_managment_policy.h
     basic_window_manager.cpp            basic_window_manager.h
     window_management_policy.cpp        ${CMAKE_SOURCE_DIR}/include/miral/window_management_policy.h
-                                        ${CMAKE_SOURCE_DIR}/include/miral/window_manager_tools.h
+    window_manager_tools.cpp            ${CMAKE_SOURCE_DIR}/include/miral/window_manager_tools.h
                                         ${CMAKE_SOURCE_DIR}/include/miral/stream_specification.h
                                         ${CMAKE_SOURCE_DIR}/include/miral/toolkit/surface_spec.h
                                         ${CMAKE_SOURCE_DIR}/include/miral/toolkit/connection.h

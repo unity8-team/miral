@@ -84,6 +84,53 @@ public:
     WindowManagerTools(WindowManagerTools const&) = delete;
     WindowManagerTools& operator=(WindowManagerTools const&) = delete;
 };
+
+class WindowManagerToolsIndirect
+{
+public:
+    WindowManagerToolsIndirect(WindowManagerTools* tools);
+    WindowManagerToolsIndirect(WindowManagerToolsIndirect const&);
+    WindowManagerToolsIndirect& operator=(WindowManagerToolsIndirect const&);
+    ~WindowManagerToolsIndirect();
+
+/** @name Update Model
+ *  These functions assume that the BasicWindowManager data structures can be accessed freely.
+ *  I.e. they should only be used by a thread that has called the WindowManagementPolicy methods
+ *  (where any necessary locks are held) or via a invoke_under_lock() callback.
+ *  @{ */
+    auto count_applications() const -> unsigned int;
+    void for_each_application(std::function<void(ApplicationInfo& info)> const& functor);
+    auto find_application(std::function<bool(ApplicationInfo const& info)> const& predicate)
+    -> Application;
+    auto info_for(std::weak_ptr<mir::scene::Session> const& session) const -> ApplicationInfo&;
+    auto info_for(std::weak_ptr<mir::scene::Surface> const& surface) const -> WindowInfo&;
+    auto info_for(Window const& window) const -> WindowInfo&;
+    void kill_active_application(int sig);
+    auto active_window() const -> Window;
+    auto select_active_window(Window const& hint) -> Window;
+    void drag_active_window(mir::geometry::Displacement movement);
+    void focus_next_application();
+    void focus_next_within_application();
+    auto window_at(mir::geometry::Point cursor) const -> Window;
+    auto active_display() -> mir::geometry::Rectangle const;
+    void raise_tree(Window const& root);
+    void modify_window(WindowInfo& window_info, WindowSpecification const& modifications);
+    void place_and_size(WindowInfo& window_info, Point const& new_pos, Size const& new_size);
+    void set_state(WindowInfo& window_info, MirSurfaceState value);
+/** @} */
+
+/** @name Multi-thread support
+ *  Allows threads that don't hold a lock on the model to acquire one and call the "Update Model"
+ *  member functions.
+ *  This should NOT be used by a thread that has called the WindowManagementPolicy methods (and
+ *  already holds the lock).
+ *  @{ */
+    void invoke_under_lock(std::function<void()> const& callback);
+/** @} */
+
+private:
+    WindowManagerTools* tools;
+};
 }
 
 #endif //MIRAL_WINDOW_MANAGER_TOOLS_H

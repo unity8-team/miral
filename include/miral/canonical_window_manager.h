@@ -20,6 +20,7 @@
 #define MIRAL_CANONICAL_WINDOW_MANAGER_H_
 
 #include <miral/window_management_policy.h>
+#include <miral/window_manager_tools.h>
 
 namespace miral
 {
@@ -41,7 +42,7 @@ public:
     void advise_focus_gained(WindowInfo const& info) override;
 
 protected:
-    miral::WindowManagerTools* const tools;
+    WindowManagerToolsIndirect tools;
 };
 }
 
