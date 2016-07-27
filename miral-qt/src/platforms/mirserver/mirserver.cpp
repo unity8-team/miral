@@ -42,7 +42,7 @@
 
 // mir
 #include <mir/graphics/cursor.h>
-#include <mir/shell/abstract_shell.h>
+#include <mir/shell/shell.h>
 
 namespace mg = mir::graphics;
 namespace mo  = mir::options;
