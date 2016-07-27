@@ -21,6 +21,7 @@
 
 // from common dir
 #include <debughelpers.h>
+#include "mirqtconversion.h"
 
 // mirserver
 #include <surfaceobserver.h>
@@ -196,7 +197,7 @@ MirSurface::MirSurface(std::shared_ptr<mir::scene::Surface> surface,
 {
     DEBUG_MSG << "()";
 
-    m_position = QPoint(surface->top_left().x.as_int(), surface->top_left().y.as_int());
+    m_position = toQPoint(surface->top_left());
     m_minimumWidth = creationHints.minWidth;
     m_minimumHeight = creationHints.minHeight;
     m_maximumWidth = creationHints.maxWidth;
