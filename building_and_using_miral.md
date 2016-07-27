@@ -52,6 +52,22 @@ user):
  
     $ ../scripts/testrun
 
+Support for X11 applications
+----------------------------
+
+If you want to run X11 applications that do not have native Mir support in the
+toolkit they use then the answer is Xmir: an X11 server that runs on Mir. First
+you need Xmir installed:
+ 
+    $ sudo apt install xmir
+
+Then you can use the testrun script to start miral-shell with Xmir:
+
+    $ ../scripts/testrun -Xmir
+
+This starts an X11 server on DISPLAY=:1. This is set in the terminal the script
+starts so that applications launched from it will automatically connect to
+miral through Xmir.
 
 Running applications on Miral
 -----------------------------
