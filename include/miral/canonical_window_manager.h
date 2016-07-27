@@ -28,7 +28,7 @@ class CanonicalWindowManagerPolicy  : public WindowManagementPolicy
 {
 public:
 
-    explicit CanonicalWindowManagerPolicy(WindowManagerTools* const tools);
+    explicit CanonicalWindowManagerPolicy(WindowManagerToolsIndirect const& tools);
 
     auto place_new_surface(
         ApplicationInfo const& app_info,

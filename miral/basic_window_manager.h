@@ -20,7 +20,7 @@
 #define MIR_ABSTRACTION_BASIC_WINDOW_MANAGER_H_
 
 #include "miral/window_management_policy.h"
-#include "miral/window_manager_tools.h"
+#include "window_manager_tools_implementation.h"
 #include "miral/window_info.h"
 #include "miral/application.h"
 #include "miral/application_info.h"
@@ -42,7 +42,7 @@ namespace miral
 {
 using mir::shell::SurfaceSet;
 using WindowManagementPolicyBuilder =
-    std::function<std::unique_ptr<miral::WindowManagementPolicy>(miral::WindowManagerTools* tools)>;
+    std::function<std::unique_ptr<miral::WindowManagementPolicy>(miral::WindowManagerToolsIndirect const& tools)>;
 
 /// A policy based window manager.
 /// This takes care of the management of any meta implementation held for the sessions and windows.

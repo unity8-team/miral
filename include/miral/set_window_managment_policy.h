@@ -28,25 +28,25 @@ class Server;
 
 namespace miral
 {
-class WindowManagerTools;
+class WindowManagerToolsIndirect;
 class WindowManagementPolicy;
 
 class SetWindowManagmentPolicy
 {
 public:
-    SetWindowManagmentPolicy(std::function<std::unique_ptr<WindowManagementPolicy>(WindowManagerTools* tools)> const& builder);
+    SetWindowManagmentPolicy(std::function<std::unique_ptr<WindowManagementPolicy>(WindowManagerToolsIndirect const& tools)> const& builder);
     ~SetWindowManagmentPolicy();
 
     void operator()(mir::Server& server) const;
 
 private:
-    std::function<std::unique_ptr<WindowManagementPolicy>(WindowManagerTools* tools)> builder;
+    std::function<std::unique_ptr<WindowManagementPolicy>(WindowManagerToolsIndirect const& tools)> builder;
 };
 
 template<typename Policy, typename ...Args>
 auto set_window_managment_policy(Args& ... args) -> SetWindowManagmentPolicy
 {
-    return SetWindowManagmentPolicy{[&args...](WindowManagerTools* tools) -> std::unique_ptr<WindowManagementPolicy>
+    return SetWindowManagmentPolicy{[&args...](WindowManagerToolsIndirect const& tools) -> std::unique_ptr<WindowManagementPolicy>
         { return std::make_unique<Policy>(tools, args...); }};
 }
 }

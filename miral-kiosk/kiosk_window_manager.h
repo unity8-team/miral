@@ -28,7 +28,7 @@ using namespace mir::geometry;
 class KioskWindowManagerPolicy : public miral::CanonicalWindowManagerPolicy
 {
 public:
-    KioskWindowManagerPolicy(miral::WindowManagerTools* const tools, SwSplash const&);
+    KioskWindowManagerPolicy(miral::WindowManagerToolsIndirect const& tools, SwSplash const&);
 
     void advise_focus_gained(miral::WindowInfo const& info) override;
 

@@ -49,8 +49,8 @@ inline Rectangle const& tile_for(miral::ApplicationInfo const& app_info)
 
 // Demonstrate implementing a simple tiling algorithm
 
-TilingWindowManagerPolicy::TilingWindowManagerPolicy(WindowManagerTools* const tools, SpinnerSplash const& spinner,
-                                                     miral::InternalClientLauncher const& launcher) :
+TilingWindowManagerPolicy::TilingWindowManagerPolicy(WindowManagerToolsIndirect const& tools, SpinnerSplash const& spinner,
+                                                     InternalClientLauncher const& launcher) :
     tools{tools},
     spinner{spinner},
     launcher{launcher}

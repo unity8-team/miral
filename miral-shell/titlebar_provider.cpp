@@ -58,7 +58,7 @@ void paint_surface(MirSurface* surface, int const intensity)
 using namespace miral::toolkit;
 using namespace mir::geometry;
 
-TitlebarProvider::TitlebarProvider(miral::WindowManagerTools* const tools) : tools{tools}
+TitlebarProvider::TitlebarProvider(miral::WindowManagerToolsIndirect const& tools) : tools{tools}
 {
 
 }

@@ -17,6 +17,7 @@
  */
 
 #include "miral/window_manager_tools.h"
+#include "window_manager_tools_implementation.h"
 
 miral::WindowManagerToolsIndirect::WindowManagerToolsIndirect(WindowManagerTools* tools) :
     tools{tools}

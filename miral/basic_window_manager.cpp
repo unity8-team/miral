@@ -17,6 +17,7 @@
  */
 
 #include "basic_window_manager.h"
+#include "miral/window_manager_tools.h"
 
 #include <mir/scene/session.h>
 #include <mir/scene/surface.h>

@@ -95,7 +95,7 @@ public:
     WindowManagementPolicy& operator=(WindowManagementPolicy const&) = delete;
 };
 
-class WindowManagerTools;
+class WindowManagerToolsIndirect;
 }
 
 #endif //MIRAL_WINDOW_MANAGEMENT_POLICY_H
