@@ -22,7 +22,6 @@
 
 // Mir
 #include <mir/graphics/display_configuration.h>
-#include <mir/shell/window_manager.h>
 
 // std
 #include <memory>
