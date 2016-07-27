@@ -56,6 +56,8 @@ QString FakeMirSurface::name() const { return QString("Fake MirSurface"); }
 
 QSize FakeMirSurface::size() const { return m_size; }
 
+QPoint FakeMirSurface::position() const { return m_position; }
+
 void FakeMirSurface::resize(int width, int height)
 {
     if (m_size.width() != width || m_size.height() != height) {

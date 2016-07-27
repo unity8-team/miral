@@ -28,10 +28,10 @@ DBusWindowStack::DBusWindowStack(ApplicationManager *parent) : QObject(parent)
 {
     qRegisterMetaType<AppIdDesktopFile>();
     qDBusRegisterMetaType<AppIdDesktopFile>();
-    qRegisterMetaType<WindowInfo>();
-    qRegisterMetaType< QList<WindowInfo> >();
-    qDBusRegisterMetaType<WindowInfo>();
-    qDBusRegisterMetaType< QList<WindowInfo> >();
+    qRegisterMetaType<DBusWindowInfo>();
+    qRegisterMetaType< QList<DBusWindowInfo> >();
+    qDBusRegisterMetaType<DBusWindowInfo>();
+    qDBusRegisterMetaType< QList<DBusWindowInfo> >();
 
     QDBusConnection::sessionBus().registerService("com.canonical.Unity.WindowStack");
     // TODO ExportScriptableSlots shouldn't be needed but without it i don't get the methods :-/
@@ -54,13 +54,13 @@ AppIdDesktopFile DBusWindowStack::GetAppIdFromPid(unsigned int pid)
     return res;
 }
 
-QList<WindowInfo> DBusWindowStack::GetWindowStack()
+QList<DBusWindowInfo> DBusWindowStack::GetWindowStack()
 {
-    QList<WindowInfo> res;
+    QList<DBusWindowInfo> res;
     ApplicationManager *appMgr = static_cast<ApplicationManager*>(parent());
     const QList<Application*> &applications = appMgr->list();
     Q_FOREACH(Application* app, applications) {
-        WindowInfo wi;
+        DBusWindowInfo wi;
         wi.window_id = 0;
         wi.app_id = app->appId();
         wi.focused = app->focused();
@@ -96,7 +96,7 @@ const QDBusArgument &operator>>(const QDBusArgument &a, AppIdDesktopFile &aidf)
     return a;
 }
 
-QDBusArgument &operator<<(QDBusArgument &a, const WindowInfo &wi)
+QDBusArgument &operator<<(QDBusArgument &a, const DBusWindowInfo &wi)
 {
     a.beginStructure();
     a << wi.window_id << wi.app_id << wi.focused << wi.stage;
@@ -104,7 +104,7 @@ QDBusArgument &operator<<(QDBusArgument &a, const WindowInfo &wi)
     return a;
 }
 
-const QDBusArgument &operator>>(const QDBusArgument &a, WindowInfo &wi)
+const QDBusArgument &operator>>(const QDBusArgument &a, DBusWindowInfo &wi)
 {
     a.beginStructure();
     a >> wi.window_id >> wi.app_id >> wi.focused >> wi.stage;
