@@ -62,9 +62,9 @@ public:
     virtual ~WindowModelInterface() = default;
 
 Q_SIGNALS:
-    void windowAdded(const NumberedWindow);
+    void windowAdded(const qtmir::NumberedWindow);
     void windowRemoved(const unsigned int index);
-    void windowChanged(const DirtiedWindow);
+    void windowChanged(const qtmir::DirtiedWindow);
 
 private:
     Q_DISABLE_COPY(WindowModelInterface)

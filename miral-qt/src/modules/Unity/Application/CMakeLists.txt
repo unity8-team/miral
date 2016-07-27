@@ -49,6 +49,7 @@ set(QMLMIRPLUGIN_SRC
     timesource.cpp
     tracepoints.c
     settings.cpp
+    windowmodel.cpp
 # We need to run moc on these headers
     ${APPLICATION_API_INCLUDEDIR}/unity/shell/application/ApplicationInfoInterface.h
     ${APPLICATION_API_INCLUDEDIR}/unity/shell/application/ApplicationManagerInterface.h

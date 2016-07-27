@@ -28,7 +28,7 @@
 
 namespace mir {
     namespace graphics { class Display; }
-    namespace compositor { class Compositor; }
+    namespace compositor { class Compositor; class DisplayListener; }
 }
 class Screen;
 class QWindow;
@@ -74,7 +74,8 @@ public Q_SLOTS:
 public:
     // called by MirServer
     void init(const std::shared_ptr<mir::graphics::Display> &display,
-              const std::shared_ptr<mir::compositor::Compositor> &compositor);
+              const std::shared_ptr<mir::compositor::Compositor> &compositor,
+              const std::shared_ptr<mir::compositor::DisplayListener> &displayListener);
     void terminate();
 
     // override for testing purposes
@@ -91,6 +92,7 @@ private:
 
     std::weak_ptr<mir::graphics::Display> m_display;
     std::shared_ptr<mir::compositor::Compositor> m_compositor;
+    std::shared_ptr<mir::compositor::DisplayListener> m_displayListener;
     QList<Screen*> m_screenList;
     bool m_compositing;
 };

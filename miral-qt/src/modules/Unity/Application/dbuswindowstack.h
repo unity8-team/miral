@@ -34,7 +34,7 @@ public:
 QDBusArgument &operator<<(QDBusArgument &a, const AppIdDesktopFile &aidf);
 const QDBusArgument &operator>>(const QDBusArgument &a, AppIdDesktopFile &aidf);
 
-class WindowInfo
+class DBusWindowInfo
 {
 public:
     unsigned int window_id;
@@ -43,8 +43,8 @@ public:
     unsigned int stage;
 };
 
-QDBusArgument &operator<<(QDBusArgument &a, const WindowInfo &aidf);
-const QDBusArgument &operator>>(const QDBusArgument &a, WindowInfo &aidf);
+QDBusArgument &operator<<(QDBusArgument &a, const DBusWindowInfo &aidf);
+const QDBusArgument &operator>>(const QDBusArgument &a, DBusWindowInfo &aidf);
 
 class DBusWindowStack : public QObject
 {
@@ -55,7 +55,7 @@ public:
     ~DBusWindowStack();
 
     Q_INVOKABLE Q_SCRIPTABLE qtmir::AppIdDesktopFile GetAppIdFromPid(unsigned int pid);
-    Q_INVOKABLE Q_SCRIPTABLE QList<qtmir::WindowInfo> GetWindowStack();
+    Q_INVOKABLE Q_SCRIPTABLE QList<qtmir::DBusWindowInfo> GetWindowStack();
     Q_INVOKABLE Q_SCRIPTABLE QStringList GetWindowProperties(unsigned int window_id, const QString &app_id, const QStringList &names);
 
 Q_SIGNALS:
@@ -67,6 +67,6 @@ Q_SIGNALS:
 } // namespace qtmir
 
 Q_DECLARE_METATYPE(qtmir::AppIdDesktopFile)
-Q_DECLARE_METATYPE(qtmir::WindowInfo)
+Q_DECLARE_METATYPE(qtmir::DBusWindowInfo)
 
 #endif // DBUSWINDOWSTACK_H

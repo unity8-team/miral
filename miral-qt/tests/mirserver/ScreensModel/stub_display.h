@@ -21,6 +21,8 @@
 #include "mock_gl_display_buffer.h"
 #include "mock_display_configuration.h"
 
+#include <mir/compositor/display_listener.h>
+
 namespace mg = mir::graphics;
 namespace geom = mir::geometry;
 
@@ -97,6 +99,13 @@ public:
 private:
     std::vector<mg::DisplayConfigurationOutput> m_config;
     std::vector<MockGLDisplayBuffer*> m_displayBuffers;
+};
+
+class StubDisplayListener : public mir::compositor::DisplayListener
+{
+    void add_display(mir::geometry::Rectangle const& /*area*/) override {};
+
+    void remove_display(mir::geometry::Rectangle const& /*area*/) override {};
 };
 
 #endif // STUB_DISPLAY_H

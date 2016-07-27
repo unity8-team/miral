@@ -42,6 +42,7 @@
 
 // mir
 #include <mir/graphics/cursor.h>
+#include <mir/shell/shell.h>
 
 namespace mg = mir::graphics;
 namespace mo  = mir::options;
@@ -114,7 +115,7 @@ MirServer::MirServer(int &argc, char **argv,
         });
 
     add_init_callback([this, &screensModel] {
-        screensModel->init(the_display(), the_compositor());
+        screensModel->init(the_display(), the_compositor(), the_shell());
     });
 
     usingHiddenCursor(*this);
@@ -192,7 +193,7 @@ PromptSessionListener *UsingQtMirPromptSessionListener::promptSessionListener()
 
 UsingQtMirWindowManager::UsingQtMirWindowManager(const QSharedPointer<ScreensModel> &model)
     : m_screensModel(model)
-    , m_policy(miral::set_window_managment_policy<WindowManagementPolicy>(m_screensModel))
+    , m_policy(miral::set_window_managment_policy<WindowManagementPolicy>(m_windowModel, m_screensModel))
 {
 }
 
@@ -204,6 +205,11 @@ void UsingQtMirWindowManager::operator()(mir::Server& server)
 MirWindowManager *UsingQtMirWindowManager::windowManager()
 {
     return m_windowManager.lock().get();
+}
+
+qtmir::WindowModelInterface *UsingQtMirWindowManager::windowModel()
+{
+    return &m_windowModel;
 }
 
 mir::shell::Shell *MirServer::shell()

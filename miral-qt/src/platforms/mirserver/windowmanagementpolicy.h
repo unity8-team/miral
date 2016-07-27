@@ -20,6 +20,7 @@
 #include "miral/canonical_window_manager.h"
 
 #include "qteventfeeder.h"
+#include "windowmodel.h"
 
 #include <QObject>
 #include <QScopedPointer>
@@ -33,9 +34,10 @@ class WindowManagementPolicy : public QObject, public miral::CanonicalWindowMana
 {
 public:
     WindowManagementPolicy(miral::WindowManagerTools * const tools,
+                           qtmir::WindowModel &windowModel,
                            const QSharedPointer<ScreensModel> screensModel);
 
-
+    // From WindowManagementPolicy
     auto place_new_surface(const miral::ApplicationInfo &app_info,
                            const miral::WindowSpecification &request_parameters)
         -> miral::WindowSpecification override;
@@ -60,17 +62,27 @@ public:
     void advise_focus_lost(const miral::WindowInfo &info) override;
     void advise_focus_gained(const miral::WindowInfo &info) override;
     void advise_state_change(const miral::WindowInfo &info, MirSurfaceState state) override;
-    void advise_move_to(miral::WindowInfo const& window_info, Point top_left) override;
+    void advise_move_to(const miral::WindowInfo &windowInfo, Point topLeft) override;
     void advise_resize(const miral::WindowInfo &info, const Size &newSize) override;
     void advise_delete_window(const miral::WindowInfo &windowInfo) override;
     void advise_raise(std::vector<miral::Window> const& windows) override;
 
     void advise_displays_updated(const Rectangles &displays) override;
 
+    // Exposing some tools
+    void deliver_keyboard_event(const MirKeyboardEvent *event, const std::shared_ptr<mir::scene::Surface> &surface);
+    void deliver_touch_event(const MirTouchEvent *event, const std::shared_ptr<mir::scene::Surface> &surface);
+    void deliver_pointer_event(const MirPointerEvent *event, const std::shared_ptr<mir::scene::Surface> &surface);
+
+    void focus(const miral::Window window);
+    void resize(const miral::Window window, const Size &size);
+    void move(const miral::Window window, const Point &top_left);
+
 Q_SIGNALS:
 
 private:
-    const miral::WindowManagerTools * const m_tools;
+    miral::WindowManagerTools * const m_tools;
+    qtmir::WindowModel &m_windowModel;
     const QScopedPointer<QtEventFeeder> m_eventFeeder;
 };
 

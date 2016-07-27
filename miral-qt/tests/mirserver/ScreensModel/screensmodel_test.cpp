@@ -40,6 +40,7 @@ protected:
 
     ScreensModel *screensModel;
     std::shared_ptr<StubDisplay> display;
+    std::shared_ptr<StubDisplayListener> displayListener;
     std::shared_ptr<QtCompositor> compositor;
     QGuiApplication *app;
 };
@@ -51,9 +52,10 @@ void ScreensModelTest::SetUp()
 
     screensModel = new TestableScreensModel;
     display = std::make_shared<StubDisplay>();
+    displayListener = std::make_shared<StubDisplayListener>();
     compositor = std::make_shared<QtCompositor>();
 
-    static_cast<TestableScreensModel*>(screensModel)->do_init(display, compositor);
+    static_cast<TestableScreensModel*>(screensModel)->do_init(display, compositor, displayListener);
 
     int argc = 0;
     char **argv = nullptr;
