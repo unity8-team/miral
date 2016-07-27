@@ -17,7 +17,7 @@
 #ifndef WINDOWMANAGEMENTPOLICY_H
 #define WINDOWMANAGEMENTPOLICY_H
 
-#include "miral/window_management_policy.h"
+#include "miral/canonical_window_manager.h"
 
 #include "qteventfeeder.h"
 
@@ -29,10 +29,10 @@ using namespace mir::geometry;
 
 class ScreensModel;
 
-class WindowManagementPolicy : public QObject, public miral::WindowManagementPolicy
+class WindowManagementPolicy : public QObject, public miral::CanonicalWindowManagerPolicy
 {
 public:
-    WindowManagementPolicy(const miral::WindowManagerTools *tools,
+    WindowManagementPolicy(miral::WindowManagerTools * const tools,
                            const QSharedPointer<ScreensModel> screensModel);
 
 
@@ -68,18 +68,9 @@ public:
     void advise_displays_updated(const Rectangles &displays) override;
 
 Q_SIGNALS:
-//    void sessionCreatedSurface(mir::scene::Session const*,
-//                               std::shared_ptr<mir::scene::Surface> const&,
-//                               std::shared_ptr<SurfaceObserver> const&,
-//                               qtmir::CreationHints);
-//    void sessionDestroyingSurface(mir::scene::Session const*, std::shared_ptr<mir::scene::Surface> const&);
-
-//    // requires Qt::BlockingQueuedConnection!!
-//    void sessionAboutToCreateSurface(const miral::ApplicationInfo &app_info,
-//                                     const miral::WindowSpecification &request_parameters);
 
 private:
-    const miral::WindowManagerTools *m_tools;
+    const miral::WindowManagerTools * const m_tools;
     const QScopedPointer<QtEventFeeder> m_eventFeeder;
 };
 
