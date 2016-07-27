@@ -20,7 +20,7 @@
 
 #include "miral/window_specification.h"
 
-WindowManagementPolicy::WindowManagementPolicy(const miral::WindowManagerTools *tools,
+WindowManagementPolicy::WindowManagementPolicy(const miral::WindowManagerTools &tools,
                                                const QSharedPointer<ScreensModel> screensModel)
     : m_tools(tools)
     , m_eventFeeder(new QtEventFeeder(screensModel))

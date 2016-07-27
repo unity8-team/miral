@@ -32,7 +32,7 @@ class ScreensModel;
 class WindowManagementPolicy : public QObject, public miral::WindowManagementPolicy
 {
 public:
-    WindowManagementPolicy(const miral::WindowManagerTools *tools,
+    WindowManagementPolicy(const miral::WindowManagerTools &tools,
                            const QSharedPointer<ScreensModel> screensModel);
 
 
@@ -79,7 +79,7 @@ Q_SIGNALS:
 //                                     const miral::WindowSpecification &request_parameters);
 
 private:
-    const miral::WindowManagerTools *m_tools;
+    const miral::WindowManagerTools &m_tools;
     const QScopedPointer<QtEventFeeder> m_eventFeeder;
 };
 
