@@ -21,6 +21,7 @@
 #include <QSharedPointer>
 #include <mir/server.h>
 #include "miral/set_window_managment_policy.h"
+#include "windowmodel.h"
 
 class QtEventFeeder;
 class MirDisplayConfigurationPolicy;
@@ -70,11 +71,13 @@ public:
     UsingQtMirWindowManager(const QSharedPointer<ScreensModel> &model);
     void operator()(mir::Server& server);
     MirWindowManager *windowManager();
+    qtmir::WindowModelInterface *windowModel();
 
 private:
     const QSharedPointer<ScreensModel> &m_screensModel;
     miral::SetWindowManagmentPolicy m_policy;
     std::weak_ptr<MirWindowManager> m_windowManager;
+    qtmir::WindowModel m_windowModel;
 };
 
 // We use virtual inheritance of mir::Server to facilitate derived classes (e.g. testing)
@@ -115,6 +118,7 @@ public:
     using UsingQtMirSessionListener::sessionListener;
     using UsingQtMirPromptSessionListener::promptSessionListener;
     using UsingQtMirWindowManager::windowManager;
+    using UsingQtMirWindowManager::windowModel;
     mir::shell::Shell *shell();
 
     QSharedPointer<ScreensModel> screensModel() const;

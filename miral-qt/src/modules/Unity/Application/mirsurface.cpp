@@ -518,6 +518,11 @@ void MirSurface::resize(int width, int height)
     }
 }
 
+QPoint MirSurface::position() const
+{
+    return m_position;
+}
+
 QSize MirSurface::size() const
 {
     return m_size;
@@ -1015,6 +1020,15 @@ void MirSurface::onCloseTimedOut()
     m_closingState = CloseOverdue;
 
     m_session->session()->destroy_surface(m_surface);
+}
+
+void MirSurface::setPosition(const QPoint newPosition)
+{
+    if (m_position == newPosition) {
+        return;
+    }
+    m_position = newPosition;
+    Q_EMIT positionChanged(m_position);
 }
 
 void MirSurface::setCloseTimer(AbstractTimer *timer)

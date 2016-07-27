@@ -72,6 +72,9 @@ public:
     void resize(int width, int height) override;
     void resize(const QSize &size) override { resize(size.width(), size.height()); }
 
+    QPoint position() const override;
+    void setPosition(const QPoint newPosition);
+
     Mir::State state() const override;
     void setState(Mir::State qmlState) override;
 
@@ -216,6 +219,7 @@ private:
 
     std::shared_ptr<SurfaceObserver> m_surfaceObserver;
 
+    QPoint m_position;
     QSize m_size;
     QString m_keymap;
 

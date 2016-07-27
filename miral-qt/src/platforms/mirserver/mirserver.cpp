@@ -206,6 +206,11 @@ MirWindowManager *UsingQtMirWindowManager::windowManager()
     return m_windowManager.lock().get();
 }
 
+qtmir::WindowModelInterface *UsingQtMirWindowManager::windowModel()
+{
+    return &m_windowModel;
+}
+
 mir::shell::Shell *MirServer::shell()
 {
     std::weak_ptr<mir::shell::Shell> m_shell = the_shell();
