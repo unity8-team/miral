@@ -32,8 +32,8 @@ using namespace qtmir;
 WindowModel::WindowModel()
 {
     qDebug("WindowModel::WindowModel");
-    qRegisterMetaType<NumberedWindow>();
-    qRegisterMetaType<DirtiedWindow>();
+    qRegisterMetaType<qtmir::NumberedWindow>();
+    qRegisterMetaType<qtmir::DirtiedWindow>();
 }
 
 WindowModel::~WindowModel()
