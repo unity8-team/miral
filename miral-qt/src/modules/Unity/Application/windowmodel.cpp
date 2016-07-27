@@ -41,9 +41,9 @@ WindowModel::WindowModel()
 
     auto windowModel = static_cast<WindowModelInterface*>(nativeInterface->nativeResourceForIntegration("WindowModel"));
 
-    connect(windowModel, &WindowModelInterface::windowAdded, this, &WindowModel::windowAdded);
-    connect(windowModel, &WindowModelInterface::windowRemoved, this, &WindowModel::windowRemoved);
-    connect(windowModel, &WindowModelInterface::windowChanged, this, &WindowModel::windowChanged);
+    connect(windowModel, &WindowModelInterface::windowAdded, this, &WindowModel::onWindowAdded);
+    connect(windowModel, &WindowModelInterface::windowRemoved, this, &WindowModel::onWindowRemoved);
+    connect(windowModel, &WindowModelInterface::windowChanged, this, &WindowModel::onWindowChanged);
 }
 
 QHash<int, QByteArray> WindowModel::roleNames() const
@@ -53,7 +53,7 @@ QHash<int, QByteArray> WindowModel::roleNames() const
     return roleNames;
 }
 
-void WindowModel::windowAdded(const NumberedWindow window)
+void WindowModel::onWindowAdded(const NumberedWindow window)
 {
     std::shared_ptr<SurfaceObserver> surfaceObserver = std::make_shared<SurfaceObserver>();
     const auto &surface = window.windowInfo.surface;
@@ -67,7 +67,7 @@ void WindowModel::windowAdded(const NumberedWindow window)
     Q_EMIT countChanged();
 }
 
-void WindowModel::windowRemoved(const unsigned int index)
+void WindowModel::onWindowRemoved(const unsigned int index)
 {
     beginRemoveRows(QModelIndex(), index, index);
     m_windowModel.remove(index);
@@ -75,9 +75,9 @@ void WindowModel::windowRemoved(const unsigned int index)
     Q_EMIT countChanged();
 }
 
-void WindowModel::windowChanged(const DirtiedWindow)
+void WindowModel::onWindowChanged(const DirtiedWindow)
 {
-
+    qDebug() << "Window Change!";
 }
 
 int WindowModel::rowCount(const QModelIndex &/*parent*/) const

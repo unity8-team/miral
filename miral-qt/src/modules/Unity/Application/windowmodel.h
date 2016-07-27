@@ -49,9 +49,9 @@ Q_SIGNALS:
     void countChanged();
 
 private Q_SLOTS:
-    void windowAdded(const NumberedWindow);
-    void windowRemoved(const unsigned int index);
-    void windowChanged(const DirtiedWindow);
+    void onWindowAdded(const NumberedWindow);
+    void onWindowRemoved(const unsigned int index);
+    void onWindowChanged(const DirtiedWindow);
 
 private:
     QVector<MirSurfaceInterface *> m_windowModel;
