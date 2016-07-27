@@ -18,7 +18,10 @@
 
 #include "screensmodel.h"
 
+#include "miral/window_manager_tools.h"
 #include "miral/window_specification.h"
+
+#include "mir/scene/surface.h"
 
 WindowManagementPolicy::WindowManagementPolicy(miral::WindowManagerTools * const tools,
                                                const QSharedPointer<ScreensModel> screensModel)
@@ -133,4 +136,42 @@ void WindowManagementPolicy::advise_begin()
 
 void WindowManagementPolicy::advise_end()
 {
+}
+
+void WindowManagementPolicy::deliver_keyboard_event(const MirKeyboardEvent *event, const miral::Window window)
+{
+    auto surface = std::shared_ptr<mir::scene::Surface>(window);
+    auto e = reinterpret_cast<MirEvent const*>(event); // naughty
+    surface->consume(e);
+}
+
+void WindowManagementPolicy::deliver_touch_event(const MirTouchEvent *event, const miral::Window window)
+{
+    m_tools->select_active_window(window);
+    auto surface = std::shared_ptr<mir::scene::Surface>(window);
+    auto e = reinterpret_cast<MirEvent const*>(event); // naughty
+    surface->consume(e);
+}
+
+void WindowManagementPolicy::deliver_pointer_event(const MirPointerEvent *event, const miral::Window window)
+{
+    m_tools->select_active_window(window);
+    auto surface = std::shared_ptr<mir::scene::Surface>(window);
+    auto e = reinterpret_cast<MirEvent const*>(event); // naughty
+    surface->consume(e);
+}
+
+void WindowManagementPolicy::focus(const miral::Window window)
+{
+    m_tools->select_active_window(window);
+}
+
+void WindowManagementPolicy::resize(const miral::Window window, const Size &size)
+{
+    m_tools->place_and_size(m_tools->info_for(window), window.top_left(), size);
+}
+
+void WindowManagementPolicy::move(const miral::Window window, const Point &top_left)
+{
+    m_tools->place_and_size(m_tools->info_for(window), top_left, window.size() );
 }
