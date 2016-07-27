@@ -42,6 +42,7 @@
 
 // mir
 #include <mir/graphics/cursor.h>
+#include <mir/shell/abstract_shell.h>
 
 namespace mg = mir::graphics;
 namespace mo  = mir::options;
@@ -114,7 +115,7 @@ MirServer::MirServer(int &argc, char **argv,
         });
 
     add_init_callback([this, &screensModel] {
-        screensModel->init(the_display(), the_compositor());
+        screensModel->init(the_display(), the_compositor(), the_shell());
     });
 
     usingHiddenCursor(*this);
