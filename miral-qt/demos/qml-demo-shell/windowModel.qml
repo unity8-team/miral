@@ -14,6 +14,8 @@ Item {
         delegate: MirSurfaceItem {
             surface: model.surface
             consumesInput: true // QUESTION: why is this non-default?
+            x: surface.position.x
+            y: surface.position.y
         }
     }
 }

@@ -196,6 +196,7 @@ MirSurface::MirSurface(std::shared_ptr<mir::scene::Surface> surface,
 {
     DEBUG_MSG << "()";
 
+    m_position = QPoint(surface->top_left().x.as_int(), surface->top_left().y.as_int());
     m_minimumWidth = creationHints.minWidth;
     m_minimumHeight = creationHints.minHeight;
     m_maximumWidth = creationHints.maxWidth;
