@@ -25,15 +25,9 @@
 #include <mir/scene/surface.h>
 
 namespace qtmir {
-// miral::WindowInfo has a copy constructor, but implicitly shares a Self object between each
-// copy. If a miral::WindowInfo copy is sent over signal/slot connection across thread boundaries,
-// it could be changed in a Mir thread before the slot processes it.
-//
-// This is undesirable as we need to update the GUI thread model in a consistent way.
-//
-// Instead we duplicate the miral::WindowInfo data, in a way that can be sent over signal/slot
-// connections safely.
 
+// miral::WindowInfo contains all the metadata the WindowManager{,Policy} needs. However the
+// WindowModel only needs a read-only subset of this data, which is what the struct is for.
 struct WindowInfo {
     QSize size;
     QPoint position;
