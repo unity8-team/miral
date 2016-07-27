@@ -44,7 +44,7 @@ class WindowManagerToolsImplementation;
 class WindowManagerTools
 {
 public:
-    WindowManagerTools(WindowManagerToolsImplementation* tools);
+    explicit WindowManagerTools(WindowManagerToolsImplementation* tools);
     WindowManagerTools(WindowManagerTools const&);
     WindowManagerTools& operator=(WindowManagerTools const&);
     ~WindowManagerTools();

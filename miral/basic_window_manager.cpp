@@ -61,7 +61,7 @@ miral::BasicWindowManager::BasicWindowManager(
     WindowManagementPolicyBuilder const& build) :
     focus_controller(focus_controller),
     display_layout(display_layout),
-    policy(build(this)),
+    policy(build(WindowManagerTools{this})),
     surface_builder([](std::shared_ptr<scene::Session> const&, WindowSpecification const&) -> Window
         { throw std::logic_error{"Can't create a window yet"};})
 {
