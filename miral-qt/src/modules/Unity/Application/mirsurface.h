@@ -73,7 +73,7 @@ public:
     void resize(const QSize &size) override { resize(size.width(), size.height()); }
 
     QPoint position() const override;
-    void setPosition(const QPoint newPosition);
+    void setPosition(const QPoint newPosition) override;
 
     Mir::State state() const override;
     void setState(Mir::State qmlState) override;

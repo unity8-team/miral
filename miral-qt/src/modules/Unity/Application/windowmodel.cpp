@@ -55,6 +55,7 @@ QHash<int, QByteArray> WindowModel::roleNames() const
 
 void WindowModel::onWindowAdded(const NumberedWindow window)
 {
+    qDebug() << "Window Added!" << window.index;
     std::shared_ptr<SurfaceObserver> surfaceObserver = std::make_shared<SurfaceObserver>();
     const auto &surface = window.windowInfo.surface;
     SurfaceObserver::registerObserverForSurface(surfaceObserver.get(), surface.get());
@@ -69,6 +70,7 @@ void WindowModel::onWindowAdded(const NumberedWindow window)
 
 void WindowModel::onWindowRemoved(const unsigned int index)
 {
+    qDebug() << "Window Removed!" << index;
     beginRemoveRows(QModelIndex(), index, index);
     m_windowModel.remove(index);
     endRemoveRows();
@@ -77,15 +79,24 @@ void WindowModel::onWindowRemoved(const unsigned int index)
 
 void WindowModel::onWindowChanged(const DirtiedWindow window)
 {
-    qDebug() << "Window Change!";
+    qDebug() << "Window Change!" << window.index;
+    auto mirSurface = m_windowModel.value(window.index);
+
     switch(window.dirtyWindowInfo) {
-    case WindowInfo::DirtyStates::Size:
+    case WindowInfo::DirtyStates::Size: {
         qDebug() << "size";
+        // Do nothing yet, it gets new size from swapped buffer for now
+    }
     case WindowInfo::DirtyStates::Position:
         qDebug() << "position";
+        mirSurface->setPosition(window.windowInfo.position);
     case WindowInfo::DirtyStates::Focus:
         qDebug() << "focus";
+        mirSurface->setFocused(window.windowInfo.focused);
     }
+
+    QModelIndex row = index(window.index);
+    Q_EMIT dataChanged(row, row, QVector<int>() << SurfaceRole);
 }
 
 int WindowModel::rowCount(const QModelIndex &/*parent*/) const

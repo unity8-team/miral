@@ -55,6 +55,7 @@ public:
     QString name() const override;
     QSize size() const override;
     QPoint position() const override;
+    void setPosition(const QPoint position) override;
     void resize(int width, int height) override;
     void resize(const QSize &size) override;
     Mir::State state() const override;
