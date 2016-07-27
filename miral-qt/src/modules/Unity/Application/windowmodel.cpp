@@ -75,9 +75,17 @@ void WindowModel::onWindowRemoved(const unsigned int index)
     Q_EMIT countChanged();
 }
 
-void WindowModel::onWindowChanged(const DirtiedWindow)
+void WindowModel::onWindowChanged(const DirtiedWindow window)
 {
     qDebug() << "Window Change!";
+    switch(window.dirtyWindowInfo) {
+    case WindowInfo::DirtyStates::Size:
+        qDebug() << "size";
+    case WindowInfo::DirtyStates::Position:
+        qDebug() << "position";
+    case WindowInfo::DirtyStates::Focus:
+        qDebug() << "focus";
+    }
 }
 
 int WindowModel::rowCount(const QModelIndex &/*parent*/) const

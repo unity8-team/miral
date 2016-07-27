@@ -20,6 +20,7 @@
 #include "miral/canonical_window_manager.h"
 
 #include "qteventfeeder.h"
+#include "windowmodel.h"
 
 #include <QObject>
 #include <QScopedPointer>
@@ -33,6 +34,7 @@ class WindowManagementPolicy : public QObject, public miral::CanonicalWindowMana
 {
 public:
     WindowManagementPolicy(miral::WindowManagerTools * const tools,
+                           qtmir::WindowModel &windowModel,
                            const QSharedPointer<ScreensModel> screensModel);
 
     // From WindowManagementPolicy
@@ -68,9 +70,9 @@ public:
     void advise_displays_updated(const Rectangles &displays) override;
 
     // Exposing some tools
-    void deliver_keyboard_event(const MirKeyboardEvent *event, const miral::Window window);
-    void deliver_touch_event(const MirTouchEvent *event, const miral::Window window);
-    void deliver_pointer_event(const MirPointerEvent *event, const miral::Window window);
+    void deliver_keyboard_event(const MirKeyboardEvent *event, const std::shared_ptr<mir::scene::Surface> &surface);
+    void deliver_touch_event(const MirTouchEvent *event, const std::shared_ptr<mir::scene::Surface> &surface);
+    void deliver_pointer_event(const MirPointerEvent *event, const std::shared_ptr<mir::scene::Surface> &surface);
 
     void focus(const miral::Window window);
     void resize(const miral::Window window, const Size &size);
@@ -80,6 +82,7 @@ Q_SIGNALS:
 
 private:
     miral::WindowManagerTools * const m_tools;
+    qtmir::WindowModel &m_windowModel;
     const QScopedPointer<QtEventFeeder> m_eventFeeder;
 };
 
