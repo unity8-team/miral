@@ -55,7 +55,6 @@ set(MIRSERVER_QPA_PLUGIN_SRC
     logging.cpp
     mircursorimages.cpp
     mirdisplayconfigurationpolicy.cpp
-    mirwindowmanager.cpp
     mirsingleton.cpp
     qteventfeeder.cpp
     plugin.cpp

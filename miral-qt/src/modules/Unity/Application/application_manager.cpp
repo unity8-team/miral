@@ -31,8 +31,8 @@
 // mirserver
 #include "nativeinterface.h"
 #include "sessionauthorizer.h"
+#include "sessionlistener.h"
 #include "logging.h"
-#include <mirwindowmanager.h>
 
 // mir
 #include <mir/scene/surface.h>
@@ -119,7 +119,6 @@ ApplicationManager* ApplicationManager::Factory::Factory::create()
         return nullptr;
     }
 
-    MirWindowManager *windowManager =  static_cast<MirWindowManager*>(nativeInterface->nativeResourceForIntegration("WindowManager"));
     SessionListener *sessionListener = static_cast<SessionListener*>(nativeInterface->nativeResourceForIntegration("SessionListener"));
     SessionAuthorizer *sessionAuthorizer = static_cast<SessionAuthorizer*>(nativeInterface->nativeResourceForIntegration("SessionAuthorizer"));
 
@@ -143,9 +142,9 @@ ApplicationManager* ApplicationManager::Factory::Factory::create()
     connectToSessionListener(appManager, sessionListener);
     connectToSessionAuthorizer(appManager, sessionAuthorizer);
     connectToTaskController(appManager, taskController.data());
-    connect(windowManager, &MirWindowManager::sessionAboutToCreateSurface,
-            appManager, &ApplicationManager::onSessionAboutToCreateSurface,
-            Qt::BlockingQueuedConnection);
+//    connect(windowManager, &MirWindowManager::sessionAboutToCreateSurface,
+//            appManager, &ApplicationManager::onSessionAboutToCreateSurface,
+//            Qt::BlockingQueuedConnection);
 
     // Emit signal to notify Upstart that Mir is ready to receive client connections
     // see http://upstart.ubuntu.com/cookbook/#expect-stop
