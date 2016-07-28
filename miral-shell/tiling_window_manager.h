@@ -47,6 +47,8 @@ public:
     explicit TilingWindowManagerPolicy(miral::WindowManagerTools* const tools, SpinnerSplash const& spinner,
         miral::InternalClientLauncher const& launcher, miral::ActiveOutputsMonitor& outputs_monitor);
 
+    ~TilingWindowManagerPolicy();
+
     auto place_new_surface(
         miral::ApplicationInfo const& app_info,
         miral::WindowSpecification const& request_parameters)
@@ -99,6 +101,7 @@ private:
     SpinnerSplash spinner;
     miral::InternalClientLauncher const launcher;
     Point old_cursor{};
+    miral::ActiveOutputsMonitor& outputs_monitor;
     Rectangles displays;
     bool dirty_tiles = false;
 };

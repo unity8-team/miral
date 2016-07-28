@@ -54,11 +54,18 @@ TilingWindowManagerPolicy::TilingWindowManagerPolicy(
     WindowManagerTools* const tools,
     SpinnerSplash const& spinner,
     miral::InternalClientLauncher const& launcher,
-    miral::ActiveOutputsMonitor& /*outputs_monitor*/) :
+    miral::ActiveOutputsMonitor& outputs_monitor) :
     tools{tools},
     spinner{spinner},
-    launcher{launcher}
+    launcher{launcher},
+    outputs_monitor{outputs_monitor}
 {
+    outputs_monitor.add_listener(this);
+}
+
+TilingWindowManagerPolicy::~TilingWindowManagerPolicy()
+{
+    outputs_monitor.delete_listener(this);
 }
 
 void TilingWindowManagerPolicy::click(Point cursor)
