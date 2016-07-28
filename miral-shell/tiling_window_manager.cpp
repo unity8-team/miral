@@ -646,18 +646,18 @@ void TilingWindowManagerPolicy::advise_end()
     dirty_tiles = false;
 }
 
-void TilingWindowManagerPolicy::advise_create_output(Output const &output)
+void TilingWindowManagerPolicy::advise_output_create(const Output &output)
 {
-    ActiveOutputsListener::advise_create_output(output);
+    ActiveOutputsListener::advise_output_create(output);
 }
 
-void TilingWindowManagerPolicy::advise_update_output(
-    Output const &updated, Output const &original)
+void TilingWindowManagerPolicy::advise_output_update(
+    const Output &updated, const Output &original)
 {
-    ActiveOutputsListener::advise_update_output(updated, original);
+    ActiveOutputsListener::advise_output_update(updated, original);
 }
 
-void TilingWindowManagerPolicy::advise_delete_output(Output const &output)
+void TilingWindowManagerPolicy::advise_output_delete(Output const& output)
 {
-    ActiveOutputsListener::advise_delete_output(output);
+    ActiveOutputsListener::advise_output_delete(output);
 }

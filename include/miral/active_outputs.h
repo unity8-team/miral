@@ -34,14 +34,14 @@ public:
     ActiveOutputsListener() = default;
 
     /// before any related calls begin
-    virtual void advise_begin();
+    virtual void advise_output_begin();
 
     /// after any related calls end
-    virtual void advise_end();
+    virtual void advise_output_end();
 
-    virtual void advise_create_output(Output const& output);
-    virtual void advise_update_output(Output const& updated, Output const& original);
-    virtual void advise_delete_output(Output const& output);
+    virtual void advise_output_create(Output const &output);
+    virtual void advise_output_update(Output const &updated, Output const &original);
+    virtual void advise_output_delete(Output const& output);
 
 protected:
     virtual ~ActiveOutputsListener() = default;

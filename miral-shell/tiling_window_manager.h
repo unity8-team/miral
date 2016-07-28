@@ -68,9 +68,10 @@ public:
     void advise_delete_app(miral::ApplicationInfo const& application) override;
 
 private:
-    void advise_create_output(const miral::Output &output) override;
-    void advise_update_output(const miral::Output &updated, const miral::Output &original) override;
-    void advise_delete_output(const miral::Output &output) override;
+    void advise_output_create(const miral::Output &output) override;
+    void advise_output_update(
+        const miral::Output &updated, const miral::Output &original) override;
+    void advise_output_delete(const miral::Output& output) override;
 
     static const int modifier_mask =
         mir_input_event_modifier_alt |
