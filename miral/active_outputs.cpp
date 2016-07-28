@@ -29,12 +29,9 @@
 
 void miral::ActiveOutputsListener::advise_output_begin() {}
 void miral::ActiveOutputsListener::advise_output_end() {}
-void miral::ActiveOutputsListener::advise_output_create(
-    Output const & /*output*/) {}
-void miral::ActiveOutputsListener::advise_output_update(
-    Output const & /*updated*/, Output const & /*original*/) {}
-void miral::ActiveOutputsListener::advise_output_delete(
-    Output const& /*output*/) {}
+void miral::ActiveOutputsListener::advise_output_create(Output const& /*output*/) {}
+void miral::ActiveOutputsListener::advise_output_update(Output const& /*updated*/, Output const& /*original*/) {}
+void miral::ActiveOutputsListener::advise_output_delete(Output const& /*output*/) {}
 
 struct miral::ActiveOutputsMonitor::Self : mir::graphics::DisplayConfigurationReport
 {

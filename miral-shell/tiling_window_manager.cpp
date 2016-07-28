@@ -21,6 +21,7 @@
 #include <miral/application_info.h>
 #include <miral/window_info.h>
 #include <miral/window_manager_tools.h>
+#include <miral/output.h>
 
 #include <linux/input.h>
 #include <algorithm>
@@ -646,18 +647,29 @@ void TilingWindowManagerPolicy::advise_end()
     dirty_tiles = false;
 }
 
-void TilingWindowManagerPolicy::advise_output_create(const Output &output)
+void TilingWindowManagerPolicy::advise_output_create(const Output& /*output*/)
 {
-    ActiveOutputsListener::advise_output_create(output);
+    tools->invoke_under_lock([this] { dirty_tiles = true; });
 }
 
-void TilingWindowManagerPolicy::advise_output_update(
-    const Output &updated, const Output &original)
+void TilingWindowManagerPolicy::advise_output_update(const Output& updated, const Output& original)
 {
-    ActiveOutputsListener::advise_output_update(updated, original);
+    if (!equivalent_display_area(updated, original))
+        tools->invoke_under_lock([this] { dirty_tiles = true; });
 }
 
-void TilingWindowManagerPolicy::advise_output_delete(Output const& output)
+void TilingWindowManagerPolicy::advise_output_delete(Output const& /*output*/)
 {
-    ActiveOutputsListener::advise_output_delete(output);
+    tools->invoke_under_lock([this] { dirty_tiles = true; });
+}
+
+void TilingWindowManagerPolicy::advise_output_end()
+{
+    tools->invoke_under_lock([this]
+        {
+            if (dirty_tiles)
+             update_tiles(displays);
+
+            dirty_tiles = false;
+        });
 }
