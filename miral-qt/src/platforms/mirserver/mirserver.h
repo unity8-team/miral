@@ -29,7 +29,6 @@ class SessionListener;
 class SessionAuthorizer;
 class PromptSessionListener;
 class ScreensModel;
-class MirWindowManager;
 
 // TODO the UsingQtMirXXX classes introduced here are a step towards
 //      decoupling from libmirserver and using a libmiral-style API
@@ -70,13 +69,11 @@ class UsingQtMirWindowManager
 public:
     UsingQtMirWindowManager(const QSharedPointer<ScreensModel> &model);
     void operator()(mir::Server& server);
-    MirWindowManager *windowManager();
     qtmir::WindowModelInterface *windowModel();
 
 private:
     const QSharedPointer<ScreensModel> &m_screensModel;
     miral::SetWindowManagmentPolicy m_policy;
-    std::weak_ptr<MirWindowManager> m_windowManager;
     qtmir::WindowModel m_windowModel;
 };
 
@@ -117,7 +114,6 @@ public:
     using UsingQtMirSessionAuthorizer::sessionAuthorizer;
     using UsingQtMirSessionListener::sessionListener;
     using UsingQtMirPromptSessionListener::promptSessionListener;
-    using UsingQtMirWindowManager::windowManager;
     using UsingQtMirWindowManager::windowModel;
     mir::shell::Shell *shell();
 

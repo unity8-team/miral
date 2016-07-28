@@ -24,7 +24,6 @@
 #include "mirdisplayconfigurationpolicy.h"
 #include "mirglconfig.h"
 #include "mirserverstatuslistener.h"
-#include "mirwindowmanager.h"
 #include "promptsessionlistener.h"
 #include "screensmodel.h"
 #include "sessionlistener.h"
@@ -200,11 +199,6 @@ UsingQtMirWindowManager::UsingQtMirWindowManager(const QSharedPointer<ScreensMod
 void UsingQtMirWindowManager::operator()(mir::Server& server)
 {
     m_policy(server);
-}
-
-MirWindowManager *UsingQtMirWindowManager::windowManager()
-{
-    return m_windowManager.lock().get();
 }
 
 qtmir::WindowModelInterface *UsingQtMirWindowManager::windowModel()
