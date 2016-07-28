@@ -98,8 +98,10 @@ void miral::ActiveOutputsMonitor::Self::new_configuration(mir::graphics::Display
     configuration.for_each_output([&current_outputs, this](mir::graphics::DisplayConfigurationOutput const& output)
         {
             Output o{output};
-            auto op = find_if(begin(outputs), end(outputs), [&](Output const& oo) { return oo.is_same_output(o); });
 
+            if (!o.connected() || !o.valid()) return;
+
+            auto op = find_if(begin(outputs), end(outputs), [&](Output const& oo) { return oo.is_same_output(o); });
 
             if (op == end(outputs))
             {
