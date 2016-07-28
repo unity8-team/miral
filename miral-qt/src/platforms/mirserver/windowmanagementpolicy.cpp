@@ -83,12 +83,6 @@ bool WindowManagementPolicy::handle_pointer_event(const MirPointerEvent *event)
     return true;
 }
 
-/* Below are notifications of window state changes */
-void WindowManagementPolicy::advise_displays_updated(const Rectangles&/*displays*/)
-{
-    qDebug("Displays updated");
-}
-
 void WindowManagementPolicy::advise_new_window(miral::WindowInfo &windowInfo)
 {
     m_windowModel.addWindow(windowInfo);

@@ -21,6 +21,7 @@
 #include <miral/application_info.h>
 #include <miral/window_info.h>
 #include <miral/window_manager_tools.h>
+#include <miral/output.h>
 
 #include <linux/input.h>
 #include <algorithm>
@@ -49,24 +50,28 @@ inline Rectangle const& tile_for(miral::ApplicationInfo const& app_info)
 
 // Demonstrate implementing a simple tiling algorithm
 
-TilingWindowManagerPolicy::TilingWindowManagerPolicy(WindowManagerTools const& tools, SpinnerSplash const& spinner,
-                                                     InternalClientLauncher const& launcher) :
+TilingWindowManagerPolicy::TilingWindowManagerPolicy(
+    WindowManagerTools const& tools,
+    SpinnerSplash const& spinner,
+    miral::InternalClientLauncher const& launcher,
+    miral::ActiveOutputsMonitor& outputs_monitor) :
     tools{tools},
     spinner{spinner},
-    launcher{launcher}
+    launcher{launcher},
+    outputs_monitor{outputs_monitor}
 {
+    outputs_monitor.add_listener(this);
+}
+
+TilingWindowManagerPolicy::~TilingWindowManagerPolicy()
+{
+    outputs_monitor.delete_listener(this);
 }
 
 void TilingWindowManagerPolicy::click(Point cursor)
 {
     auto const window = tools.window_at(cursor);
     tools.select_active_window(window);
-}
-
-void TilingWindowManagerPolicy::advise_displays_updated(Rectangles const& displays)
-{
-    this->displays = displays;
-    dirty_tiles = true;
 }
 
 void TilingWindowManagerPolicy::resize(Point cursor)
@@ -641,4 +646,43 @@ void TilingWindowManagerPolicy::advise_end()
         update_tiles(displays);
 
     dirty_tiles = false;
+}
+
+void TilingWindowManagerPolicy::advise_output_create(const Output& output)
+{
+    live_displays.add(output.extents());
+    dirty_displays = true;
+}
+
+void TilingWindowManagerPolicy::advise_output_update(const Output& updated, const Output& original)
+{
+    if (!equivalent_display_area(updated, original))
+    {
+        live_displays.remove(original.extents());
+        live_displays.add(updated.extents());
+
+        dirty_displays = true;
+    }
+}
+
+void TilingWindowManagerPolicy::advise_output_delete(Output const& output)
+{
+    live_displays.remove(output.extents());
+    dirty_displays = true;
+}
+
+void TilingWindowManagerPolicy::advise_output_end()
+{
+    if (dirty_displays)
+    {
+        // Need to acquire lock before accessing displays & dirty_tiles
+        tools.invoke_under_lock([this]
+            {
+                displays = live_displays;
+                update_tiles(displays);
+                dirty_tiles = false;
+            });
+
+        dirty_displays = false;
+    }
 }

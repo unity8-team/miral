@@ -32,10 +32,11 @@ int main(int argc, char const* argv[])
 
     SpinnerSplash spinner;
     InternalClientLauncher launcher;
+    ActiveOutputsMonitor outputs_monitor;
     WindowManagerOptions window_managers
         {
             add_window_manager_policy<TitlebarWindowManagerPolicy>("titlebar", spinner, launcher),
-            add_window_manager_policy<TilingWindowManagerPolicy>("tiling", spinner, launcher),
+            add_window_manager_policy<TilingWindowManagerPolicy>("tiling", spinner, launcher, outputs_monitor),
         };
 
     return MirRunner{argc, argv}.run_with(
@@ -43,6 +44,7 @@ int main(int argc, char const* argv[])
             window_managers,
             display_configuration_options,
             launcher,
+            outputs_monitor,
             QuitOnCtrlAltBkSp{},
             StartupInternalClient{"Intro", spinner}
         });

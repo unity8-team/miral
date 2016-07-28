@@ -226,8 +226,6 @@ void miral::BasicWindowManager::add_display(geometry::Rectangle const& area)
             place_and_size(info, rect.top_left, rect.size);
         }
     }
-
-    policy->advise_displays_updated(displays);
 }
 
 void miral::BasicWindowManager::remove_display(geometry::Rectangle const& area)
@@ -246,8 +244,6 @@ void miral::BasicWindowManager::remove_display(geometry::Rectangle const& area)
             place_and_size(info, rect.top_left, rect.size);
         }
     }
-
-    policy->advise_displays_updated(displays);
 }
 
 bool miral::BasicWindowManager::handle_keyboard_event(MirKeyboardEvent const* event)

@@ -27,11 +27,11 @@
 #include <mutex>
 #include <vector>
 
-void miral::ActiveOutputsListener::advise_begin() {}
-void miral::ActiveOutputsListener::advise_end() {}
-void miral::ActiveOutputsListener::advise_create_output(Output const& /*output*/) {}
-void miral::ActiveOutputsListener::advise_update_output(Output const& /*updated*/, Output const& /*original*/) {}
-void miral::ActiveOutputsListener::advise_delete_output(Output const& /*output*/) {}
+void miral::ActiveOutputsListener::advise_output_begin() {}
+void miral::ActiveOutputsListener::advise_output_end() {}
+void miral::ActiveOutputsListener::advise_output_create(Output const& /*output*/) {}
+void miral::ActiveOutputsListener::advise_output_update(Output const& /*updated*/, Output const& /*original*/) {}
+void miral::ActiveOutputsListener::advise_output_delete(Output const& /*output*/) {}
 
 struct miral::ActiveOutputsMonitor::Self : mir::graphics::DisplayConfigurationReport
 {
@@ -93,23 +93,25 @@ void miral::ActiveOutputsMonitor::Self::new_configuration(mir::graphics::Display
     decltype(outputs) current_outputs;
 
     for (auto const l : listeners)
-        l->advise_begin();
+        l->advise_output_begin();
 
     configuration.for_each_output([&current_outputs, this](mir::graphics::DisplayConfigurationOutput const& output)
         {
             Output o{output};
-            auto op = find_if(begin(outputs), end(outputs), [&](Output const& oo) { return oo.is_same_output(o); });
 
+            if (!o.connected() || !o.valid()) return;
+
+            auto op = find_if(begin(outputs), end(outputs), [&](Output const& oo) { return oo.is_same_output(o); });
 
             if (op == end(outputs))
             {
                 for (auto const l : listeners)
-                    l->advise_create_output(o);
+                    l->advise_output_create(o);
             }
             else if (!equivalent_display_area(o, *op))
             {
                 for (auto const l : listeners)
-                    l->advise_update_output(o, *op);
+                    l->advise_output_update(o, *op);
             }
 
             current_outputs.push_back(o);
@@ -122,10 +124,10 @@ void miral::ActiveOutputsMonitor::Self::new_configuration(mir::graphics::Display
 
         if (op == end(current_outputs))
             for (auto const l : listeners)
-                l->advise_delete_output(o);
+                l->advise_output_delete(o);
     }
 
     current_outputs.swap(outputs);
     for (auto const l : listeners)
-        l->advise_end();
+        l->advise_output_end();
 }

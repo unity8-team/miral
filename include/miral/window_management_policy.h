@@ -83,12 +83,6 @@ public:
     virtual void advise_raise(std::vector<Window> const& windows);
 /** @} */
 
-/** @name Changes to the displays
- * \todo this is very course grained and should probably be replaced
- *  @{ */
-    virtual void advise_displays_updated(Rectangles const& displays);
-/** @} */
-
     virtual ~WindowManagementPolicy() = default;
     WindowManagementPolicy() = default;
     WindowManagementPolicy(WindowManagementPolicy const&) = delete;

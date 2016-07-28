@@ -24,6 +24,7 @@
 #include <miral/application.h>
 #include <miral/window_management_policy.h>
 #include <miral/window_manager_tools.h>
+#include <miral/active_outputs.h>
 
 #include <mir/geometry/displacement.h>
 #include <miral/internal_client.h>
@@ -40,18 +41,20 @@ using namespace mir::geometry;
 //  o Maximize/restore current window (to tile height): Shift-F11
 //  o Maximize/restore current window (to tile width): Ctrl-F11
 //  o client requests to maximize, vertically maximize & restore
-class TilingWindowManagerPolicy : public miral::WindowManagementPolicy
+class TilingWindowManagerPolicy : public miral::WindowManagementPolicy,
+    miral::ActiveOutputsListener
 {
 public:
     explicit TilingWindowManagerPolicy(miral::WindowManagerTools const& tools, SpinnerSplash const& spinner,
-                                       miral::InternalClientLauncher const& launcher);
+        miral::InternalClientLauncher const& launcher, miral::ActiveOutputsMonitor& outputs_monitor);
+
+    ~TilingWindowManagerPolicy();
 
     auto place_new_surface(
         miral::ApplicationInfo const& app_info,
         miral::WindowSpecification const& request_parameters)
         -> miral::WindowSpecification override;
 
-    void advise_displays_updated(Rectangles const& displays) override;
     void handle_window_ready(miral::WindowInfo& window_info) override;
     void handle_modify_window(miral::WindowInfo& window_info, miral::WindowSpecification const& modifications) override;
     bool handle_keyboard_event(MirKeyboardEvent const* event) override;
@@ -67,6 +70,11 @@ public:
     void advise_delete_app(miral::ApplicationInfo const& application) override;
 
 private:
+    void advise_output_create(miral::Output const& output) override;
+    void advise_output_update(miral::Output const& updated, miral::Output const& original) override;
+    void advise_output_delete(miral::Output const& output) override;
+    void advise_output_end() override;
+
     static const int modifier_mask =
         mir_input_event_modifier_alt |
         mir_input_event_modifier_shift |
@@ -94,8 +102,14 @@ private:
     SpinnerSplash spinner;
     miral::InternalClientLauncher const launcher;
     Point old_cursor{};
+    miral::ActiveOutputsMonitor& outputs_monitor;
     Rectangles displays;
     bool dirty_tiles = false;
+
+    // These two variables are used by the advise_display methods which are
+    // NOT guarded by the usual WM mutex
+    bool dirty_displays = false;
+    Rectangles live_displays;
 };
 
 #endif /* MIRAL_SHELL_TILING_WINDOW_MANAGER_H */
