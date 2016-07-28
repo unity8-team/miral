@@ -67,8 +67,6 @@ public:
     void advise_delete_window(const miral::WindowInfo &windowInfo) override;
     void advise_raise(std::vector<miral::Window> const& windows) override;
 
-    void advise_displays_updated(const Rectangles &displays) override;
-
     // Exposing some tools
     void deliver_keyboard_event(const MirKeyboardEvent *event, const std::shared_ptr<mir::scene::Surface> &surface);
     void deliver_touch_event(const MirTouchEvent *event, const std::shared_ptr<mir::scene::Surface> &surface);
