@@ -24,6 +24,7 @@
 
 // Qt
 #include <QCursor>
+#include <QPoint>
 #include <QSharedPointer>
 #include <QTouchEvent>
 
@@ -38,9 +39,17 @@ class MirSurfaceInterface : public unity::shell::application::MirSurfaceInterfac
 {
     Q_OBJECT
 
+    /**
+     * @brief Position of the current surface buffer, in pixels.
+     */
+    Q_PROPERTY(QPoint position READ position NOTIFY positionChanged)
+
 public:
     MirSurfaceInterface(QObject *parent = nullptr) : unity::shell::application::MirSurfaceInterface(parent) {}
     virtual ~MirSurfaceInterface() {}
+
+    virtual QPoint position() const = 0;
+    virtual void setPosition(const QPoint newPosition) = 0;
 
     virtual void setLive(bool value) = 0;
 
@@ -125,6 +134,7 @@ Q_SIGNALS:
     void framesPosted();
     void isBeingDisplayedChanged();
     void frameDropped();
+    void positionChanged(QPoint position);
 };
 
 } // namespace qtmir

@@ -54,6 +54,8 @@ public:
     Mir::Type type() const override;
     QString name() const override;
     QSize size() const override;
+    QPoint position() const override;
+    void setPosition(const QPoint position) override;
     void resize(int width, int height) override;
     void resize(const QSize &size) override;
     Mir::State state() const override;
@@ -171,6 +173,7 @@ private:
     Mir::OrientationAngle m_orientationAngle;
     bool m_visible;
     QSize m_size;
+    QPoint m_position;
     QHash<int, bool> m_views;
     bool m_focused;
 

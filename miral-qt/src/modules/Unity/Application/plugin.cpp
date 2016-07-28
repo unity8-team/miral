@@ -25,6 +25,7 @@
 #include "mirsurfaceinterface.h"
 #include "mirsurfaceitem.h"
 #include "mirsurfacelistmodel.h"
+#include "windowmodel.h"
 
 // platforms/mirserver
 #include <mirsingleton.h>
@@ -94,6 +95,8 @@ class UnityApplicationPlugin : public QQmlExtensionPlugin {
                     uri, 0, 1, "MirSurface", "MirSurface can't be instantiated from QML");
         qmlRegisterType<qtmir::MirSurfaceItem>(uri, 0, 1, "MirSurfaceItem");
         qmlRegisterSingletonType<qtmir::Mir>(uri, 0, 1, "Mir", mirSingleton);
+
+        qmlRegisterType<qtmir::WindowModel>(uri, 0, 1, "WindowModel");
     }
 
     virtual void initializeEngine(QQmlEngine *engine, const char *uri)

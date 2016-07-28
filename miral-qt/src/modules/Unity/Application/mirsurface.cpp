@@ -21,6 +21,7 @@
 
 // from common dir
 #include <debughelpers.h>
+#include "mirqtconversion.h"
 
 // mirserver
 #include <surfaceobserver.h>
@@ -196,6 +197,7 @@ MirSurface::MirSurface(std::shared_ptr<mir::scene::Surface> surface,
 {
     DEBUG_MSG << "()";
 
+    m_position = toQPoint(surface->top_left());
     m_minimumWidth = creationHints.minWidth;
     m_minimumHeight = creationHints.minHeight;
     m_maximumWidth = creationHints.maxWidth;
@@ -516,6 +518,11 @@ void MirSurface::resize(int width, int height)
         DEBUG_MSG << " old (" << mirWidth << "," << mirHeight << ")"
                   << ", new (" << width << "," << height << ")";
     }
+}
+
+QPoint MirSurface::position() const
+{
+    return m_position;
 }
 
 QSize MirSurface::size() const
@@ -1015,6 +1022,15 @@ void MirSurface::onCloseTimedOut()
     m_closingState = CloseOverdue;
 
     m_session->session()->destroy_surface(m_surface);
+}
+
+void MirSurface::setPosition(const QPoint newPosition)
+{
+    if (m_position == newPosition) {
+        return;
+    }
+    m_position = newPosition;
+    Q_EMIT positionChanged(m_position);
 }
 
 void MirSurface::setCloseTimer(AbstractTimer *timer)

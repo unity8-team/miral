@@ -21,10 +21,12 @@
 #include "logging.h"
 #include "mirserverintegration.h"
 #include "screen.h"
+#include "mirqtconversion.h"
 
 // Mir
 #include <mir/graphics/display.h>
 #include <mir/graphics/display_buffer.h>
+#include <mir/compositor/display_listener.h>
 
 // Qt
 #include <QScreen>
@@ -47,10 +49,12 @@ ScreensModel::ScreensModel(QObject *parent)
 
 // init only after MirServer has initialized - runs on MirServerThread!!!
 void ScreensModel::init(const std::shared_ptr<mir::graphics::Display> &display,
-                        const std::shared_ptr<mir::compositor::Compositor> &compositor)
+                        const std::shared_ptr<mir::compositor::Compositor> &compositor,
+                        const std::shared_ptr<mir::compositor::DisplayListener> &displayListener)
 {
     m_display = display;
     m_compositor = compositor;
+    m_displayListener = displayListener;
 
     // Use a Blocking Queued Connection to enforce synchronization of Qt GUI thread with Mir thread(s)
     // on compositor shutdown. Compositor startup can be lazy.
@@ -146,6 +150,7 @@ void ScreensModel::update()
     // Announce new Screens to Qt
     for (auto screen : newScreenList) {
         Q_EMIT screenAdded(screen);
+        m_displayListener->add_display(qtmir::toMirRectangle(screen->geometry()));
     }
 
     // Move Windows from about-to-be-deleted Screens to new Screen
@@ -168,6 +173,7 @@ void ScreensModel::update()
         if (!ok) {
             qCWarning(QTMIR_SCREENS) << "Failed to invoke QGuiApplication::onScreenAboutToBeRemoved(QScreen*) slot.";
         }
+        m_displayListener->remove_display(qtmir::toMirRectangle(screen->geometry()));
         Q_EMIT screenRemoved(screen); // should delete the backing Screen
     }
 
