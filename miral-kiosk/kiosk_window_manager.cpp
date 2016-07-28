@@ -27,7 +27,7 @@
 namespace ms = mir::scene;
 using namespace miral;
 
-KioskWindowManagerPolicy::KioskWindowManagerPolicy(WindowManagerTools* const tools, SwSplash const& splash) :
+KioskWindowManagerPolicy::KioskWindowManagerPolicy(WindowManagerTools const& tools, SwSplash const& splash) :
     CanonicalWindowManagerPolicy{tools},
     splash{splash}
 {
@@ -43,7 +43,7 @@ bool KioskWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* eve
             modifiers == mir_input_event_modifier_alt &&
             scan_code == KEY_TAB)
     {
-        tools->focus_next_application();
+        tools.focus_next_application();
 
         return true;
     }
@@ -51,7 +51,7 @@ bool KioskWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* eve
             modifiers == mir_input_event_modifier_alt &&
             scan_code == KEY_GRAVE)
     {
-        tools->focus_next_within_application();
+        tools.focus_next_within_application();
 
         return true;
     }
@@ -60,7 +60,7 @@ bool KioskWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* eve
         switch (modifiers & modifier_mask)
         {
         case mir_input_event_modifier_alt:
-            if (auto const window = tools->active_window())
+            if (auto const window = tools.active_window())
                 window.request_client_surface_close();
 
             return true;
@@ -88,7 +88,7 @@ bool KioskWindowManagerPolicy::handle_touch_event(MirTouchEvent const* event)
 
     Point const cursor{total_x/count, total_y/count};
 
-    tools->select_active_window(tools->window_at(cursor));
+    tools.select_active_window(tools.window_at(cursor));
 
     return false;
 }
@@ -103,7 +103,7 @@ bool KioskWindowManagerPolicy::handle_pointer_event(MirPointerEvent const* event
 
     if (action == mir_pointer_action_button_down)
     {
-        tools->select_active_window(tools->window_at(cursor));
+        tools.select_active_window(tools.window_at(cursor));
     }
 
     return false;
@@ -115,9 +115,9 @@ void KioskWindowManagerPolicy::advise_focus_gained(WindowInfo const& info)
 
     if (auto session = splash.session().lock())
     {
-        auto const& app_info = tools->info_for(session);
+        auto const& app_info = tools.info_for(session);
 
         for (auto const& s : app_info.windows())
-            tools->raise_tree(s);
+            tools.raise_tree(s);
     }
 }

@@ -58,7 +58,7 @@ void paint_surface(MirSurface* surface, int const intensity)
 using namespace miral::toolkit;
 using namespace mir::geometry;
 
-TitlebarProvider::TitlebarProvider(miral::WindowManagerTools* const tools) : tools{tools}
+TitlebarProvider::TitlebarProvider(miral::WindowManagerTools const& tools) : tools{tools}
 {
 
 }
@@ -179,7 +179,7 @@ void TitlebarProvider::advise_new_titlebar(miral::WindowInfo& window_info)
         {
             auto window = window_info.window();
             element.second.window = window;
-            auto& parent_info = tools->info_for(scene_surface);
+            auto& parent_info = tools.info_for(scene_surface);
             parent_info.add_child(window);
             window_info.parent(parent_info.window());
             window.move_to(parent_info.window().top_left() - Displacement{0, title_bar_height});

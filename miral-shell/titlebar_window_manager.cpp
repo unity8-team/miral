@@ -35,7 +35,7 @@ int const title_bar_height = 10;
 }
 
 TitlebarWindowManagerPolicy::TitlebarWindowManagerPolicy(
-    WindowManagerTools* const tools,
+    WindowManagerTools const& tools,
     SpinnerSplash const& spinner,
     miral::InternalClientLauncher const& launcher) :
     CanonicalWindowManagerPolicy(tools),
@@ -60,18 +60,18 @@ bool TitlebarWindowManagerPolicy::handle_pointer_event(MirPointerEvent const* ev
 
     if (action == mir_pointer_action_button_down)
     {
-        if (auto const window = tools->window_at(cursor))
-            tools->select_active_window(window);
+        if (auto const window = tools.window_at(cursor))
+            tools.select_active_window(window);
     }
     else if (action == mir_pointer_action_motion &&
              modifiers == mir_input_event_modifier_alt)
     {
         if (mir_pointer_event_button_state(event, mir_pointer_button_primary))
         {
-            if (auto const target = tools->window_at(old_cursor))
+            if (auto const target = tools.window_at(old_cursor))
             {
-                tools->select_active_window(target);
-                tools->drag_active_window(cursor - old_cursor);
+                tools.select_active_window(target);
+                tools.drag_active_window(cursor - old_cursor);
             }
             consumes_event = true;
         }
@@ -79,8 +79,8 @@ bool TitlebarWindowManagerPolicy::handle_pointer_event(MirPointerEvent const* ev
         if (mir_pointer_event_button_state(event, mir_pointer_button_tertiary))
         {
             if (!resizing)
-                tools->select_active_window(tools->window_at(old_cursor));
-            is_resize_event = resize(tools->active_window(), cursor, old_cursor);
+                tools.select_active_window(tools.window_at(old_cursor));
+            is_resize_event = resize(tools.active_window(), cursor, old_cursor);
             consumes_event = true;
         }
     }
@@ -89,13 +89,13 @@ bool TitlebarWindowManagerPolicy::handle_pointer_event(MirPointerEvent const* ev
     {
         if (mir_pointer_event_button_state(event, mir_pointer_button_primary))
         {
-            if (auto const possible_titlebar = tools->window_at(old_cursor))
+            if (auto const possible_titlebar = tools.window_at(old_cursor))
             {
                 if (possible_titlebar.application() == titlebar_provider->session())
                 {
-                    auto const& info = tools->info_for(possible_titlebar);
-                    tools->select_active_window(info.parent());
-                    tools->drag_active_window(cursor - old_cursor);
+                    auto const& info = tools.info_for(possible_titlebar);
+                    tools.select_active_window(info.parent());
+                    tools.drag_active_window(cursor - old_cursor);
                     consumes_event = true;
                 }
             }
@@ -176,7 +176,7 @@ bool TitlebarWindowManagerPolicy::handle_touch_event(MirTouchEvent const* event)
     {
         if (count == 3)
         {
-            if (auto window = tools->active_window())
+            if (auto window = tools.active_window())
             {
                 auto const old_size = window.size();
                 auto const delta_width = DeltaX{touch_pinch_width - old_touch_pinch_width};
@@ -189,15 +189,15 @@ bool TitlebarWindowManagerPolicy::handle_touch_event(MirTouchEvent const* event)
                 auto const new_height = std::max(old_size.height + delta_height, Height{5});
                 auto const new_pos = window.top_left() + delta_x + delta_y;
 
-                tools->place_and_size(tools->info_for(window), new_pos, {new_width, new_height});
+                tools.place_and_size(tools.info_for(window), new_pos, {new_width, new_height});
             }
             consumes_event = true;
         }
     }
     else
     {
-        if (auto const& window = tools->window_at(cursor))
-            tools->select_active_window(window);
+        if (auto const& window = tools.window_at(cursor))
+            tools.select_active_window(window);
     }
 
     old_cursor = cursor;
@@ -217,7 +217,7 @@ void TitlebarWindowManagerPolicy::advise_new_window(WindowInfo& window_info)
     if (application == titlebar_provider->session())
     {
         titlebar_provider->advise_new_titlebar(window_info);
-        tools->raise_tree(window_info.parent());
+        tools.raise_tree(window_info.parent());
         return;
     }
 
@@ -243,10 +243,10 @@ void TitlebarWindowManagerPolicy::advise_focus_gained(WindowInfo const& info)
     // Frig to force the spinner to the top
     if (auto const spinner_session = spinner.session())
     {
-        auto const& spinner_info = tools->info_for(spinner_session);
+        auto const& spinner_info = tools.info_for(spinner_session);
 
         if (spinner_info.windows().size() > 0)
-            tools->raise_tree(spinner_info.windows()[0]);
+            tools.raise_tree(spinner_info.windows()[0]);
     }
 }
 
@@ -302,11 +302,11 @@ bool TitlebarWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* 
         switch (modifiers & modifier_mask)
         {
         case mir_input_event_modifier_alt|mir_input_event_modifier_shift:
-            tools->kill_active_application(SIGTERM);
+            tools.kill_active_application(SIGTERM);
             return true;
 
         case mir_input_event_modifier_alt:
-            if (auto const window = tools->active_window())
+            if (auto const window = tools.active_window())
                 window.request_client_surface_close();
 
             return true;
@@ -319,7 +319,7 @@ bool TitlebarWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* 
              modifiers == mir_input_event_modifier_alt &&
              scan_code == KEY_TAB)
     {
-        tools->focus_next_application();
+        tools.focus_next_application();
 
         return true;
     }
@@ -327,7 +327,7 @@ bool TitlebarWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* 
              modifiers == mir_input_event_modifier_alt &&
              scan_code == KEY_GRAVE)
     {
-        tools->focus_next_within_application();
+        tools.focus_next_within_application();
 
         return true;
     }
@@ -345,14 +345,14 @@ bool TitlebarWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* 
 
 void TitlebarWindowManagerPolicy::toggle(MirSurfaceState state)
 {
-    if (auto const window = tools->active_window())
+    if (auto const window = tools.active_window())
     {
-        auto& info = tools->info_for(window);
+        auto& info = tools.info_for(window);
 
         if (info.state() == state)
             state = mir_surface_state_restored;
 
-        tools->set_state(info, state);
+        tools.set_state(info, state);
     }
 }
 
@@ -361,7 +361,7 @@ bool TitlebarWindowManagerPolicy::resize(Window const& window, Point cursor, Poi
     if (!window)
         return false;
 
-    auto& window_info = tools->info_for(window);
+    auto& window_info = tools.info_for(window);
 
     auto const top_left = window.top_left();
     Rectangle const old_pos{top_left, window.size()};
@@ -415,7 +415,7 @@ bool TitlebarWindowManagerPolicy::resize(Window const& window, Point cursor, Poi
     Point new_pos = top_left + left_resize*delta.dx + top_resize*delta.dy;
 
     window_info.constrain_resize(new_pos, new_size);
-    tools->place_and_size(window_info, new_pos, new_size);
+    tools.place_and_size(window_info, new_pos, new_size);
 
     return true;
 }

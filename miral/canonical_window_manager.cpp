@@ -25,7 +25,7 @@ namespace ms = mir::scene;
 
 // Based on "Mir and Unity: Surfaces, input, and displays (v0.3)"
 
-miral::CanonicalWindowManagerPolicy::CanonicalWindowManagerPolicy(WindowManagerTools* const tools) :
+miral::CanonicalWindowManagerPolicy::CanonicalWindowManagerPolicy(WindowManagerTools const& tools) :
     tools{tools}
 {
 }
@@ -40,22 +40,22 @@ auto miral::CanonicalWindowManagerPolicy::place_new_surface(
 
 void miral::CanonicalWindowManagerPolicy::handle_window_ready(WindowInfo& window_info)
 {
-    tools->select_active_window(window_info.window());
+    tools.select_active_window(window_info.window());
 }
 
 void miral::CanonicalWindowManagerPolicy::handle_modify_window(
     WindowInfo& window_info,
     WindowSpecification const& modifications)
 {
-    tools->modify_window(window_info, modifications);
+    tools.modify_window(window_info, modifications);
 }
 
 void miral::CanonicalWindowManagerPolicy::handle_raise_window(WindowInfo& window_info)
 {
-    tools->select_active_window(window_info.window());
+    tools.select_active_window(window_info.window());
 }
 
 void miral::CanonicalWindowManagerPolicy::advise_focus_gained(WindowInfo const& info)
 {
-    tools->raise_tree(info.window());
+    tools.raise_tree(info.window());
 }

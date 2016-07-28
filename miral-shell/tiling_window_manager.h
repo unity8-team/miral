@@ -23,6 +23,7 @@
 
 #include <miral/application.h>
 #include <miral/window_management_policy.h>
+#include <miral/window_manager_tools.h>
 
 #include <mir/geometry/displacement.h>
 #include <miral/internal_client.h>
@@ -42,7 +43,7 @@ using namespace mir::geometry;
 class TilingWindowManagerPolicy : public miral::WindowManagementPolicy
 {
 public:
-    explicit TilingWindowManagerPolicy(miral::WindowManagerTools* const tools, SpinnerSplash const& spinner,
+    explicit TilingWindowManagerPolicy(miral::WindowManagerTools const& tools, SpinnerSplash const& spinner,
                                        miral::InternalClientLauncher const& launcher);
 
     auto place_new_surface(
@@ -89,7 +90,7 @@ private:
     static void resize(miral::Window window, Point cursor, Point old_cursor, Rectangle bounds);
     static void constrained_move(miral::Window window, Displacement& movement, Rectangle const& bounds);
 
-    miral::WindowManagerTools* const tools;
+    miral::WindowManagerTools tools;
     SpinnerSplash spinner;
     miral::InternalClientLauncher const launcher;
     Point old_cursor{};
