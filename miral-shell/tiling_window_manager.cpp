@@ -67,12 +67,6 @@ void TilingWindowManagerPolicy::click(Point cursor)
     tools->select_active_window(window);
 }
 
-void TilingWindowManagerPolicy::advise_displays_updated(Rectangles const& displays)
-{
-    this->displays = displays;
-    dirty_tiles = true;
-}
-
 void TilingWindowManagerPolicy::resize(Point cursor)
 {
     if (auto const application = application_under(cursor))
@@ -647,20 +641,35 @@ void TilingWindowManagerPolicy::advise_end()
     dirty_tiles = false;
 }
 
-void TilingWindowManagerPolicy::advise_output_create(const Output& /*output*/)
+void TilingWindowManagerPolicy::advise_output_create(const Output& output)
 {
-    tools->invoke_under_lock([this] { dirty_tiles = true; });
+    tools->invoke_under_lock([&, this]
+        {
+            displays.add(output.extents());
+            dirty_tiles = true;
+        });
 }
 
 void TilingWindowManagerPolicy::advise_output_update(const Output& updated, const Output& original)
 {
     if (!equivalent_display_area(updated, original))
-        tools->invoke_under_lock([this] { dirty_tiles = true; });
+    {
+        tools->invoke_under_lock([&, this]
+             {
+                 displays.remove(updated.extents());
+                 displays.add(updated.extents());
+                 dirty_tiles = true;
+             });
+    }
 }
 
-void TilingWindowManagerPolicy::advise_output_delete(Output const& /*output*/)
+void TilingWindowManagerPolicy::advise_output_delete(Output const& output)
 {
-    tools->invoke_under_lock([this] { dirty_tiles = true; });
+    tools->invoke_under_lock([&, this]
+         {
+             displays.remove(output.extents());
+             dirty_tiles = true;
+         });
 }
 
 void TilingWindowManagerPolicy::advise_output_end()
@@ -668,7 +677,7 @@ void TilingWindowManagerPolicy::advise_output_end()
     tools->invoke_under_lock([this]
         {
             if (dirty_tiles)
-             update_tiles(displays);
+                update_tiles(displays);
 
             dirty_tiles = false;
         });

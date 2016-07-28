@@ -52,7 +52,6 @@ public:
         miral::WindowSpecification const& request_parameters)
         -> miral::WindowSpecification override;
 
-    void advise_displays_updated(Rectangles const& displays) override;
     void handle_window_ready(miral::WindowInfo& window_info) override;
     void handle_modify_window(miral::WindowInfo& window_info, miral::WindowSpecification const& modifications) override;
     bool handle_keyboard_event(MirKeyboardEvent const* event) override;
