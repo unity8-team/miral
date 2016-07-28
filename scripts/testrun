@@ -12,7 +12,7 @@ if [ $# -gt 0 -a "$1" == "-kiosk" ]; then miral_server=miral-kiosk; shift; else 
 if [ -e "${socket}" ]; then echo "Error: '${socket}' already exists"; exit 1 ;fi
 
 sudo ls >> /dev/null
-sudo DISPLAY=${xmir_display} ${builddir}bin/${miral_server} --vt 4 --arw-file --file ${socket} $* &
+sudo LD_LIBRARY_PATH=${LD_LIBRARY_PATH} DISPLAY=${xmir_display} ${builddir}bin/${miral_server} --vt 4 --arw-file --file ${socket} $* &
 
 while [ ! -e "${socket}" ]; do echo "waiting for ${socket}"; sleep 1 ;done
 
