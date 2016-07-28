@@ -23,6 +23,7 @@
 
 #include <miral/application.h>
 #include <miral/window_management_policy.h>
+#include <miral/active_outputs.h>
 
 #include <mir/geometry/displacement.h>
 #include <miral/internal_client.h>
@@ -39,11 +40,12 @@ using namespace mir::geometry;
 //  o Maximize/restore current window (to tile height): Shift-F11
 //  o Maximize/restore current window (to tile width): Ctrl-F11
 //  o client requests to maximize, vertically maximize & restore
-class TilingWindowManagerPolicy : public miral::WindowManagementPolicy
+class TilingWindowManagerPolicy : public miral::WindowManagementPolicy,
+    miral::ActiveOutputsListener
 {
 public:
     explicit TilingWindowManagerPolicy(miral::WindowManagerTools* const tools, SpinnerSplash const& spinner,
-                                       miral::InternalClientLauncher const& launcher);
+        miral::InternalClientLauncher const& launcher, miral::ActiveOutputsMonitor& outputs_monitor);
 
     auto place_new_surface(
         miral::ApplicationInfo const& app_info,
@@ -66,6 +68,10 @@ public:
     void advise_delete_app(miral::ApplicationInfo const& application) override;
 
 private:
+    void advise_create_output(const miral::Output &output) override;
+    void advise_update_output(const miral::Output &updated, const miral::Output &original) override;
+    void advise_delete_output(const miral::Output &output) override;
+
     static const int modifier_mask =
         mir_input_event_modifier_alt |
         mir_input_event_modifier_shift |

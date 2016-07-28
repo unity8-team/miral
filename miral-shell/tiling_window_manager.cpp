@@ -49,8 +49,11 @@ inline Rectangle const& tile_for(miral::ApplicationInfo const& app_info)
 
 // Demonstrate implementing a simple tiling algorithm
 
-TilingWindowManagerPolicy::TilingWindowManagerPolicy(WindowManagerTools* const tools, SpinnerSplash const& spinner,
-                                                     miral::InternalClientLauncher const& launcher) :
+TilingWindowManagerPolicy::TilingWindowManagerPolicy(
+    WindowManagerTools* const tools,
+    SpinnerSplash const& spinner,
+    miral::InternalClientLauncher const& launcher,
+    miral::ActiveOutputsMonitor& /*outputs_monitor*/) :
     tools{tools},
     spinner{spinner},
     launcher{launcher}
@@ -641,4 +644,20 @@ void TilingWindowManagerPolicy::advise_end()
         update_tiles(displays);
 
     dirty_tiles = false;
+}
+
+void TilingWindowManagerPolicy::advise_create_output(Output const &output)
+{
+    ActiveOutputsListener::advise_create_output(output);
+}
+
+void TilingWindowManagerPolicy::advise_update_output(
+    Output const &updated, Output const &original)
+{
+    ActiveOutputsListener::advise_update_output(updated, original);
+}
+
+void TilingWindowManagerPolicy::advise_delete_output(Output const &output)
+{
+    ActiveOutputsListener::advise_delete_output(output);
 }
