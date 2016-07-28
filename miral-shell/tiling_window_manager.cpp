@@ -650,42 +650,39 @@ void TilingWindowManagerPolicy::advise_end()
 
 void TilingWindowManagerPolicy::advise_output_create(const Output& output)
 {
-    tools->invoke_under_lock([&, this]
-        {
-            displays.add(output.extents());
-            dirty_tiles = true;
-        });
+    live_displays.add(output.extents());
+    dirty_displays = true;
 }
 
 void TilingWindowManagerPolicy::advise_output_update(const Output& updated, const Output& original)
 {
     if (!equivalent_display_area(updated, original))
     {
-        tools->invoke_under_lock([&, this]
-             {
-                 displays.remove(updated.extents());
-                 displays.add(updated.extents());
-                 dirty_tiles = true;
-             });
+        live_displays.remove(original.extents());
+        live_displays.add(updated.extents());
+
+        dirty_displays = true;
     }
 }
 
 void TilingWindowManagerPolicy::advise_output_delete(Output const& output)
 {
-    tools->invoke_under_lock([&, this]
-         {
-             displays.remove(output.extents());
-             dirty_tiles = true;
-         });
+    live_displays.remove(output.extents());
+    dirty_displays = true;
 }
 
 void TilingWindowManagerPolicy::advise_output_end()
 {
-    tools->invoke_under_lock([this]
-        {
-            if (dirty_tiles)
+    if (dirty_displays)
+    {
+        // Need to acquire lock before accessing displays & dirty_tiles
+        tools->invoke_under_lock([this]
+            {
+                displays = live_displays;
                 update_tiles(displays);
+                dirty_tiles = false;
+            });
 
-            dirty_tiles = false;
-        });
+        dirty_displays = false;
+    }
 }

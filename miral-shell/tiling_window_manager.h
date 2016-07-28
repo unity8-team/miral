@@ -104,6 +104,11 @@ private:
     miral::ActiveOutputsMonitor& outputs_monitor;
     Rectangles displays;
     bool dirty_tiles = false;
+
+    // These two variables are used by the advise_display methods which are
+    // NOT guarded by the usual WM mutex
+    bool dirty_displays = false;
+    Rectangles live_displays;
 };
 
 #endif /* MIRAL_SHELL_TILING_WINDOW_MANAGER_H */
