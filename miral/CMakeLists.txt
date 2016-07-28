@@ -19,13 +19,13 @@ add_library(miral SHARED
     internal_client.cpp                 ${CMAKE_SOURCE_DIR}/include/miral/internal_client.h
     mru_window_list.cpp                 mru_window_list.h
     set_window_managment_policy.cpp     ${CMAKE_SOURCE_DIR}/include/miral/set_window_managment_policy.h
-    basic_window_manager.cpp            basic_window_manager.h
+    basic_window_manager.cpp            basic_window_manager.h window_manager_tools_implementation.h
     window_management_policy.cpp        ${CMAKE_SOURCE_DIR}/include/miral/window_management_policy.h
     window_manager_tools.cpp            ${CMAKE_SOURCE_DIR}/include/miral/window_manager_tools.h
                                         ${CMAKE_SOURCE_DIR}/include/miral/stream_specification.h
                                         ${CMAKE_SOURCE_DIR}/include/miral/toolkit/surface_spec.h
                                         ${CMAKE_SOURCE_DIR}/include/miral/toolkit/connection.h
-        window_manager_tools_implementation.h)
+)
 
 target_link_libraries(miral
     PUBLIC
