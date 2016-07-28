@@ -81,7 +81,7 @@ public:
 Q_SIGNALS:
 
 private:
-    const miral::WindowManagerTools m_tools;
+    miral::WindowManagerTools m_tools;
     qtmir::WindowModel &m_windowModel;
     const QScopedPointer<QtEventFeeder> m_eventFeeder;
 };
