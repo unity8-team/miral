@@ -20,9 +20,9 @@
 #include "miral/canonical_window_manager.h"
 
 #include "qteventfeeder.h"
+#include "windowcontrollerinterface.h"
 #include "windowmodel.h"
 
-#include <QObject>
 #include <QScopedPointer>
 #include <QSize>
 
@@ -30,7 +30,8 @@ using namespace mir::geometry;
 
 class ScreensModel;
 
-class WindowManagementPolicy : public QObject, public miral::CanonicalWindowManagerPolicy
+class WindowManagementPolicy : public miral::CanonicalWindowManagerPolicy
+                             , public qtmir::WindowControllerInterface
 {
 public:
     WindowManagementPolicy(miral::WindowManagerTools * const tools,
@@ -65,18 +66,18 @@ public:
     void advise_move_to(const miral::WindowInfo &windowInfo, Point topLeft) override;
     void advise_resize(const miral::WindowInfo &info, const Size &newSize) override;
     void advise_delete_window(const miral::WindowInfo &windowInfo) override;
-    void advise_raise(std::vector<miral::Window> const& windows) override;
+    void advise_raise(const std::vector<miral::Window> &windows) override;
 
     void advise_displays_updated(const Rectangles &displays) override;
 
-    // Exposing some tools
-    void deliver_keyboard_event(const MirKeyboardEvent *event, const std::shared_ptr<mir::scene::Surface> &surface);
-    void deliver_touch_event(const MirTouchEvent *event, const std::shared_ptr<mir::scene::Surface> &surface);
-    void deliver_pointer_event(const MirPointerEvent *event, const std::shared_ptr<mir::scene::Surface> &surface);
+    // From WindowControllerInterface
+    void deliver_keyboard_event(const MirKeyboardEvent *event, const miral::Window &window) override;
+    void deliver_touch_event   (const MirTouchEvent *event,    const miral::Window &window) override;
+    void deliver_pointer_event (const MirPointerEvent *event,  const miral::Window &window) override;
 
-    void focus(const miral::Window window);
-    void resize(const miral::Window window, const Size &size);
-    void move(const miral::Window window, const Point &top_left);
+    void focus (const miral::Window &window) override;
+    void resize(const miral::Window &window, const Size size) override;
+    void move  (const miral::Window &window, const Point topLeft) override;
 
 Q_SIGNALS:
 

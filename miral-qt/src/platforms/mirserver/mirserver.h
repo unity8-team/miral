@@ -22,6 +22,7 @@
 #include <mir/server.h>
 #include "miral/set_window_managment_policy.h"
 #include "windowmodel.h"
+#include "windowcontrollerinterface.h"
 
 class QtEventFeeder;
 class MirDisplayConfigurationPolicy;
@@ -70,6 +71,7 @@ public:
     UsingQtMirWindowManager(const QSharedPointer<ScreensModel> &model);
     void operator()(mir::Server& server);
     qtmir::WindowModelInterface *windowModel();
+    qtmir::WindowControllerInterface *windowController(); // implement!!
 
 private:
     const QSharedPointer<ScreensModel> &m_screensModel;

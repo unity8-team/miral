@@ -206,6 +206,11 @@ qtmir::WindowModelInterface *UsingQtMirWindowManager::windowModel()
     return &m_windowModel;
 }
 
+qtmir::WindowControllerInterface *UsingQtMirWindowManager::windowController()
+{
+    return nullptr; // GERRY
+}
+
 mir::shell::Shell *MirServer::shell()
 {
     std::weak_ptr<mir::shell::Shell> m_shell = the_shell();
