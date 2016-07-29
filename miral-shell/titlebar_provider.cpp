@@ -105,6 +105,8 @@ void TitlebarProvider::create_titlebar_for(miral::Window const& window)
 
             buffer << std::shared_ptr<mir::scene::Surface>(window).get();
 
+            windows_awaiting_titlebar[buffer.str()] = window;
+
             auto const spec = SurfaceSpec::for_normal_surface(
                 connection, window.size().width.as_int(), title_bar_height, mir_pixel_format_xrgb_8888)
                 .set_buffer_usage(mir_buffer_usage_software)
@@ -165,47 +167,27 @@ void TitlebarProvider::resize_titlebar_for(miral::Window const& window, Size con
 
 void TitlebarProvider::place_new_titlebar(miral::WindowSpecification& window_spec)
 {
-    std::istringstream buffer{window_spec.name().value()};
-
-    void* parent = nullptr;
-    buffer >> parent;
+    auto const name = window_spec.name().value();
 
     std::lock_guard<decltype(mutex)> lock{mutex};
 
-    for (auto& element : window_to_titlebar)
-    {
-        auto scene_surface = std::shared_ptr<mir::scene::Surface>(element.first);
-        if (scene_surface.get() == parent)
-        {
-            auto& parent_info = tools.info_for(scene_surface);
-            auto const parent_window = parent_info.window();
+    auto const scene_surface = windows_awaiting_titlebar[name].lock();
+    windows_awaiting_titlebar.erase(name);
 
-            window_spec.parent() = scene_surface;
-            window_spec.size() = Size{parent_window.size().width, Height{title_bar_height}};
-            window_spec.top_left() = parent_window.top_left() - Displacement{0, title_bar_height};
-            break;
-        }
-    }
+    auto& parent_info = tools.info_for(scene_surface);
+    auto const parent_window = parent_info.window();
+
+    window_spec.parent() = scene_surface;
+    window_spec.size() = Size{parent_window.size().width, Height{title_bar_height}};
+    window_spec.top_left() = parent_window.top_left() - Displacement{0, title_bar_height};
 }
 
 void TitlebarProvider::advise_new_titlebar(miral::WindowInfo& window_info)
 {
-    std::istringstream buffer{window_info.name()};
-
-    void* parent = nullptr;
-    buffer >> parent;
-
-    std::lock_guard<decltype(mutex)> lock{mutex};
-
-    for (auto& element : window_to_titlebar)
     {
-        auto scene_surface = std::shared_ptr<mir::scene::Surface>(element.first);
-        if (scene_surface.get() == parent)
-        {
-            auto window = window_info.window();
-            element.second.window = window;
-            break;
-        }
+        std::lock_guard<decltype(mutex)> lock{mutex};
+
+        window_to_titlebar[window_info.parent()].window = window_info.window();
     }
 
     tools.raise_tree(window_info.parent());

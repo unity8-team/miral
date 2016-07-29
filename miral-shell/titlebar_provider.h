@@ -86,6 +86,7 @@ private:
     };
 
     using SurfaceMap = std::map<std::weak_ptr<mir::scene::Surface>, Data, std::owner_less<std::weak_ptr<mir::scene::Surface>>>;
+    using TitleMap = std::map<std::string, std::weak_ptr<mir::scene::Surface>>;
 
     miral::WindowManagerTools tools;
     std::mutex mutable mutex;
@@ -93,6 +94,7 @@ private:
     std::weak_ptr<mir::scene::Session> weak_session;
 
     SurfaceMap window_to_titlebar;
+    TitleMap windows_awaiting_titlebar;
 
     static void insert(MirSurface* surface, Data* data);
     Data* find_titlebar_data(miral::Window const& window);
