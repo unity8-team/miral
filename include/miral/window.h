@@ -56,7 +56,6 @@ public:
     // Indicates that the Window isn't null
     operator bool() const;
 
-    void set_alpha(float alpha);
     void resize(mir::geometry::Size const& size);
     void show();
     void hide();

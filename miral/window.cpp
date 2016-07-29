@@ -44,13 +44,6 @@ miral::Window::Window()
 
 miral::Window::~Window() = default;
 
-void miral::Window::set_alpha(float alpha)
-{
-    if (!self) return;
-    if (auto const surface = self->surface.lock())
-        surface->set_alpha(alpha);
-}
-
 miral::Window::operator bool() const
 {
     return !!operator std::shared_ptr<mir::scene::Surface>();
