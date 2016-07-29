@@ -82,13 +82,6 @@ void miral::Window::hide()
         surface->hide();
 }
 
-void miral::Window::set_state(MirSurfaceState state)
-{
-    if (!self) return;
-    if (auto const surface = self->surface.lock())
-        surface->configure(mir_surface_attrib_state, state);
-}
-
 void miral::Window::move_to(mir::geometry::Point top_left)
 {
     if (!self) return;

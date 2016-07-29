@@ -60,7 +60,6 @@ public:
     void show();
     void hide();
     void move_to(mir::geometry::Point top_left);
-    void set_state(MirSurfaceState state);
 
     void request_client_surface_close() const;
 
