@@ -9,3 +9,9 @@ ranging from Linux desktop to mobile devices powered by Ubuntu. The primary
 purpose of Mir is to enable the development of the next generation
 [Unity](http://unity.ubuntu.com).
 
+
+Notes for Developers
+--------------------
+
+ - \ref building_and_using_miral
+ - \ref tasks_for_the_interested_reader

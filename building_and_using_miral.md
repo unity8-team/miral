@@ -1,4 +1,4 @@
-Building and using Miral
+Building and using MirAL  {#building_and_using_miral}
 ========================
 
 These instructions assume that you’re using Ubuntu 16.04LTS or later, I’ve not
