@@ -51,6 +51,8 @@ else()
     endif()
 
 if (MIRAL_ENABLE_TESTS)
-add_subdirectory(test)
+    enable_testing()
+
+    add_subdirectory(test)
 endif()
 endif()

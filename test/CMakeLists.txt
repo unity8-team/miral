@@ -18,3 +18,7 @@ target_link_libraries(miral-test
     ${GMOCK_MAIN_LIBRARY}
     miral
 )
+
+add_dependencies(miral-test GMock)
+
+add_test(NAME miral-test WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} COMMAND miral-test)
