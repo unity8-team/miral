@@ -17,4 +17,4 @@ sudo LD_LIBRARY_PATH=${LD_LIBRARY_PATH} DISPLAY=${xmir_display} ${builddir}bin/$
 while [ ! -e "${socket}" ]; do echo "waiting for ${socket}"; sleep 1 ;done
 
 if [ "${xmir_display}" ]; then Xmir ${xmir_display} -rootless& fi
-DISPLAY=${xmir_display} ${builddir}bin/miral-run gnome-terminal&
+DISPLAY=${xmir_display} ${builddir}bin/miral-run ${session_dbus} dbus-run-session -- gnome-terminal --app-id com.canonical.miral.Terminal
