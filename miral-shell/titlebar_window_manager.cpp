@@ -217,7 +217,6 @@ void TitlebarWindowManagerPolicy::advise_new_window(WindowInfo& window_info)
     if (application == titlebar_provider->session())
     {
         titlebar_provider->advise_new_titlebar(window_info);
-        tools.raise_tree(window_info.parent());
         return;
     }
 
@@ -429,6 +428,9 @@ WindowSpecification TitlebarWindowManagerPolicy::place_new_surface(
 
     if (parameters.state().value() != mir_surface_state_fullscreen && needs_titlebar)
         parameters.top_left() = Point{parameters.top_left().value().x, parameters.top_left().value().y + DeltaY{title_bar_height}};
+
+    if (app_info.application() == titlebar_provider->session())
+        titlebar_provider->place_new_titlebar(parameters);
 
     return parameters;
 }
