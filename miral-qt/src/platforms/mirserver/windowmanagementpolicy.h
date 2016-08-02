@@ -20,7 +20,7 @@
 #include "miral/canonical_window_manager.h"
 
 #include "qteventfeeder.h"
-#include "windowcontrollerinterface.h"
+#include "windowcontroller.h"
 #include "windowmodel.h"
 
 #include <QScopedPointer>
@@ -31,11 +31,11 @@ using namespace mir::geometry;
 class ScreensModel;
 
 class WindowManagementPolicy : public miral::CanonicalWindowManagerPolicy
-                             , public qtmir::WindowControllerInterface
 {
 public:
     WindowManagementPolicy(const miral::WindowManagerTools &tools,
                            qtmir::WindowModel &windowModel,
+                           qtmir::WindowController &windowController,
                            const QSharedPointer<ScreensModel> screensModel);
 
     // From WindowManagementPolicy
@@ -68,14 +68,14 @@ public:
     void advise_delete_window(const miral::WindowInfo &windowInfo) override;
     void advise_raise(const std::vector<miral::Window> &windows) override;
 
-    // From WindowControllerInterface
-    void deliver_keyboard_event(const MirKeyboardEvent *event, const miral::Window &window) override;
-    void deliver_touch_event   (const MirTouchEvent *event,    const miral::Window &window) override;
-    void deliver_pointer_event (const MirPointerEvent *event,  const miral::Window &window) override;
+    // Methods for consumption by WindowControllerInterface
+    void deliver_keyboard_event(const MirKeyboardEvent *event, const miral::Window &window);
+    void deliver_touch_event   (const MirTouchEvent *event,    const miral::Window &window);
+    void deliver_pointer_event (const MirPointerEvent *event,  const miral::Window &window);
 
-    void focus (const miral::Window &window) override;
-    void resize(const miral::Window &window, const Size size) override;
-    void move  (const miral::Window &window, const Point topLeft) override;
+    void focus (const miral::Window &window);
+    void resize(const miral::Window &window, const Size size);
+    void move  (const miral::Window &window, const Point topLeft);
 
 Q_SIGNALS:
 

@@ -26,12 +26,14 @@
 
 WindowManagementPolicy::WindowManagementPolicy(const miral::WindowManagerTools &tools,
                                                qtmir::WindowModel &windowModel,
+                                               qtmir::WindowController &windowController,
                                                const QSharedPointer<ScreensModel> screensModel)
     : CanonicalWindowManagerPolicy(tools)
     , m_tools(tools)
     , m_windowModel(windowModel)
     , m_eventFeeder(new QtEventFeeder(screensModel))
 {
+    windowController.setPolicy(this);
 }
 
 /* Following are hooks to allow custom policy be imposed */

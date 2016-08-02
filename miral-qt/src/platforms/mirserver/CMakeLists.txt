@@ -79,6 +79,7 @@ set(MIRSERVER_QPA_PLUGIN_SRC
     ubuntutheme.cpp
     clipboard.cpp
     creationhints.cpp
+    windowcontroller.cpp
     windowmanagementpolicy.cpp
     windowmodel.cpp
     tracepoints.c

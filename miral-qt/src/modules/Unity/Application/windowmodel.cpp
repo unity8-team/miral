@@ -32,7 +32,6 @@ using namespace qtmir;
 
 WindowModel::WindowModel()
 {
-
     auto nativeInterface = dynamic_cast<NativeInterface*>(QGuiApplication::platformNativeInterface());
 
     if (!nativeInterface) {
@@ -41,7 +40,7 @@ WindowModel::WindowModel()
 
     auto windowModel = static_cast<WindowModelInterface*>(nativeInterface->nativeResourceForIntegration("WindowModel"));
 
-    connect(windowModel, &WindowModelInterface::windowAdded, this, &WindowModel::onWindowAdded);
+    connect(windowModel, &WindowModelInterface::windowAdded,   this, &WindowModel::onWindowAdded);
     connect(windowModel, &WindowModelInterface::windowRemoved, this, &WindowModel::onWindowRemoved);
     connect(windowModel, &WindowModelInterface::windowChanged, this, &WindowModel::onWindowChanged);
 }

@@ -20,7 +20,7 @@
 #include "miral/window.h"
 #include "mir/geometry/point.h"
 #include "mir/geometry/size.h"
-#include "mir_toolkit/events/input/input_event.h"
+#include "mir_toolkit/event.h"
 
 class MirSurface;
 

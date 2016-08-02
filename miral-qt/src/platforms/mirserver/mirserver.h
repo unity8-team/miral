@@ -22,7 +22,7 @@
 #include <mir/server.h>
 #include "miral/set_window_managment_policy.h"
 #include "windowmodel.h"
-#include "windowcontrollerinterface.h"
+#include "windowcontroller.h"
 
 class QtEventFeeder;
 class MirDisplayConfigurationPolicy;
@@ -71,11 +71,12 @@ public:
     UsingQtMirWindowManager(const QSharedPointer<ScreensModel> &model);
     void operator()(mir::Server& server);
     qtmir::WindowModelInterface *windowModel();
-    qtmir::WindowControllerInterface *windowController(); // implement!!
+    qtmir::WindowControllerInterface *windowController();
 
 private:
     const QSharedPointer<ScreensModel> &m_screensModel;
     miral::SetWindowManagmentPolicy m_policy;
+    qtmir::WindowController m_windowController;
     qtmir::WindowModel m_windowModel;
 };
 
@@ -94,7 +95,6 @@ class MirServer : public QObject,
 
     Q_PROPERTY(SessionAuthorizer* sessionAuthorizer READ sessionAuthorizer CONSTANT)
     Q_PROPERTY(SessionListener* sessionListener READ sessionListener CONSTANT)
-    Q_PROPERTY(mir::shell::Shell* shell READ shell CONSTANT)
     Q_PROPERTY(PromptSessionListener* promptSessionListener READ promptSessionListener CONSTANT)
 
 public:
@@ -117,7 +117,7 @@ public:
     using UsingQtMirSessionListener::sessionListener;
     using UsingQtMirPromptSessionListener::promptSessionListener;
     using UsingQtMirWindowManager::windowModel;
-    mir::shell::Shell *shell();
+    using UsingQtMirWindowManager::windowController;
 
     QSharedPointer<ScreensModel> screensModel() const;
 
