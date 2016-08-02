@@ -16,9 +16,10 @@ less clear, more verbose and scattered over multiple files.
 
 A shell has to provide a window management policy (miral-shell provides two: 
 TitlebarWindowManagerPolicy and TilingWindowManagerPolicy). A window management
-policy needs to implement the WindowManagementPolicy interface for handling a
-set of window management events: \ref miral::WindowManagementPolicy
+policy needs to implement the \ref miral::WindowManagementPolicy interface for
+handling a set of window management events.
 
 The way these events are handled determines the behaviour of the shell.
 
-The principle interface for controlling Mir is similar: \ref miral::WindowManagerTools
+The \ref miral::WindowManagerTools interface provides the principle methods for
+a window management policy to control Mir. 
