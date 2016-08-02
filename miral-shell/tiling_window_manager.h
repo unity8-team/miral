@@ -92,7 +92,7 @@ private:
     void update_tiles(Rectangles const& displays);
     void update_surfaces(miral::ApplicationInfo& info, Rectangle const& old_tile, Rectangle const& new_tile);
     void drag(miral::WindowInfo& window_info, Point to, Point from, Rectangle bounds);
-    auto transform_set_state(miral::WindowInfo& window_info, MirSurfaceState value) -> MirSurfaceState;
+    auto transform_set_state(MirSurfaceState value) -> MirSurfaceState;
 
     static void clip_to_tile(miral::WindowSpecification& parameters, Rectangle const& tile);
     static void resize(miral::Window window, Point cursor, Point old_cursor, Rectangle bounds);
