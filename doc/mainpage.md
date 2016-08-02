@@ -50,4 +50,5 @@ Notes for Developers
 --------------------
 
  - \ref building_and_using_miral
+ - \ref introducing_the_miral_api
  - \ref tasks_for_the_interested_reader
