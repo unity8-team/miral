@@ -1,4 +1,4 @@
-Tasks for the interested reader
+Tasks for the interested reader  {#tasks_for_the_interested_reader}
 ===============================
 
 MirAL needs to grow based on feeback on what shell developers really need. The
@@ -68,13 +68,11 @@ additions to libmiral to expose additional Mir functionality.
  - Customizing compositing. There needs to be a mechanism for loading custom
    compositing effects. E.g. specifying a module (or modules) to load.
    
- - Display configuration. There needs to be a useful abstraction of outputs
-   and geometry. See miral-qt/src/modules/Unity/Screens/screens.h and 
-   ScreensModel::update() in miral-qt/src/platforms/mirserver/screensmodel.cpp.
-   (Or maybe an internal client can use the client APIs?)
-   
  - Cursor images. lp:qtmir stubs the cursor images and paints the cursor in its
    compositor. Need to consider what ought to be supported here.
+   
+ - Cut&Paste/Drag&Drop toolkits expect this functionality, but it isn't
+   provided by Mir. We ought to find a way to provide this.
 
 The tiling window management strategy
 -------------------------------------
@@ -99,11 +97,11 @@ for a better approach:
       smaller tiles having equal height, to host the remaining windows, with
       older windows being closer to the bottom.
 
-  - Add a titlebar to the top of the screen. The titlebar should be split evenly
-    into horizontal blocks, one per tile. Each block containing the title of the
-    top-level window. The focussed tile is highlighted. Clicking on a title
-    selects the corresponding window.
-    
+ - Add a titlebar to the top of the screen. The titlebar should be split evenly
+   into horizontal blocks, one per tile. Each block containing the title of the
+   top-level window. The focussed tile is highlighted. Clicking on a title
+   selects the corresponding window.
+
 Art Resource
 ------------
 

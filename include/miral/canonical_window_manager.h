@@ -20,6 +20,7 @@
 #define MIRAL_CANONICAL_WINDOW_MANAGER_H_
 
 #include <miral/window_management_policy.h>
+#include <miral/window_manager_tools.h>
 
 namespace miral
 {
@@ -27,7 +28,7 @@ class CanonicalWindowManagerPolicy  : public WindowManagementPolicy
 {
 public:
 
-    explicit CanonicalWindowManagerPolicy(WindowManagerTools* const tools);
+    explicit CanonicalWindowManagerPolicy(WindowManagerTools const& tools);
 
     auto place_new_surface(
         ApplicationInfo const& app_info,
@@ -41,7 +42,7 @@ public:
     void advise_focus_gained(WindowInfo const& info) override;
 
 protected:
-    miral::WindowManagerTools* const tools;
+    WindowManagerTools tools;
 };
 }
 

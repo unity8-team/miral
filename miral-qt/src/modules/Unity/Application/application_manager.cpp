@@ -142,6 +142,7 @@ ApplicationManager* ApplicationManager::Factory::Factory::create()
     connectToSessionListener(appManager, sessionListener);
     connectToSessionAuthorizer(appManager, sessionAuthorizer);
     connectToTaskController(appManager, taskController.data());
+//    TODO - re-implement this functionality using the new Mir WindowManagement API
 //    connect(windowManager, &MirWindowManager::sessionAboutToCreateSurface,
 //            appManager, &ApplicationManager::onSessionAboutToCreateSurface,
 //            Qt::BlockingQueuedConnection);

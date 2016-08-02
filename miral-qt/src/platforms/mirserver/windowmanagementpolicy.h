@@ -34,7 +34,7 @@ class WindowManagementPolicy : public miral::CanonicalWindowManagerPolicy
                              , public qtmir::WindowControllerInterface
 {
 public:
-    WindowManagementPolicy(miral::WindowManagerTools * const tools,
+    WindowManagementPolicy(const miral::WindowManagerTools &tools,
                            qtmir::WindowModel &windowModel,
                            const QSharedPointer<ScreensModel> screensModel);
 
@@ -68,8 +68,6 @@ public:
     void advise_delete_window(const miral::WindowInfo &windowInfo) override;
     void advise_raise(const std::vector<miral::Window> &windows) override;
 
-    void advise_displays_updated(const Rectangles &displays) override;
-
     // From WindowControllerInterface
     void deliver_keyboard_event(const MirKeyboardEvent *event, const miral::Window &window) override;
     void deliver_touch_event   (const MirTouchEvent *event,    const miral::Window &window) override;
@@ -82,7 +80,7 @@ public:
 Q_SIGNALS:
 
 private:
-    miral::WindowManagerTools * const m_tools;
+    miral::WindowManagerTools m_tools;
     qtmir::WindowModel &m_windowModel;
     const QScopedPointer<QtEventFeeder> m_eventFeeder;
 };

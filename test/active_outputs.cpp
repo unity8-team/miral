@@ -43,12 +43,12 @@ namespace
 {
 struct MockActiveOutputsListener : ActiveOutputsListener
 {
-    MOCK_METHOD0(advise_begin, void());
-    MOCK_METHOD0(advise_end, void());
+    MOCK_METHOD0(advise_output_begin, void());
+    MOCK_METHOD0(advise_output_end, void());
 
-    MOCK_METHOD1(advise_create_output, void(Output const&));
-    MOCK_METHOD2(advise_update_output, void(Output const&, Output const&));
-    MOCK_METHOD1(advise_delete_output, void(Output const&));
+    MOCK_METHOD1(advise_output_create, void(Output const&));
+    MOCK_METHOD2(advise_output_update, void(Output const&, Output const&));
+    MOCK_METHOD1(advise_output_delete, void(Output const&));
 };
 
 std::vector<Rectangle> const output_rects{
@@ -84,7 +84,7 @@ struct ActiveOutputs : mtf::HeadlessTest
     void update_outputs(std::vector<Rectangle> const& displays)
     {
         mt::Signal signal;
-        EXPECT_CALL(active_outputs_listener, advise_end()).WillOnce(Invoke([&]{signal.raise(); }));
+        EXPECT_CALL(active_outputs_listener, advise_output_end()).WillOnce(Invoke([&]{signal.raise(); }));
 
         mtd::StubDisplayConfig changed_stub_display_config{displays};
         display.emit_configuration_change_event(mt::fake_shared(changed_stub_display_config));
@@ -96,7 +96,7 @@ struct ActiveOutputs : mtf::HeadlessTest
     void invert_outputs_in_base_configuration()
     {
         mt::Signal signal;
-        EXPECT_CALL(active_outputs_listener, advise_end()).WillOnce(Invoke([&]{signal.raise(); }));
+        EXPECT_CALL(active_outputs_listener, advise_output_end()).WillOnce(Invoke([&]{signal.raise(); }));
 
         auto configuration = server.the_display()->configuration();
         configuration->for_each_output([](mg::UserDisplayConfigurationOutput& output)
@@ -123,8 +123,8 @@ struct RunServer
 TEST_F(ActiveOutputs, on_startup_listener_is_advised)
 {
     InSequence seq;
-    EXPECT_CALL(active_outputs_listener, advise_begin());
-    EXPECT_CALL(active_outputs_listener, advise_create_output(_)).Times(2);
+    EXPECT_CALL(active_outputs_listener, advise_output_begin());
+    EXPECT_CALL(active_outputs_listener, advise_output_create(_)).Times(2);
     RunServer runner{this};
 
     Mock::VerifyAndClearExpectations(&active_outputs_listener); // before shutdown
@@ -135,8 +135,8 @@ TEST_F(ActiveOutputs, when_output_unplugged_listener_is_advised)
     RunServer runner{this};
 
     InSequence seq;
-    EXPECT_CALL(active_outputs_listener, advise_begin());
-    EXPECT_CALL(active_outputs_listener, advise_delete_output(_)).Times(1);
+    EXPECT_CALL(active_outputs_listener, advise_output_begin());
+    EXPECT_CALL(active_outputs_listener, advise_output_delete(_)).Times(1);
     update_outputs({{{0,0}, {640,480}}});
 
     Mock::VerifyAndClearExpectations(&active_outputs_listener); // before shutdown
@@ -150,8 +150,8 @@ TEST_F(ActiveOutputs, when_output_added_listener_is_advised)
     new_output_rects.emplace_back(Point{1280,0}, Size{640,480});
 
     InSequence seq;
-    EXPECT_CALL(active_outputs_listener, advise_begin());
-    EXPECT_CALL(active_outputs_listener, advise_create_output(_)).Times(1);
+    EXPECT_CALL(active_outputs_listener, advise_output_begin());
+    EXPECT_CALL(active_outputs_listener, advise_output_create(_)).Times(1);
     update_outputs(new_output_rects);
 
     Mock::VerifyAndClearExpectations(&active_outputs_listener); // before shutdown
@@ -165,8 +165,8 @@ TEST_F(ActiveOutputs, when_output_resized_listener_is_advised)
     new_output_rects[1] = {Point{640,0}, Size{1080,768}};
 
     InSequence seq;
-    EXPECT_CALL(active_outputs_listener, advise_begin());
-    EXPECT_CALL(active_outputs_listener, advise_update_output(_, _)).Times(1);
+    EXPECT_CALL(active_outputs_listener, advise_output_begin());
+    EXPECT_CALL(active_outputs_listener, advise_output_update(_, _)).Times(1);
     update_outputs(new_output_rects);
 
     Mock::VerifyAndClearExpectations(&active_outputs_listener); // before shutdown
@@ -177,8 +177,8 @@ TEST_F(ActiveOutputs, when_base_configuration_is_updated_listener_is_advised)
     RunServer runner{this};
 
     InSequence seq;
-    EXPECT_CALL(active_outputs_listener, advise_begin());
-    EXPECT_CALL(active_outputs_listener, advise_update_output(_, _)).Times(2);
+    EXPECT_CALL(active_outputs_listener, advise_output_begin());
+    EXPECT_CALL(active_outputs_listener, advise_output_update(_, _)).Times(2);
     invert_outputs_in_base_configuration();
 
     Mock::VerifyAndClearExpectations(&active_outputs_listener); // before shutdown

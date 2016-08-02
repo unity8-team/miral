@@ -24,7 +24,7 @@
 #include "mir/scene/surface.h"
 #include <QDebug>
 
-WindowManagementPolicy::WindowManagementPolicy(miral::WindowManagerTools * const tools,
+WindowManagementPolicy::WindowManagementPolicy(const miral::WindowManagerTools &tools,
                                                qtmir::WindowModel &windowModel,
                                                const QSharedPointer<ScreensModel> screensModel)
     : CanonicalWindowManagerPolicy(tools)
@@ -47,7 +47,7 @@ miral::WindowSpecification WindowManagementPolicy::place_new_surface(
 void WindowManagementPolicy::handle_window_ready(miral::WindowInfo &windowInfo)
 {
     qDebug("Window ready");
-    m_tools->select_active_window(windowInfo.window());
+    m_tools.select_active_window(windowInfo.window());
 }
 
 void WindowManagementPolicy::handle_modify_window(
@@ -55,13 +55,13 @@ void WindowManagementPolicy::handle_modify_window(
     const miral::WindowSpecification &modifications)
 {
     qDebug("Window Modified!");
-    m_tools->modify_window(windowInfo, modifications);
+    m_tools.modify_window(windowInfo, modifications);
 }
 
 void WindowManagementPolicy::handle_raise_window(miral::WindowInfo &windowInfo)
 {
     qDebug("Window Raise");
-    m_tools->select_active_window(windowInfo.window());
+    m_tools.select_active_window(windowInfo.window());
 }
 
 /* Handle input events - here just inject them into Qt event loop for later processing */
@@ -81,12 +81,6 @@ bool WindowManagementPolicy::handle_pointer_event(const MirPointerEvent *event)
 {
     m_eventFeeder->dispatchPointer(event);
     return true;
-}
-
-/* Below are notifications of window state changes */
-void WindowManagementPolicy::advise_displays_updated(const Rectangles&/*displays*/)
-{
-    qDebug("Displays updated");
 }
 
 void WindowManagementPolicy::advise_new_window(miral::WindowInfo &windowInfo)
@@ -155,8 +149,8 @@ void WindowManagementPolicy::advise_end()
 void WindowManagementPolicy::deliver_keyboard_event(const MirKeyboardEvent *event,
                                                     const miral::Window &window)
 {
-    m_tools->invoke_under_lock([&window, this]() {
-        m_tools->select_active_window(window);
+    m_tools.invoke_under_lock([&window, this]() {
+        m_tools.select_active_window(window);
     });
     auto e = reinterpret_cast<MirEvent const*>(event); // naughty
 
@@ -167,8 +161,8 @@ void WindowManagementPolicy::deliver_keyboard_event(const MirKeyboardEvent *even
 void WindowManagementPolicy::deliver_touch_event(const MirTouchEvent *event,
                                                  const miral::Window &window)
 {
-    m_tools->invoke_under_lock([&window, this]() {
-        m_tools->select_active_window(window);
+    m_tools.invoke_under_lock([&window, this]() {
+        m_tools.select_active_window(window);
     });
     auto e = reinterpret_cast<MirEvent const*>(event); // naughty
 
@@ -180,8 +174,8 @@ void WindowManagementPolicy::deliver_touch_event(const MirTouchEvent *event,
 void WindowManagementPolicy::deliver_pointer_event(const MirPointerEvent *event,
                                                    const miral::Window &window)
 {
-    m_tools->invoke_under_lock([&window, this]() {
-        m_tools->select_active_window(window);
+    m_tools.invoke_under_lock([&window, this]() {
+        m_tools.select_active_window(window);
     });
     auto e = reinterpret_cast<MirEvent const*>(event); // naughty
 
@@ -193,15 +187,15 @@ void WindowManagementPolicy::deliver_pointer_event(const MirPointerEvent *event,
 /* Methods to allow Shell to request changes to the window stack */
 void WindowManagementPolicy::focus(const miral::Window &window)
 {
-    m_tools->select_active_window(window);
+    m_tools.select_active_window(window);
 }
 
 void WindowManagementPolicy::resize(const miral::Window &window, const Size size)
 {
-    m_tools->place_and_size(m_tools->info_for(window), window.top_left(), size);
+    m_tools.place_and_size(m_tools.info_for(window), window.top_left(), size);
 }
 
 void WindowManagementPolicy::move(const miral::Window &window, const Point topLeft)
 {
-    m_tools->place_and_size(m_tools->info_for(window), topLeft, window.size() );
+    m_tools.place_and_size(m_tools.info_for(window), topLeft, window.size() );
 }

@@ -35,7 +35,7 @@ class WindowManagerTools;
 class WindowManagementPolicy;
 
 using WindowManagementPolicyBuilder =
-    std::function<std::unique_ptr<miral::WindowManagementPolicy>(miral::WindowManagerTools* tools)>;
+    std::function<std::unique_ptr<miral::WindowManagementPolicy>(WindowManagerTools const& tools)>;
 
 struct WindowManagerOption
 {
@@ -46,7 +46,7 @@ struct WindowManagerOption
 template<typename Policy, typename ...Args>
 inline auto add_window_manager_policy(std::string const& name, Args&... args) -> WindowManagerOption
 {
-    return {name, [&args...](miral::WindowManagerTools* tools) -> std::unique_ptr<miral::WindowManagementPolicy>
+    return {name, [&args...](WindowManagerTools const& tools) -> std::unique_ptr<miral::WindowManagementPolicy>
         { return std::make_unique<Policy>(tools, args...); }};
 }
 

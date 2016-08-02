@@ -32,7 +32,6 @@ namespace mir
 namespace scene { class Surface; }
 }
 
-
 namespace miral
 {
 class Window;
@@ -40,34 +39,40 @@ struct WindowInfo;
 struct ApplicationInfo;
 class WindowSpecification;
 
-/// The interface through which the policy instructs the controller.
+class WindowManagerToolsImplementation;
+
 class WindowManagerTools
 {
 public:
+    explicit WindowManagerTools(WindowManagerToolsImplementation* tools);
+    WindowManagerTools(WindowManagerTools const&);
+    WindowManagerTools& operator=(WindowManagerTools const&);
+    ~WindowManagerTools();
+
 /** @name Update Model
  *  These functions assume that the BasicWindowManager data structures can be accessed freely.
  *  I.e. they should only be used by a thread that has called the WindowManagementPolicy methods
  *  (where any necessary locks are held) or via a invoke_under_lock() callback.
  *  @{ */
-    virtual auto count_applications() const -> unsigned int = 0;
-    virtual void for_each_application(std::function<void(ApplicationInfo& info)> const& functor) = 0;
-    virtual auto find_application(std::function<bool(ApplicationInfo const& info)> const& predicate)
-    -> Application = 0;
-    virtual auto info_for(std::weak_ptr<mir::scene::Session> const& session) const -> ApplicationInfo& = 0;
-    virtual auto info_for(std::weak_ptr<mir::scene::Surface> const& surface) const -> WindowInfo& = 0;
-    virtual auto info_for(Window const& window) const -> WindowInfo& = 0;
-    virtual void kill_active_application(int sig) = 0;
-    virtual auto active_window() const -> Window = 0;
-    virtual auto select_active_window(Window const& hint) -> Window = 0;
-    virtual void drag_active_window(mir::geometry::Displacement movement) = 0;
-    virtual void focus_next_application() = 0;
-    virtual void focus_next_within_application() = 0;
-    virtual auto window_at(mir::geometry::Point cursor) const -> Window = 0;
-    virtual auto active_display() -> mir::geometry::Rectangle const = 0;
-    virtual void raise_tree(Window const& root) = 0;
-    virtual void modify_window(WindowInfo& window_info, WindowSpecification const& modifications) = 0;
-    virtual void place_and_size(WindowInfo& window_info, Point const& new_pos, Size const& new_size) = 0;
-    virtual void set_state(WindowInfo& window_info, MirSurfaceState value) = 0;
+    auto count_applications() const -> unsigned int;
+    void for_each_application(std::function<void(ApplicationInfo& info)> const& functor);
+    auto find_application(std::function<bool(ApplicationInfo const& info)> const& predicate)
+    -> Application;
+    auto info_for(std::weak_ptr<mir::scene::Session> const& session) const -> ApplicationInfo&;
+    auto info_for(std::weak_ptr<mir::scene::Surface> const& surface) const -> WindowInfo&;
+    auto info_for(Window const& window) const -> WindowInfo&;
+    void kill_active_application(int sig);
+    auto active_window() const -> Window;
+    auto select_active_window(Window const& hint) -> Window;
+    void drag_active_window(mir::geometry::Displacement movement);
+    void focus_next_application();
+    void focus_next_within_application();
+    auto window_at(mir::geometry::Point cursor) const -> Window;
+    auto active_display() -> mir::geometry::Rectangle const;
+    void raise_tree(Window const& root);
+    void modify_window(WindowInfo& window_info, WindowSpecification const& modifications);
+    void place_and_size(WindowInfo& window_info, Point const& new_pos, Size const& new_size);
+    void set_state(WindowInfo& window_info, MirSurfaceState value);
 /** @} */
 
 /** @name Multi-thread support
@@ -76,13 +81,11 @@ public:
  *  This should NOT be used by a thread that has called the WindowManagementPolicy methods (and
  *  already holds the lock).
  *  @{ */
-    virtual void invoke_under_lock(std::function<void()> const& callback) = 0;
+    void invoke_under_lock(std::function<void()> const& callback);
 /** @} */
 
-    virtual ~WindowManagerTools() = default;
-    WindowManagerTools() = default;
-    WindowManagerTools(WindowManagerTools const&) = delete;
-    WindowManagerTools& operator=(WindowManagerTools const&) = delete;
+private:
+    WindowManagerToolsImplementation* tools;
 };
 }
 

@@ -56,12 +56,10 @@ public:
     // Indicates that the Window isn't null
     operator bool() const;
 
-    void set_alpha(float alpha);
     void resize(mir::geometry::Size const& size);
     void show();
     void hide();
     void move_to(mir::geometry::Point top_left);
-    void set_state(MirSurfaceState state);
 
     void request_client_surface_close() const;
 
