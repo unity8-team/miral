@@ -57,3 +57,5 @@ if (MIRAL_ENABLE_TESTS)
     add_subdirectory(test)
 endif()
 endif()
+
+include (cmake/Doxygen.cmake)

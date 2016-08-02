@@ -1,4 +1,4 @@
-Tasks for the interested reader
+Tasks for the interested reader  {#tasks_for_the_interested_reader}
 ===============================
 
 MirAL needs to grow based on feeback on what shell developers really need. The
@@ -97,11 +97,11 @@ for a better approach:
       smaller tiles having equal height, to host the remaining windows, with
       older windows being closer to the bottom.
 
-  - Add a titlebar to the top of the screen. The titlebar should be split evenly
-    into horizontal blocks, one per tile. Each block containing the title of the
-    top-level window. The focussed tile is highlighted. Clicking on a title
-    selects the corresponding window.
-    
+ - Add a titlebar to the top of the screen. The titlebar should be split evenly
+   into horizontal blocks, one per tile. Each block containing the title of the
+   top-level window. The focussed tile is highlighted. Clicking on a title
+   selects the corresponding window.
+
 Art Resource
 ------------
 
