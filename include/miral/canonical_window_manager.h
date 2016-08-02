@@ -24,21 +24,29 @@
 
 namespace miral
 {
+/// Widely accepted defaults for window management
 class CanonicalWindowManagerPolicy  : public WindowManagementPolicy
 {
 public:
 
     explicit CanonicalWindowManagerPolicy(WindowManagerTools const& tools);
 
+    /// places the surfaces as requested
     auto place_new_surface(
         ApplicationInfo const& app_info,
         WindowSpecification const& request_parameters)
         -> WindowSpecification override;
 
+    /// Tries to focus on the newly ready window
     void handle_window_ready(WindowInfo& window_info) override;
+
+    /// Applies the requested modifications
     void handle_modify_window(WindowInfo& window_info, WindowSpecification const& modifications) override;
+
+    /// Tries to focus on the newly ready window
     void handle_raise_window(WindowInfo& window_info) override;
 
+    /// Raises the window (and any children)
     void advise_focus_gained(WindowInfo const& info) override;
 
 protected:
