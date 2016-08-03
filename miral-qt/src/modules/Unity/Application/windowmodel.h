@@ -24,6 +24,8 @@
 
 namespace qtmir {
 
+class WindowControllerInterface;
+
 class WindowModel : public QAbstractListModel
 {
     Q_OBJECT
@@ -49,12 +51,13 @@ Q_SIGNALS:
     void countChanged();
 
 private Q_SLOTS:
-    void onWindowAdded(const NumberedWindow);
+    void onWindowAdded(const WindowInfo windowInfo, const unsigned int index);
     void onWindowRemoved(const unsigned int index);
-    void onWindowChanged(const DirtiedWindow);
+    void onWindowChanged(const WindowInfo windowInfo, const unsigned int index);
 
 private:
     QVector<MirSurfaceInterface *> m_windowModel;
+    WindowControllerInterface *m_windowController;
 };
 
 } // namespace qtmir

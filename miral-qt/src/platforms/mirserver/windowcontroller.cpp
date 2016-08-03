@@ -17,6 +17,7 @@
 #include "windowcontroller.h"
 
 #include "windowmanagementpolicy.h"
+#include "mirqtconversion.h"
 
 using namespace qtmir;
 
@@ -33,35 +34,45 @@ void WindowController::focus(const miral::Window &window)
     }
 }
 
-void WindowController::resize(const miral::Window &window, const mir::geometry::Size size)
+void WindowController::resize(const miral::Window &window, const QSize &size)
 {
     if (m_policy) {
-        m_policy->resize(window, size);
+        m_policy->resize(window, toMirSize(size));
     }
 }
 
-void WindowController::move(const miral::Window &window, const mir::geometry::Point topLeft)
+void WindowController::move(const miral::Window &window, const QPoint &topLeft)
 {
     if (m_policy) {
-        m_policy->move(window, topLeft);
+        m_policy->move(window, toMirPoint(topLeft));
     }
 }
 
-void WindowController::deliver_keyboard_event(const MirKeyboardEvent *event, const miral::Window &window)
+void WindowController::setActiveFocus(const miral::Window &/*window*/, const bool /*activeFocus*/)
+{
+
+}
+
+void WindowController::setState(const miral::Window &/*window*/, const MirSurfaceState /*state*/)
+{
+
+}
+
+void WindowController::deliverKeyboardEvent(const miral::Window &window, const MirKeyboardEvent *event)
 {
     if (m_policy) {
         m_policy->deliver_keyboard_event(event, window);
     }
 }
 
-void WindowController::deliver_touch_event(const MirTouchEvent *event, const miral::Window &window)
+void WindowController::deliverTouchEvent(const miral::Window &window, const MirTouchEvent *event)
 {
     if (m_policy) {
         m_policy->deliver_touch_event(event, window);
     }
 }
 
-void WindowController::deliver_pointer_event(const MirPointerEvent *event, const miral::Window &window)
+void WindowController::deliverPointerEvent(const miral::Window &window, const MirPointerEvent *event)
 {
     if (m_policy) {
         m_policy->deliver_pointer_event(event, window);

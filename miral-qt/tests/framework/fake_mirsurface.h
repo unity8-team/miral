@@ -55,7 +55,6 @@ public:
     QString name() const override;
     QSize size() const override;
     QPoint position() const override;
-    void setPosition(const QPoint position) override;
     void resize(int width, int height) override;
     void resize(const QSize &size) override;
     Mir::State state() const override;
@@ -112,7 +111,7 @@ public:
 
     void setFocused(bool focus) override;
 
-    void setViewActiveFocus(qintptr, bool) override {};
+    void setViewActiveFocus(qintptr, bool) override {}
     bool activeFocus() const override { return false; }
 
     void mousePressEvent(QMouseEvent *) override;
@@ -140,14 +139,6 @@ public:
 
 public Q_SLOTS:
     void onCompositorSwappedBuffers() override;
-
-    void setMinimumWidth(int) {}
-    void setMinimumHeight(int) {}
-    void setMaximumWidth(int) {}
-    void setMaximumHeight(int) {}
-    void setWidthIncrement(int) {}
-    void setHeightIncrement(int) {}
-    void setShellChrome(Mir::ShellChrome) override {}
 
     ////
     // Test API from now on

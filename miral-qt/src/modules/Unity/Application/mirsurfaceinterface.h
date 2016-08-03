@@ -118,12 +118,6 @@ public:
 public Q_SLOTS:
     virtual void onCompositorSwappedBuffers() = 0;
 
-    virtual void setMinimumWidth(int) = 0;
-    virtual void setMinimumHeight(int) = 0;
-    virtual void setMaximumWidth(int) = 0;
-    virtual void setMaximumHeight(int) = 0;
-    virtual void setWidthIncrement(int) = 0;
-    virtual void setHeightIncrement(int) = 0;
     virtual void setShellChrome(Mir::ShellChrome shellChrome) = 0;
 
 Q_SIGNALS:

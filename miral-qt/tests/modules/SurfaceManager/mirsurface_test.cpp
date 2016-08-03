@@ -71,7 +71,7 @@ TEST_F(MirSurfaceTest, UpdateTextureBeforeDraw)
     EXPECT_CALL(*mockSurface.get(),buffers_ready_for_compositor(_))
         .WillRepeatedly(Return(1));
 
-    MirSurface *surface = new MirSurface(mockSurface, fakeSession, &m_mockShell, surfaceObserver, CreationHints());
+    MirSurface *surface = new MirSurface(mockSurface, fakeSession, &m_mockShell, surfaceObserver);
     surfaceObserver->frame_posted(1, mir::geometry::Size{1,1});
 
     QSignalSpy spyFrameDropped(surface, SIGNAL(frameDropped()));

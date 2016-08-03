@@ -6,6 +6,7 @@ set(
 )
 
 include_directories(
+  ${MIRAL_QT_SOURCE_DIR}/src/common
   ${MIRAL_QT_SOURCE_DIR}/src/modules
   ${MIRAL_QT_SOURCE_DIR}/src/platforms/mirserver
   ${MIRAL_QT_SOURCE_DIR}/tests/framework

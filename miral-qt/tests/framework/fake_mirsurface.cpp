@@ -58,14 +58,6 @@ QSize FakeMirSurface::size() const { return m_size; }
 
 QPoint FakeMirSurface::position() const { return m_position; }
 
-void FakeMirSurface::setPosition(const QPoint position)
-{
-    if (m_position != position) {
-        m_position = position;
-        Q_EMIT positionChanged(position);
-    }
-}
-
 void FakeMirSurface::resize(int width, int height)
 {
     if (m_size.width() != width || m_size.height() != height) {

@@ -87,6 +87,7 @@ bool WindowManagementPolicy::handle_pointer_event(const MirPointerEvent *event)
 
 void WindowManagementPolicy::advise_new_window(miral::WindowInfo &windowInfo)
 {
+    // TODO: attach surface observer here
     m_windowModel.addWindow(windowInfo);
 }
 

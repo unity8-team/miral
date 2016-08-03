@@ -31,17 +31,11 @@
 
 #include "mirbuffersgtexture.h"
 #include "session.h"
-
-// mirserver
-#include "creationhints.h"
-
+#include "windowcontrollerinterface.h"
+#include "windowmodelinterface.h"
 // mir
 #include <mir_toolkit/common.h>
 
-namespace mir {
-namespace shell { class Shell; }
-namespace scene {class Surface; }
-}
 
 class SurfaceObserver;
 
@@ -54,11 +48,9 @@ class MirSurface : public MirSurfaceInterface
     Q_OBJECT
 
 public:
-    MirSurface(std::shared_ptr<mir::scene::Surface> surface,
-            SessionInterface* session,
-            mir::shell::Shell *shell,
-            std::shared_ptr<SurfaceObserver> observer,
-            const CreationHints &);
+    MirSurface(WindowInfo windowInfo,
+            WindowControllerInterface *controller,
+            std::shared_ptr<SurfaceObserver> observer);
     virtual ~MirSurface();
 
     ////
@@ -166,12 +158,6 @@ public:
 public Q_SLOTS:
     void onCompositorSwappedBuffers() override;
 
-    void setMinimumWidth(int) override;
-    void setMinimumHeight(int) override;
-    void setMaximumWidth(int) override;
-    void setMaximumHeight(int) override;
-    void setWidthIncrement(int) override;
-    void setHeightIncrement(int) override;
     void setShellChrome(Mir::ShellChrome shellChrome) override;
 
 private Q_SLOTS:
@@ -191,9 +177,9 @@ private:
     void applyKeymap();
     void updateActiveFocus();
 
-    std::shared_ptr<mir::scene::Surface> m_surface;
+    WindowInfo m_windowInfo;
     QPointer<SessionInterface> m_session;
-    mir::shell::Shell *const m_shell;
+    WindowControllerInterface *const m_controller;
     bool m_firstFrameDrawn;
 
     //FIXME -  have to save the state as Mir has no getter for it (bug:1357429)
@@ -219,19 +205,10 @@ private:
 
     std::shared_ptr<SurfaceObserver> m_surfaceObserver;
 
-    QPoint m_position;
-    QSize m_size;
     QString m_keymap;
 
     QCursor m_cursor;
     Mir::ShellChrome m_shellChrome;
-
-    int m_minimumWidth{0};
-    int m_minimumHeight{0};
-    int m_maximumWidth{0};
-    int m_maximumHeight{0};
-    int m_widthIncrement{0};
-    int m_heightIncrement{0};
 
     QRect m_inputBounds;
 
