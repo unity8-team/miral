@@ -187,9 +187,18 @@ bool TitlebarWindowManagerPolicy::handle_touch_event(MirTouchEvent const* event)
 
                 auto const new_width = std::max(old_size.width + delta_width, Width{5});
                 auto const new_height = std::max(old_size.height + delta_height, Height{5});
-                auto const new_pos = window.top_left() + delta_x + delta_y;
 
-                tools.place_and_size(tools.info_for(window), new_pos, {new_width, new_height});
+                auto new_pos = window.top_left() + delta_x + delta_y;
+                Size new_size{new_width, new_height};
+
+                auto& window_info = tools.info_for(window);
+
+                window_info.constrain_resize(new_pos, new_size);
+
+                WindowSpecification modifications;
+                modifications.top_left() = new_pos;
+                modifications.size() = new_size;
+                tools.modify_window(window_info, modifications);
             }
             consumes_event = true;
         }
@@ -348,10 +357,11 @@ void TitlebarWindowManagerPolicy::toggle(MirSurfaceState state)
     {
         auto& info = tools.info_for(window);
 
-        if (info.state() == state)
-            state = mir_surface_state_restored;
+        WindowSpecification modifications;
 
-        tools.set_state(info, state);
+        modifications.state() = (info.state() == state) ? mir_surface_state_restored : state;
+
+        tools.modify_window(info, modifications);
     }
 }
 
@@ -412,9 +422,12 @@ bool TitlebarWindowManagerPolicy::resize(Window const& window, Point cursor, Poi
 
     Size new_size{new_width, new_height};
     Point new_pos = top_left + left_resize*delta.dx + top_resize*delta.dy;
-
     window_info.constrain_resize(new_pos, new_size);
-    tools.place_and_size(window_info, new_pos, new_size);
+
+    WindowSpecification modifications;
+    modifications.top_left() = new_pos;
+    modifications.size() = new_size;
+    tools.modify_window(tools.info_for(window), modifications);
 
     return true;
 }
