@@ -31,7 +31,7 @@ struct WindowInfo;
 
 using namespace mir::geometry;
 
-/// The interface through which the policy invoked.
+/// The interface through which the window management policy is determined.
 class WindowManagementPolicy
 {
 public:
@@ -41,45 +41,132 @@ public:
     /// after any related calls end
     virtual void advise_end();
 
-/** @name Customize initial window placement
- *  @{ */
+    /** Customize initial window placement
+     *
+     * @param app_info                the application requesting a new surface
+     * @param requested_specification the requested specification (updated with default placement)
+     * @return                        the customized specification
+     */
     virtual auto place_new_surface(
         ApplicationInfo const& app_info,
-        WindowSpecification const& request_parameters) -> WindowSpecification = 0;
-/** @} */
+        WindowSpecification const& requested_specification) -> WindowSpecification = 0;
 
 /** @name handle events originating from the client
  * The policy is expected to update the model as appropriate
  *  @{ */
+    /** notification that the first buffer has been posted
+     *
+     * @param window_info   the window
+     */
     virtual void handle_window_ready(WindowInfo& window_info) = 0;
+
+    /** request from client to modify the window specification.
+     * \note the request has already been validated against the type definition
+     *
+     * @param window_info   the window
+     * @param modifications the requested changes
+     */
     virtual void handle_modify_window(WindowInfo& window_info, WindowSpecification const& modifications) = 0;
+
+    /** request from client to raise the window
+     * \note the request has already been validated against the requesting event
+     *
+     * @param window_info   the window
+     */
     virtual void handle_raise_window(WindowInfo& window_info) = 0;
 /** @} */
 
 /** @name handle events originating from user
  * The policy is expected to interpret (and optionally consume) the event
  *  @{ */
+    /** keyboard event handler
+     *
+     * @param event the event
+     * @return      whether the policy has consumed the event
+     */
     virtual bool handle_keyboard_event(MirKeyboardEvent const* event) = 0;
+
+    /** touch event handler
+     *
+     * @param event the event
+     * @return      whether the policy has consumed the event
+     */
     virtual bool handle_touch_event(MirTouchEvent const* event) = 0;
+
+    /** pointer event handler
+     *
+     * @param event the event
+     * @return      whether the policy has consumed the event
+     */
     virtual bool handle_pointer_event(MirPointerEvent const* event) = 0;
 /** @} */
 
 /** @name notification of WM events that the policy may need to track.
- * With the exception of focus_lost/gained these are pre-notifications.
  * \note if the policy updates a Window object directly (as opposed to using tools)
  * no notification is generated.
  *  @{ */
+    /** Notification that a new application has connected
+     *
+     * @param application the application
+     */
     virtual void advise_new_app(ApplicationInfo& application);
+
+    /** Notification that an application has disconnected
+     *
+     * @param application the application
+     */
     virtual void advise_delete_app(ApplicationInfo const& application);
+
+    /** Notification that a window has been created
+     *
+     * @param window_info   the window
+     */
     virtual void advise_new_window(WindowInfo& window_info);
+
+    /** Notification that a window has lost focus
+     *
+     * @param window_info   the window
+     */
     virtual void advise_focus_lost(WindowInfo const& info);
+
+    /** Notification that a window has gained focus
+     *
+     * @param window_info   the window
+     */
     virtual void advise_focus_gained(WindowInfo const& info);
+
+    /** Notification that a window is about to change state
+     *
+     * @param window_info   the window
+     * @param state         the new state
+     */
     virtual void advise_state_change(WindowInfo const& window_info, MirSurfaceState state);
+
+    /** Notification that a window is about to move
+     *
+     * @param window_info   the window
+     * @param top_left      the new position
+     */
     virtual void advise_move_to(WindowInfo const& window_info, Point top_left);
+
+    /** Notification that a window is about to resize
+     *
+     * @param window_info   the window
+     * @param new_size      the new size
+     */
     virtual void advise_resize(WindowInfo const& window_info, Size const& new_size);
+
+    /** Notification that a window is about to be destroyed
+     *
+     * @param window_info   the window
+     */
     virtual void advise_delete_window(WindowInfo const& window_info);
 
-    /// \note ordering isn't significant - the existing Z-order will be maintained
+    /** Notification that windows are being raised to the top
+     *
+     * @param windows   the windows
+     * \note ordering isn't significant - the existing Z-order will be maintained
+     */
     virtual void advise_raise(std::vector<Window> const& windows);
 /** @} */
 

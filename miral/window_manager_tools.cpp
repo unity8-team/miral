@@ -80,8 +80,5 @@ void miral::WindowManagerTools::modify_window(WindowInfo& window_info, WindowSpe
 void miral::WindowManagerTools::place_and_size(WindowInfo& window_info, Point const& new_pos, Size const& new_size)
 { tools->place_and_size(window_info, new_pos, new_size); }
 
-void miral::WindowManagerTools::set_state(WindowInfo& window_info, MirSurfaceState value)
-{ tools->set_state(window_info, value); }
-
 void miral::WindowManagerTools::invoke_under_lock(std::function<void()> const& callback)
 { tools->invoke_under_lock(callback); }

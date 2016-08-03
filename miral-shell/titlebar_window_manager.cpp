@@ -348,10 +348,11 @@ void TitlebarWindowManagerPolicy::toggle(MirSurfaceState state)
     {
         auto& info = tools.info_for(window);
 
-        if (info.state() == state)
-            state = mir_surface_state_restored;
+        WindowSpecification modifications;
 
-        tools.set_state(info, state);
+        modifications.state() = (info.state() == state) ? mir_surface_state_restored : state;
+
+        tools.modify_window(info, modifications);
     }
 }
 
