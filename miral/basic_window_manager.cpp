@@ -61,20 +61,8 @@ miral::BasicWindowManager::BasicWindowManager(
     WindowManagementPolicyBuilder const& build) :
     focus_controller(focus_controller),
     display_layout(display_layout),
-    policy(build(WindowManagerTools{this})),
-    surface_builder([](std::shared_ptr<scene::Session> const&, WindowSpecification const&) -> Window
-        { throw std::logic_error{"Can't create a window yet"};})
+    policy(build(WindowManagerTools{this}))
 {
-}
-
-auto miral::BasicWindowManager::build_window(Application const& application, WindowSpecification const& spec)
--> WindowInfo&
-{
-    auto result = surface_builder(application, spec);
-    auto& info = window_info.emplace(result, WindowInfo{result, spec}).first->second;
-    if (spec.parent().is_set() && spec.parent().value().lock())
-        info.parent(info_for(spec.parent().value()).window());
-    return info;
 }
 
 void miral::BasicWindowManager::add_session(std::shared_ptr<scene::Session> const& session)
@@ -97,19 +85,18 @@ auto miral::BasicWindowManager::add_surface(
 -> frontend::SurfaceId
 {
     Locker lock{mutex, policy};
-    surface_builder = [build](std::shared_ptr<scene::Session> const& session, WindowSpecification const& params)
-        {
-            scene::SurfaceCreationParameters parameters;
-            params.update(parameters);
-            return Window{session, build(session, parameters)};
-        };
 
     auto& session_info = info_for(session);
 
     auto default_placement = place_new_surface(session_info, params);
-    auto& window_info = build_window(session, policy->place_new_surface(session_info, default_placement));
+    WindowSpecification const& spec = policy->place_new_surface(session_info, default_placement);
+    scene::SurfaceCreationParameters parameters;
+    spec.update(parameters);
+    Window const window{session, build(session, parameters)};
+    auto& window_info = this->window_info.emplace(window, WindowInfo{window, spec}).first->second;
 
-    auto const window = window_info.window();
+    if (spec.parent().is_set() && spec.parent().value().lock())
+        window_info.parent(info_for(spec.parent().value()).window());
 
     session_info.add_window(window);
 
