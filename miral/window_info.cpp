@@ -82,8 +82,6 @@ miral::WindowInfo::WindowInfo(
     WindowSpecification const& params) :
     self{std::make_unique<Self>(window, params)}
 {
-    if (params.output_id().is_set())
-        output_id(params.output_id().value());
 }
 
 miral::WindowInfo::~WindowInfo()
