@@ -61,8 +61,6 @@ public:
     virtual auto active_display() -> mir::geometry::Rectangle const = 0;
     virtual void raise_tree(Window const& root) = 0;
     virtual void modify_window(WindowInfo& window_info, WindowSpecification const& modifications) = 0;
-    virtual void place_and_size(WindowInfo& window_info, Point const& new_pos, Size const& new_size) = 0;
-    virtual void set_state(WindowInfo& window_info, MirSurfaceState value) = 0;
 /** @} */
 
 /** @name Multi-thread support

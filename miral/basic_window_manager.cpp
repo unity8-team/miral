@@ -67,11 +67,9 @@ miral::BasicWindowManager::BasicWindowManager(
 {
 }
 
-auto miral::BasicWindowManager::build_window(Application const& application, WindowSpecification const& spec_)
+auto miral::BasicWindowManager::build_window(Application const& application, WindowSpecification const& spec)
 -> WindowInfo&
 {
-    auto spec = spec_;
-
     auto result = surface_builder(application, spec);
     auto& info = window_info.emplace(result, WindowInfo{result, spec}).first->second;
     if (spec.parent().is_set() && spec.parent().value().lock())

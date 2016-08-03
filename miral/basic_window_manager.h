@@ -128,10 +128,6 @@ public:
 
     void modify_window(WindowInfo& window_info, WindowSpecification const& modifications) override;
 
-    void place_and_size(WindowInfo& root, Point const& new_pos, Size const& new_size) override;
-
-    void set_state(miral::WindowInfo& window_info, MirSurfaceState value) override;
-
     void invoke_under_lock(std::function<void()> const& callback) override;
 
 private:
@@ -169,6 +165,8 @@ private:
     void move_tree(miral::WindowInfo& root, mir::geometry::Displacement movement);
     void erase(miral::WindowInfo const& info);
     void validate_modification_request(WindowInfo const& window_info, WindowSpecification const& modifications) const;
+    void place_and_size(WindowInfo& root, Point const& new_pos, Size const& new_size);
+    void set_state(miral::WindowInfo& window_info, MirSurfaceState value);
 };
 }
 
