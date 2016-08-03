@@ -88,8 +88,7 @@ auto miral::BasicWindowManager::add_surface(
 
     auto& session_info = info_for(session);
 
-    auto default_placement = place_new_surface(session_info, params);
-    WindowSpecification const& spec = policy->place_new_surface(session_info, default_placement);
+    WindowSpecification const& spec = policy->place_new_surface(session_info, place_new_surface(session_info, params));
     scene::SurfaceCreationParameters parameters;
     spec.update(parameters);
     Window const window{session, build(session, parameters)};
