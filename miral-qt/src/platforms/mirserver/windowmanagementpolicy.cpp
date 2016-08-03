@@ -187,10 +187,22 @@ void WindowManagementPolicy::focus(const miral::Window window)
 
 void WindowManagementPolicy::resize(const miral::Window window, const Size &size)
 {
-    m_tools.place_and_size(m_tools.info_for(window), window.top_left(), size);
+    miral::WindowSpecification modifications;
+    modifications.size() = size;
+
+    // FIXME the design isn't clear:
+    // if this function is for internal policy use it should be private
+    // if it can be called from outside the policy logic it needs invoke_under_lock
+    m_tools.invoke_under_lock([&] { m_tools.modify_window(m_tools.info_for(window), modifications); });
 }
 
 void WindowManagementPolicy::move(const miral::Window window, const Point &top_left)
 {
-    m_tools.place_and_size(m_tools.info_for(window), top_left, window.size() );
+    miral::WindowSpecification modifications;
+    modifications.top_left() = top_left;
+
+    // FIXME the design isn't clear:
+    // if this function is for internal policy use it should be private
+    // if it can be called from outside the policy logic it needs invoke_under_lock
+    m_tools.invoke_under_lock([&] { m_tools.modify_window(m_tools.info_for(window), modifications); });
 }
