@@ -133,9 +133,6 @@ public:
 
     /// Apply modifications to a window
     void modify_window(WindowInfo& window_info, WindowSpecification const& modifications);
-
-    /// Reposition a window
-    void place_and_size(WindowInfo& window_info, Point const& new_pos, Size const& new_size);
 /** @} */
 
     /** Multi-thread support

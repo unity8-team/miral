@@ -179,18 +179,3 @@ void WindowManagementPolicy::deliver_pointer_event(const MirPointerEvent *event,
     surface->consume(e);
 }
 
-/* Methods to allow Shell to request changes to the window stack */
-void WindowManagementPolicy::focus(const miral::Window window)
-{
-    m_tools.select_active_window(window);
-}
-
-void WindowManagementPolicy::resize(const miral::Window window, const Size &size)
-{
-    m_tools.place_and_size(m_tools.info_for(window), window.top_left(), size);
-}
-
-void WindowManagementPolicy::move(const miral::Window window, const Point &top_left)
-{
-    m_tools.place_and_size(m_tools.info_for(window), top_left, window.size() );
-}
