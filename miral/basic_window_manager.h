@@ -128,10 +128,6 @@ public:
 
     void modify_window(WindowInfo& window_info, WindowSpecification const& modifications) override;
 
-    void place_and_size(WindowInfo& root, Point const& new_pos, Size const& new_size) override;
-
-    void set_state(miral::WindowInfo& window_info, MirSurfaceState value) override;
-
     void invoke_under_lock(std::function<void()> const& callback) override;
 
 private:
@@ -152,9 +148,6 @@ private:
     using FullscreenSurfaces = std::set<Window>;
     FullscreenSurfaces fullscreen_surfaces;
 
-    // Cache the builder functor for the convenience of policies - this should become unnecessary
-    std::function<Window(std::shared_ptr<mir::scene::Session> const& session, WindowSpecification const& params)> surface_builder;
-
     void update_event_timestamp(MirKeyboardEvent const* kev);
     void update_event_timestamp(MirPointerEvent const* pev);
     void update_event_timestamp(MirTouchEvent const* tev);
@@ -164,11 +157,11 @@ private:
     auto place_new_surface(ApplicationInfo const& app_info, WindowSpecification parameters) -> WindowSpecification;
     auto place_relative(Point const& parent_top_left, miral::WindowSpecification const& parameters) -> mir::optional_value<Point>;
 
-    auto build_window(Application const& application, WindowSpecification const& spec)
-        -> WindowInfo&;
     void move_tree(miral::WindowInfo& root, mir::geometry::Displacement movement);
     void erase(miral::WindowInfo const& info);
     void validate_modification_request(WindowInfo const& window_info, WindowSpecification const& modifications) const;
+    void place_and_size(WindowInfo& root, Point const& new_pos, Size const& new_size);
+    void set_state(miral::WindowInfo& window_info, MirSurfaceState value);
 };
 }
 
