@@ -300,7 +300,7 @@ bool TilingWindowManagerPolicy::handle_touch_event(MirTouchEvent const* event)
         case mir_touch_action_down:
             is_drag = false;
 
-        case mir_touch_action_change:
+        default:
             continue;
         }
     }
@@ -443,7 +443,10 @@ void TilingWindowManagerPolicy::update_surfaces(ApplicationInfo& info, Rectangle
                 auto width  = std::min(new_tile.size.width.as_int()  - offset.dx.as_int(), scaled_width.as_int());
                 auto height = std::min(new_tile.size.height.as_int() - offset.dy.as_int(), scaled_height.as_int());
 
-                tools.place_and_size(window_info, new_pos, {width, height});
+                WindowSpecification modifications;
+                modifications.top_left() = new_pos;
+                modifications.size() = {width, height};
+                tools.modify_window(window_info, modifications);
             }
         }
     }

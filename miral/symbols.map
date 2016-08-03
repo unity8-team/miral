@@ -78,8 +78,6 @@ global:
     miral::Window::operator*;
     miral::Window::request_client_surface_close*;
     miral::Window::resize*;
-    miral::Window::set_alpha*;
-    miral::Window::set_state*;
     miral::Window::show*;
     miral::Window::size*;
     miral::Window::surface_id*;
@@ -152,10 +150,8 @@ global:
     miral::WindowManagerTools::kill_active_application*;
     miral::WindowManagerTools::modify_window*;
     miral::WindowManagerTools::operator*;
-    miral::WindowManagerTools::place_and_size*;
     miral::WindowManagerTools::raise_tree*;
     miral::WindowManagerTools::select_active_window*;
-    miral::WindowManagerTools::set_state*;
     miral::WindowManagerTools::window_at*;
     miral::WindowSpecification::?WindowSpecification*;
     miral::WindowSpecification::WindowSpecification*;

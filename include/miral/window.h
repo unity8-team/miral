@@ -81,7 +81,7 @@ private:
 
 bool operator==(Window const& lhs, Window const& rhs);
 bool operator==(std::shared_ptr<mir::scene::Surface> const& lhs, Window const& rhs);
-bool operator==(Window const& lhs, Application const& rhs);
+bool operator==(Window const& lhs, std::shared_ptr<mir::scene::Surface> const& rhs);
 
 inline bool operator!=(Window const& lhs, Window const& rhs) { return !(lhs == rhs); }
 inline bool operator!=(std::shared_ptr<mir::scene::Surface> const& lhs, Window const& rhs) { return !(lhs == rhs); }
