@@ -189,7 +189,12 @@ bool TitlebarWindowManagerPolicy::handle_touch_event(MirTouchEvent const* event)
                 auto const new_height = std::max(old_size.height + delta_height, Height{5});
                 auto const new_pos = window.top_left() + delta_x + delta_y;
 
-                tools.place_and_size(tools.info_for(window), new_pos, {new_width, new_height});
+                WindowSpecification modifications;
+
+                modifications.top_left() = new_pos;
+                modifications.size() = {new_width, new_height};
+
+                tools.modify_window(tools.info_for(window), modifications);
             }
             consumes_event = true;
         }
@@ -413,9 +418,12 @@ bool TitlebarWindowManagerPolicy::resize(Window const& window, Point cursor, Poi
 
     Size new_size{new_width, new_height};
     Point new_pos = top_left + left_resize*delta.dx + top_resize*delta.dy;
-
     window_info.constrain_resize(new_pos, new_size);
-    tools.place_and_size(window_info, new_pos, new_size);
+
+    WindowSpecification modifications;
+    modifications.top_left() = new_pos;
+    modifications.size() = new_size;
+    tools.modify_window(tools.info_for(window), modifications);
 
     return true;
 }
