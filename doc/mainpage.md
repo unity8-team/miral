@@ -30,9 +30,9 @@ every time Mir is released is a small overhead. But for independent developers
 the lack of a stable ABI is problematic as they cannot easily synchronize their
 releases to updates of Mir.
 
-MirAL is the answer to this it provides a stable "abstraction layer" written
-over the top of the current Mir server API that will provide a stable ABI.
-There are a number of other goals that can be addressed at the same time:
+MirAL is the answer to this: It offers an "abstraction layer" written over the
+top of the current Mir server API that will provide a stable ABI. There are a
+number of other goals that can be addressed at the same time:
 
   - The API can be considerably narrowed as a lot of things can be customized
     that are of no interest to shell development;
