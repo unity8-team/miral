@@ -72,10 +72,6 @@ public:
     void deliver_touch_event(const MirTouchEvent *event, const std::shared_ptr<mir::scene::Surface> &surface);
     void deliver_pointer_event(const MirPointerEvent *event, const std::shared_ptr<mir::scene::Surface> &surface);
 
-    void focus(const miral::Window window);
-    void resize(const miral::Window window, const Size &size);
-    void move(const miral::Window window, const Point &top_left);
-
 Q_SIGNALS:
 
 private:

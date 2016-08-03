@@ -179,30 +179,3 @@ void WindowManagementPolicy::deliver_pointer_event(const MirPointerEvent *event,
     surface->consume(e);
 }
 
-/* Methods to allow Shell to request changes to the window stack */
-void WindowManagementPolicy::focus(const miral::Window window)
-{
-    m_tools.select_active_window(window);
-}
-
-void WindowManagementPolicy::resize(const miral::Window window, const Size &size)
-{
-    miral::WindowSpecification modifications;
-    modifications.size() = size;
-
-    // FIXME the design isn't clear:
-    // if this function is for internal policy use it should be private
-    // if it can be called from outside the policy logic it needs invoke_under_lock
-    m_tools.invoke_under_lock([&] { m_tools.modify_window(m_tools.info_for(window), modifications); });
-}
-
-void WindowManagementPolicy::move(const miral::Window window, const Point &top_left)
-{
-    miral::WindowSpecification modifications;
-    modifications.top_left() = top_left;
-
-    // FIXME the design isn't clear:
-    // if this function is for internal policy use it should be private
-    // if it can be called from outside the policy logic it needs invoke_under_lock
-    m_tools.invoke_under_lock([&] { m_tools.modify_window(m_tools.info_for(window), modifications); });
-}
