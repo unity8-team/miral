@@ -17,6 +17,7 @@ target_link_libraries(miral-test
     ${GMOCK_LIBRARY}
     ${GMOCK_MAIN_LIBRARY}
     miral
+    miral-internal
 )
 
 add_dependencies(miral-test GMock)
