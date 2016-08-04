@@ -72,13 +72,11 @@ global:
     miral::Window::?Window*;
     miral::Window::Window*;
     miral::Window::application*;
-    miral::Window::hide*;
     miral::Window::input_area_contains*;
     miral::Window::move_to*;
     miral::Window::operator*;
     miral::Window::request_client_surface_close*;
     miral::Window::resize*;
-    miral::Window::show*;
     miral::Window::size*;
     miral::Window::surface_id*;
     miral::Window::top_left*;
@@ -89,12 +87,10 @@ global:
     miral::WindowInfo::can_morph_to*;
     miral::WindowInfo::children*;
     miral::WindowInfo::constrain_resize*;
-    miral::WindowInfo::has_height_inc*;
     miral::WindowInfo::has_max_aspect*;
     miral::WindowInfo::has_min_aspect*;
     miral::WindowInfo::has_name*;
     miral::WindowInfo::has_output_id*;
-    miral::WindowInfo::has_width_inc*;
     miral::WindowInfo::height_inc*;
     miral::WindowInfo::is_visible*;
     miral::WindowInfo::max_aspect*;
