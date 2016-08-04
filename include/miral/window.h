@@ -50,7 +50,6 @@ public:
 
     auto top_left()     const -> mir::geometry::Point;
     auto size()         const -> mir::geometry::Size;
-
     auto application()  const -> Application;
 
     // Indicates that the Window isn't null
