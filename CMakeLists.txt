@@ -13,11 +13,37 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread -g -Werror -Wall -pedantic -Wextra -fPIC -fuse-ld=gold")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -g -std=c++14 -Werror -Wall -pedantic -Wnon-virtual-dtor -Wextra -fPIC -fuse-ld=gold")
-set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-z,defs -fuse-ld=gold")
-set (CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} -Wl,-z,defs -fuse-ld=gold")
-set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-z,defs -fuse-ld=gold")
+set(MIRAL_COMPILER_FLAGS "-pthread -g -Werror -Wall -pedantic -Wextra -fPIC")
+set(MIRAL_LINKER_FLAGS   "-Wl,-z,defs")
+
+option(MIRAL_USE_LTO "Enable link time optimization" off)
+
+if ("${CMAKE_CXX_COMPILER}" MATCHES "clang")
+    option(MIRAL_USE_LD_GOLD "Enable the \"gold\" linker" off)
+else()
+    option(MIRAL_USE_LD_GOLD "Enable the \"gold\" linker" on)
+endif()
+
+if (MIRAL_USE_LD_GOLD)
+    set(MIRAL_COMPILER_FLAGS "${MIRAL_COMPILER_FLAGS} -fuse-ld=gold")
+    set(MIRAL_LINKER_FLAGS     "${MIRAL_LINKER_FLAGS} -fuse-ld=gold")
+endif()
+
+if (MIRAL_USE_LTO)
+    set(MIRAL_COMPILER_FLAGS "${MIRAL_COMPILER_FLAGS} -flto")
+    set(MIRAL_LINKER_FLAGS     "${MIRAL_LINKER_FLAGS} -flto")
+    if(${CMAKE_COMPILER_IS_GNUCXX})
+        set(CMAKE_NM "gcc-nm")
+        set(CMAKE_AR "gcc-ar")
+        set(CMAKE_RANLIB "gcc-ranlib")
+    endif()
+endif()
+
+set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} ${MIRAL_COMPILER_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MIRAL_COMPILER_FLAGS} -Wnon-virtual-dtor -std=c++14")
+set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${MIRAL_LINKER_FLAGS}")
+set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} ${MIRAL_LINKER_FLAGS}")
+set(CMAKE_EXE_LINKER_FLAGS    "${CMAKE_EXE_LINKER_FLAGS} ${MIRAL_LINKER_FLAGS}")
 
 include(FindPkgConfig)
 
