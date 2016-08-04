@@ -74,7 +74,6 @@ global:
     miral::Window::application*;
     miral::Window::move_to*;
     miral::Window::operator*;
-    miral::Window::request_client_surface_close*;
     miral::Window::resize*;
     miral::Window::size*;
     miral::Window::surface_id*;
