@@ -245,9 +245,7 @@ bool TilingWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* ev
             return true;
 
         case mir_input_event_modifier_alt:
-            if (auto const window = tools.active_window())
-                window.request_client_surface_close();
-
+            tools.ask_client_to_close(tools.active_window());;
             return true;
 
         default:

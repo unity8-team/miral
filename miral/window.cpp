@@ -75,13 +75,6 @@ void miral::Window::move_to(mir::geometry::Point top_left)
         surface->move_to(top_left);
 }
 
-void miral::Window::request_client_surface_close() const
-{
-    if (!self) return;
-    if (auto const surface = self->surface.lock())
-        surface->request_client_surface_close();
-}
-
 auto miral::Window::top_left() const
 -> mir::geometry::Point
 {

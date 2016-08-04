@@ -60,8 +60,6 @@ public:
 
     void move_to(mir::geometry::Point top_left);
 
-    void request_client_surface_close() const;
-
     // Access to the underlying Mir surface id
     auto surface_id()   const -> mir::frontend::SurfaceId;
 

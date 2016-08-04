@@ -103,6 +103,9 @@ public:
      */
     void kill_active_application(int sig);
 
+    /// Send close request to the window
+    void ask_client_to_close(Window const& window);
+
     /// retrieve the active window
     auto active_window() const -> Window;
 
