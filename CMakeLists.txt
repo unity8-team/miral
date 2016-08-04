@@ -17,16 +17,14 @@ set(MIRAL_COMPILER_FLAGS "-pthread -g -Werror -Wall -pedantic -Wextra -fPIC")
 set(MIRAL_LINKER_FLAGS   "-Wl,-z,defs")
 
 option(MIRAL_USE_LTO "Enable link time optimization" off)
-
-if ("${CMAKE_CXX_COMPILER}" MATCHES "clang")
-    option(MIRAL_USE_LD_GOLD "Enable the \"gold\" linker" off)
-else()
-    option(MIRAL_USE_LD_GOLD "Enable the \"gold\" linker" on)
-endif()
+option(MIRAL_USE_LD_GOLD "Enable the \"gold\" linker" on)
 
 if (MIRAL_USE_LD_GOLD)
     set(MIRAL_COMPILER_FLAGS "${MIRAL_COMPILER_FLAGS} -fuse-ld=gold")
     set(MIRAL_LINKER_FLAGS     "${MIRAL_LINKER_FLAGS} -fuse-ld=gold")
+    if ("${CMAKE_CXX_COMPILER}" MATCHES "clang")
+        set(MIRAL_COMPILER_FLAGS "${MIRAL_COMPILER_FLAGS} -Wno-unused-command-line-argument")
+    endif()
 endif()
 
 if (MIRAL_USE_LTO)
