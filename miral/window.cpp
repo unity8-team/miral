@@ -120,18 +120,6 @@ auto miral::Window::surface_id() const
     return self->id;
 }
 
-auto miral::Window::input_area_contains(mir::geometry::Point const& point) const
--> bool
-{
-    if (self)
-    {
-        if (auto const surface = self->surface.lock())
-            return surface->input_area_contains(point);
-    }
-
-    return false;
-}
-
 bool miral::operator==(Window const& lhs, Window const& rhs)
 {
     return lhs.self == rhs.self;

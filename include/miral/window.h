@@ -50,7 +50,7 @@ public:
 
     auto top_left()     const -> mir::geometry::Point;
     auto size()         const -> mir::geometry::Size;
-    auto input_area_contains(mir::geometry::Point const& point) const -> bool;
+
     auto application()  const -> Application;
 
     // Indicates that the Window isn't null
