@@ -300,7 +300,7 @@ bool TilingWindowManagerPolicy::handle_touch_event(MirTouchEvent const* event)
         case mir_touch_action_down:
             is_drag = false;
 
-        case mir_touch_action_change:
+        default:
             continue;
         }
     }
