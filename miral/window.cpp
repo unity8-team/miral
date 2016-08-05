@@ -106,13 +106,6 @@ auto miral::Window::application() const
     return self->session.lock();
 }
 
-auto miral::Window::surface_id() const
--> mir::frontend::SurfaceId
-{
-    if (!self) return {};
-    return self->id;
-}
-
 bool miral::operator==(Window const& lhs, Window const& rhs)
 {
     return lhs.self == rhs.self;

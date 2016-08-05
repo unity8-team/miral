@@ -59,9 +59,6 @@ public:
 
     void move_to(mir::geometry::Point top_left);
 
-    // Access to the underlying Mir surface id
-    auto surface_id()   const -> mir::frontend::SurfaceId;
-
     // Access to the underlying Mir surface
     operator std::weak_ptr<mir::scene::Surface>() const;
     operator std::shared_ptr<mir::scene::Surface>() const;
