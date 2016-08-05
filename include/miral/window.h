@@ -26,16 +26,12 @@
 #include <mir/geometry/point.h>
 #include <mir/geometry/size.h>
 #include <mir/geometry/rectangle.h>
-#include <mir/frontend/surface_id.h>
 
 #include <memory>
-#include <string>
-#include <vector>
 
 namespace mir
 {
 namespace scene { class Surface; }
-namespace shell { struct StreamSpecification; }
 }
 
 namespace miral
@@ -45,7 +41,7 @@ class Window
 {
 public:
     Window();
-    Window(Application const& application, mir::frontend::SurfaceId surface);
+    Window(Application const& application, std::shared_ptr<mir::scene::Surface> const& surface);
     ~Window();
 
     auto top_left()     const -> mir::geometry::Point;

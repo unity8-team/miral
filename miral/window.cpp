@@ -23,17 +23,16 @@
 
 struct miral::Window::Self
 {
-    Self(std::shared_ptr<mir::scene::Session> const& session, mir::frontend::SurfaceId surface);
+    Self(std::shared_ptr<mir::scene::Session> const& session, std::shared_ptr<mir::scene::Surface> const& surface);
 
-    mir::frontend::SurfaceId const id;
     std::weak_ptr<mir::scene::Session> const session;
     std::weak_ptr<mir::scene::Surface> const surface;
 };
 
-miral::Window::Self::Self(std::shared_ptr<mir::scene::Session> const& session, mir::frontend::SurfaceId surface) :
-    id{surface}, session{session}, surface{session->surface(surface)} {}
+miral::Window::Self::Self(std::shared_ptr<mir::scene::Session> const& session, std::shared_ptr<mir::scene::Surface> const& surface) :
+    session{session}, surface{surface} {}
 
-miral::Window::Window(Application const& application, mir::frontend::SurfaceId surface) :
+miral::Window::Window(Application const& application, std::shared_ptr<mir::scene::Surface> const& surface) :
     self{std::make_shared<Self>(application, surface)}
 {
 }

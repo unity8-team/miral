@@ -92,7 +92,7 @@ auto miral::BasicWindowManager::add_surface(
     scene::SurfaceCreationParameters parameters;
     spec.update(parameters);
     auto const surface_id = build(session, parameters);
-    Window const window{session, surface_id};
+    Window const window{session, session->surface(surface_id)};
     auto& window_info = this->window_info.emplace(window, WindowInfo{window, spec}).first->second;
 
     if (spec.parent().is_set() && spec.parent().value().lock())
