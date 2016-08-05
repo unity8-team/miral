@@ -339,6 +339,53 @@ bool TitlebarWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* 
 
         return true;
     }
+    else if (action == mir_keyboard_action_down &&
+             modifiers == (mir_input_event_modifier_ctrl|mir_input_event_modifier_meta))
+    {
+        if (auto active_window = tools.active_window())
+        {
+            auto active_display = tools.active_display();
+            auto& window_info = tools.info_for(active_window);
+            WindowSpecification modifications;
+
+            switch (scan_code)
+            {
+            case KEY_LEFT:
+            {
+                modifications.top_left() = Point{active_display.top_left.x, active_window.top_left().y};
+                tools.modify_window(window_info, modifications);
+                return true;
+            }
+
+            case KEY_RIGHT:
+            {
+                modifications.top_left() = Point{
+                    (active_display.bottom_right() - as_displacement(active_window.size())).x,
+                    active_window.top_left().y};
+                tools.modify_window(window_info, modifications);
+                return true;
+            }
+
+            case KEY_UP:
+            {
+                modifications.top_left() = Point{active_window.top_left().x, active_display.top_left.y} + DeltaY{title_bar_height};
+                tools.modify_window(window_info, modifications);
+                return true;
+            }
+
+            case KEY_DOWN:
+            {
+                modifications.top_left() = Point{
+                    active_window.top_left().x,
+                    (active_display.bottom_right() - as_displacement(active_window.size())).y};
+                tools.modify_window(window_info, modifications);
+                return true;
+            }
+
+            default:;
+            }
+        }
+    }
 
     // TODO this is a workaround for the lack of a way to detect server exit (Mir bug lp:1593655)
     // We need to exit the titlebar_provider "client" thread before the server exits
