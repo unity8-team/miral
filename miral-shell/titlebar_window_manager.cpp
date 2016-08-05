@@ -351,38 +351,32 @@ bool TitlebarWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* 
             switch (scan_code)
             {
             case KEY_LEFT:
-            {
                 modifications.top_left() = Point{active_display.top_left.x, active_window.top_left().y};
-                tools.modify_window(window_info, modifications);
-                return true;
-            }
+                break;
 
             case KEY_RIGHT:
-            {
                 modifications.top_left() = Point{
                     (active_display.bottom_right() - as_displacement(active_window.size())).x,
                     active_window.top_left().y};
-                tools.modify_window(window_info, modifications);
-                return true;
-            }
+                break;
 
             case KEY_UP:
-            {
                 modifications.top_left() = Point{active_window.top_left().x, active_display.top_left.y} + DeltaY{title_bar_height};
-                tools.modify_window(window_info, modifications);
-                return true;
-            }
+                break;
 
             case KEY_DOWN:
-            {
                 modifications.top_left() = Point{
                     active_window.top_left().x,
                     (active_display.bottom_right() - as_displacement(active_window.size())).y};
-                tools.modify_window(window_info, modifications);
-                return true;
-            }
+                break;
 
             default:;
+            }
+
+            if (modifications.top_left().is_set())
+            {
+                tools.modify_window(window_info, modifications);
+                return true;
             }
         }
     }
