@@ -20,7 +20,6 @@
 #include "windowmodelinterface.h"
 
 #include "miral/window_info.h"
-#include <mir/frontend/surface_id.h>
 
 #include <QPair>
 
