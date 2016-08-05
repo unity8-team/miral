@@ -20,6 +20,7 @@
 #include <mir/scene/session.h>
 #include <mir/graphics/display_configuration.h>
 #include <mir/scene/surface_creation_parameters.h>
+#include <mir/version.h>
 #include <gmock/gmock.h>
 
 #include <string>
@@ -72,6 +73,12 @@ struct MockSession : public Session
 
 
 private:
+
+#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 25, 0)
+    graphics::BufferID create_buffer(graphics::BufferProperties const&) { return graphics::BufferID{0}; }
+    void destroy_buffer(graphics::BufferID) {}
+    std::shared_ptr<graphics::Buffer> get_buffer(graphics::BufferID) { return {}; }
+#endif
     std::string m_sessionName;
     pid_t m_sessionId;
 };

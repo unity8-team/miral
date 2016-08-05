@@ -34,7 +34,6 @@
 #include <QQuickWindow>
 #include <QScreen>
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Werror"
 #include <private/qsgdefaultimagenode_p.h>
 #pragma GCC diagnostic pop
 #include <QTimer>
