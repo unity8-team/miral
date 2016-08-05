@@ -44,8 +44,8 @@ WindowModel::~WindowModel()
 void WindowModel::addWindow(const miral::WindowInfo &windowInfo)
 {
     qDebug("WindowModel::addWindow");
-    auto stackPosition = static_cast<unsigned int>(m_windowIdStack.count());
-    m_windowIdStack.push_back(windowInfo.window().surface_id()); // ASSUMPTION: Mir should tell us where in stack
+    auto stackPosition = static_cast<unsigned int>(m_windowStack.count());
+    m_windowStack.push_back(windowInfo.window()); // ASSUMPTION: Mir should tell us where in stack
 
     QSize size = toQSize(windowInfo.window().size());
     QPoint position = toQPoint(windowInfo.window().top_left());
@@ -58,19 +58,19 @@ void WindowModel::addWindow(const miral::WindowInfo &windowInfo)
 void WindowModel::removeWindow(const miral::WindowInfo &windowInfo)
 {
     qDebug("WindowModel::removeWindow");
-    const int pos = m_windowIdStack.indexOf(windowInfo.window().surface_id());
+    const int pos = m_windowStack.indexOf(windowInfo.window());
     if (pos < 0) {
         qDebug("Unknown window removed");
         return;
     }
-    m_windowIdStack.removeAt(pos);
+    m_windowStack.removeAt(pos);
     auto upos = static_cast<unsigned int>(pos);
     Q_EMIT windowRemoved(upos);
 }
 
 void WindowModel::focusWindow(const miral::WindowInfo &windowInfo, const bool focus)
 {
-    const int pos = m_windowIdStack.indexOf(windowInfo.window().surface_id());
+    const int pos = m_windowStack.indexOf(windowInfo.window());
     if (pos < 0) {
         qDebug("Unknown window focused");
         return;
@@ -87,7 +87,7 @@ void WindowModel::focusWindow(const miral::WindowInfo &windowInfo, const bool fo
 
 void WindowModel::moveWindow(const miral::WindowInfo &windowInfo, mir::geometry::Point topLeft)
 {
-    const int pos = m_windowIdStack.indexOf(windowInfo.window().surface_id());
+    const int pos = m_windowStack.indexOf(windowInfo.window());
     if (pos < 0) {
         qDebug("Unknown window moved");
         return;
@@ -104,7 +104,7 @@ void WindowModel::moveWindow(const miral::WindowInfo &windowInfo, mir::geometry:
 
 void WindowModel::resizeWindow(const miral::WindowInfo &windowInfo, mir::geometry::Size newSize)
 {
-    const int pos = m_windowIdStack.indexOf(windowInfo.window().surface_id());
+    const int pos = m_windowStack.indexOf(windowInfo.window());
     if (pos < 0) {
         qDebug("Unknown window resized");
         return;

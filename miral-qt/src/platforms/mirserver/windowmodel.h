@@ -43,7 +43,7 @@ public:
     void raiseWindows(const std::vector<miral::Window> &windows);  //window?? Not WindowInfo??
 
 private:
-    QVector<mir::frontend::SurfaceId> m_windowIdStack;
+    QVector<miral::Window> m_windowStack;
     unsigned int m_focusedWindowIndex;
 };
 
