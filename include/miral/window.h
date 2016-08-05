@@ -20,12 +20,9 @@
 #define MIRAL_WINDOW_H
 
 #include "miral/application.h"
-#include "miral/stream_specification.h"
 
-#include <mir_toolkit/common.h>
 #include <mir/geometry/point.h>
 #include <mir/geometry/size.h>
-#include <mir/geometry/rectangle.h>
 
 #include <memory>
 
