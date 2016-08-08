@@ -7,5 +7,5 @@ add_executable(miral-kiosk
 target_link_libraries(miral-kiosk miral)
 
 install(TARGETS miral-kiosk
-    DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
+    DESTINATION ${CMAKE_INSTALL_BINDIR}
 )

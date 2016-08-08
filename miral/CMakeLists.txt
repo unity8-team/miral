@@ -48,7 +48,6 @@ set_target_properties(miral
         LINK_FLAGS "-Wl,--exclude-libs=ALL -Wl,--version-script,${symbol_map}"
 )
 
-set(LIBDIR "${CMAKE_INSTALL_PREFIX}/lib")
 set(INCLUDEDIR "${CMAKE_INSTALL_PREFIX}/include/miral")
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/miral.pc.in
@@ -56,6 +55,6 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/miral.pc.in
     @ONLY
 )
 
-install(TARGETS     miral                           LIBRARY DESTINATION "${LIBDIR}")
+install(TARGETS     miral                           LIBRARY DESTINATION "${CMAKE_INSTALL_FULL_LIBDIR}")
 install(DIRECTORY   ${CMAKE_SOURCE_DIR}/include/            DESTINATION "${INCLUDEDIR}")
-install(FILES       ${CMAKE_CURRENT_BINARY_DIR}/miral.pc    DESTINATION "${LIBDIR}/pkgconfig")
+install(FILES       ${CMAKE_CURRENT_BINARY_DIR}/miral.pc    DESTINATION "${CMAKE_INSTALL_FULL_LIBDIR}/pkgconfig")
