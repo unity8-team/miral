@@ -57,8 +57,7 @@ public:
     operator bool() const;
 
     void resize(mir::geometry::Size const& size);
-    void show();
-    void hide();
+
     void move_to(mir::geometry::Point top_left);
 
     void request_client_surface_close() const;

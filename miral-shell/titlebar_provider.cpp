@@ -196,6 +196,7 @@ void TitlebarProvider::advise_state_change(miral::WindowInfo const& window_info,
 {
     if (auto titlebar = find_titlebar_window(window_info.window()))
     {
+        miral::WindowSpecification modifications;
         switch (state)
         {
         case mir_surface_state_maximized:
@@ -203,13 +204,15 @@ void TitlebarProvider::advise_state_change(miral::WindowInfo const& window_info,
         case mir_surface_state_hidden:
         case mir_surface_state_minimized:
         case mir_surface_state_fullscreen:
-            titlebar.hide();
+            modifications.state() = mir_surface_state_hidden;
             break;
 
         default:
-            titlebar.show();
+            modifications.state() = mir_surface_state_restored;
             break;
         }
+
+        tools.modify_window(tools.info_for(titlebar), modifications);
     }
 }
 

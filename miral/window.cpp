@@ -68,20 +68,6 @@ void miral::Window::resize(mir::geometry::Size const& size)
         surface->resize(size);
 }
 
-void miral::Window::show()
-{
-    if (!self) return;
-    if (auto const surface = self->surface.lock())
-        surface->show();
-}
-
-void miral::Window::hide()
-{
-    if (!self) return;
-    if (auto const surface = self->surface.lock())
-        surface->hide();
-}
-
 void miral::Window::move_to(mir::geometry::Point top_left)
 {
     if (!self) return;
