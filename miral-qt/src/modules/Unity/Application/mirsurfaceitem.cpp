@@ -33,9 +33,7 @@
 #include <QQmlEngine>
 #include <QQuickWindow>
 #include <QScreen>
-#pragma GCC diagnostic push
 #include <private/qsgdefaultimagenode_p.h>
-#pragma GCC diagnostic pop
 #include <QTimer>
 #include <QSGTextureProvider>
 
