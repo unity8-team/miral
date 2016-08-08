@@ -346,6 +346,7 @@ bool TitlebarWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* 
         {
             auto active_display = tools.active_display();
             auto& window_info = tools.info_for(active_window);
+            auto consume{true};
             WindowSpecification modifications;
 
             switch (scan_code)
@@ -361,7 +362,12 @@ bool TitlebarWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* 
                 break;
 
             case KEY_UP:
-                modifications.top_left() = Point{active_window.top_left().x, active_display.top_left.y} + DeltaY{title_bar_height};
+                if (window_info.state() != mir_surface_state_vertmaximized &&
+                    window_info.state() != mir_surface_state_maximized)
+                {
+                    modifications.top_left() =
+                        Point{active_window.top_left().x, active_display.top_left.y} + DeltaY{title_bar_height};
+                }
                 break;
 
             case KEY_DOWN:
@@ -370,14 +376,15 @@ bool TitlebarWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* 
                     (active_display.bottom_right() - as_displacement(active_window.size())).y};
                 break;
 
-            default:;
+            default:
+                consume = false;
             }
 
             if (modifications.top_left().is_set())
-            {
                 tools.modify_window(window_info, modifications);
+
+            if (consume)
                 return true;
-            }
         }
     }
 
