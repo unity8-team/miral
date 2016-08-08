@@ -1,9 +1,6 @@
 #!/usr/bin/make -f
 
-DEB_HOST_ARCH ?= $(shell dpkg-architecture -qDEB_HOST_ARCH)
 DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
-DEB_HOST_ARCH_ENDIAN ?= $(shell dpkg-architecture -qDEB_HOST_ARCH_ENDIAN)
-EXACT_PACKAGE_VERSION = $(shell dpkg-parsechangelog | grep Version | cut -d' ' -f 2)
 
 export DPKG_GENSYMBOLS_CHECK_LEVEL = 4
 
@@ -18,6 +15,9 @@ ifeq ($(filter noopt,$(DEB_BUILD_OPTIONS)),noopt)
 else
 	COMMON_CONFIGURE_OPTIONS += -DMIRAL_USE_LTO=ON
 endif
+
+override_dh_auto_configure:
+	dh_auto_configure -- $(COMMON_CONFIGURE_OPTIONS)
 
 # Only build the docs when we need them
 override_dh_auto_build-indep:
