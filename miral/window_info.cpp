@@ -70,8 +70,8 @@ miral::WindowInfo::Self::Self(Window window, WindowSpecification const& params) 
     preferred_orientation{optional_value_or_default(params.preferred_orientation(), mir_orientation_mode_any)},
     width_inc{optional_value_or_default(params.width_inc(), DeltaX{1})},
     height_inc{optional_value_or_default(params.height_inc(), DeltaY{1})},
-    min_aspect{optional_value_or_default(params.min_aspect(), AspectRatio{0U, std::numeric_limits<unsigned>::max()})},
-    max_aspect{optional_value_or_default(params.max_aspect(), AspectRatio{std::numeric_limits<unsigned>::max(), 0U})}
+    min_aspect(optional_value_or_default(params.min_aspect(), AspectRatio{0U, std::numeric_limits<unsigned>::max()})),
+    max_aspect(optional_value_or_default(params.max_aspect(), AspectRatio{std::numeric_limits<unsigned>::max(), 0U}))
 {
     if (params.output_id().is_set())
         output_id = params.output_id().value();
