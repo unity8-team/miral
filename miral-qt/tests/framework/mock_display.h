@@ -61,6 +61,11 @@ public:
 #if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 20, 0)
     MOCK_METHOD2(create_virtual_output, std::unique_ptr<mir::graphics::VirtualOutput> (int width, int height));
 #endif
+
+#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 25, 0)
+    mir::graphics::NativeDisplay* native_display() { return nullptr; }
+#endif
+
 };
 
 #endif // MOCKDISPLAY_H
