@@ -378,6 +378,12 @@ void miral::BasicWindowManager::kill_active_application(int sig)
         miral::kill(application, sig);
 }
 
+void miral::BasicWindowManager::ask_client_to_close(Window const& window)
+{
+    if (auto const mir_surface = std::shared_ptr<scene::Surface>(window))
+        mir_surface->request_client_surface_close();
+}
+
 auto miral::BasicWindowManager::active_window() const -> Window
 {
     return mru_active_windows.top();

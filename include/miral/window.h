@@ -50,7 +50,6 @@ public:
 
     auto top_left()     const -> mir::geometry::Point;
     auto size()         const -> mir::geometry::Size;
-    auto input_area_contains(mir::geometry::Point const& point) const -> bool;
     auto application()  const -> Application;
 
     // Indicates that the Window isn't null
@@ -59,8 +58,6 @@ public:
     void resize(mir::geometry::Size const& size);
 
     void move_to(mir::geometry::Point top_left);
-
-    void request_client_surface_close() const;
 
     // Access to the underlying Mir surface id
     auto surface_id()   const -> mir::frontend::SurfaceId;

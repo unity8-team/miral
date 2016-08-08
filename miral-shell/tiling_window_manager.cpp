@@ -245,9 +245,7 @@ bool TilingWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* ev
             return true;
 
         case mir_input_event_modifier_alt:
-            if (auto const window = tools.active_window())
-                window.request_client_surface_close();
-
+            tools.ask_client_to_close(tools.active_window());;
             return true;
 
         default:
@@ -464,17 +462,14 @@ void TilingWindowManagerPolicy::clip_to_tile(miral::WindowSpecification& paramet
 
 void TilingWindowManagerPolicy::drag(WindowInfo& window_info, Point to, Point from, Rectangle bounds)
 {
-    if (window_info.window() && window_info.window().input_area_contains(from))
+    auto movement = to - from;
+
+    constrained_move(window_info.window(), movement, bounds);
+
+    for (auto const& child: window_info.children())
     {
-        auto movement = to - from;
-
-        constrained_move(window_info.window(), movement, bounds);
-
-        for (auto const& child: window_info.children())
-        {
-            auto move = movement;
-            constrained_move(child, move, bounds);
-        }
+        auto move = movement;
+        constrained_move(child, move, bounds);
     }
 }
 
@@ -506,31 +501,28 @@ void TilingWindowManagerPolicy::constrained_move(
 
 void TilingWindowManagerPolicy::resize(Window window, Point cursor, Point old_cursor, Rectangle bounds)
 {
-    if (window && window.input_area_contains(old_cursor))
-    {
-        auto const top_left = window.top_left();
+    auto const top_left = window.top_left();
 
-        auto const old_displacement = old_cursor - top_left;
-        auto const new_displacement = cursor - top_left;
+    auto const old_displacement = old_cursor - top_left;
+    auto const new_displacement = cursor - top_left;
 
-        auto const scale_x = float(new_displacement.dx.as_int())/std::max(1.0f, float(old_displacement.dx.as_int()));
-        auto const scale_y = float(new_displacement.dy.as_int())/std::max(1.0f, float(old_displacement.dy.as_int()));
+    auto const scale_x = float(new_displacement.dx.as_int())/std::max(1.0f, float(old_displacement.dx.as_int()));
+    auto const scale_y = float(new_displacement.dy.as_int())/std::max(1.0f, float(old_displacement.dy.as_int()));
 
-        if (scale_x <= 0.0f || scale_y <= 0.0f) return;
+    if (scale_x <= 0.0f || scale_y <= 0.0f) return;
 
-        auto const old_size = window.size();
-        Size new_size{scale_x*old_size.width, scale_y*old_size.height};
+    auto const old_size = window.size();
+    Size new_size{scale_x*old_size.width, scale_y*old_size.height};
 
-        auto const size_limits = as_size(bounds.bottom_right() - top_left);
+    auto const size_limits = as_size(bounds.bottom_right() - top_left);
 
-        if (new_size.width > size_limits.width)
-            new_size.width = size_limits.width;
+    if (new_size.width > size_limits.width)
+        new_size.width = size_limits.width;
 
-        if (new_size.height > size_limits.height)
-            new_size.height = size_limits.height;
+    if (new_size.height > size_limits.height)
+        new_size.height = size_limits.height;
 
-        window.resize(new_size);
-    }
+    window.resize(new_size);
 }
 
 void TilingWindowManagerPolicy::advise_focus_gained(WindowInfo const& info)

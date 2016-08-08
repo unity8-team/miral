@@ -75,13 +75,6 @@ void miral::Window::move_to(mir::geometry::Point top_left)
         surface->move_to(top_left);
 }
 
-void miral::Window::request_client_surface_close() const
-{
-    if (!self) return;
-    if (auto const surface = self->surface.lock())
-        surface->request_client_surface_close();
-}
-
 auto miral::Window::top_left() const
 -> mir::geometry::Point
 {
@@ -118,18 +111,6 @@ auto miral::Window::surface_id() const
 {
     if (!self) return {};
     return self->id;
-}
-
-auto miral::Window::input_area_contains(mir::geometry::Point const& point) const
--> bool
-{
-    if (self)
-    {
-        if (auto const surface = self->surface.lock())
-            return surface->input_area_contains(point);
-    }
-
-    return false;
 }
 
 bool miral::operator==(Window const& lhs, Window const& rhs)
