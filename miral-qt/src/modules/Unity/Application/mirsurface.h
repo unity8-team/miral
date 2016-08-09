@@ -62,7 +62,7 @@ public:
 
     QSize size() const override;
     void resize(int width, int height) override;
-    void resize(const QSize &size) override { resize(size.width(), size.height()); }
+    Q_INVOKABLE void resize(const QSize &size) override { resize(size.width(), size.height()); }
 
     QPoint position() const override;
     Q_INVOKABLE void requestPosition(const QPoint newPosition) override;

@@ -51,29 +51,47 @@ FocusScope {
 
     Text {
         anchors { left: parent.left; bottom: parent.bottom }
-        text: "Move window: Ctrl+click"
+        text: "Move window: Ctrl+click\n
+Resize window: Ctrl+Right click"
     }
 
     MouseArea {
         anchors.fill: parent
-        acceptedButtons: Qt.LeftButton
+        acceptedButtons: Qt.LeftButton | Qt.RightButton
         property variant window: null
         property int initialWindowXPosition
         property int initialWindowYPosition
+        property int initialWindowWidth
+        property int initialWindowHeight
         property int initialMouseXPosition
         property int initialMouseYPosition
+        property var action
 
         function moveWindowBy(window, delta) {
             window.surface.requestPosition(Qt.point(initialWindowXPosition + delta.x,
                                                     initialWindowYPosition + delta.y))
+        }
+        function resizeWindowBy(window, delta) {
+            window.surface.resize(Qt.size(initialWindowWidth + delta.x,
+                                          initialWindowHeight + delta.y))
+            print(Qt.point(initialWindowWidth + delta.x,
+                           initialWindowHeight + delta.y))
         }
 
         onPressed: {
             if (mouse.modifiers & Qt.ControlModifier) {
                 window = windowViewContainer.childAt(mouse.x, mouse.y)
                 if (!window) return;
-                initialWindowXPosition = window.surface.position.x
-                initialWindowYPosition = window.surface.position.y
+
+                if (mouse.button == Qt.LeftButton) {
+                    initialWindowXPosition = window.surface.position.x
+                    initialWindowYPosition = window.surface.position.y
+                    action = moveWindowBy
+                } else if (mouse.button == Qt.RightButton) {
+                    initialWindowHeight = window.surface.size.height
+                    initialWindowWidth = window.surface.size.width
+                    action = resizeWindowBy
+                }
                 initialMouseXPosition = mouse.x
                 initialMouseYPosition = mouse.y
             } else {
@@ -86,7 +104,7 @@ FocusScope {
                 mouse.accepted = false
                 return
             }
-            moveWindowBy(window, Qt.point(mouse.x - initialMouseXPosition, mouse.y - initialMouseYPosition))
+            action(window, Qt.point(mouse.x - initialMouseXPosition, mouse.y - initialMouseYPosition))
         }
 
         onReleased: {
@@ -94,7 +112,7 @@ FocusScope {
                 mouse.accepted = false
                 return
             }
-            moveWindowBy(window, Qt.point(mouse.x - initialMouseXPosition, mouse.y - initialMouseYPosition))
+            action(window, Qt.point(mouse.x - initialMouseXPosition, mouse.y - initialMouseYPosition))
             window = null;
         }
     }
