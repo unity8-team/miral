@@ -61,6 +61,7 @@ private Q_SLOTS:
 private:
     QVector<MirSurfaceInterface *> m_windowModel;
     WindowControllerInterface *m_windowController;
+    MirSurfaceInterface* m_focusedWindow;
 };
 
 } // namespace qtmir

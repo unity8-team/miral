@@ -31,6 +31,7 @@
 using namespace qtmir;
 
 WindowModel::WindowModel()
+    : m_focusedWindow(nullptr)
 {
     auto nativeInterface = dynamic_cast<NativeInterface*>(QGuiApplication::platformNativeInterface());
 
@@ -93,14 +94,18 @@ void WindowModel::onWindowResized(const QSize size, const unsigned int index)
     mirSurface->setSize(size);
 }
 
-void WindowModel::onWindowFocused(const unsigned int /*index*/)
+void WindowModel::onWindowFocused(const unsigned int index)
 {
-
+    auto mirSurface = static_cast<MirSurface *>(m_windowModel.value(index));
+    if (m_focusedWindow && m_focusedWindow != mirSurface) {
+        m_focusedWindow->setFocused(false);
+    }
+    mirSurface->setFocused(true);
+    m_focusedWindow = mirSurface;
 }
 
 void WindowModel::onWindowInfoChanged(const WindowInfo windowInfo, const unsigned int pos)
 {
-    qDebug() << "Window Change!" << pos;
     auto mirSurface = static_cast<MirSurface *>(m_windowModel.value(pos));
     mirSurface->updateWindowInfo(windowInfo);
 
