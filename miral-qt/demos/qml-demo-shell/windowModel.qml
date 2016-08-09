@@ -41,9 +41,22 @@ FocusScope {
         }
     }
 
+    Button {
+        anchors { right: parent.right; bottom: parent.bottom }
+        height: 30
+        width: 80
+        text: "Quit"
+        onClicked: Qt.quit()
+    }
+
+    Text {
+        anchors { left: parent.left; bottom: parent.bottom }
+        text: "Move window: Ctrl+click"
+    }
+
     MouseArea {
         anchors.fill: parent
-        acceptedButtons: Qt.RightButton
+        acceptedButtons: Qt.LeftButton
         property variant window: null
         property int initialWindowXPosition
         property int initialWindowYPosition
@@ -56,21 +69,31 @@ FocusScope {
         }
 
         onPressed: {
-            window = windowViewContainer.childAt(mouse.x, mouse.y)
-            if (!window) return;
-            initialWindowXPosition = window.surface.position.x
-            initialWindowYPosition = window.surface.position.y
-            initialMouseXPosition = mouse.x
-            initialMouseYPosition = mouse.y
+            if (mouse.modifiers & Qt.ControlModifier) {
+                window = windowViewContainer.childAt(mouse.x, mouse.y)
+                if (!window) return;
+                initialWindowXPosition = window.surface.position.x
+                initialWindowYPosition = window.surface.position.y
+                initialMouseXPosition = mouse.x
+                initialMouseYPosition = mouse.y
+            } else {
+                mouse.accepted = false
+            }
         }
 
         onPositionChanged: {
-            if (!window) return;
+            if (!window) {
+                mouse.accepted = false
+                return
+            }
             moveWindowBy(window, Qt.point(mouse.x - initialMouseXPosition, mouse.y - initialMouseYPosition))
         }
 
         onReleased: {
-            if (!window) return;
+            if (!window) {
+                mouse.accepted = false
+                return
+            }
             moveWindowBy(window, Qt.point(mouse.x - initialMouseXPosition, mouse.y - initialMouseYPosition))
             window = null;
         }
