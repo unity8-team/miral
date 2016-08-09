@@ -118,7 +118,7 @@ void WindowManagementPolicy::advise_state_change(const miral::WindowInfo &/*wind
 
 void WindowManagementPolicy::advise_move_to(const miral::WindowInfo &windowInfo, Point topLeft)
 {
-    qDebug("Window move");
+    qDebug("Window moved to %d, %d, and %d", topLeft.x.as_int(), topLeft.y.as_int(), windowInfo.window().top_left().x.as_int());
     m_windowModel.moveWindow(windowInfo, topLeft);
 }
 

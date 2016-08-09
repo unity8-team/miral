@@ -49,7 +49,7 @@ public:
     virtual ~MirSurfaceInterface() {}
 
     virtual QPoint position() const = 0;
-    virtual void setPosition(const QPoint newPosition) = 0;
+    virtual void requestPosition(const QPoint newPosition) = 0;
 
     virtual void setLive(bool value) = 0;
 

@@ -44,12 +44,35 @@ FocusScope {
     MouseArea {
         anchors.fill: parent
         acceptedButtons: Qt.RightButton
+        property variant window: null
+        property int initialWindowXPosition
+        property int initialWindowYPosition
+        property int initialMouseXPosition
+        property int initialMouseYPosition
+
+        function moveWindowBy(window, delta) {
+            window.surface.requestPosition(Qt.point(initialWindowXPosition + delta.x,
+                                                    initialWindowYPosition + delta.y))
+        }
 
         onPressed: {
-            var window = windowViewContainer.childAt(mouse.x, mouse.y)
-            print("GERRY", window)
-            window.surfaceWidth = 400
-            window.surfaceHeight = 150
+            window = windowViewContainer.childAt(mouse.x, mouse.y)
+            if (!window) return;
+            initialWindowXPosition = window.surface.position.x
+            initialWindowYPosition = window.surface.position.y
+            initialMouseXPosition = mouse.x
+            initialMouseYPosition = mouse.y
+        }
+
+        onPositionChanged: {
+            if (!window) return;
+            moveWindowBy(window, Qt.point(mouse.x - initialMouseXPosition, mouse.y - initialMouseYPosition))
+        }
+
+        onReleased: {
+            if (!window) return;
+            moveWindowBy(window, Qt.point(mouse.x - initialMouseXPosition, mouse.y - initialMouseYPosition))
+            window = null;
         }
     }
 }

@@ -53,7 +53,10 @@ Q_SIGNALS:
 private Q_SLOTS:
     void onWindowAdded(const WindowInfo windowInfo, const unsigned int index);
     void onWindowRemoved(const unsigned int index);
-    void onWindowChanged(const WindowInfo windowInfo, const unsigned int index);
+    void onWindowMoved(const QPoint topLeft, const unsigned int index);
+    void onWindowResized(const QSize size, const unsigned int index);
+    void onWindowFocused(const unsigned int index);
+    void onWindowInfoChanged(const WindowInfo windowInfo, const unsigned int index);
 
 private:
     QVector<MirSurfaceInterface *> m_windowModel;

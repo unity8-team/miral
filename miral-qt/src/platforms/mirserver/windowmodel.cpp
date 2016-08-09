@@ -62,7 +62,7 @@ void WindowModel::removeWindow(const miral::WindowInfo &windowInfo)
     Q_EMIT windowRemoved(upos);
 }
 
-void WindowModel::focusWindow(const miral::WindowInfo &windowInfo, const bool /*focus*/)
+void WindowModel::focusWindow(const miral::WindowInfo &windowInfo, const bool focus)
 {
     const int pos = m_windowStack.indexOf(windowInfo.window());
     if (pos < 0) {
@@ -70,12 +70,14 @@ void WindowModel::focusWindow(const miral::WindowInfo &windowInfo, const bool /*
         return;
     }
     auto upos = static_cast<unsigned int>(pos);
-    m_focusedWindowIndex = upos;
 
-    Q_EMIT windowChanged(windowInfo, upos);
+    if (focus && m_focusedWindowIndex != upos) {
+        m_focusedWindowIndex = upos;
+        Q_EMIT windowFocused(upos);
+    }
 }
 
-void WindowModel::moveWindow(const miral::WindowInfo &windowInfo, mir::geometry::Point /*topLeft*/)
+void WindowModel::moveWindow(const miral::WindowInfo &windowInfo, mir::geometry::Point topLeft)
 {
     const int pos = m_windowStack.indexOf(windowInfo.window());
     if (pos < 0) {
@@ -84,10 +86,11 @@ void WindowModel::moveWindow(const miral::WindowInfo &windowInfo, mir::geometry:
     }
     auto upos = static_cast<unsigned int>(pos);
 
-    Q_EMIT windowChanged(windowInfo, upos);
+    // Note: windowInfo.window() is in the state before the move
+    Q_EMIT windowMoved(toQPoint(topLeft), upos);
 }
 
-void WindowModel::resizeWindow(const miral::WindowInfo &windowInfo, mir::geometry::Size /*newSize*/)
+void WindowModel::resizeWindow(const miral::WindowInfo &windowInfo, mir::geometry::Size newSize)
 {
     const int pos = m_windowStack.indexOf(windowInfo.window());
     if (pos < 0) {
@@ -96,7 +99,7 @@ void WindowModel::resizeWindow(const miral::WindowInfo &windowInfo, mir::geometr
     }
     auto upos = static_cast<unsigned int>(pos);
 
-    Q_EMIT windowChanged(windowInfo, upos);
+    Q_EMIT windowResized(toQSize(newSize), upos);
 }
 
 void WindowModel::raiseWindows(const std::vector<miral::Window> &/*windows*/)

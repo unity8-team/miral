@@ -177,6 +177,19 @@ mir::EventUPtr makeMirEvent(Qt::KeyboardModifiers qmods,
     return ev;
 }
 
+enum class DirtyState {
+    Clean = 0,
+    Name = 1 << 1,
+    Type = 1 << 2,
+    State = 1 << 3,
+    RestoreRect = 1 << 4,
+    Children = 1 << 5,
+    MinSize = 1 << 6,
+    MaxSize = 1 << 7,
+};
+Q_DECLARE_FLAGS(DirtyStates, DirtyState)
+Q_DECLARE_OPERATORS_FOR_FLAGS(DirtyStates)
+
 } // namespace {
 
 MirSurface::MirSurface(WindowInfo windowInfo,
@@ -189,6 +202,8 @@ MirSurface::MirSurface(WindowInfo windowInfo,
     , m_orientationAngle(Mir::Angle0)
     , m_textureUpdated(false)
     , m_currentFrameNumber(0)
+    , m_position(toQPoint(windowInfo.window.top_left()))
+    , m_size(toQSize(windowInfo.window.size()))
     , m_live(true)
     , m_shellChrome(Mir::NormalChrome)
 {
@@ -497,7 +512,7 @@ void MirSurface::resize(int width, int height)
 {
     auto const &window = m_windowInfo.window;
 
-    int mirWidth = window.size().width.as_int();
+    int mirWidth = window.size().width.as_int(); // GERRY m_size can be old, as Mir's advise_resize happens before the resize is attempted
     int mirHeight = window.size().height.as_int();
 
     bool mirSizeIsDifferent = width != mirWidth || height != mirHeight;
@@ -511,17 +526,33 @@ void MirSurface::resize(int width, int height)
 
 QPoint MirSurface::position() const
 {
-    return toQPoint(m_windowInfo.window.top_left());
+    return m_position;
 }
 
 void MirSurface::setPosition(const QPoint newPosition)
 {
+    if (m_position != newPosition) {
+        m_position = newPosition;
+        Q_EMIT positionChanged(newPosition);
+    }
+}
+
+void MirSurface::requestPosition(const QPoint newPosition)
+{
     m_controller->move(m_windowInfo.window, newPosition);
+}
+
+void MirSurface::setSize(const QSize newSize)
+{
+    if (m_size != newSize) {
+        m_size = newSize;
+        Q_EMIT sizeChanged(newSize);
+    }
 }
 
 QSize MirSurface::size() const
 {
-    return toQSize(m_windowInfo.window.size());
+    return m_size;
 }
 
 Mir::State MirSurface::state() const
@@ -914,6 +945,52 @@ bool MirSurface::inputAreaContains(const QPoint &point) const
     }
 
     return result;
+}
+
+void MirSurface::updateWindowInfo(const WindowInfo &windowInfo)
+{
+    qDebug() << "MirSurface::updateWindowInfo";
+    // Need to compare the new windowInfo instance with the existing one to figure out what changed
+    DirtyStates dirt = DirtyState::Clean;
+
+    if (windowInfo.name != m_windowInfo.name) {
+        dirt &= DirtyState::Name; qDebug("Name changed");
+    }
+    if (windowInfo.type != m_windowInfo.type) {
+        dirt &= DirtyState::Type; qDebug("Type changed");
+    }
+    if (windowInfo.state != m_windowInfo.state) {
+        dirt &= DirtyState::State; qDebug("State changed");
+    }
+    if (windowInfo.restoreRect != m_windowInfo.restoreRect) {
+        dirt &= DirtyState::RestoreRect; qDebug("RestoreRect changed");
+    }
+    if (windowInfo.children != m_windowInfo.children) {
+        dirt &= DirtyState::Children; qDebug("Children changed");
+    }
+    if (windowInfo.minWidth != m_windowInfo.minWidth
+            && windowInfo.minHeight != m_windowInfo.minHeight) {
+        dirt &= DirtyState::MinSize; qDebug("MinSize changed");
+    }
+    if (windowInfo.maxWidth != m_windowInfo.maxWidth
+            && windowInfo.maxHeight != m_windowInfo.maxHeight) {
+        dirt &= DirtyState::MaxSize; qDebug("MaxHeight changed");
+    }
+
+    if (dirt | DirtyState::Clean) {
+        return;
+    }
+    m_windowInfo = windowInfo;
+
+    if (dirt | DirtyState::Name) {
+        Q_EMIT nameChanged(name());
+    }
+    if (dirt | DirtyState::Type) {
+        Q_EMIT typeChanged(type());
+    }
+    if (dirt | DirtyState::State) {
+        Q_EMIT stateChanged(state());
+    }
 }
 
 void MirSurface::setCursor(const QCursor &cursor)

@@ -65,7 +65,7 @@ public:
     void resize(const QSize &size) override { resize(size.width(), size.height()); }
 
     QPoint position() const override;
-    void setPosition(const QPoint newPosition) override;
+    Q_INVOKABLE void requestPosition(const QPoint newPosition) override;
 
     Mir::State state() const override;
     void setState(Mir::State qmlState) override;
@@ -151,6 +151,9 @@ public:
 
     ////
     // Own API
+    void setPosition(const QPoint newPosition);
+    void setSize(const QSize newSize);
+    void updateWindowInfo(const WindowInfo &windowInfo);
 
     // useful for tests
     void setCloseTimer(AbstractTimer *timer);
@@ -193,6 +196,9 @@ private:
     QWeakPointer<QSGTexture> m_texture;
     bool m_textureUpdated;
     unsigned int m_currentFrameNumber;
+
+    QPoint m_position;
+    QSize m_size;
 
     bool m_live;
     struct View {

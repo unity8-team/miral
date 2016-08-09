@@ -68,7 +68,10 @@ public:
 Q_SIGNALS:
     void windowAdded(const qtmir::WindowInfo, const unsigned int index);
     void windowRemoved(const unsigned int index);
-    void windowChanged(const qtmir::WindowInfo, const unsigned int index);
+    void windowMoved(const QPoint topLeft, const unsigned int index);
+    void windowResized(const QSize size, const unsigned int index);
+    void windowFocused(const unsigned int index);
+    void windowInfoChanged(const qtmir::WindowInfo, const unsigned int index);
 
 private:
     Q_DISABLE_COPY(WindowModelInterface)
