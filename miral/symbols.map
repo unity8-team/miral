@@ -76,7 +76,6 @@ global:
     miral::Window::operator*;
     miral::Window::resize*;
     miral::Window::size*;
-    miral::Window::surface_id*;
     miral::Window::top_left*;
     miral::WindowInfo::?WindowInfo*;
     miral::WindowInfo::WindowInfo*;

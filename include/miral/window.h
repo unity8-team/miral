@@ -20,22 +20,15 @@
 #define MIRAL_WINDOW_H
 
 #include "miral/application.h"
-#include "miral/stream_specification.h"
 
-#include <mir_toolkit/common.h>
 #include <mir/geometry/point.h>
 #include <mir/geometry/size.h>
-#include <mir/geometry/rectangle.h>
-#include <mir/frontend/surface_id.h>
 
 #include <memory>
-#include <string>
-#include <vector>
 
 namespace mir
 {
 namespace scene { class Surface; }
-namespace shell { struct StreamSpecification; }
 }
 
 namespace miral
@@ -45,7 +38,7 @@ class Window
 {
 public:
     Window();
-    Window(Application const& application, mir::frontend::SurfaceId surface);
+    Window(Application const& application, std::shared_ptr<mir::scene::Surface> const& surface);
     ~Window();
 
     auto top_left()     const -> mir::geometry::Point;
@@ -58,9 +51,6 @@ public:
     void resize(mir::geometry::Size const& size);
 
     void move_to(mir::geometry::Point top_left);
-
-    // Access to the underlying Mir surface id
-    auto surface_id()   const -> mir::frontend::SurfaceId;
 
     // Access to the underlying Mir surface
     operator std::weak_ptr<mir::scene::Surface>() const;
