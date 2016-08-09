@@ -159,7 +159,8 @@ void WindowManagementPolicy::deliver_keyboard_event(const MirKeyboardEvent *even
 
     if (auto surface = std::weak_ptr<mir::scene::Surface>(window).lock()) {
         surface->consume(e);
-    }}
+    }
+}
 
 void WindowManagementPolicy::deliver_touch_event(const MirTouchEvent *event,
                                                  const miral::Window &window)
