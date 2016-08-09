@@ -337,6 +337,54 @@ bool TitlebarWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* 
 
         return true;
     }
+    else if (action == mir_keyboard_action_down &&
+             modifiers == (mir_input_event_modifier_ctrl|mir_input_event_modifier_meta))
+    {
+        if (auto active_window = tools.active_window())
+        {
+            auto active_display = tools.active_display();
+            auto& window_info = tools.info_for(active_window);
+            bool consume{true};
+            WindowSpecification modifications;
+
+            switch (scan_code)
+            {
+            case KEY_LEFT:
+                modifications.top_left() = Point{active_display.top_left.x, active_window.top_left().y};
+                break;
+
+            case KEY_RIGHT:
+                modifications.top_left() = Point{
+                    (active_display.bottom_right() - as_displacement(active_window.size())).x,
+                    active_window.top_left().y};
+                break;
+
+            case KEY_UP:
+                if (window_info.state() != mir_surface_state_vertmaximized &&
+                    window_info.state() != mir_surface_state_maximized)
+                {
+                    modifications.top_left() =
+                        Point{active_window.top_left().x, active_display.top_left.y} + DeltaY{title_bar_height};
+                }
+                break;
+
+            case KEY_DOWN:
+                modifications.top_left() = Point{
+                    active_window.top_left().x,
+                    (active_display.bottom_right() - as_displacement(active_window.size())).y};
+                break;
+
+            default:
+                consume = false;
+            }
+
+            if (modifications.top_left().is_set())
+                tools.modify_window(window_info, modifications);
+
+            if (consume)
+                return true;
+        }
+    }
 
     // TODO this is a workaround for the lack of a way to detect server exit (Mir bug lp:1593655)
     // We need to exit the titlebar_provider "client" thread before the server exits
