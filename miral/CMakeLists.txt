@@ -1,6 +1,14 @@
 pkg_check_modules(MIRSERVER mirserver>=0.20 REQUIRED)
 
+set(MIRAL_ABI 1)
+set(symbol_map ${CMAKE_CURRENT_SOURCE_DIR}/symbols.map)
+
 include_directories(include SYSTEM ${MIRSERVER_INCLUDE_DIRS})
+
+add_library(miral-internal STATIC
+    basic_window_manager.cpp            basic_window_manager.h window_manager_tools_implementation.h
+    mru_window_list.cpp                 mru_window_list.h
+)
 
 add_library(miral SHARED
     active_outputs.cpp                  ${CMAKE_SOURCE_DIR}/include/miral/active_outputs.h
@@ -17,9 +25,7 @@ add_library(miral SHARED
     window_management_options.cpp       ${CMAKE_SOURCE_DIR}/include/miral/window_management_options.h
     window_specification.cpp            ${CMAKE_SOURCE_DIR}/include/miral/window_specification.h
     internal_client.cpp                 ${CMAKE_SOURCE_DIR}/include/miral/internal_client.h
-    mru_window_list.cpp                 mru_window_list.h
     set_window_managment_policy.cpp     ${CMAKE_SOURCE_DIR}/include/miral/set_window_managment_policy.h
-    basic_window_manager.cpp            basic_window_manager.h window_manager_tools_implementation.h
     window_management_policy.cpp        ${CMAKE_SOURCE_DIR}/include/miral/window_management_policy.h
     window_manager_tools.cpp            ${CMAKE_SOURCE_DIR}/include/miral/window_manager_tools.h
                                         ${CMAKE_SOURCE_DIR}/include/miral/stream_specification.h
@@ -32,7 +38,15 @@ target_link_libraries(miral
         ${MIRCLIENT_LDFLAGS}
         ${MIRCOMMON_LDFLAGS}
     PRIVATE
+        miral-internal
         ${MIRSERVER_LDFLAGS}
+)
+
+set_target_properties(miral
+        PROPERTIES
+        SOVERSION ${MIRAL_ABI}
+        LINK_FLAGS "-Wl,--exclude-libs=ALL -Wl,--version-script,${symbol_map}"
+        LINK_DEPENDS ${symbol_map}
 )
 
 set(LIBDIR "${CMAKE_INSTALL_PREFIX}/lib")

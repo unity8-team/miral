@@ -195,10 +195,14 @@ void WindowManagementPolicy::focus(const miral::Window &window)
 
 void WindowManagementPolicy::resize(const miral::Window &window, const Size size)
 {
-    m_tools.place_and_size(m_tools.info_for(window), window.top_left(), size);
+    miral::WindowSpecification modifications;
+    modifications.size() = size;
+    m_tools.modify_window(m_tools.info_for(window), modifications);
 }
 
 void WindowManagementPolicy::move(const miral::Window &window, const Point topLeft)
 {
-    m_tools.place_and_size(m_tools.info_for(window), topLeft, window.size() );
+    miral::WindowSpecification modifications;
+    modifications.top_left() = topLeft;
+    m_tools.modify_window(m_tools.info_for(window), modifications);
 }

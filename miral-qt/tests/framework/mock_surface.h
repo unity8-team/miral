@@ -18,6 +18,7 @@
 #define MOCK_MIR_SCENE_SURFACE_H
 
 #include <mir/scene/surface.h>
+#include <mir/version.h>
 #include <gmock/gmock.h>
 
 #include <string>
@@ -87,6 +88,11 @@ struct MockSurface : public mir::scene::Surface
     MOCK_METHOD1(with_most_recent_buffer_do, void(std::function<void(graphics::Buffer&)> const& exec));
 
     MOCK_METHOD2(set_cursor_stream, void(std::shared_ptr<frontend::BufferStream> const&, geometry::Displacement const&));
+
+#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 25, 0)
+    void set_confine_pointer_state(MirPointerConfinementState) {}
+    MirPointerConfinementState confine_pointer_state() const { return {}; }
+#endif
 };
 
 } // namespace scene

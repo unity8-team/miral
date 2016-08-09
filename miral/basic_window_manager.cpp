@@ -61,22 +61,8 @@ miral::BasicWindowManager::BasicWindowManager(
     WindowManagementPolicyBuilder const& build) :
     focus_controller(focus_controller),
     display_layout(display_layout),
-    policy(build(WindowManagerTools{this})),
-    surface_builder([](std::shared_ptr<scene::Session> const&, WindowSpecification const&) -> Window
-        { throw std::logic_error{"Can't create a window yet"};})
+    policy(build(WindowManagerTools{this}))
 {
-}
-
-auto miral::BasicWindowManager::build_window(Application const& application, WindowSpecification const& spec_)
--> WindowInfo&
-{
-    auto spec = spec_;
-
-    auto result = surface_builder(application, spec);
-    auto& info = window_info.emplace(result, WindowInfo{result, spec}).first->second;
-    if (spec.parent().is_set() && spec.parent().value().lock())
-        info.parent(info_for(spec.parent().value()).window());
-    return info;
 }
 
 void miral::BasicWindowManager::add_session(std::shared_ptr<scene::Session> const& session)
@@ -99,19 +85,18 @@ auto miral::BasicWindowManager::add_surface(
 -> frontend::SurfaceId
 {
     Locker lock{mutex, policy};
-    surface_builder = [build](std::shared_ptr<scene::Session> const& session, WindowSpecification const& params)
-        {
-            scene::SurfaceCreationParameters parameters;
-            params.update(parameters);
-            return Window{session, build(session, parameters)};
-        };
 
     auto& session_info = info_for(session);
 
-    auto default_placement = place_new_surface(session_info, params);
-    auto& window_info = build_window(session, policy->place_new_surface(session_info, default_placement));
+    WindowSpecification const& spec = policy->place_new_surface(session_info, place_new_surface(session_info, params));
+    scene::SurfaceCreationParameters parameters;
+    spec.update(parameters);
+    auto const surface_id = build(session, parameters);
+    Window const window{session, session->surface(surface_id)};
+    auto& window_info = this->window_info.emplace(window, WindowInfo{window, spec}).first->second;
 
-    auto const window = window_info.window();
+    if (spec.parent().is_set() && spec.parent().value().lock())
+        window_info.parent(info_for(spec.parent().value()).window());
 
     session_info.add_window(window);
 
@@ -133,7 +118,7 @@ auto miral::BasicWindowManager::add_surface(
             scene_surface));
     }
 
-    return window_info.window().surface_id();
+    return surface_id;
 }
 
 void miral::BasicWindowManager::modify_surface(
@@ -394,6 +379,12 @@ void miral::BasicWindowManager::kill_active_application(int sig)
         miral::kill(application, sig);
 }
 
+void miral::BasicWindowManager::ask_client_to_close(Window const& window)
+{
+    if (auto const mir_surface = std::shared_ptr<scene::Surface>(window))
+        mir_surface->request_client_surface_close();
+}
+
 auto miral::BasicWindowManager::active_window() const -> Window
 {
     return mru_active_windows.top();
@@ -622,9 +613,10 @@ void miral::BasicWindowManager::modify_window(WindowInfo& window_info, WindowSpe
     if (modifications.input_shape().is_set())
         std::shared_ptr<scene::Surface>(window)->set_input_region(modifications.input_shape().value());
 
+    Point new_pos = modifications.top_left().is_set() ? modifications.top_left().value() : window.top_left();
+
     if (modifications.size().is_set())
     {
-        Point new_pos = window.top_left();
         Size new_size = modifications.size().value();
 
         window_info.constrain_resize(new_pos, new_size);
@@ -634,11 +626,14 @@ void miral::BasicWindowManager::modify_window(WindowInfo& window_info, WindowSpe
              modifications.max_width().is_set() || modifications.max_height().is_set() ||
              modifications.width_inc().is_set() || modifications.height_inc().is_set())
     {
-        Point new_pos = window.top_left();
         Size new_size = window.size();
 
         window_info.constrain_resize(new_pos, new_size);
         place_and_size(window_info, new_pos, new_size);
+    }
+    else if (modifications.top_left().is_set())
+    {
+        place_and_size(window_info, new_pos, window.size());
     }
 
     if (window_info.parent() && modifications.aux_rect().is_set() && modifications.edge_attachment().is_set())
@@ -669,6 +664,8 @@ void miral::BasicWindowManager::place_and_size(WindowInfo& root, Point const& ne
 
 void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirSurfaceState value)
 {
+    auto const mir_surface = std::shared_ptr<scene::Surface>(window_info.window());
+
     switch (value)
     {
     case mir_surface_state_restored:
@@ -681,7 +678,7 @@ void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirSur
         break;
 
     default:
-        std::shared_ptr<scene::Surface>(window_info.window())->configure(mir_surface_attrib_state, window_info.state());
+        mir_surface->configure(mir_surface_attrib_state, window_info.state());
         return;
     }
 
@@ -773,9 +770,9 @@ void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirSur
     case mir_surface_state_hidden:
     case mir_surface_state_minimized:
         policy->advise_state_change(window_info, value);
-        window_info.window().hide();
         window_info.state(value);
-        std::shared_ptr<scene::Surface>(window_info.window())->configure(mir_surface_attrib_state, value);
+        mir_surface->hide();
+        mir_surface->configure(mir_surface_attrib_state, value);
         if (window_info.window() == active_window())
         {
             mru_active_windows.erase(window_info.window());
@@ -798,9 +795,9 @@ void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirSur
     window_info.state(value);
 
     if (window_info.is_visible())
-        window_info.window().show();
+        mir_surface->show();
 
-    std::shared_ptr<scene::Surface>(window_info.window())->configure(mir_surface_attrib_state, window_info.state());
+    mir_surface->configure(mir_surface_attrib_state, window_info.state());
 }
 
 

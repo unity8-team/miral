@@ -49,10 +49,10 @@ struct miral::WindowInfo::Self
     mir::geometry::Height max_height;
     MirOrientationMode preferred_orientation;
 
-    mir::optional_value<mir::geometry::DeltaX> width_inc;
-    mir::optional_value<mir::geometry::DeltaY> height_inc;
-    mir::optional_value<AspectRatio> min_aspect;
-    mir::optional_value<AspectRatio> max_aspect;
+    mir::geometry::DeltaX width_inc;
+    mir::geometry::DeltaY height_inc;
+    AspectRatio min_aspect;
+    AspectRatio max_aspect;
     mir::optional_value<int> output_id;
     std::shared_ptr<void> userdata;
 };
@@ -68,17 +68,11 @@ miral::WindowInfo::Self::Self(Window window, WindowSpecification const& params) 
     max_width{optional_value_or_default(params.max_width(), Width{std::numeric_limits<int>::max()})},
     max_height{optional_value_or_default(params.max_height(), Height{std::numeric_limits<int>::max()})},
     preferred_orientation{optional_value_or_default(params.preferred_orientation(), mir_orientation_mode_any)},
-    width_inc{params.width_inc()},
-    height_inc{params.height_inc()},
-    min_aspect{},
-    max_aspect{}
+    width_inc{optional_value_or_default(params.width_inc(), DeltaX{1})},
+    height_inc{optional_value_or_default(params.height_inc(), DeltaY{1})},
+    min_aspect(optional_value_or_default(params.min_aspect(), AspectRatio{0U, std::numeric_limits<unsigned>::max()})),
+    max_aspect(optional_value_or_default(params.max_aspect(), AspectRatio{std::numeric_limits<unsigned>::max(), 0U}))
 {
-    if (min_aspect.is_set())
-        min_aspect = AspectRatio{params.min_aspect().value().width, params.min_aspect().value().height};
-
-    if (max_aspect.is_set())
-        max_aspect = AspectRatio{params.max_aspect().value().width, params.max_aspect().value().height};
-
     if (params.output_id().is_set())
         output_id = params.output_id().value();
 }
@@ -88,14 +82,6 @@ miral::WindowInfo::WindowInfo(
     WindowSpecification const& params) :
     self{std::make_unique<Self>(window, params)}
 {
-    if (params.min_aspect().is_set())
-        min_aspect(AspectRatio{params.min_aspect().value().width, params.min_aspect().value().height});
-
-    if (params.max_aspect().is_set())
-        max_aspect(AspectRatio{params.max_aspect().value().width, params.max_aspect().value().height});
-
-    if (params.output_id().is_set())
-        output_id(params.output_id().value());
 }
 
 miral::WindowInfo::~WindowInfo()
@@ -225,7 +211,6 @@ void miral::WindowInfo::constrain_resize(Point& requested_pos, Size& requested_s
     Point new_pos = requested_pos;
     Size new_size = requested_size;
 
-    if (has_min_aspect())
     {
         auto const ar = min_aspect();
 
@@ -248,7 +233,6 @@ void miral::WindowInfo::constrain_resize(Point& requested_pos, Size& requested_s
         }
     }
 
-    if (has_max_aspect())
     {
         auto const ar = max_aspect();
 
@@ -283,7 +267,6 @@ void miral::WindowInfo::constrain_resize(Point& requested_pos, Size& requested_s
     if (max_height() < new_size.height)
         new_size.height = max_height();
 
-    if (has_width_inc())
     {
         auto const width = new_size.width.as_int() - min_width().as_int();
         auto inc = width_inc().as_int();
@@ -291,7 +274,6 @@ void miral::WindowInfo::constrain_resize(Point& requested_pos, Size& requested_s
             new_size.width = min_width() + DeltaX{inc*(((2L*width + inc)/2)/inc)};
     }
 
-    if (has_height_inc())
     {
         auto const height = new_size.height.as_int() - min_height().as_int();
         auto inc = height_inc().as_int();
@@ -472,62 +454,42 @@ void miral::WindowInfo::userdata(std::shared_ptr<void> userdata)
     self->userdata = userdata;
 }
 
-bool miral::WindowInfo::has_width_inc() const
-{
-    return self->width_inc.is_set();
-}
-
 auto miral::WindowInfo::width_inc() const -> mir::geometry::DeltaX
 {
-    return self->width_inc.value();
+    return self->width_inc;
 }
 
-void miral::WindowInfo::width_inc(mir::optional_value<mir::geometry::DeltaX> width_inc)
+void miral::WindowInfo::width_inc(DeltaX width_inc)
 {
     self->width_inc = width_inc;
 }
 
-bool miral::WindowInfo::has_height_inc() const
-{
-    return self->height_inc.is_set();
-}
-
 auto miral::WindowInfo::height_inc() const -> mir::geometry::DeltaY
 {
-    return self->height_inc.value();
+    return self->height_inc;
 }
 
-void miral::WindowInfo::height_inc(mir::optional_value<mir::geometry::DeltaY> height_inc)
+void miral::WindowInfo::height_inc(mir::geometry::DeltaY height_inc)
 {
     self->height_inc = height_inc;
 }
 
-bool miral::WindowInfo::has_min_aspect() const
-{
-    return self->min_aspect.is_set();
-}
-
 auto miral::WindowInfo::min_aspect() const -> AspectRatio
 {
-    return self->min_aspect.value();
+    return self->min_aspect;
 }
 
-void miral::WindowInfo::min_aspect(mir::optional_value<AspectRatio> min_aspect)
+void miral::WindowInfo::min_aspect(AspectRatio min_aspect)
 {
     self->min_aspect = min_aspect;
 }
 
-bool miral::WindowInfo::has_max_aspect() const
-{
-    return self->max_aspect.is_set();
-}
-
 auto miral::WindowInfo::max_aspect() const -> AspectRatio
 {
-    return self->max_aspect.value();
+    return self->max_aspect;
 }
 
-void miral::WindowInfo::max_aspect(mir::optional_value<AspectRatio> max_aspect)
+void miral::WindowInfo::max_aspect(AspectRatio max_aspect)
 {
     self->max_aspect = max_aspect;
 }

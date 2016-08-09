@@ -133,7 +133,7 @@ bool TitlebarWindowManagerPolicy::handle_touch_event(MirTouchEvent const* event)
         case mir_touch_action_down:
             is_drag = false;
 
-        case mir_touch_action_change:
+        default:
             continue;
         }
     }
@@ -187,9 +187,18 @@ bool TitlebarWindowManagerPolicy::handle_touch_event(MirTouchEvent const* event)
 
                 auto const new_width = std::max(old_size.width + delta_width, Width{5});
                 auto const new_height = std::max(old_size.height + delta_height, Height{5});
-                auto const new_pos = window.top_left() + delta_x + delta_y;
 
-                tools.place_and_size(tools.info_for(window), new_pos, {new_width, new_height});
+                auto new_pos = window.top_left() + delta_x + delta_y;
+                Size new_size{new_width, new_height};
+
+                auto& window_info = tools.info_for(window);
+
+                window_info.constrain_resize(new_pos, new_size);
+
+                WindowSpecification modifications;
+                modifications.top_left() = new_pos;
+                modifications.size() = new_size;
+                tools.modify_window(window_info, modifications);
             }
             consumes_event = true;
         }
@@ -305,9 +314,7 @@ bool TitlebarWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* 
             return true;
 
         case mir_input_event_modifier_alt:
-            if (auto const window = tools.active_window())
-                window.request_client_surface_close();
-
+            tools.ask_client_to_close(tools.active_window());;
             return true;
 
         default:
@@ -330,6 +337,54 @@ bool TitlebarWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* 
 
         return true;
     }
+    else if (action == mir_keyboard_action_down &&
+             modifiers == (mir_input_event_modifier_ctrl|mir_input_event_modifier_meta))
+    {
+        if (auto active_window = tools.active_window())
+        {
+            auto active_display = tools.active_display();
+            auto& window_info = tools.info_for(active_window);
+            bool consume{true};
+            WindowSpecification modifications;
+
+            switch (scan_code)
+            {
+            case KEY_LEFT:
+                modifications.top_left() = Point{active_display.top_left.x, active_window.top_left().y};
+                break;
+
+            case KEY_RIGHT:
+                modifications.top_left() = Point{
+                    (active_display.bottom_right() - as_displacement(active_window.size())).x,
+                    active_window.top_left().y};
+                break;
+
+            case KEY_UP:
+                if (window_info.state() != mir_surface_state_vertmaximized &&
+                    window_info.state() != mir_surface_state_maximized)
+                {
+                    modifications.top_left() =
+                        Point{active_window.top_left().x, active_display.top_left.y} + DeltaY{title_bar_height};
+                }
+                break;
+
+            case KEY_DOWN:
+                modifications.top_left() = Point{
+                    active_window.top_left().x,
+                    (active_display.bottom_right() - as_displacement(active_window.size())).y};
+                break;
+
+            default:
+                consume = false;
+            }
+
+            if (modifications.top_left().is_set())
+                tools.modify_window(window_info, modifications);
+
+            if (consume)
+                return true;
+        }
+    }
 
     // TODO this is a workaround for the lack of a way to detect server exit (Mir bug lp:1593655)
     // We need to exit the titlebar_provider "client" thread before the server exits
@@ -348,10 +403,11 @@ void TitlebarWindowManagerPolicy::toggle(MirSurfaceState state)
     {
         auto& info = tools.info_for(window);
 
-        if (info.state() == state)
-            state = mir_surface_state_restored;
+        WindowSpecification modifications;
 
-        tools.set_state(info, state);
+        modifications.state() = (info.state() == state) ? mir_surface_state_restored : state;
+
+        tools.modify_window(info, modifications);
     }
 }
 
@@ -412,9 +468,12 @@ bool TitlebarWindowManagerPolicy::resize(Window const& window, Point cursor, Poi
 
     Size new_size{new_width, new_height};
     Point new_pos = top_left + left_resize*delta.dx + top_resize*delta.dy;
-
     window_info.constrain_resize(new_pos, new_size);
-    tools.place_and_size(window_info, new_pos, new_size);
+
+    WindowSpecification modifications;
+    modifications.top_left() = new_pos;
+    modifications.size() = new_size;
+    tools.modify_window(tools.info_for(window), modifications);
 
     return true;
 }

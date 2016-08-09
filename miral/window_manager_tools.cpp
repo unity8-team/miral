@@ -50,6 +50,9 @@ auto miral::WindowManagerTools::info_for(Window const& window) const -> WindowIn
 void miral::WindowManagerTools::kill_active_application(int sig)
 { tools->kill_active_application(sig); }
 
+void miral::WindowManagerTools::ask_client_to_close(Window const& window)
+{ tools->ask_client_to_close(window); }
+
 auto miral::WindowManagerTools::active_window() const -> Window
 { return tools->active_window(); }
 
@@ -76,12 +79,6 @@ void miral::WindowManagerTools::raise_tree(Window const& root)
 
 void miral::WindowManagerTools::modify_window(WindowInfo& window_info, WindowSpecification const& modifications)
 { tools->modify_window(window_info,modifications); }
-
-void miral::WindowManagerTools::place_and_size(WindowInfo& window_info, Point const& new_pos, Size const& new_size)
-{ tools->place_and_size(window_info, new_pos, new_size); }
-
-void miral::WindowManagerTools::set_state(WindowInfo& window_info, MirSurfaceState value)
-{ tools->set_state(window_info, value); }
 
 void miral::WindowManagerTools::invoke_under_lock(std::function<void()> const& callback)
 { tools->invoke_under_lock(callback); }

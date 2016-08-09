@@ -52,6 +52,7 @@ public:
     virtual auto info_for(std::weak_ptr<mir::scene::Surface> const& surface) const -> WindowInfo& = 0;
     virtual auto info_for(Window const& window) const -> WindowInfo& = 0;
     virtual void kill_active_application(int sig) = 0;
+    virtual void ask_client_to_close(Window const& window) = 0;
     virtual auto active_window() const -> Window = 0;
     virtual auto select_active_window(Window const& hint) -> Window = 0;
     virtual void drag_active_window(mir::geometry::Displacement movement) = 0;
@@ -61,8 +62,6 @@ public:
     virtual auto active_display() -> mir::geometry::Rectangle const = 0;
     virtual void raise_tree(Window const& root) = 0;
     virtual void modify_window(WindowInfo& window_info, WindowSpecification const& modifications) = 0;
-    virtual void place_and_size(WindowInfo& window_info, Point const& new_pos, Size const& new_size) = 0;
-    virtual void set_state(WindowInfo& window_info, MirSurfaceState value) = 0;
 /** @} */
 
 /** @name Multi-thread support

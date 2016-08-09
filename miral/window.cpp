@@ -23,17 +23,16 @@
 
 struct miral::Window::Self
 {
-    Self(std::shared_ptr<mir::scene::Session> const& session, mir::frontend::SurfaceId surface);
+    Self(std::shared_ptr<mir::scene::Session> const& session, std::shared_ptr<mir::scene::Surface> const& surface);
 
-    mir::frontend::SurfaceId const id;
     std::weak_ptr<mir::scene::Session> const session;
     std::weak_ptr<mir::scene::Surface> const surface;
 };
 
-miral::Window::Self::Self(std::shared_ptr<mir::scene::Session> const& session, mir::frontend::SurfaceId surface) :
-    id{surface}, session{session}, surface{session->surface(surface)} {}
+miral::Window::Self::Self(std::shared_ptr<mir::scene::Session> const& session, std::shared_ptr<mir::scene::Surface> const& surface) :
+    session{session}, surface{surface} {}
 
-miral::Window::Window(Application const& application, mir::frontend::SurfaceId surface) :
+miral::Window::Window(Application const& application, std::shared_ptr<mir::scene::Surface> const& surface) :
     self{std::make_shared<Self>(application, surface)}
 {
 }
@@ -68,32 +67,11 @@ void miral::Window::resize(mir::geometry::Size const& size)
         surface->resize(size);
 }
 
-void miral::Window::show()
-{
-    if (!self) return;
-    if (auto const surface = self->surface.lock())
-        surface->show();
-}
-
-void miral::Window::hide()
-{
-    if (!self) return;
-    if (auto const surface = self->surface.lock())
-        surface->hide();
-}
-
 void miral::Window::move_to(mir::geometry::Point top_left)
 {
     if (!self) return;
     if (auto const surface = self->surface.lock())
         surface->move_to(top_left);
-}
-
-void miral::Window::request_client_surface_close() const
-{
-    if (!self) return;
-    if (auto const surface = self->surface.lock())
-        surface->request_client_surface_close();
 }
 
 auto miral::Window::top_left() const
@@ -125,25 +103,6 @@ auto miral::Window::application() const
 {
     if (!self) return {};
     return self->session.lock();
-}
-
-auto miral::Window::surface_id() const
--> mir::frontend::SurfaceId
-{
-    if (!self) return {};
-    return self->id;
-}
-
-auto miral::Window::input_area_contains(mir::geometry::Point const& point) const
--> bool
-{
-    if (self)
-    {
-        if (auto const surface = self->surface.lock())
-            return surface->input_area_contains(point);
-    }
-
-    return false;
 }
 
 bool miral::operator==(Window const& lhs, Window const& rhs)
