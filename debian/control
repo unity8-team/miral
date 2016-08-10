@@ -4,7 +4,6 @@ Priority: optional
 Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
 XSBC-Original-Maintainer: Alan Griffiths <alan.griffiths@canonical.com>
 Build-Depends: cmake,
-               cmake-data,
                pkg-config,
                debhelper (>= 9),
                doxygen,
@@ -17,7 +16,7 @@ Build-Depends: cmake,
                libmirserver-dev,
                libmirclient-dev,
                mirtest-dev,
-Standards-Version: 3.9.4
+Standards-Version: 3.9.8
 Homepage: https://launchpad.net/miral
 # If you aren't a member of ~mir-team but need to upload packaging changes,
 # just go ahead. ~mir-team will notice and sync up the code again.
