@@ -22,5 +22,5 @@ target_link_libraries(miral-shell
 )
 
 install(TARGETS miral-shell
-    DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
+    DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
