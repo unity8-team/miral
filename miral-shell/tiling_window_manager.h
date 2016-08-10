@@ -64,7 +64,7 @@ public:
 
     void advise_end() override;
 
-    void advise_new_window(miral::WindowInfo& window_info) override;
+    void advise_new_window(miral::WindowInfo const& window_info) override;
     void advise_focus_gained(miral::WindowInfo const& info) override;
     void advise_new_app(miral::ApplicationInfo& application) override;
     void advise_delete_app(miral::ApplicationInfo const& application) override;

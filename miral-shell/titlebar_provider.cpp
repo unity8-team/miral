@@ -181,7 +181,7 @@ void TitlebarProvider::place_new_titlebar(miral::WindowSpecification& window_spe
     window_spec.top_left() = parent_window.top_left() - Displacement{0, title_bar_height};
 }
 
-void TitlebarProvider::advise_new_titlebar(miral::WindowInfo& window_info)
+void TitlebarProvider::advise_new_titlebar(miral::WindowInfo const& window_info)
 {
     {
         std::lock_guard<decltype(mutex)> lock{mutex};

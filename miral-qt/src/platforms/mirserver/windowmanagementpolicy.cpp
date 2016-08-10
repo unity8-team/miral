@@ -83,7 +83,7 @@ bool WindowManagementPolicy::handle_pointer_event(const MirPointerEvent *event)
     return true;
 }
 
-void WindowManagementPolicy::advise_new_window(miral::WindowInfo &windowInfo)
+void WindowManagementPolicy::advise_new_window(const miral::WindowInfo &windowInfo)
 {
     m_windowModel.addWindow(windowInfo);
 }

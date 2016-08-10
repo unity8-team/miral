@@ -217,7 +217,7 @@ bool TitlebarWindowManagerPolicy::handle_touch_event(MirTouchEvent const* event)
     return consumes_event;
 }
 
-void TitlebarWindowManagerPolicy::advise_new_window(WindowInfo& window_info)
+void TitlebarWindowManagerPolicy::advise_new_window(WindowInfo const& window_info)
 {
     CanonicalWindowManagerPolicy::advise_new_window(window_info);
 

@@ -22,7 +22,7 @@ void miral::WindowManagementPolicy::advise_begin() {}
 void miral::WindowManagementPolicy::advise_end() {}
 void miral::WindowManagementPolicy::advise_new_app(ApplicationInfo& /*application*/) {}
 void miral::WindowManagementPolicy::advise_delete_app(ApplicationInfo const& /*application*/) {}
-void miral::WindowManagementPolicy::advise_new_window(WindowInfo& /*window_info*/) {}
+void miral::WindowManagementPolicy::advise_new_window(WindowInfo const& /*window_info*/) {}
 void miral::WindowManagementPolicy::advise_focus_lost(WindowInfo const& /*info*/) {}
 void miral::WindowManagementPolicy::advise_focus_gained(WindowInfo const& /*info*/) {}
 void miral::WindowManagementPolicy::advise_state_change(WindowInfo const& /*window_info*/, MirSurfaceState /*state*/) {}

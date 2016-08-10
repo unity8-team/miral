@@ -58,7 +58,7 @@ public:
     void advise_new_app(miral::ApplicationInfo &application) override;
     void advise_delete_app(const miral::ApplicationInfo &application) override;
 
-    void advise_new_window(miral::WindowInfo &windowInfo) override;
+    void advise_new_window(const miral::WindowInfo &windowInfo) override;
     void advise_focus_lost(const miral::WindowInfo &info) override;
     void advise_focus_gained(const miral::WindowInfo &info) override;
     void advise_state_change(const miral::WindowInfo &info, MirSurfaceState state) override;
