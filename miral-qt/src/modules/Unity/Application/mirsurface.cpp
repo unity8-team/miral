@@ -255,7 +255,8 @@ MirSurface::~MirSurface()
     Q_ASSERT(m_views.isEmpty());
 
     QMutexLocker locker(&m_mutex);
-    //m_window->remove_observer(m_surfaceObserver); GERRY CHANGE ME
+    auto const &window = static_cast<std::shared_ptr<mir::scene::Surface>>(m_windowInfo.window);
+    window->remove_observer(m_surfaceObserver);
 
     delete m_closeTimer;
 
