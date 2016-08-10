@@ -197,9 +197,6 @@ private:
     bool m_textureUpdated;
     unsigned int m_currentFrameNumber;
 
-    QPoint m_position;
-    QSize m_size;
-
     bool m_live;
     struct View {
         bool visible;
@@ -210,6 +207,9 @@ private:
     bool m_neverSetSurfaceFocus{true};
 
     std::shared_ptr<SurfaceObserver> m_surfaceObserver;
+
+    QPoint m_position;
+    QSize m_size;
 
     QString m_keymap;
 

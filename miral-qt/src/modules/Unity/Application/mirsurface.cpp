@@ -202,9 +202,9 @@ MirSurface::MirSurface(WindowInfo windowInfo,
     , m_orientationAngle(Mir::Angle0)
     , m_textureUpdated(false)
     , m_currentFrameNumber(0)
+    , m_live(true)
     , m_position(toQPoint(windowInfo.window.top_left()))
     , m_size(toQSize(windowInfo.window.size()))
-    , m_live(true)
     , m_shellChrome(Mir::NormalChrome)
 {
     DEBUG_MSG << "()";
