@@ -19,10 +19,8 @@
 #define UPSTART_APPLICATION_INFO_H
 
 #include "../applicationinfo.h"
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Werror"
+
 #include <ubuntu-app-launch/application.h>
-#pragma GCC diagnostic pop
 
 namespace qtmir
 {

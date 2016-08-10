@@ -68,11 +68,18 @@ additions to libmiral to expose additional Mir functionality.
  - Customizing compositing. There needs to be a mechanism for loading custom
    compositing effects. E.g. specifying a module (or modules) to load.
    
+ - Enabling (disabling) cursor when pointing devices are (not) present.
+    - ability to track connected input devices
+    - ability to control cursor visibility
+   
  - Cursor images. lp:qtmir stubs the cursor images and paints the cursor in its
    compositor. Need to consider what ought to be supported here.
    
  - Cut&Paste/Drag&Drop toolkits expect this functionality, but it isn't
    provided by Mir. We ought to find a way to provide this.
+   
+ - Exposing the PersistentSurfaceStore through the MirAL API. A shell needs to
+   be able to work with the surface identifiers.
 
 The tiling window management strategy
 -------------------------------------

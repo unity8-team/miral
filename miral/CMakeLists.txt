@@ -46,6 +46,7 @@ set_target_properties(miral
         PROPERTIES
         SOVERSION ${MIRAL_ABI}
         LINK_FLAGS "-Wl,--exclude-libs=ALL -Wl,--version-script,${symbol_map}"
+        LINK_DEPENDS ${symbol_map}
 )
 
 set(INCLUDEDIR "${CMAKE_INSTALL_PREFIX}/include/miral")

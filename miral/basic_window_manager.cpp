@@ -91,7 +91,8 @@ auto miral::BasicWindowManager::add_surface(
     WindowSpecification const& spec = policy->place_new_surface(session_info, place_new_surface(session_info, params));
     scene::SurfaceCreationParameters parameters;
     spec.update(parameters);
-    Window const window{session, build(session, parameters)};
+    auto const surface_id = build(session, parameters);
+    Window const window{session, session->surface(surface_id)};
     auto& window_info = this->window_info.emplace(window, WindowInfo{window, spec}).first->second;
 
     if (spec.parent().is_set() && spec.parent().value().lock())
@@ -117,7 +118,7 @@ auto miral::BasicWindowManager::add_surface(
             scene_surface));
     }
 
-    return window_info.window().surface_id();
+    return surface_id;
 }
 
 void miral::BasicWindowManager::modify_surface(
@@ -376,6 +377,12 @@ void miral::BasicWindowManager::kill_active_application(int sig)
 {
     if (auto const application = focus_controller->focused_session())
         miral::kill(application, sig);
+}
+
+void miral::BasicWindowManager::ask_client_to_close(Window const& window)
+{
+    if (auto const mir_surface = std::shared_ptr<scene::Surface>(window))
+        mir_surface->request_client_surface_close();
 }
 
 auto miral::BasicWindowManager::active_window() const -> Window
@@ -657,6 +664,8 @@ void miral::BasicWindowManager::place_and_size(WindowInfo& root, Point const& ne
 
 void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirSurfaceState value)
 {
+    auto const mir_surface = std::shared_ptr<scene::Surface>(window_info.window());
+
     switch (value)
     {
     case mir_surface_state_restored:
@@ -669,7 +678,7 @@ void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirSur
         break;
 
     default:
-        std::shared_ptr<scene::Surface>(window_info.window())->configure(mir_surface_attrib_state, window_info.state());
+        mir_surface->configure(mir_surface_attrib_state, window_info.state());
         return;
     }
 
@@ -761,9 +770,9 @@ void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirSur
     case mir_surface_state_hidden:
     case mir_surface_state_minimized:
         policy->advise_state_change(window_info, value);
-        window_info.window().hide();
         window_info.state(value);
-        std::shared_ptr<scene::Surface>(window_info.window())->configure(mir_surface_attrib_state, value);
+        mir_surface->hide();
+        mir_surface->configure(mir_surface_attrib_state, value);
         if (window_info.window() == active_window())
         {
             mru_active_windows.erase(window_info.window());
@@ -786,9 +795,9 @@ void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirSur
     window_info.state(value);
 
     if (window_info.is_visible())
-        window_info.window().show();
+        mir_surface->show();
 
-    std::shared_ptr<scene::Surface>(window_info.window())->configure(mir_surface_attrib_state, window_info.state());
+    mir_surface->configure(mir_surface_attrib_state, window_info.state());
 }
 
 

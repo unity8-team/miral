@@ -60,9 +60,7 @@ bool KioskWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* eve
         switch (modifiers & modifier_mask)
         {
         case mir_input_event_modifier_alt:
-            if (auto const window = tools.active_window())
-                window.request_client_surface_close();
-
+            tools.ask_client_to_close(tools.active_window());;
             return true;
 
         default:

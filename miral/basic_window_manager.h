@@ -110,6 +110,8 @@ public:
 
     void kill_active_application(int sig) override;
 
+    void ask_client_to_close(Window const& window) override;
+
     auto active_window() const -> Window override;
 
     auto select_active_window(Window const& hint) -> Window override;
