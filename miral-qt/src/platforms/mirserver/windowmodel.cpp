@@ -99,6 +99,7 @@ void WindowModel::resizeWindow(const miral::WindowInfo &windowInfo, mir::geometr
     }
     auto upos = static_cast<unsigned int>(pos);
 
+    // Note: windowInfo.window() is in the state before the resize
     Q_EMIT windowResized(toQSize(newSize), upos);
 }
 
