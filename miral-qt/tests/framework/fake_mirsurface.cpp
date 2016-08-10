@@ -58,6 +58,14 @@ QSize FakeMirSurface::size() const { return m_size; }
 
 QPoint FakeMirSurface::position() const { return m_position; }
 
+void FakeMirSurface::requestPosition(const QPoint newPosition)
+{
+    if (m_position != newPosition) {
+        m_position = newPosition;
+        Q_EMIT positionChanged(newPosition);
+    }
+}
+
 void FakeMirSurface::resize(int width, int height)
 {
     if (m_size.width() != width || m_size.height() != height) {
@@ -183,6 +191,8 @@ void FakeMirSurface::touchEvent(Qt::KeyboardModifiers mods,
 QString FakeMirSurface::appId() const { return "foo-app"; }
 
 void FakeMirSurface::onCompositorSwappedBuffers() {}
+
+void FakeMirSurface::setShellChrome(Mir::ShellChrome /*shellChrome*/) {}
 
 void FakeMirSurface::drawFirstFrame()
 {

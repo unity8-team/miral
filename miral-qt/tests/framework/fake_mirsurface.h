@@ -54,7 +54,6 @@ public:
     Mir::Type type() const override;
     QString name() const override;
     QSize size() const override;
-    QPoint position() const override;
     void resize(int width, int height) override;
     void resize(const QSize &size) override;
     Mir::State state() const override;
@@ -91,6 +90,9 @@ public:
 
     ////
     // qtmir.MirSurfaceInterface
+
+    QPoint position() const override;
+    void requestPosition(const QPoint newPosition) override;
 
     bool isFirstFrameDrawn() const override;
     void stopFrameDropper() override;
@@ -139,6 +141,8 @@ public:
 
 public Q_SLOTS:
     void onCompositorSwappedBuffers() override;
+
+    void setShellChrome(Mir::ShellChrome shellChrome) override;
 
     ////
     // Test API from now on
