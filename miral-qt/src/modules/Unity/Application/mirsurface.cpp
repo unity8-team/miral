@@ -411,7 +411,7 @@ bool MirSurface::updateTexture()
         ++m_currentFrameNumber;
 
         if (texture->textureSize() != size()) {
-//            m_size = texture->textureSize(); //GERRY???
+            m_size = texture->textureSize();
             QMetaObject::invokeMethod(this, "emitSizeChanged", Qt::QueuedConnection);
         }
 
@@ -512,14 +512,11 @@ void MirSurface::resize(int width, int height)
 {
     auto const &window = m_windowInfo.window;
 
-    int mirWidth = window.size().width.as_int(); // GERRY m_size can be old, as Mir's advise_resize happens before the resize is attempted
-    int mirHeight = window.size().height.as_int();
-
-    bool mirSizeIsDifferent = width != mirWidth || height != mirHeight;
+    bool mirSizeIsDifferent = width != m_size.width() || height != m_size.height();
 
     if (clientIsRunning() && mirSizeIsDifferent) {
         m_controller->resize(window, QSize(width, height));
-        DEBUG_MSG << " old (" << mirWidth << "," << mirHeight << ")"
+        DEBUG_MSG << " old (" << m_size.width() << "," << m_size.height() << ")"
                   << ", new (" << width << "," << height << ")";
     }
 }
@@ -855,7 +852,7 @@ void MirSurface::onSessionDestroyed()
 
 void MirSurface::emitSizeChanged()
 {
-    //Q_EMIT sizeChanged(m_size); //GERRY
+    Q_EMIT sizeChanged(m_size);
 }
 
 QString MirSurface::appId() const
