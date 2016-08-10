@@ -121,7 +121,7 @@ public:
      *
      * @param window_info   the window
      */
-    virtual void advise_new_window(WindowInfo& window_info);
+    virtual void advise_new_window(WindowInfo const& window_info);
 
     /** Notification that a window has lost focus
      *
