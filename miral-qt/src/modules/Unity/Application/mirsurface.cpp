@@ -992,7 +992,7 @@ void MirSurface::updateWindowInfo(const WindowInfo &windowInfo)
 
 void MirSurface::setCursor(const QCursor &cursor)
 {
-    //DEBUG_MSG << "(" << qtCursorShapeToStr(cursor.shape()) << ")";
+    DEBUG_MSG << "(" << qtCursorShapeToStr(cursor.shape()) << ")";
 
     m_cursor = cursor;
     Q_EMIT cursorChanged(m_cursor);
@@ -1020,12 +1020,12 @@ int MirSurface::maximumHeight() const
 
 int MirSurface::widthIncrement() const
 {
-    return 0; //GERRY
+    return 0; //TODO
 }
 
 int MirSurface::heightIncrement() const
 {
-    return 0; //GERRY
+    return 0; //TODO
 }
 
 bool MirSurface::focused() const
@@ -1058,7 +1058,7 @@ void MirSurface::onCloseTimedOut()
 
     m_closingState = CloseOverdue;
 
-    //m_session->session()->destroy_surface(m_windowInfo);
+    //m_session->session()->destroy_surface(m_windowInfo); use WindowManagerTools::ask_client_to_close(window)
 }
 
 void MirSurface::setCloseTimer(AbstractTimer *timer)
