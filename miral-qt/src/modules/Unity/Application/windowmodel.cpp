@@ -42,11 +42,11 @@ WindowModel::WindowModel()
     auto windowModel = static_cast<WindowModelInterface*>(nativeInterface->nativeResourceForIntegration("WindowModel"));
     m_windowController = static_cast<WindowControllerInterface*>(nativeInterface->nativeResourceForIntegration("WindowController"));
 
-    connect(windowModel, &WindowModelInterface::windowAdded,   this, &WindowModel::onWindowAdded);
-    connect(windowModel, &WindowModelInterface::windowRemoved, this, &WindowModel::onWindowRemoved);
-    connect(windowModel, &WindowModelInterface::windowMoved,   this, &WindowModel::onWindowMoved);
-    connect(windowModel, &WindowModelInterface::windowResized, this, &WindowModel::onWindowResized);
-    connect(windowModel, &WindowModelInterface::windowFocused, this, &WindowModel::onWindowFocused);
+    connect(windowModel, &WindowModelInterface::windowAdded,       this, &WindowModel::onWindowAdded);
+    connect(windowModel, &WindowModelInterface::windowRemoved,     this, &WindowModel::onWindowRemoved);
+    connect(windowModel, &WindowModelInterface::windowMoved,       this, &WindowModel::onWindowMoved);
+    connect(windowModel, &WindowModelInterface::windowResized,     this, &WindowModel::onWindowResized);
+    connect(windowModel, &WindowModelInterface::windowFocused,     this, &WindowModel::onWindowFocused);
     connect(windowModel, &WindowModelInterface::windowInfoChanged, this, &WindowModel::onWindowInfoChanged);
 }
 

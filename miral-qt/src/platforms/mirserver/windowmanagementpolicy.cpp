@@ -118,13 +118,13 @@ void WindowManagementPolicy::advise_state_change(const miral::WindowInfo &/*wind
 
 void WindowManagementPolicy::advise_move_to(const miral::WindowInfo &windowInfo, Point topLeft)
 {
-    qDebug("Window moved to %d, %d, and %d", topLeft.x.as_int(), topLeft.y.as_int(), windowInfo.window().top_left().x.as_int());
+    qDebug("Window moved to (%d, %d)", topLeft.x.as_int(), topLeft.y.as_int());
     m_windowModel.moveWindow(windowInfo, topLeft);
 }
 
 void WindowManagementPolicy::advise_resize(const miral::WindowInfo &windowInfo, const Size &newSize)
 {
-    qDebug("Window Resize");
+    qDebug("Window Resized to %dx%d", newSize.width.as_int(), newSize.height.as_int());
     m_windowModel.resizeWindow(windowInfo, newSize);
 }
 

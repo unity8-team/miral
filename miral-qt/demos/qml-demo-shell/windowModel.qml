@@ -74,8 +74,6 @@ Resize window: Ctrl+Right click"
         function resizeWindowBy(window, delta) {
             window.surface.resize(Qt.size(initialWindowWidth + delta.x,
                                           initialWindowHeight + delta.y))
-            print(Qt.point(initialWindowWidth + delta.x,
-                           initialWindowHeight + delta.y))
         }
 
         onPressed: {
