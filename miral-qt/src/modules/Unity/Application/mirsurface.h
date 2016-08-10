@@ -210,7 +210,6 @@ private:
 
     QPoint m_position;
     QSize m_size;
-
     QString m_keymap;
 
     QCursor m_cursor;
