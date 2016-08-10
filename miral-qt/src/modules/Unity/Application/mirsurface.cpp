@@ -255,8 +255,8 @@ MirSurface::~MirSurface()
     Q_ASSERT(m_views.isEmpty());
 
     QMutexLocker locker(&m_mutex);
-    auto const &window = static_cast<std::shared_ptr<mir::scene::Surface>>(m_windowInfo.window);
-    window->remove_observer(m_surfaceObserver);
+//    auto const &window = static_cast<std::shared_ptr<mir::scene::Surface>>(m_windowInfo.window);
+//    window->remove_observer(m_surfaceObserver); // FIXME - window null at this stage!
 
     delete m_closeTimer;
 
