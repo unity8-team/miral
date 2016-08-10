@@ -48,7 +48,7 @@ miral::WindowSpecification WindowManagementPolicy::place_new_surface(
 
 void WindowManagementPolicy::handle_window_ready(miral::WindowInfo &windowInfo)
 {
-    qDebug("Window ready");
+    qDebug("Window Ready");
     m_tools.select_active_window(windowInfo.window());
 }
 
@@ -118,7 +118,7 @@ void WindowManagementPolicy::advise_state_change(const miral::WindowInfo &/*wind
 
 void WindowManagementPolicy::advise_move_to(const miral::WindowInfo &windowInfo, Point topLeft)
 {
-    qDebug("Window moved to (%d, %d)", topLeft.x.as_int(), topLeft.y.as_int());
+    qDebug("Window Moved to (%d, %d)", topLeft.x.as_int(), topLeft.y.as_int());
     m_windowModel.moveWindow(windowInfo, topLeft);
 }
 
