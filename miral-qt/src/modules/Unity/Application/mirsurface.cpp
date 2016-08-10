@@ -224,7 +224,7 @@ MirSurface::MirSurface(WindowInfo windowInfo,
         observer->setListener(this);
     }
 
-    //connect(session, &QObject::destroyed, this, &MirSurface::onSessionDestroyed); // GERRY try using Shared pointer for lifecycle
+    //connect(session, &QObject::destroyed, this, &MirSurface::onSessionDestroyed); // TODO try using Shared pointer for lifecycle
 
     connect(&m_frameDropperTimer, &QTimer::timeout,
             this, &MirSurface::dropPendingBuffer);
@@ -688,7 +688,7 @@ bool MirSurface::live() const
 bool MirSurface::visible() const
 {
     //return m_windowInfo->query(mir_surface_attrib_visibility) == mir_surface_visibility_exposed;
-    return true; //GERRY FIXME
+    return true; //FIXME
 }
 #include <mir_toolkit/event.h>
 void MirSurface::mousePressEvent(QMouseEvent *event)
@@ -1059,7 +1059,7 @@ void MirSurface::onCloseTimedOut()
 
     m_closingState = CloseOverdue;
 
-    //m_session->session()->destroy_surface(m_windowInfo); use WindowManagerTools::ask_client_to_close(window)
+    //m_session->session()->destroy_surface(m_windowInfo); TODO use WindowManagerTools::ask_client_to_close(window)
 }
 
 void MirSurface::setCloseTimer(AbstractTimer *timer)
