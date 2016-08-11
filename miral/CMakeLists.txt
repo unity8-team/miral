@@ -8,6 +8,7 @@ include_directories(include SYSTEM ${MIRSERVER_INCLUDE_DIRS})
 add_library(miral-internal STATIC
     basic_window_manager.cpp            basic_window_manager.h window_manager_tools_implementation.h
     mru_window_list.cpp                 mru_window_list.h
+    persistent_surface_store.cpp        persistent_surface_store.h
 )
 
 add_library(miral SHARED
@@ -30,6 +31,7 @@ add_library(miral SHARED
     window_manager_tools.cpp            ${CMAKE_SOURCE_DIR}/include/miral/window_manager_tools.h
                                         ${CMAKE_SOURCE_DIR}/include/miral/stream_specification.h
                                         ${CMAKE_SOURCE_DIR}/include/miral/toolkit/surface_spec.h
+                                        ${CMAKE_SOURCE_DIR}/include/miral/toolkit/persistent_id.h
                                         ${CMAKE_SOURCE_DIR}/include/miral/toolkit/connection.h
 )
 
