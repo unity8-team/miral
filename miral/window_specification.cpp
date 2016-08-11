@@ -372,17 +372,6 @@ miral::WindowSpecification::WindowSpecification(mir::shell::SurfaceSpecification
 {
 }
 
-auto miral::WindowSpecification::operator=(mir::shell::SurfaceSpecification const& spec) -> WindowSpecification&
-{
-    self = std::make_unique<Self>(spec);
-    return *this;
-}
-
-void miral::WindowSpecification::update(mir::shell::SurfaceSpecification& spec) const
-{
-    self->update(spec);
-}
-
 miral::WindowSpecification::WindowSpecification(mir::scene::SurfaceCreationParameters const& params) :
     self{std::make_unique<Self>(params)}
 {
@@ -400,12 +389,6 @@ auto miral::WindowSpecification::operator=(WindowSpecification const& that) -> W
 }
 
 miral::WindowSpecification::~WindowSpecification() = default;
-
-auto miral::WindowSpecification::operator=(mir::scene::SurfaceCreationParameters const& spec) -> WindowSpecification&
-{
-    self = std::make_unique<Self>(spec);
-    return *this;
-}
 
 void miral::WindowSpecification::update(mir::scene::SurfaceCreationParameters& params) const
 {
