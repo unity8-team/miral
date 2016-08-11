@@ -24,22 +24,24 @@ struct MirEvent {}; // otherwise won't compile otherwise due to incomplete type
 #include <QTest>
 #include <QSignalSpy>
 
+// src/common
+#include "windowmodelinterface.h"
+
 // the test subject
 #include <Unity/Application/mirsurface.h>
 
 #include <Unity/Application/timer.h>
 
 // tests/framework
-#include <fake_session.h>
 #include <mock_mir_session.h>
-#include <mock_shell.h>
 #include <mock_surface.h>
 
 // tests/modules/common
 #include <surfaceobserver.h>
 
-// mirserver
-#include <creationhints.h>
+// miral
+#include "window.h"
+#include "window_info.h"
 
 using namespace qtmir;
 
@@ -54,8 +56,6 @@ public:
         // We don't want the logging spam cluttering the test results
         QLoggingCategory::setFilterRules(QStringLiteral("qtmir.surfaces=false"));
     }
-
-    NiceMock<mir::shell::MockShell> m_mockShell;
 };
 
 TEST_F(MirSurfaceTest, UpdateTextureBeforeDraw)
@@ -64,22 +64,23 @@ TEST_F(MirSurfaceTest, UpdateTextureBeforeDraw)
     char* argv[0];
     QCoreApplication qtApp(argc, argv); // app for deleteLater event
 
-    auto fakeSession = new FakeSession();
+    auto const fakeSession = std::make_shared<ms::MockSession>();
     auto mockSurface = std::make_shared<NiceMock<ms::MockSurface>>();
+    miral::Window mockWindow(fakeSession, mockSurface);
+    miral::WindowInfo mockWindowInfo(mockWindow, {});
+    QScopedPointer<WindowInfo> windowInfo(new WindowInfo(mockWindowInfo));
+
     auto surfaceObserver = std::make_shared<SurfaceObserver>();
 
     EXPECT_CALL(*mockSurface.get(),buffers_ready_for_compositor(_))
         .WillRepeatedly(Return(1));
 
-    MirSurface *surface = new MirSurface(mockSurface, fakeSession, &m_mockShell, surfaceObserver);
+    MirSurface surface(mockWindowInfo, nullptr, surfaceObserver);
     surfaceObserver->frame_posted(1, mir::geometry::Size{1,1});
 
-    QSignalSpy spyFrameDropped(surface, SIGNAL(frameDropped()));
+    QSignalSpy spyFrameDropped(&surface, SIGNAL(frameDropped()));
     QTest::qWait(300);
     ASSERT_TRUE(spyFrameDropped.count() > 0);
-
-    delete fakeSession;
-    delete surface;
 }
 
 
@@ -89,28 +90,31 @@ TEST_F(MirSurfaceTest, DeleteMirSurfaceOnLastNonLiveUnregisterView)
     char* argv[0];
     QCoreApplication qtApp(argc, argv); // app for deleteLater event
 
-    auto fakeSession = new FakeSession();
+    auto const fakeSession = std::make_shared<NiceMock<ms::MockSession>>();
     auto mockSurface = std::make_shared<NiceMock<ms::MockSurface>>();
+    miral::Window mockWindow(fakeSession, mockSurface);
+    miral::WindowInfo mockWindowInfo(mockWindow, {});
+    QScopedPointer<WindowInfo> windowInfo(new WindowInfo(mockWindowInfo));
+    auto surfaceObserver = std::make_shared<SurfaceObserver>();
 
-    MirSurface *surface = new MirSurface(mockSurface, fakeSession, &m_mockShell, nullptr, CreationHints());
+    MirSurface surface(mockWindowInfo, nullptr, surfaceObserver);
+
     bool surfaceDeleted = false;
-    QObject::connect(surface, &QObject::destroyed, surface, [&surfaceDeleted](){ surfaceDeleted = true; });
+    QObject::connect(&surface, &QObject::destroyed, &surface, [&surfaceDeleted](){ surfaceDeleted = true; });
 
     qintptr view1 = (qintptr)1;
     qintptr view2 = (qintptr)2;
 
-    surface->registerView(view1);
-    surface->registerView(view2);
-    surface->setLive(false);
+    surface.registerView(view1);
+    surface.registerView(view2);
+    surface.setLive(false);
     EXPECT_FALSE(surfaceDeleted);
 
-    surface->unregisterView(view1);
-    surface->unregisterView(view2);
+    surface.unregisterView(view1);
+    surface.unregisterView(view2);
 
     QCoreApplication::sendPostedEvents(0, QEvent::DeferredDelete);
     EXPECT_TRUE(surfaceDeleted);
-
-    delete fakeSession;
 }
 
 
@@ -120,62 +124,63 @@ TEST_F(MirSurfaceTest, DoNotDeleteMirSurfaceOnLastLiveUnregisterView)
     char* argv[0];
     QCoreApplication qtApp(argc, argv); // app for deleteLater event
 
-    auto fakeSession = new FakeSession();
+    auto const fakeSession = std::make_shared<ms::MockSession>();
     auto mockSurface = std::make_shared<NiceMock<ms::MockSurface>>();
+    miral::Window mockWindow(fakeSession, mockSurface);
+    miral::WindowInfo mockWindowInfo(mockWindow, {});
+    QScopedPointer<WindowInfo> windowInfo(new WindowInfo(mockWindowInfo));
+    auto surfaceObserver = std::make_shared<SurfaceObserver>();
 
-    MirSurface *surface = new MirSurface(mockSurface, fakeSession, &m_mockShell, nullptr, CreationHints());
+    MirSurface surface(mockWindowInfo, nullptr, surfaceObserver);
+
     bool surfaceDeleted = false;
-    QObject::connect(surface, &QObject::destroyed, surface, [&surfaceDeleted](){ surfaceDeleted = true; });
+    QObject::connect(&surface, &QObject::destroyed, &surface, [&surfaceDeleted](){ surfaceDeleted = true; });
 
     qintptr view1 = (qintptr)1;
     qintptr view2 = (qintptr)2;
 
-    surface->registerView(view1);
-    surface->registerView(view2);
+    surface.registerView(view1);
+    surface.registerView(view2);
 
-    surface->unregisterView(view1);
-    surface->unregisterView(view2);
+    surface.unregisterView(view1);
+    surface.unregisterView(view2);
 
     QCoreApplication::sendPostedEvents(0, QEvent::DeferredDelete);
     EXPECT_FALSE(surfaceDeleted);
-
-    delete fakeSession;
-    delete surface;
 }
 
 /*
  * Test that a surface whose client fails to comply with a close request will eventually get destroyed.
  */
-TEST_F(MirSurfaceTest, failedSurfaceCloseEventualyDestroysSurface)
+TEST_F(MirSurfaceTest, failedSurfaceCloseEventuallyDestroysSurface)
 {
-    const pid_t pid = 1234;
-    const char appId[] = "test-app";
-
     int argc = 0;
     char* argv[0];
     QCoreApplication qtApp(argc, argv); // app for deleteLater event
 
-    auto fakeSession = new FakeSession();
-    auto mirSession = std::make_shared<mir::scene::MockSession>(appId, pid);
-    fakeSession->setSession(mirSession);
-
+    auto const mockSession = std::make_shared<NiceMock<ms::MockSession>>();
     auto mockSurface = std::make_shared<NiceMock<ms::MockSurface>>();
+    miral::Window mockWindow(mockSession, mockSurface);
+    miral::WindowInfo mockWindowInfo(mockWindow, {});
+    QScopedPointer<WindowInfo> windowInfo(new WindowInfo(mockWindowInfo));
+    auto surfaceObserver = std::make_shared<SurfaceObserver>();
 
-    MirSurface *surface = new MirSurface(mockSurface, fakeSession, &m_mockShell, nullptr, CreationHints());
+    MirSurface surface(mockWindowInfo, nullptr, surfaceObserver);
+
     bool surfaceDeleted = false;
-    QObject::connect(surface, &QObject::destroyed, surface, [&surfaceDeleted](){ surfaceDeleted = true; });
+    QObject::connect(&surface, &QObject::destroyed, &surface, [&surfaceDeleted](){ surfaceDeleted = true; });
 
     QSharedPointer<FakeTimeSource> fakeTimeSource(new FakeTimeSource);
     QPointer<FakeTimer> fakeTimer(new FakeTimer(fakeTimeSource));
-    surface->setCloseTimer(fakeTimer.data()); // surface takes ownership of the timer
+    surface.setCloseTimer(fakeTimer.data()); // surface takes ownership of the timer
 
     qintptr view = (qintptr)1;
-    surface->registerView(view);
+    surface.registerView(view);
 
-    EXPECT_CALL(*mirSession.get(), destroy_surface(An<const std::weak_ptr<mir::scene::Surface> &>()))
+    EXPECT_CALL(*mockSession.get(), destroy_surface(An<const std::weak_ptr<ms::Surface> &>()))
         .Times(1);
 
-    surface->close();
+    surface.close();
 
     if (fakeTimer->isRunning()) {
         // Simulate that closeTimer has timed out.
@@ -184,8 +189,6 @@ TEST_F(MirSurfaceTest, failedSurfaceCloseEventualyDestroysSurface)
     }
 
     // clean up
-    surface->setLive(false);
-    surface->unregisterView(view);
-    delete surface;
-    delete fakeSession;
+    surface.setLive(false);
+    surface.unregisterView(view);
 }

@@ -49,8 +49,8 @@ class MirSurface : public MirSurfaceInterface
 
 public:
     MirSurface(WindowInfo windowInfo,
-            WindowControllerInterface *controller,
-            std::shared_ptr<SurfaceObserver> observer);
+               WindowControllerInterface *controller,
+               std::shared_ptr<SurfaceObserver> observer);
     virtual ~MirSurface();
 
     ////
