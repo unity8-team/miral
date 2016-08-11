@@ -10,6 +10,7 @@ add_executable(miral-test
     mru_window_list.cpp
     active_outputs.cpp
     persistent_surface_store.cpp
+    test_server.cpp         test_server.h
 )
 
 target_link_libraries(miral-test
