@@ -82,7 +82,7 @@ miral::WindowSpecification::Self::Self(mir::shell::SurfaceSpecification const& s
     parent(spec.parent),
     input_shape(spec.input_shape),
     input_mode(),
-    shell_chrome()
+    shell_chrome(spec.shell_chrome)
 {
     if (spec.width.is_set() && spec.height.is_set())
         size = Size(spec.width.value(), spec.height.value());
@@ -170,14 +170,6 @@ void copy_if_set(
     mir::optional_value<Source> const& source)
 {
     if (source.is_set()) dest = static_cast<mir::graphics::DisplayConfigurationOutputId>(source.value());
-}
-
-template<typename Source>
-void copy_if_set(
-    mir::optional_value<mir::input::InputReceptionMode>& dest,
-    mir::optional_value<Source> const& source)
-{
-    if (source.is_set()) dest = static_cast<mir::input::InputReceptionMode>(source.value());
 }
 
 template<typename Source>
@@ -288,7 +280,7 @@ miral::WindowSpecification::Self::Self(mir::scene::SurfaceCreationParameters con
     parent(params.parent),
     input_shape(params.input_shape),
     input_mode(static_cast<InputReceptionMode>(params.input_mode)),
-    shell_chrome()
+    shell_chrome(params.shell_chrome)
 {
     if (params.content_id.is_set())
         content_id = BufferStreamId{params.content_id.value().as_value()};
