@@ -36,7 +36,8 @@ void miral::SetWindowManagmentPolicy::operator()(mir::Server& server) const
         -> std::shared_ptr<msh::WindowManager>
         {
             auto const display_layout = server.the_shell_display_layout();
+            auto const persistent_surface_store = server.the_persistent_surface_store();
 
-            return std::make_shared<BasicWindowManager>(focus_controller, display_layout, builder);
+            return std::make_shared<BasicWindowManager>(focus_controller, display_layout, persistent_surface_store, builder);
         });
 }

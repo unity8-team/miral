@@ -19,6 +19,7 @@
 #include "../miral/persistent_surface_store.h"
 
 #include <miral/toolkit/persistent_id.h>
+#include <miral/toolkit/surface.h>
 
 #include <mir/test/doubles/wrap_shell_to_track_latest_surface.h>
 #include <mir_test_framework/connected_client_with_a_surface.h>
@@ -26,6 +27,7 @@
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
+#include <miral/toolkit/surface_spec.h>
 
 namespace msh = mir::shell;
 namespace ms = mir::scene;
@@ -106,4 +108,29 @@ TEST_F(PersistentSurfaceStore, server_can_identify_surface_specified_by_client)
 #else
     ASSERT_THAT(server_surface, IsNull());
 #endif
+}
+
+
+#include "test_server.h"
+
+using PersistentSurfaceId = miral::TestServer;
+
+TEST_F(PersistentSurfaceId, server_can_identify_window_specified_by_client)
+{
+    char const* const test_name = __PRETTY_FUNCTION__;
+    using namespace miral::toolkit;
+
+    auto const connection = connect_client(test_name);
+    auto const spec = SurfaceSpec::for_normal_surface(connection, 50, 50, mir_pixel_format_argb_8888);
+    Surface const surface{spec.create_surface()};
+
+    miral::toolkit::PersistentId client_surface_id{surface};
+
+    tools.invoke_under_lock([&]
+        {
+            auto const& window_info = tools.window_for_id(client_surface_id.c_str());
+
+            ASSERT_TRUE(window_info.window());
+            ASSERT_THAT(window_info.name(), Eq(test_name));
+        });
 }

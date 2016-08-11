@@ -136,6 +136,10 @@ public:
 
     /// Apply modifications to a window
     void modify_window(WindowInfo& window_info, WindowSpecification const& modifications);
+
+    /// Identify the window corresponding to a persistent surface id
+    auto window_for_id(std::string const& id) const -> WindowInfo&;
+
 /** @} */
 
     /** Multi-thread support

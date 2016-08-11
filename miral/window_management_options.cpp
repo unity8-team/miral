@@ -52,10 +52,11 @@ void miral::WindowManagerOptions::operator()(mir::Server& server) const
             auto const selection = options->get<std::string>(wm_option);
 
             auto const display_layout = server.the_shell_display_layout();
+            auto const persistent_surface_store = server.the_persistent_surface_store();
 
             for (auto const& option : policies)
                 if (selection == option.name)
-                    return std::make_shared<BasicWindowManager>(focus_controller, display_layout, option.build);
+                    return std::make_shared<BasicWindowManager>(focus_controller, display_layout, persistent_surface_store, option.build);
 
             if (selection == wm_system_compositor)
             {

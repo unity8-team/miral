@@ -75,6 +75,11 @@ public:
         mir_surface_create(*this, reinterpret_cast<mir_surface_callback>(callback), context);
     }
 
+    auto create_surface() const -> MirSurface*
+    {
+        return mir_surface_create_sync(*this);
+    }
+
     void apply_to(MirSurface* surface)
     {
         mir_surface_apply_spec(surface, *this);

@@ -33,7 +33,7 @@ add_library(miral SHARED
                                         ${CMAKE_SOURCE_DIR}/include/miral/toolkit/surface_spec.h
                                         ${CMAKE_SOURCE_DIR}/include/miral/toolkit/persistent_id.h
                                         ${CMAKE_SOURCE_DIR}/include/miral/toolkit/connection.h
-)
+        ../include/miral/toolkit/surface.h)
 
 target_link_libraries(miral
     PUBLIC
