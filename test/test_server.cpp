@@ -25,6 +25,7 @@
 #include "mir_test_framework/stub_server_platform_factory.h"
 
 #include <mir/fd.h>
+#include <mir/main_loop.h>
 #include <mir/server.h>
 #include <mir/version.h>
 
@@ -60,9 +61,16 @@ void miral::TestServer::SetUp()
                 {
                     server.add_init_callback([&]
                         {
-                             std::lock_guard<std::mutex> lock(mutex);
-                             server_running = &server;
-                             started.notify_one();
+                            auto const main_loop = server.the_main_loop();
+                            // By enqueuing the notification code in the main loop, we are
+                            // ensuring that the server has really and fully started before
+                            // leaving start_mir_server().
+                            main_loop->enqueue(this, [&]
+                                {
+                                     std::lock_guard<std::mutex> lock(mutex);
+                                     server_running = &server;
+                                     started.notify_one();
+                                });
                         });
                 };
 
