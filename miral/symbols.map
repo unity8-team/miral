@@ -84,8 +84,6 @@ global:
     miral::WindowInfo::can_morph_to*;
     miral::WindowInfo::children*;
     miral::WindowInfo::constrain_resize*;
-    miral::WindowInfo::has_max_aspect*;
-    miral::WindowInfo::has_min_aspect*;
     miral::WindowInfo::has_name*;
     miral::WindowInfo::has_output_id*;
     miral::WindowInfo::height_inc*;
