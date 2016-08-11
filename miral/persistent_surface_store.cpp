@@ -30,7 +30,7 @@ miral::PersistentSurfaceStore& miral::PersistentSurfaceStore::operator=(Persiste
 void miral::PersistentSurfaceStore::operator()(mir::Server& server)
 {
 #if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 24, 0)
-    server.add_init_callback[this] { self = server.the_persistent_surface_store(); });
+    server.add_init_callback([&, this] { self = server.the_persistent_surface_store(); });
 #else
     (void)server;
 #endif

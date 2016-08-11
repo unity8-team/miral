@@ -22,6 +22,7 @@
 
 #include <mir/test/doubles/wrap_shell_to_track_latest_surface.h>
 #include <mir_test_framework/connected_client_with_a_surface.h>
+#include <mir/version.h>
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
