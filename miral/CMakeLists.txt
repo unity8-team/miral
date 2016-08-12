@@ -8,7 +8,7 @@ include_directories(include SYSTEM ${MIRSERVER_INCLUDE_DIRS})
 add_library(miral-internal STATIC
     basic_window_manager.cpp            basic_window_manager.h window_manager_tools_implementation.h
     mru_window_list.cpp                 mru_window_list.h
-        )
+)
 
 add_library(miral SHARED
     active_outputs.cpp                  ${CMAKE_SOURCE_DIR}/include/miral/active_outputs.h
