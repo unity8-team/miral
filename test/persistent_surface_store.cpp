@@ -32,6 +32,8 @@ using namespace testing;
 
 using PersistentSurfaceId = miral::TestServer;
 
+#include <mir/scene/surface.h>
+
 #if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 24, 0)
 TEST_F(PersistentSurfaceId, server_can_identify_window_specified_by_client)
 {
@@ -39,7 +41,9 @@ TEST_F(PersistentSurfaceId, server_can_identify_window_specified_by_client)
     using namespace miral::toolkit;
 
     auto const connection = connect_client(test_name);
-    auto const spec = SurfaceSpec::for_normal_surface(connection, 50, 50, mir_pixel_format_argb_8888);
+    auto const spec = SurfaceSpec::for_normal_surface(connection, 50, 50, mir_pixel_format_argb_8888)
+        .set_name(test_name);
+
     Surface const surface{spec.create_surface()};
 
     miral::toolkit::PersistentId client_surface_id{surface};
