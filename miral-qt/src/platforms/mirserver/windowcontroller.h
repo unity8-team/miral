@@ -33,6 +33,8 @@ public:
     void resize(const miral::Window &window, const QSize &size) override;
     void move  (const miral::Window &window, const QPoint &topLeft) override;
 
+    void requestClose(const miral::Window &window) override;
+
     void setActiveFocus(const miral::Window &window, const bool activeFocus) override;
     void setState(const miral::Window &window, const MirSurfaceState state) override;
 
