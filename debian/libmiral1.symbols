@@ -89,8 +89,6 @@ libmiral.so.1 libmiral1 #MINVER#
  (c++)"miral::WindowSpecification::WindowSpecification(miral::WindowSpecification const&)@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowSpecification::WindowSpecification()@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowSpecification::~WindowSpecification()@MIRAL_0.1" 0.1.0
- (c++)"miral::WindowSpecification::operator=(mir::scene::SurfaceCreationParameters const&)@MIRAL_0.1" 0.1.0
- (c++)"miral::WindowSpecification::operator=(mir::shell::SurfaceSpecification const&)@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowSpecification::operator=(miral::WindowSpecification const&)@MIRAL_0.1" 0.1.0
  (c++)"miral::ActiveOutputsMonitor::add_listener(miral::ActiveOutputsListener*)@MIRAL_0.1" 0.1.0
  (c++)"miral::ActiveOutputsMonitor::delete_listener(miral::ActiveOutputsListener*)@MIRAL_0.1" 0.1.0
@@ -121,7 +119,7 @@ libmiral.so.1 libmiral1 #MINVER#
  (c++)"miral::WindowManagementPolicy::advise_new_app(miral::ApplicationInfo&)@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowManagementPolicy::advise_delete_app(miral::ApplicationInfo const&)@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowManagementPolicy::advise_focus_lost(miral::WindowInfo const&)@MIRAL_0.1" 0.1.0
- (c++)"miral::WindowManagementPolicy::advise_new_window(miral::WindowInfo&)@MIRAL_0.1" 0.1.0
+ (c++)"miral::WindowManagementPolicy::advise_new_window(miral::WindowInfo const&)@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowManagementPolicy::advise_focus_gained(miral::WindowInfo const&)@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowManagementPolicy::advise_state_change(miral::WindowInfo const&, MirSurfaceState)@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowManagementPolicy::advise_delete_window(miral::WindowInfo const&)@MIRAL_0.1" 0.1.0
@@ -214,7 +212,6 @@ libmiral.so.1 libmiral1 #MINVER#
  (c++)"miral::WindowSpecification::state() const@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowSpecification::parent() const@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowSpecification::update(mir::scene::SurfaceCreationParameters&) const@MIRAL_0.1" 0.1.0
- (c++)"miral::WindowSpecification::update(mir::shell::SurfaceSpecification&) const@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowSpecification::streams() const@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowSpecification::aux_rect() const@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowSpecification::top_left() const@MIRAL_0.1" 0.1.0
