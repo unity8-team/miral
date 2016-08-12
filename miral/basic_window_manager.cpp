@@ -660,12 +660,17 @@ void miral::BasicWindowManager::modify_window(WindowInfo& window_info, WindowSpe
 
 auto miral::BasicWindowManager::window_for_id(std::string const& id) const -> WindowInfo&
 {
+#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 24, 0)
     auto surface = persistent_surface_store->surface_for_id(mir::shell::PersistentSurfaceStore::Id{id});
 
     if (!surface)
         BOOST_THROW_EXCEPTION(std::runtime_error{"No surface matching ID"});
 
     return info_for(surface);
+#else
+    (void)id;
+    BOOST_THROW_EXCEPTION(std::runtime_error{"No surface matching ID"});
+#endif
 }
 
 

@@ -20,6 +20,7 @@
 #include "basic_window_manager.h"
 
 #include <mir/server.h>
+#include <mir/version.h>
 
 namespace msh = mir::shell;
 
@@ -36,7 +37,12 @@ void miral::SetWindowManagmentPolicy::operator()(mir::Server& server) const
         -> std::shared_ptr<msh::WindowManager>
         {
             auto const display_layout = server.the_shell_display_layout();
+
+#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 24, 0)
             auto const persistent_surface_store = server.the_persistent_surface_store();
+#else
+            std::shared_ptr<mir::shell::PersistentSurfaceStore> const persistent_surface_store;
+#endif
 
             return std::make_shared<BasicWindowManager>(focus_controller, display_layout, persistent_surface_store, builder);
         });

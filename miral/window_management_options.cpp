@@ -24,6 +24,7 @@
 #include <mir/server.h>
 #include <mir/options/option.h>
 #include <mir/shell/system_compositor_window_manager.h>
+#include <mir/version.h>
 
 namespace msh = mir::shell;
 
@@ -52,8 +53,12 @@ void miral::WindowManagerOptions::operator()(mir::Server& server) const
             auto const selection = options->get<std::string>(wm_option);
 
             auto const display_layout = server.the_shell_display_layout();
-            auto const persistent_surface_store = server.the_persistent_surface_store();
 
+#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 24, 0)
+            auto const persistent_surface_store = server.the_persistent_surface_store();
+#else
+            std::shared_ptr<mir::shell::PersistentSurfaceStore> const persistent_surface_store;
+#endif
             for (auto const& option : policies)
                 if (selection == option.name)
                     return std::make_shared<BasicWindowManager>(focus_controller, display_layout, persistent_surface_store, option.build);
