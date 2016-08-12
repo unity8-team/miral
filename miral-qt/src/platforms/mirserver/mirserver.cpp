@@ -24,12 +24,8 @@
 #include "mirdisplayconfigurationpolicy.h"
 #include "mirglconfig.h"
 #include "mirserverstatuslistener.h"
-#include "promptsessionlistener.h"
 #include "screensmodel.h"
-#include "sessionlistener.h"
-#include "sessionauthorizer.h"
 #include "qtcompositor.h"
-#include "windowmanagementpolicy.h"
 #include "logging.h"
 
 // std
@@ -56,7 +52,6 @@ void usingHiddenCursor(mir::Server& server);
 MirServer::MirServer(int &argc, char **argv,
                      const QSharedPointer<ScreensModel> &screensModel, QObject* parent)
     : QObject(parent)
-    , m_usingQtMirWindowManager(screensModel)
     , m_screensModel(screensModel)
 {
     bool unknownArgsFound = false;
@@ -69,12 +64,6 @@ MirServer::MirServer(int &argc, char **argv,
 
     // Casting char** to be a const char** safe as Mir won't change it, nor will we
     set_command_line(argc, const_cast<const char **>(argv));
-
-    // This should eventually be replaced by miral::MirRunner::run()
-    m_usingQtMirSessionAuthorizer(*this);
-    m_usingQtMirSessionListener(*this);
-    m_usingQtMirPromptSessionListener(*this);
-    m_usingQtMirWindowManager(*this);
 
     override_the_compositor([]
         {
@@ -115,13 +104,6 @@ MirServer::MirServer(int &argc, char **argv,
 
     usingHiddenCursor(*this);
 
-    try {
-        apply_settings();
-    } catch (const std::exception &ex) {
-        qCritical() << ex.what();
-        exit(1);
-    }
-
     if (!unknownArgsFound) { // mir parsed all the arguments, so edit argv to pretend to have just argv[0]
         argc = 1;
     }
@@ -140,57 +122,6 @@ void MirServer::stop()
 
 
 /************************************ Shell side ************************************/
-
-void UsingQtMirSessionListener::operator()(mir::Server& server)
-{
-    server.override_the_session_listener([this]
-        {
-            auto const result = std::make_shared<SessionListener>();
-            m_sessionListener = result;
-            return result;
-        });
-}
-
-SessionListener *UsingQtMirSessionListener::sessionListener()
-{
-    return m_sessionListener.lock().get();
-}
-
-void UsingQtMirPromptSessionListener::operator()(mir::Server& server)
-{
-    server.override_the_prompt_session_listener([this]
-        {
-            auto const result = std::make_shared<PromptSessionListener>();
-            m_promptSessionListener = result;
-            return result;
-        });
-}
-
-PromptSessionListener *UsingQtMirPromptSessionListener::promptSessionListener()
-{
-    return m_promptSessionListener.lock().get();
-}
-
-UsingQtMirWindowManager::UsingQtMirWindowManager(const QSharedPointer<ScreensModel> &model)
-    : m_screensModel(model)
-    , m_policy(miral::set_window_managment_policy<WindowManagementPolicy>(m_windowModel, m_windowController, m_screensModel))
-{
-}
-
-void UsingQtMirWindowManager::operator()(mir::Server& server)
-{
-    m_policy(server);
-}
-
-qtmir::WindowModelInterface *UsingQtMirWindowManager::windowModel()
-{
-    return &m_windowModel;
-}
-
-qtmir::WindowControllerInterface *UsingQtMirWindowManager::windowController()
-{
-    return &m_windowController;
-}
 
 QSharedPointer<ScreensModel> MirServer::screensModel() const
 {
