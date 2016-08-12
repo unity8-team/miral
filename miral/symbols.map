@@ -145,7 +145,7 @@ global:
     miral::WindowManagerTools::raise_tree*;
     miral::WindowManagerTools::select_active_window*;
     miral::WindowManagerTools::window_at*;
-    miral::WindowManagerTools::window_for_id*;
+    miral::WindowManagerTools::info_for_window_id*;
     miral::WindowSpecification::?WindowSpecification*;
     miral::WindowSpecification::WindowSpecification*;
     miral::WindowSpecification::aux_rect*;

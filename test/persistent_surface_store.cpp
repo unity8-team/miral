@@ -46,7 +46,7 @@ TEST_F(PersistentSurfaceId, server_can_identify_window_specified_by_client)
 
     tools.invoke_under_lock([&]
         {
-            auto const& window_info = tools.window_for_id(client_surface_id.c_str());
+            auto const& window_info = tools.info_for_window_id(client_surface_id.c_str());
 
             ASSERT_TRUE(window_info.window());
             ASSERT_THAT(window_info.name(), Eq(test_name));

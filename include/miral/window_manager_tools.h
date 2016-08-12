@@ -97,6 +97,13 @@ public:
      */
     auto info_for(Window const& window) const -> WindowInfo&;
 
+    /** retrieve metadata for a persistent surface id
+     *
+     * @param id        the persistent surface id
+     * @return          the metadata
+     */
+    auto info_for_window_id(std::string const& id) const -> WindowInfo&;
+
     /** kill the active application
      *
      * @param sig the signal to send
@@ -136,9 +143,6 @@ public:
 
     /// Apply modifications to a window
     void modify_window(WindowInfo& window_info, WindowSpecification const& modifications);
-
-    /// Identify the window corresponding to a persistent surface id
-    auto window_for_id(std::string const& id) const -> WindowInfo&;
 
 /** @} */
 
