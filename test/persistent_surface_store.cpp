@@ -92,6 +92,6 @@ TEST_F(PersistentSurfaceId, server_fails_gracefully_to_identify_window_from_garb
 
     tools.invoke_under_lock([&]
         {
-            EXPECT_THROW(tools.info_for_window_id("garbage"), std::runtime_error);
+            EXPECT_THROW(tools.info_for_window_id("garbage"), std::exception);
         });
 }

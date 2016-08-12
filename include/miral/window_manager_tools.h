@@ -101,6 +101,7 @@ public:
      *
      * @param id        the persistent surface id
      * @return          the metadata
+     * @throw           invalid_argument or runtime_error if the id is badly formatted/doesn't identify a current window
      */
     auto info_for_window_id(std::string const& id) const -> WindowInfo&;
 
