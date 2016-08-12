@@ -189,12 +189,7 @@ enum class DirtyState {
 };
 Q_DECLARE_FLAGS(DirtyStates, DirtyState)
 // needed to silence clang on vivid+overlay
-#if defined(__clang__)
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-function"
-Q_DECLARE_OPERATORS_FOR_FLAGS(DirtyStates)
-#pragma clang diagnostic pop
-#endif
+
 } // namespace {
 
 MirSurface::MirSurface(WindowInfo windowInfo,
