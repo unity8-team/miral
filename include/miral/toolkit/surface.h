@@ -27,7 +27,7 @@ namespace miral
 {
 namespace toolkit
 {
-/// Handle class for MirSurface - provides automatic reference counting, method chaining.
+/// Handle class for MirSurface - provides automatic reference counting.
 class Surface
 {
 public:
