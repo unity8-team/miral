@@ -79,12 +79,14 @@ set(MIRSERVER_QPA_PLUGIN_SRC
     ubuntutheme.cpp
     clipboard.cpp
     creationhints.cpp
+    windowcontroller.cpp
     windowmanagementpolicy.cpp
     windowmodel.cpp
     tracepoints.c
 # We need to run moc on these headers
     ${APPLICATION_API_INCLUDEDIR}/unity/shell/application/Mir.h
     ${APPLICATION_API_INCLUDEDIR}/unity/shell/application/MirMousePointerInterface.h
+    ${MIRAL_QT_SOURCE_DIR}/src/common/windowcontrollerinterface.h
     ${MIRAL_QT_SOURCE_DIR}/src/common/windowmodelinterface.h
     )
 

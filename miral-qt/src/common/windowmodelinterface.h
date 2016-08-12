@@ -22,35 +22,39 @@
 #include <QPoint>
 #include <QVector>
 
-#include <mir/scene/surface.h>
+#include "miral/window_info.h"
 
 namespace qtmir {
 
-// miral::WindowInfo contains all the metadata the WindowManager{,Policy} needs. However the
-// WindowModel only needs a read-only subset of this data, which is what the struct is for.
-struct WindowInfo {
-    QSize size;
-    QPoint position;
-    bool focused;
-    const std::shared_ptr<mir::scene::Surface> surface;
+// miral::WindowInfo missing a default constructor, needed by MOC. Need to wrap it instead
+class WindowInfo {
+public:
+    WindowInfo() = default;
+    WindowInfo(const miral::WindowInfo &windowInfo)
+      : window(windowInfo.window())
+      , name(windowInfo.name())
+      , type(windowInfo.type())
+      , state(windowInfo.state())
+      , restoreRect(windowInfo.restore_rect())
+      , parent(windowInfo.parent())
+      , children(windowInfo.children())
+      , minWidth(windowInfo.min_width())
+      , minHeight(windowInfo.min_height())
+      , maxWidth(windowInfo.max_width())
+      , maxHeight(windowInfo.max_height())
+    {}
 
-    enum class DirtyStates {
-        Size = 1,
-        Position = 2,
-        Focus = 4
-    };
-};
-
-// We assign each Window with an index which corresponds to the position it has in the window stack.
-struct NumberedWindow {
-    unsigned int index;
-    WindowInfo windowInfo;
-};
-
-struct DirtiedWindow {
-    unsigned int index;
-    WindowInfo windowInfo;
-    WindowInfo::DirtyStates dirtyWindowInfo;
+    miral::Window window;
+    mir::optional_value<std::string> name;
+    MirSurfaceType type;
+    MirSurfaceState state;
+    mir::geometry::Rectangle restoreRect;
+    miral::Window parent;
+    std::vector<miral::Window> children;
+    mir::geometry::Width minWidth;
+    mir::geometry::Height minHeight;
+    mir::geometry::Width maxWidth;
+    mir::geometry::Height maxHeight;
 };
 
 
@@ -62,9 +66,12 @@ public:
     virtual ~WindowModelInterface() = default;
 
 Q_SIGNALS:
-    void windowAdded(const qtmir::NumberedWindow);
+    void windowAdded(const qtmir::WindowInfo, const unsigned int index);
     void windowRemoved(const unsigned int index);
-    void windowChanged(const qtmir::DirtiedWindow);
+    void windowMoved(const QPoint topLeft, const unsigned int index);
+    void windowResized(const QSize size, const unsigned int index);
+    void windowFocused(const unsigned int index);
+    void windowInfoChanged(const qtmir::WindowInfo, const unsigned int index);
 
 private:
     Q_DISABLE_COPY(WindowModelInterface)
@@ -72,7 +79,6 @@ private:
 
 } // namespace qtmir
 
-Q_DECLARE_METATYPE(qtmir::NumberedWindow)
-Q_DECLARE_METATYPE(qtmir::DirtiedWindow)
+Q_DECLARE_METATYPE(qtmir::WindowInfo)
 
 #endif // WINDOWMODELINTERFACE_H

@@ -26,12 +26,14 @@
 
 WindowManagementPolicy::WindowManagementPolicy(const miral::WindowManagerTools &tools,
                                                qtmir::WindowModel &windowModel,
+                                               qtmir::WindowController &windowController,
                                                const QSharedPointer<ScreensModel> screensModel)
     : CanonicalWindowManagerPolicy(tools)
     , m_tools(tools)
     , m_windowModel(windowModel)
     , m_eventFeeder(new QtEventFeeder(screensModel))
 {
+    windowController.setPolicy(this);
 }
 
 /* Following are hooks to allow custom policy be imposed */
@@ -46,7 +48,7 @@ miral::WindowSpecification WindowManagementPolicy::place_new_surface(
 
 void WindowManagementPolicy::handle_window_ready(miral::WindowInfo &windowInfo)
 {
-    qDebug("Window ready");
+    qDebug("Window Ready");
     m_tools.select_active_window(windowInfo.window());
 }
 
@@ -85,6 +87,7 @@ bool WindowManagementPolicy::handle_pointer_event(const MirPointerEvent *event)
 
 void WindowManagementPolicy::advise_new_window(const miral::WindowInfo &windowInfo)
 {
+    // TODO: attach surface observer here
     m_windowModel.addWindow(windowInfo);
 }
 
@@ -115,13 +118,13 @@ void WindowManagementPolicy::advise_state_change(const miral::WindowInfo &/*wind
 
 void WindowManagementPolicy::advise_move_to(const miral::WindowInfo &windowInfo, Point topLeft)
 {
-    qDebug("Window move");
+    qDebug("Window Moved to (%d, %d)", topLeft.x.as_int(), topLeft.y.as_int());
     m_windowModel.moveWindow(windowInfo, topLeft);
 }
 
 void WindowManagementPolicy::advise_resize(const miral::WindowInfo &windowInfo, const Size &newSize)
 {
-    qDebug("Window Resize");
+    qDebug("Window Resized to %dx%d", newSize.width.as_int(), newSize.height.as_int());
     m_windowModel.resizeWindow(windowInfo, newSize);
 }
 
@@ -147,35 +150,60 @@ void WindowManagementPolicy::advise_end()
 
 /* Following methods all called from the Qt GUI thread to deliver events to clients */
 void WindowManagementPolicy::deliver_keyboard_event(const MirKeyboardEvent *event,
-                                                    const std::shared_ptr<mir::scene::Surface> &surface)
+                                                    const miral::Window &window)
 {
-    m_tools.invoke_under_lock([&surface, this]() {
-        auto windowInfo = m_tools.info_for(surface);
-        m_tools.select_active_window(windowInfo.window());
+    m_tools.invoke_under_lock([&window, this]() {
+        m_tools.select_active_window(window);
     });
     auto e = reinterpret_cast<MirEvent const*>(event); // naughty
-    surface->consume(e);
+
+    if (auto surface = std::weak_ptr<mir::scene::Surface>(window).lock()) {
+        surface->consume(e);
+    }
 }
 
 void WindowManagementPolicy::deliver_touch_event(const MirTouchEvent *event,
-                                                 const std::shared_ptr<mir::scene::Surface> &surface)
+                                                 const miral::Window &window)
 {
-    m_tools.invoke_under_lock([&surface, this]() {
-        auto windowInfo = m_tools.info_for(surface);
-        m_tools.select_active_window(windowInfo.window());
+    m_tools.invoke_under_lock([&window, this]() {
+        m_tools.select_active_window(window);
     });
     auto e = reinterpret_cast<MirEvent const*>(event); // naughty
-    surface->consume(e);
+
+    if (auto surface = std::weak_ptr<mir::scene::Surface>(window).lock()) {
+        surface->consume(e);
+    }
 }
 
 void WindowManagementPolicy::deliver_pointer_event(const MirPointerEvent *event,
-                                                   const std::shared_ptr<mir::scene::Surface> &surface)
+                                                   const miral::Window &window)
 {
-    m_tools.invoke_under_lock([&surface, this]() {
-        auto windowInfo = m_tools.info_for(surface);
-        m_tools.select_active_window(windowInfo.window());
+    m_tools.invoke_under_lock([&window, this]() {
+        m_tools.select_active_window(window);
     });
     auto e = reinterpret_cast<MirEvent const*>(event); // naughty
-    surface->consume(e);
+
+    if (auto surface = std::weak_ptr<mir::scene::Surface>(window).lock()) {
+        surface->consume(e);
+    }
 }
 
+/* Methods to allow Shell to request changes to the window stack */
+void WindowManagementPolicy::focus(const miral::Window &window)
+{
+    m_tools.select_active_window(window);
+}
+
+void WindowManagementPolicy::resize(const miral::Window &window, const Size size)
+{
+    miral::WindowSpecification modifications;
+    modifications.size() = size;
+    m_tools.modify_window(m_tools.info_for(window), modifications);
+}
+
+void WindowManagementPolicy::move(const miral::Window &window, const Point topLeft)
+{
+    miral::WindowSpecification modifications;
+    modifications.top_left() = topLeft;
+    m_tools.modify_window(m_tools.info_for(window), modifications);
+}
