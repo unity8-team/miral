@@ -19,10 +19,14 @@
 
 #include <QObject>
 #include <QSharedPointer>
+
+#include <miral/application_authorizer.h>
+
 #include <mir/server.h>
 #include "miral/set_window_managment_policy.h"
 #include "windowmodel.h"
 #include "windowcontroller.h"
+#include "sessionauthorizer.h"
 
 class QtEventFeeder;
 class MirDisplayConfigurationPolicy;
@@ -33,15 +37,7 @@ class ScreensModel;
 
 // TODO the UsingQtMirXXX classes introduced here are a step towards
 //      decoupling from libmirserver and using a libmiral-style API
-class UsingQtMirSessionAuthorizer
-{
-public:
-    void operator()(mir::Server& server);
-    SessionAuthorizer *sessionAuthorizer();
-
-private:
-    std::weak_ptr<SessionAuthorizer> m_sessionAuthorizer;
-};
+using UsingQtMirSessionAuthorizer = miral::SetApplicationAuthorizer<SessionAuthorizer>;
 
 class UsingQtMirSessionListener
 {
@@ -85,11 +81,7 @@ private:
 // TODO Inheriting from mir::Server is a bad idea and leads to this awkward design
 // TODO the private UsingQtMirXXX classes will separated out and MirServer will evaporate
 class MirServer : public QObject,
-    private virtual mir::Server,
-    private UsingQtMirSessionAuthorizer,
-    private UsingQtMirSessionListener,
-    private UsingQtMirPromptSessionListener,
-    private UsingQtMirWindowManager
+    private virtual mir::Server
 {
     Q_OBJECT
 
@@ -113,15 +105,20 @@ public:
 
     /* qt specific */
     // getters
-    using UsingQtMirSessionAuthorizer::sessionAuthorizer;
-    using UsingQtMirSessionListener::sessionListener;
-    using UsingQtMirPromptSessionListener::promptSessionListener;
-    using UsingQtMirWindowManager::windowModel;
-    using UsingQtMirWindowManager::windowController;
+    SessionAuthorizer *sessionAuthorizer() { return m_usingQtMirSessionAuthorizer.the_custom_application_authorizer().get(); }
+    SessionListener *sessionListener()     { return m_usingQtMirSessionListener.sessionListener(); }
+    PromptSessionListener *promptSessionListener() { return m_usingQtMirPromptSessionListener.promptSessionListener(); }
+    qtmir::WindowModelInterface *windowModel() { return m_usingQtMirWindowManager.windowModel(); }
+    qtmir::WindowControllerInterface *windowController() { return m_usingQtMirWindowManager.windowController(); }
 
     QSharedPointer<ScreensModel> screensModel() const;
 
 private:
+    UsingQtMirSessionAuthorizer m_usingQtMirSessionAuthorizer;
+    UsingQtMirSessionListener m_usingQtMirSessionListener;
+    UsingQtMirPromptSessionListener m_usingQtMirPromptSessionListener;
+    UsingQtMirWindowManager m_usingQtMirWindowManager;
+
     const QSharedPointer<ScreensModel> m_screensModel;
 };
 

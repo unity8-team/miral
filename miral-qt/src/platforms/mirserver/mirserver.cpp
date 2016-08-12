@@ -56,7 +56,7 @@ void usingHiddenCursor(mir::Server& server);
 MirServer::MirServer(int &argc, char **argv,
                      const QSharedPointer<ScreensModel> &screensModel, QObject* parent)
     : QObject(parent)
-    , UsingQtMirWindowManager(screensModel)
+    , m_usingQtMirWindowManager(screensModel)
     , m_screensModel(screensModel)
 {
     bool unknownArgsFound = false;
@@ -70,15 +70,11 @@ MirServer::MirServer(int &argc, char **argv,
     // Casting char** to be a const char** safe as Mir won't change it, nor will we
     set_command_line(argc, const_cast<const char **>(argv));
 
-    UsingQtMirSessionAuthorizer::operator()(*this);
-    UsingQtMirSessionListener::operator()(*this);
-    UsingQtMirPromptSessionListener::operator()(*this);
-    UsingQtMirWindowManager::operator()(*this);
-
-    override_the_session_authorizer([]
-        {
-            return std::make_shared<SessionAuthorizer>();
-        });
+    // This should eventually be replaced by miral::MirRunner::run()
+    m_usingQtMirSessionAuthorizer(*this);
+    m_usingQtMirSessionListener(*this);
+    m_usingQtMirPromptSessionListener(*this);
+    m_usingQtMirWindowManager(*this);
 
     override_the_compositor([]
         {
@@ -144,21 +140,6 @@ void MirServer::stop()
 
 
 /************************************ Shell side ************************************/
-
-void UsingQtMirSessionAuthorizer::operator()(mir::Server& server)
-{
-    server.override_the_session_authorizer([this]
-        {
-            auto const result = std::make_shared<SessionAuthorizer>();
-            m_sessionAuthorizer = result;
-            return result;
-        });
-}
-
-SessionAuthorizer *UsingQtMirSessionAuthorizer::sessionAuthorizer()
-{
-    return m_sessionAuthorizer.lock().get();
-}
 
 void UsingQtMirSessionListener::operator()(mir::Server& server)
 {
