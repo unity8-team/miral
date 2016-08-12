@@ -188,7 +188,6 @@ enum class DirtyState {
     MaxSize = 1 << 7,
 };
 Q_DECLARE_FLAGS(DirtyStates, DirtyState)
-// needed to silence clang on vivid+overlay
 
 } // namespace {
 
