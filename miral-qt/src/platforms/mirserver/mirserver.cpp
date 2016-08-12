@@ -192,7 +192,7 @@ PromptSessionListener *UsingQtMirPromptSessionListener::promptSessionListener()
 
 UsingQtMirWindowManager::UsingQtMirWindowManager(const QSharedPointer<ScreensModel> &model)
     : m_screensModel(model)
-    , m_policy(miral::set_window_managment_policy<WindowManagementPolicy>(m_windowModel, m_screensModel))
+    , m_policy(miral::set_window_managment_policy<WindowManagementPolicy>(m_windowModel, m_windowController, m_screensModel))
 {
 }
 
@@ -206,10 +206,9 @@ qtmir::WindowModelInterface *UsingQtMirWindowManager::windowModel()
     return &m_windowModel;
 }
 
-mir::shell::Shell *MirServer::shell()
+qtmir::WindowControllerInterface *UsingQtMirWindowManager::windowController()
 {
-    std::weak_ptr<mir::shell::Shell> m_shell = the_shell();
-    return m_shell.lock().get();
+    return &m_windowController;
 }
 
 QSharedPointer<ScreensModel> MirServer::screensModel() const

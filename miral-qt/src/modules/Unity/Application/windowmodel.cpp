@@ -31,8 +31,8 @@
 using namespace qtmir;
 
 WindowModel::WindowModel()
+    : m_focusedWindow(nullptr)
 {
-
     auto nativeInterface = dynamic_cast<NativeInterface*>(QGuiApplication::platformNativeInterface());
 
     if (!nativeInterface) {
@@ -40,10 +40,14 @@ WindowModel::WindowModel()
     }
 
     auto windowModel = static_cast<WindowModelInterface*>(nativeInterface->nativeResourceForIntegration("WindowModel"));
+    m_windowController = static_cast<WindowControllerInterface*>(nativeInterface->nativeResourceForIntegration("WindowController"));
 
-    connect(windowModel, &WindowModelInterface::windowAdded, this, &WindowModel::onWindowAdded);
-    connect(windowModel, &WindowModelInterface::windowRemoved, this, &WindowModel::onWindowRemoved);
-    connect(windowModel, &WindowModelInterface::windowChanged, this, &WindowModel::onWindowChanged);
+    connect(windowModel, &WindowModelInterface::windowAdded,       this, &WindowModel::onWindowAdded);
+    connect(windowModel, &WindowModelInterface::windowRemoved,     this, &WindowModel::onWindowRemoved);
+    connect(windowModel, &WindowModelInterface::windowMoved,       this, &WindowModel::onWindowMoved);
+    connect(windowModel, &WindowModelInterface::windowResized,     this, &WindowModel::onWindowResized);
+    connect(windowModel, &WindowModelInterface::windowFocused,     this, &WindowModel::onWindowFocused);
+    connect(windowModel, &WindowModelInterface::windowInfoChanged, this, &WindowModel::onWindowInfoChanged);
 }
 
 QHash<int, QByteArray> WindowModel::roleNames() const
@@ -53,17 +57,18 @@ QHash<int, QByteArray> WindowModel::roleNames() const
     return roleNames;
 }
 
-void WindowModel::onWindowAdded(const NumberedWindow window)
+void WindowModel::onWindowAdded(const WindowInfo windowInfo, const unsigned int index)
 {
-    qDebug() << "Window Added!" << window.index;
+    qDebug() << "Window Added!" << index;
     std::shared_ptr<SurfaceObserver> surfaceObserver = std::make_shared<SurfaceObserver>();
-    const auto &surface = window.windowInfo.surface;
+
+    const auto &surface = static_cast<std::shared_ptr<mir::scene::Surface>>(windowInfo.window);
     SurfaceObserver::registerObserverForSurface(surfaceObserver.get(), surface.get());
     surface->add_observer(surfaceObserver);
 
-    auto mirSurface = new MirSurface(surface, nullptr, nullptr, surfaceObserver, CreationHints());
-    beginInsertRows(QModelIndex(), window.index, window.index);
-    m_windowModel.insert(window.index, mirSurface);
+    auto mirSurface = new MirSurface(windowInfo, m_windowController, surfaceObserver);
+    beginInsertRows(QModelIndex(), index, index);
+    m_windowModel.insert(index, mirSurface);
     endInsertRows();
     Q_EMIT countChanged();
 }
@@ -77,25 +82,34 @@ void WindowModel::onWindowRemoved(const unsigned int index)
     Q_EMIT countChanged();
 }
 
-void WindowModel::onWindowChanged(const DirtiedWindow window)
+void WindowModel::onWindowMoved(const QPoint topLeft, const unsigned int index)
 {
-    qDebug() << "Window Change!" << window.index;
-    auto mirSurface = m_windowModel.value(window.index);
+    auto mirSurface = static_cast<MirSurface *>(m_windowModel.value(index));
+    mirSurface->setPosition(topLeft);
+}
 
-    switch(window.dirtyWindowInfo) {
-    case WindowInfo::DirtyStates::Size: {
-        qDebug() << "size";
-        // Do nothing yet, it gets new size from swapped buffer for now
-    }
-    case WindowInfo::DirtyStates::Position:
-        qDebug() << "position";
-        mirSurface->setPosition(window.windowInfo.position);
-    case WindowInfo::DirtyStates::Focus:
-        qDebug() << "focus";
-        mirSurface->setFocused(window.windowInfo.focused);
-    }
+void WindowModel::onWindowResized(const QSize size, const unsigned int index)
+{
+    auto mirSurface = static_cast<MirSurface *>(m_windowModel.value(index));
+    mirSurface->setSize(size);
+}
 
-    QModelIndex row = index(window.index);
+void WindowModel::onWindowFocused(const unsigned int index)
+{
+    auto mirSurface = static_cast<MirSurface *>(m_windowModel.value(index));
+    if (m_focusedWindow && m_focusedWindow != mirSurface) {
+        m_focusedWindow->setFocused(false);
+    }
+    mirSurface->setFocused(true);
+    m_focusedWindow = mirSurface;
+}
+
+void WindowModel::onWindowInfoChanged(const WindowInfo windowInfo, const unsigned int pos)
+{
+    auto mirSurface = static_cast<MirSurface *>(m_windowModel.value(pos));
+    mirSurface->updateWindowInfo(windowInfo);
+
+    QModelIndex row = index(pos);
     Q_EMIT dataChanged(row, row, QVector<int>() << SurfaceRole);
 }
 

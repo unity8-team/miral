@@ -113,12 +113,12 @@ void *QMirServer::nativeResourceForIntegration(const QByteArray &resource) const
     if (d->server) {
         if (resource == "SessionAuthorizer")
             result = d->server->sessionAuthorizer();
-        else if (resource == "Shell")
-            result = d->server->shell();
         else if (resource == "SessionListener")
             result = d->server->sessionListener();
         else if (resource == "PromptSessionListener")
             result = d->server->promptSessionListener();
+        else if (resource == "WindowController")
+            result = d->server->windowController();
         else if (resource == "WindowModel")
             result = d->server->windowModel();
         else if (resource == "ScreensController")

@@ -31,17 +31,11 @@
 
 #include "mirbuffersgtexture.h"
 #include "session.h"
-
-// mirserver
-#include "creationhints.h"
-
+#include "windowcontrollerinterface.h"
+#include "windowmodelinterface.h"
 // mir
 #include <mir_toolkit/common.h>
 
-namespace mir {
-namespace shell { class Shell; }
-namespace scene {class Surface; }
-}
 
 class SurfaceObserver;
 
@@ -54,11 +48,9 @@ class MirSurface : public MirSurfaceInterface
     Q_OBJECT
 
 public:
-    MirSurface(std::shared_ptr<mir::scene::Surface> surface,
-            SessionInterface* session,
-            mir::shell::Shell *shell,
-            std::shared_ptr<SurfaceObserver> observer,
-            const CreationHints &);
+    MirSurface(WindowInfo windowInfo,
+               WindowControllerInterface *controller,
+               std::shared_ptr<SurfaceObserver> observer);
     virtual ~MirSurface();
 
     ////
@@ -70,10 +62,10 @@ public:
 
     QSize size() const override;
     void resize(int width, int height) override;
-    void resize(const QSize &size) override { resize(size.width(), size.height()); }
+    Q_INVOKABLE void resize(const QSize &size) override { resize(size.width(), size.height()); }
 
     QPoint position() const override;
-    void setPosition(const QPoint newPosition) override;
+    Q_INVOKABLE void requestPosition(const QPoint newPosition) override;
 
     Mir::State state() const override;
     void setState(Mir::State qmlState) override;
@@ -159,6 +151,9 @@ public:
 
     ////
     // Own API
+    void setPosition(const QPoint newPosition);
+    void setSize(const QSize newSize);
+    void updateWindowInfo(const WindowInfo &windowInfo);
 
     // useful for tests
     void setCloseTimer(AbstractTimer *timer);
@@ -166,12 +161,6 @@ public:
 public Q_SLOTS:
     void onCompositorSwappedBuffers() override;
 
-    void setMinimumWidth(int) override;
-    void setMinimumHeight(int) override;
-    void setMaximumWidth(int) override;
-    void setMaximumHeight(int) override;
-    void setWidthIncrement(int) override;
-    void setHeightIncrement(int) override;
     void setShellChrome(Mir::ShellChrome shellChrome) override;
 
 private Q_SLOTS:
@@ -191,9 +180,9 @@ private:
     void applyKeymap();
     void updateActiveFocus();
 
-    std::shared_ptr<mir::scene::Surface> m_surface;
+    WindowInfo m_windowInfo;
     QPointer<SessionInterface> m_session;
-    mir::shell::Shell *const m_shell;
+    WindowControllerInterface *const m_controller;
     bool m_firstFrameDrawn;
 
     //FIXME -  have to save the state as Mir has no getter for it (bug:1357429)
@@ -225,13 +214,6 @@ private:
 
     QCursor m_cursor;
     Mir::ShellChrome m_shellChrome;
-
-    int m_minimumWidth{0};
-    int m_minimumHeight{0};
-    int m_maximumWidth{0};
-    int m_maximumHeight{0};
-    int m_widthIncrement{0};
-    int m_heightIncrement{0};
 
     QRect m_inputBounds;
 

@@ -97,45 +97,45 @@ MirSurfaceManager::~MirSurfaceManager()
 
 void MirSurfaceManager::onSessionCreatedSurface(const mir::scene::Session *mirSession,
                                                 const std::shared_ptr<mir::scene::Surface> &surface,
-                                                const std::shared_ptr<SurfaceObserver> &observer,
+                                                const std::shared_ptr<SurfaceObserver> &/*observer*/,
                                                 qtmir::CreationHints creationHints)
 {
     qCDebug(QTMIR_SURFACES) << "MirSurfaceManager::onSessionCreatedSurface - mirSession=" << mirSession
                             << "surface=" << surface.get() << "surface.name=" << surface->name().c_str()
                             << "creationHints=" << creationHints.toString();
 
-    SessionInterface* session = m_sessionManager->findSession(mirSession);
-    auto qmlSurface = new MirSurface(surface, session, m_shell, observer, creationHints);
-    {
-        QMutexLocker lock(&m_mutex);
-        m_mirSurfaceToQmlSurfaceHash.insert(surface.get(), qmlSurface);
-    }
+//    SessionInterface* session = m_sessionManager->findSession(mirSession);
+//    auto qmlSurface = new MirSurface(surface, session, m_shell, observer, creationHints);
+//    {
+//        QMutexLocker lock(&m_mutex);
+//        m_mirSurfaceToQmlSurfaceHash.insert(surface.get(), qmlSurface);
+//    }
 
-    if (session)
-        session->registerSurface(qmlSurface);
+//    if (session)
+//        session->registerSurface(qmlSurface);
 
-    if (qmlSurface->type() == Mir::InputMethodType) {
-        m_inputMethodSurface = qmlSurface;
-        Q_EMIT inputMethodSurfaceChanged();
-    }
+//    if (qmlSurface->type() == Mir::InputMethodType) {
+//        m_inputMethodSurface = qmlSurface;
+//        Q_EMIT inputMethodSurfaceChanged();
+//    }
 
-    // Only notify QML of surface creation once it has drawn its first frame.
-    connect(qmlSurface, &MirSurfaceInterface::firstFrameDrawn, this, [=]() {
-        tracepoint(qtmir, firstFrameDrawn);
-        Q_EMIT surfaceCreated(qmlSurface);
-    });
+//    // Only notify QML of surface creation once it has drawn its first frame.
+//    connect(qmlSurface, &MirSurfaceInterface::firstFrameDrawn, this, [=]() {
+//        tracepoint(qtmir, firstFrameDrawn);
+//        Q_EMIT surfaceCreated(qmlSurface);
+//    });
 
-    // clean up after MirSurface is destroyed
-    connect(qmlSurface, &QObject::destroyed, this, [&](QObject *obj) {
-        auto qmlSurface = static_cast<MirSurfaceInterface*>(obj);
-        {
-            QMutexLocker lock(&m_mutex);
-            m_mirSurfaceToQmlSurfaceHash.remove(m_mirSurfaceToQmlSurfaceHash.key(qmlSurface));
-        }
+//    // clean up after MirSurface is destroyed
+//    connect(qmlSurface, &QObject::destroyed, this, [&](QObject *obj) {
+//        auto qmlSurface = static_cast<MirSurfaceInterface*>(obj);
+//        {
+//            QMutexLocker lock(&m_mutex);
+//            m_mirSurfaceToQmlSurfaceHash.remove(m_mirSurfaceToQmlSurfaceHash.key(qmlSurface));
+//        }
 
-        tracepoint(qtmir, surfaceDestroyed);
-    });
-    tracepoint(qtmir, surfaceCreated);
+//        tracepoint(qtmir, surfaceDestroyed);
+//    });
+//    tracepoint(qtmir, surfaceCreated);
 }
 
 void MirSurfaceManager::onSessionDestroyingSurface(const mir::scene::Session *session,
@@ -144,27 +144,27 @@ void MirSurfaceManager::onSessionDestroyingSurface(const mir::scene::Session *se
     qCDebug(QTMIR_SURFACES) << "MirSurfaceManager::onSessionDestroyingSurface - session=" << session
                             << "surface=" << surface.get() << "surface.name=" << surface->name().c_str();
 
-    MirSurfaceInterface* qmlSurface = nullptr;
-    {
-        QMutexLocker lock(&m_mutex);
-        auto it = m_mirSurfaceToQmlSurfaceHash.find(surface.get());
-        if (it != m_mirSurfaceToQmlSurfaceHash.end()) {
-            qmlSurface = it.value();
-            m_mirSurfaceToQmlSurfaceHash.erase(it);
-        } else {
-            qCritical() << "MirSurfaceManager::onSessionDestroyingSurface: unable to find MirSurface corresponding"
-                        << "to surface=" << surface.get() << "surface.name=" << surface->name().c_str();
-            return;
-        }
-    }
+//    MirSurfaceInterface* qmlSurface = nullptr;
+//    {
+//        QMutexLocker lock(&m_mutex);
+//        auto it = m_mirSurfaceToQmlSurfaceHash.find(surface.get());
+//        if (it != m_mirSurfaceToQmlSurfaceHash.end()) {
+//            qmlSurface = it.value();
+//            m_mirSurfaceToQmlSurfaceHash.erase(it);
+//        } else {
+//            qCritical() << "MirSurfaceManager::onSessionDestroyingSurface: unable to find MirSurface corresponding"
+//                        << "to surface=" << surface.get() << "surface.name=" << surface->name().c_str();
+//            return;
+//        }
+//    }
 
-    if (qmlSurface->type() == Mir::InputMethodType) {
-        m_inputMethodSurface = nullptr;
-        Q_EMIT inputMethodSurfaceChanged();
-    }
+//    if (qmlSurface->type() == Mir::InputMethodType) {
+//        m_inputMethodSurface = nullptr;
+//        Q_EMIT inputMethodSurfaceChanged();
+//    }
 
-    qmlSurface->setLive(false);
-    Q_EMIT surfaceDestroyed(qmlSurface);
+//    qmlSurface->setLive(false);
+//    Q_EMIT surfaceDestroyed(qmlSurface);
 }
 
 MirSurfaceInterface* MirSurfaceManager::inputMethodSurface() const
