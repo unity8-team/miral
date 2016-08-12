@@ -62,11 +62,7 @@ public:
     auto operator=(WindowSpecification const& that) -> WindowSpecification&;
 
     WindowSpecification(mir::shell::SurfaceSpecification const& spec);
-    auto operator=(mir::shell::SurfaceSpecification const& spec) -> WindowSpecification&;
-    void update(mir::shell::SurfaceSpecification& spec) const;
-
     WindowSpecification(mir::scene::SurfaceCreationParameters const& params);
-    auto operator=(mir::scene::SurfaceCreationParameters const& params) -> WindowSpecification&;
     void update(mir::scene::SurfaceCreationParameters& params) const;
 
     ~WindowSpecification();

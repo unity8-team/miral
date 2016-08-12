@@ -28,7 +28,7 @@ struct miral::WindowSpecification::Self
     Self(Self const&) = default;
     Self(mir::shell::SurfaceSpecification const& spec);
     Self(mir::scene::SurfaceCreationParameters const& params);
-    void update(mir::shell::SurfaceSpecification& spec) const;
+
     void update(mir::scene::SurfaceCreationParameters& params) const;
 
     mir::optional_value<Point> top_left;
@@ -82,7 +82,7 @@ miral::WindowSpecification::Self::Self(mir::shell::SurfaceSpecification const& s
     parent(spec.parent),
     input_shape(spec.input_shape),
     input_mode(),
-    shell_chrome()
+    shell_chrome(spec.shell_chrome)
 {
     if (spec.width.is_set() && spec.height.is_set())
         size = Size(spec.width.value(), spec.height.value());
@@ -174,14 +174,6 @@ void copy_if_set(
 
 template<typename Source>
 void copy_if_set(
-    mir::optional_value<mir::input::InputReceptionMode>& dest,
-    mir::optional_value<Source> const& source)
-{
-    if (source.is_set()) dest = static_cast<mir::input::InputReceptionMode>(source.value());
-}
-
-template<typename Source>
-void copy_if_set(
     mir::input::InputReceptionMode& dest,
     mir::optional_value<Source> const& source)
 {
@@ -203,65 +195,6 @@ void copy_if_set(
 {
     if (source.is_set()) dest = mir::frontend::BufferStreamId{source.value().as_value()};
 }
-}
-
-void miral::WindowSpecification::Self::update(mir::shell::SurfaceSpecification& spec) const
-{
-//     top_left
-    
-    if (size.is_set())
-    {
-        spec.width = size.value().width;
-        spec.height = size.value().height;
-    }
-
-    copy_if_set(spec.pixel_format, pixel_format);
-    copy_if_set(spec.buffer_usage, buffer_usage);
-    copy_if_set(spec.name, name);
-    copy_if_set(spec.output_id, output_id);
-    copy_if_set(spec.type, type);
-    copy_if_set(spec.state, state);
-    copy_if_set(spec.preferred_orientation, preferred_orientation);
-    copy_if_set(spec.aux_rect, aux_rect);
-    copy_if_set(spec.edge_attachment, edge_attachment);
-    copy_if_set(spec.min_width, min_width);
-    copy_if_set(spec.min_height, min_height);
-    copy_if_set(spec.max_width, max_width);
-    copy_if_set(spec.max_height, max_height);
-    copy_if_set(spec.width_inc, width_inc);
-    copy_if_set(spec.height_inc, height_inc);
-    copy_if_set(spec.min_aspect, min_aspect);
-    copy_if_set(spec.max_aspect, max_aspect);
-
-    if (streams.is_set())
-    {
-        auto const& source = streams.value();
-        std::vector<mir::shell::StreamSpecification> dest;
-        dest.reserve(source.size());
-
-#if MIR_SERVER_VERSION < MIR_VERSION_NUMBER(0, 22, 0)
-        for (auto const& stream : source)
-            dest.push_back(mir::shell::StreamSpecification{mir::frontend::BufferStreamId{stream.stream_id.as_value()}, stream.displacement});
-#else
-        for (auto const& stream : source)
-        {
-            dest.push_back(
-                mir::shell::StreamSpecification{
-                    mir::frontend::BufferStreamId{stream.stream_id.as_value()},
-                    stream.displacement,
-                    stream.size
-                });
-        }
-#endif
-
-        spec.streams = std::move(dest);
-    }
-
-    copy_if_set(spec.parent, parent);
-    copy_if_set(spec.input_shape, input_shape);
-
-//    input_mode
-//    shell_chrome
 }
 
 miral::WindowSpecification::Self::Self(mir::scene::SurfaceCreationParameters const& params) :
@@ -288,7 +221,7 @@ miral::WindowSpecification::Self::Self(mir::scene::SurfaceCreationParameters con
     parent(params.parent),
     input_shape(params.input_shape),
     input_mode(static_cast<InputReceptionMode>(params.input_mode)),
-    shell_chrome()
+    shell_chrome(params.shell_chrome)
 {
     if (params.content_id.is_set())
         content_id = BufferStreamId{params.content_id.value().as_value()};
@@ -380,17 +313,6 @@ miral::WindowSpecification::WindowSpecification(mir::shell::SurfaceSpecification
 {
 }
 
-auto miral::WindowSpecification::operator=(mir::shell::SurfaceSpecification const& spec) -> WindowSpecification&
-{
-    self = std::make_unique<Self>(spec);
-    return *this;
-}
-
-void miral::WindowSpecification::update(mir::shell::SurfaceSpecification& spec) const
-{
-    self->update(spec);
-}
-
 miral::WindowSpecification::WindowSpecification(mir::scene::SurfaceCreationParameters const& params) :
     self{std::make_unique<Self>(params)}
 {
@@ -408,12 +330,6 @@ auto miral::WindowSpecification::operator=(WindowSpecification const& that) -> W
 }
 
 miral::WindowSpecification::~WindowSpecification() = default;
-
-auto miral::WindowSpecification::operator=(mir::scene::SurfaceCreationParameters const& spec) -> WindowSpecification&
-{
-    self = std::make_unique<Self>(spec);
-    return *this;
-}
 
 void miral::WindowSpecification::update(mir::scene::SurfaceCreationParameters& params) const
 {
