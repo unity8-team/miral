@@ -97,6 +97,14 @@ public:
      */
     auto info_for(Window const& window) const -> WindowInfo&;
 
+    /** retrieve metadata for a persistent surface id
+     *
+     * @param id        the persistent surface id
+     * @return          the metadata
+     * @throw           invalid_argument or runtime_error if the id is badly formatted/doesn't identify a current window
+     */
+    auto info_for_window_id(std::string const& id) const -> WindowInfo&;
+
     /** kill the active application
      *
      * @param sig the signal to send
@@ -136,6 +144,7 @@ public:
 
     /// Apply modifications to a window
     void modify_window(WindowInfo& window_info, WindowSpecification const& modifications);
+
 /** @} */
 
     /** Multi-thread support

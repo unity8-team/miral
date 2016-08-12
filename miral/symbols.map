@@ -145,6 +145,7 @@ global:
     miral::WindowManagerTools::raise_tree*;
     miral::WindowManagerTools::select_active_window*;
     miral::WindowManagerTools::window_at*;
+    miral::WindowManagerTools::info_for_window_id*;
     miral::WindowSpecification::?WindowSpecification*;
     miral::WindowSpecification::WindowSpecification*;
     miral::WindowSpecification::aux_rect*;
@@ -179,6 +180,7 @@ global:
     miral::kill*;
     miral::operator*;
     miral::toolkit::Connection::Connection*;
+    miral::toolkit::Surface::Surface*;
     non-virtual?thunk?to?miral::ActiveOutputsListener::?ActiveOutputsListener*;
     non-virtual?thunk?to?miral::ActiveOutputsListener::advise_output_begin*;
     non-virtual?thunk?to?miral::ActiveOutputsListener::advise_output_create*;
@@ -228,6 +230,8 @@ global:
     typeinfo?for?miral::WindowSpecification;
     typeinfo?for?miral::WindowSpecification::AspectRatio;
     typeinfo?for?miral::toolkit::Connection;
+    typeinfo?for?miral::toolkit::PersistentId;
+    typeinfo?for?miral::toolkit::Surface;
     typeinfo?for?miral::toolkit::SurfaceSpec;
     vtable?for?miral::ActiveOutputsListener;
     vtable?for?miral::ActiveOutputsMonitor;
@@ -253,6 +257,8 @@ global:
     vtable?for?miral::WindowSpecification;
     vtable?for?miral::WindowSpecification::AspectRatio;
     vtable?for?miral::toolkit::Connection;
+    vtable?for?miral::toolkit::PersistentId;
+    vtable?for?miral::toolkit::Surface;
     vtable?for?miral::toolkit::SurfaceSpec;
   };
 local: *;

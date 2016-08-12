@@ -23,6 +23,7 @@
 #include <mir/scene/surface.h>
 #include <mir/scene/surface_creation_parameters.h>
 #include <mir/shell/display_layout.h>
+#include <mir/shell/persistent_surface_store.h>
 #include <mir/shell/surface_ready_observer.h>
 #include <mir/version.h>
 
@@ -58,9 +59,11 @@ struct Locker
 miral::BasicWindowManager::BasicWindowManager(
     shell::FocusController* focus_controller,
     std::shared_ptr<shell::DisplayLayout> const& display_layout,
+    std::shared_ptr<mir::shell::PersistentSurfaceStore> const& persistent_surface_store,
     WindowManagementPolicyBuilder const& build) :
     focus_controller(focus_controller),
     display_layout(display_layout),
+    persistent_surface_store{persistent_surface_store},
     policy(build(WindowManagerTools{this}))
 {
 }
@@ -654,6 +657,22 @@ void miral::BasicWindowManager::modify_window(WindowInfo& window_info, WindowSpe
         set_state(window_info, modifications.state().value());
     }
 }
+
+auto miral::BasicWindowManager::info_for_window_id(std::string const& id) const -> WindowInfo&
+{
+#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 24, 0)
+    auto surface = persistent_surface_store->surface_for_id(mir::shell::PersistentSurfaceStore::Id{id});
+
+    if (!surface)
+        BOOST_THROW_EXCEPTION(std::runtime_error{"No surface matching ID"});
+
+    return info_for(surface);
+#else
+    (void)id;
+    BOOST_THROW_EXCEPTION(std::runtime_error{"No surface matching ID"});
+#endif
+}
+
 
 void miral::BasicWindowManager::place_and_size(WindowInfo& root, Point const& new_pos, Size const& new_size)
 {
