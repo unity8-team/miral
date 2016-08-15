@@ -139,7 +139,6 @@ global:
     miral::WindowManagerTools::for_each_application*;
     miral::WindowManagerTools::info_for*;
     miral::WindowManagerTools::invoke_under_lock*;
-    miral::WindowManagerTools::kill_active_application*;
     miral::WindowManagerTools::modify_window*;
     miral::WindowManagerTools::operator*;
     miral::WindowManagerTools::raise_tree*;
