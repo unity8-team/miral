@@ -88,9 +88,3 @@ void MirServer::stop()
 }
 
 
-/************************************ Shell side ************************************/
-
-QSharedPointer<ScreensModel> MirServer::screensModel() const
-{
-    return m_screensModel;
-}

@@ -40,8 +40,6 @@ public:
 
     void stop();
 
-    QSharedPointer<ScreensModel> screensModel() const;
-
 private:
 
     const QSharedPointer<ScreensModel> m_screensModel;
