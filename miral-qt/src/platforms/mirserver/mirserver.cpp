@@ -27,7 +27,7 @@
 #include "sessionauthorizer.h"
 #include "windowmanagementpolicy.h"
 #include "logging.h"
-#include "using_qt_compositor.h"
+#include "usingqtcompositor.h"
 
 // std
 #include <memory>

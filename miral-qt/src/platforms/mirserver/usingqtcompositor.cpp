@@ -16,7 +16,7 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#include "using_qt_compositor.h"
+#include "usingqtcompositor.h"
 
 // local
 #include "mircursorimages.h"
