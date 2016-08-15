@@ -77,5 +77,8 @@ void miral::WindowManagerTools::raise_tree(Window const& root)
 void miral::WindowManagerTools::modify_window(WindowInfo& window_info, WindowSpecification const& modifications)
 { tools->modify_window(window_info,modifications); }
 
+auto miral::WindowManagerTools::info_for_window_id(std::string const& id) const -> WindowInfo&
+{ return tools->info_for_window_id(id); }
+
 void miral::WindowManagerTools::invoke_under_lock(std::function<void()> const& callback)
 { tools->invoke_under_lock(callback); }
