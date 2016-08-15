@@ -29,10 +29,6 @@ class ScreensModel;
 class MirServer;
 class ScreensModel;
 
-// We use virtual inheritance of mir::Server to facilitate derived classes (e.g. testing)
-// calling initialization functions before MirServer is constructed.
-// TODO Inheriting from mir::Server is a bad idea and leads to this awkward design
-// TODO the private UsingQtMirXXX classes will separated out and MirServer will evaporate
 class MirServer : public QObject,
     public mir::Server
 {
