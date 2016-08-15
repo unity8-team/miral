@@ -20,12 +20,9 @@
 
 // local
 #include "argvHelper.h"
-#include "mircursorimages.h"
-#include "mirglconfig.h"
-#include "mirserverstatuslistener.h"
 #include "screensmodel.h"
-#include "qtcompositor.h"
 #include "logging.h"
+#include "usingqtcompositor.h"
 
 // std
 #include <memory>
@@ -35,7 +32,6 @@
 #include <EGL/egl.h>
 
 // mir
-#include <mir/graphics/cursor.h>
 #include <mir/shell/shell.h>
 
 // miral
@@ -45,11 +41,6 @@ namespace mg = mir::graphics;
 namespace mo  = mir::options;
 namespace msh = mir::shell;
 namespace ms = mir::scene;
-
-namespace
-{
-void usingHiddenCursor(mir::Server& server);
-}
 
 MirServer::MirServer(int &argc, char **argv,
                      const QSharedPointer<ScreensModel> &screensModel, QObject* parent)
@@ -67,25 +58,7 @@ MirServer::MirServer(int &argc, char **argv,
     // Casting char** to be a const char** safe as Mir won't change it, nor will we
     set_command_line(argc, const_cast<const char **>(argv));
 
-    override_the_compositor([]
-        {
-            return std::make_shared<QtCompositor>();
-        });
-
-    override_the_cursor_images([]
-        {
-            return std::make_shared<qtmir::MirCursorImages>();
-        });
-
-    override_the_gl_config([]
-        {
-            return std::make_shared<MirGLConfig>();
-        });
-
-    override_the_server_status_listener([]
-        {
-            return std::make_shared<MirServerStatusListener>();
-        });
+    usingQtCompositor(*this);
 
     miral::SetTerminator{[](int)
         {
@@ -97,7 +70,6 @@ MirServer::MirServer(int &argc, char **argv,
         screensModel->init(the_display(), the_compositor(), the_shell());
     });
 
-    usingHiddenCursor(*this);
 
     if (!unknownArgsFound) { // mir parsed all the arguments, so edit argv to pretend to have just argv[0]
         argc = 1;
@@ -121,27 +93,4 @@ void MirServer::stop()
 QSharedPointer<ScreensModel> MirServer::screensModel() const
 {
     return m_screensModel;
-}
-
-namespace
-{
-struct HiddenCursorWrapper : mg::Cursor
-{
-    HiddenCursorWrapper(std::shared_ptr<mg::Cursor> const& wrapped) :
-        wrapped{wrapped} { wrapped->hide(); }
-    void show() override { }
-    void show(mg::CursorImage const&) override { }
-    void hide() override { wrapped->hide(); }
-
-    void move_to(mir::geometry::Point position) override { wrapped->move_to(position); }
-
-private:
-    std::shared_ptr<mg::Cursor> const wrapped;
-};
-
-void usingHiddenCursor(mir::Server& server)
-{
-    server.wrap_cursor([&](std::shared_ptr<mg::Cursor> const& wrapped)
-        { return std::make_shared<HiddenCursorWrapper>(wrapped); });
-}
 }
