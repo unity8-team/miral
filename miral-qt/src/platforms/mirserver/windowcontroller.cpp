@@ -48,6 +48,13 @@ void WindowController::move(const miral::Window &window, const QPoint &topLeft)
     }
 }
 
+void WindowController::requestClose(const miral::Window &window)
+{
+    if (m_policy) {
+        m_policy->ask_client_to_close(window);
+    }
+}
+
 void WindowController::setActiveFocus(const miral::Window &/*window*/, const bool /*activeFocus*/)
 {
 
