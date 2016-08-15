@@ -77,6 +77,8 @@ public:
     void resize(const miral::Window &window, const Size size);
     void move  (const miral::Window &window, const Point topLeft);
 
+    void ask_client_to_close(const miral::Window &window);
+
 Q_SIGNALS:
 
 private:

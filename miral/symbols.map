@@ -63,6 +63,9 @@ global:
     miral::Output::used*;
     miral::Output::valid*;
     miral::QuitOnCtrlAltBkSp::operator*;
+    miral::SetTerminator::?SetTerminator*;
+    miral::SetTerminator::SetTerminator*;
+    miral::SetTerminator::operator*;
     miral::SetWindowManagmentPolicy::?SetWindowManagmentPolicy*;
     miral::SetWindowManagmentPolicy::SetWindowManagmentPolicy*;
     miral::SetWindowManagmentPolicy::operator*;
@@ -138,8 +141,8 @@ global:
     miral::WindowManagerTools::focus_next_within_application*;
     miral::WindowManagerTools::for_each_application*;
     miral::WindowManagerTools::info_for*;
+    miral::WindowManagerTools::info_for_window_id*;
     miral::WindowManagerTools::invoke_under_lock*;
-    miral::WindowManagerTools::kill_active_application*;
     miral::WindowManagerTools::modify_window*;
     miral::WindowManagerTools::operator*;
     miral::WindowManagerTools::raise_tree*;
@@ -179,6 +182,7 @@ global:
     miral::kill*;
     miral::operator*;
     miral::toolkit::Connection::Connection*;
+    miral::toolkit::Surface::Surface*;
     non-virtual?thunk?to?miral::ActiveOutputsListener::?ActiveOutputsListener*;
     non-virtual?thunk?to?miral::ActiveOutputsListener::advise_output_begin*;
     non-virtual?thunk?to?miral::ActiveOutputsListener::advise_output_create*;
@@ -216,6 +220,7 @@ global:
     typeinfo?for?miral::Output;
     typeinfo?for?miral::Output::PhysicalSizeMM;
     typeinfo?for?miral::QuitOnCtrlAltBkSp;
+    typeinfo?for?miral::SetTerminator;
     typeinfo?for?miral::SetWindowManagmentPolicy;
     typeinfo?for?miral::StartupInternalClient;
     typeinfo?for?miral::StreamSpecification;
@@ -228,6 +233,8 @@ global:
     typeinfo?for?miral::WindowSpecification;
     typeinfo?for?miral::WindowSpecification::AspectRatio;
     typeinfo?for?miral::toolkit::Connection;
+    typeinfo?for?miral::toolkit::PersistentId;
+    typeinfo?for?miral::toolkit::Surface;
     typeinfo?for?miral::toolkit::SurfaceSpec;
     vtable?for?miral::ActiveOutputsListener;
     vtable?for?miral::ActiveOutputsMonitor;
@@ -241,6 +248,7 @@ global:
     vtable?for?miral::Output;
     vtable?for?miral::Output::PhysicalSizeMM;
     vtable?for?miral::QuitOnCtrlAltBkSp;
+    vtable?for?miral::SetTerminator;
     vtable?for?miral::SetWindowManagmentPolicy;
     vtable?for?miral::StartupInternalClient;
     vtable?for?miral::StreamSpecification;
@@ -253,6 +261,8 @@ global:
     vtable?for?miral::WindowSpecification;
     vtable?for?miral::WindowSpecification::AspectRatio;
     vtable?for?miral::toolkit::Connection;
+    vtable?for?miral::toolkit::PersistentId;
+    vtable?for?miral::toolkit::Surface;
     vtable?for?miral::toolkit::SurfaceSpec;
   };
 local: *;
