@@ -83,6 +83,7 @@ set(MIRSERVER_QPA_PLUGIN_SRC
     windowmanagementpolicy.cpp
     windowmodel.cpp
     tracepoints.c
+    using_qt_compositor.cpp using_qt_compositor.h
 # We need to run moc on these headers
     ${APPLICATION_API_INCLUDEDIR}/unity/shell/application/Mir.h
     ${APPLICATION_API_INCLUDEDIR}/unity/shell/application/MirMousePointerInterface.h

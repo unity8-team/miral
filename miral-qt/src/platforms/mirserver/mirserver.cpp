@@ -20,17 +20,14 @@
 
 // local
 #include "argvHelper.h"
-#include "mircursorimages.h"
 #include "mirdisplayconfigurationpolicy.h"
-#include "mirglconfig.h"
-#include "mirserverstatuslistener.h"
 #include "promptsessionlistener.h"
 #include "screensmodel.h"
 #include "sessionlistener.h"
 #include "sessionauthorizer.h"
-#include "qtcompositor.h"
 #include "windowmanagementpolicy.h"
 #include "logging.h"
+#include "using_qt_compositor.h"
 
 // std
 #include <memory>
@@ -40,18 +37,12 @@
 #include <EGL/egl.h>
 
 // mir
-#include <mir/graphics/cursor.h>
 #include <mir/shell/shell.h>
 
-namespace mg = mir::graphics;
+namespace mg  = mir::graphics;
 namespace mo  = mir::options;
 namespace msh = mir::shell;
 namespace ms = mir::scene;
-
-namespace
-{
-void usingHiddenCursor(mir::Server& server);
-}
 
 MirServer::MirServer(int &argc, char **argv,
                      const QSharedPointer<ScreensModel> &screensModel, QObject* parent)
@@ -80,25 +71,7 @@ MirServer::MirServer(int &argc, char **argv,
             return std::make_shared<SessionAuthorizer>();
         });
 
-    override_the_compositor([]
-        {
-            return std::make_shared<QtCompositor>();
-        });
-
-    override_the_cursor_images([]
-        {
-            return std::make_shared<qtmir::MirCursorImages>();
-        });
-
-    override_the_gl_config([]
-        {
-            return std::make_shared<MirGLConfig>();
-        });
-
-    override_the_server_status_listener([]
-        {
-            return std::make_shared<MirServerStatusListener>();
-        });
+    usingQtCompositor(*this);
 
     wrap_display_configuration_policy(
         [](const std::shared_ptr<mg::DisplayConfigurationPolicy> &wrapped)
@@ -116,8 +89,6 @@ MirServer::MirServer(int &argc, char **argv,
     add_init_callback([this, &screensModel] {
         screensModel->init(the_display(), the_compositor(), the_shell());
     });
-
-    usingHiddenCursor(*this);
 
     try {
         apply_settings();
@@ -214,27 +185,4 @@ qtmir::WindowControllerInterface *UsingQtMirWindowManager::windowController()
 QSharedPointer<ScreensModel> MirServer::screensModel() const
 {
     return m_screensModel;
-}
-
-namespace
-{
-struct HiddenCursorWrapper : mg::Cursor
-{
-    HiddenCursorWrapper(std::shared_ptr<mg::Cursor> const& wrapped) :
-        wrapped{wrapped} { wrapped->hide(); }
-    void show() override { }
-    void show(mg::CursorImage const&) override { }
-    void hide() override { wrapped->hide(); }
-
-    void move_to(mir::geometry::Point position) override { wrapped->move_to(position); }
-
-private:
-    std::shared_ptr<mg::Cursor> const wrapped;
-};
-
-void usingHiddenCursor(mir::Server& server)
-{
-    server.wrap_cursor([&](std::shared_ptr<mg::Cursor> const& wrapped)
-        { return std::make_shared<HiddenCursorWrapper>(wrapped); });
-}
 }
