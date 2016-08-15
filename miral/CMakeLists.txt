@@ -25,12 +25,15 @@ add_library(miral SHARED
     window_management_options.cpp       ${CMAKE_SOURCE_DIR}/include/miral/window_management_options.h
     window_specification.cpp            ${CMAKE_SOURCE_DIR}/include/miral/window_specification.h
     internal_client.cpp                 ${CMAKE_SOURCE_DIR}/include/miral/internal_client.h
+    set_terminator.cpp                  ${CMAKE_SOURCE_DIR}/include/miral/set_terminator.h
     set_window_managment_policy.cpp     ${CMAKE_SOURCE_DIR}/include/miral/set_window_managment_policy.h
     window_management_policy.cpp        ${CMAKE_SOURCE_DIR}/include/miral/window_management_policy.h
     window_manager_tools.cpp            ${CMAKE_SOURCE_DIR}/include/miral/window_manager_tools.h
                                         ${CMAKE_SOURCE_DIR}/include/miral/stream_specification.h
                                         ${CMAKE_SOURCE_DIR}/include/miral/toolkit/surface_spec.h
+                                        ${CMAKE_SOURCE_DIR}/include/miral/toolkit/persistent_id.h
                                         ${CMAKE_SOURCE_DIR}/include/miral/toolkit/connection.h
+                                        ${CMAKE_SOURCE_DIR}/include/miral/toolkit/surface.h
 )
 
 target_link_libraries(miral

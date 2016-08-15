@@ -310,7 +310,8 @@ bool TitlebarWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* 
         switch (modifiers & modifier_mask)
         {
         case mir_input_event_modifier_alt|mir_input_event_modifier_shift:
-            tools.kill_active_application(SIGTERM);
+            if (auto const& window = tools.active_window())
+                kill(window.application(), SIGTERM);
             return true;
 
         case mir_input_event_modifier_alt:

@@ -77,9 +77,6 @@ additions to libmiral to expose additional Mir functionality.
    
  - Cut&Paste/Drag&Drop toolkits expect this functionality, but it isn't
    provided by Mir. We ought to find a way to provide this.
-   
- - Exposing the PersistentSurfaceStore through the MirAL API. A shell needs to
-   be able to work with the surface identifiers.
 
 The tiling window management strategy
 -------------------------------------

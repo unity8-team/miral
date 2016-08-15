@@ -207,3 +207,10 @@ void WindowManagementPolicy::move(const miral::Window &window, const Point topLe
     modifications.top_left() = topLeft;
     m_tools.modify_window(m_tools.info_for(window), modifications);
 }
+
+void WindowManagementPolicy::ask_client_to_close(const miral::Window &window)
+{
+    m_tools.invoke_under_lock([&window, this]() {
+        m_tools.ask_client_to_close(window);
+    });
+}
