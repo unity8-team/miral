@@ -18,10 +18,10 @@
 
 // Mir
 #include <mir/main_loop.h>
-#include <mir/server.h>
 
 // local
 #include "logging.h"
+#include "mirdisplayconfigurationpolicy.h"
 #include "mirserver.h"
 #include "promptsessionlistener.h"
 #include "sessionlistener.h"
@@ -35,6 +35,7 @@ void MirServerThread::run()
     server->m_usingQtMirSessionListener(*server->server);
     server->m_usingQtMirPromptSessionListener(*server->server);
     server->m_usingQtMirWindowManager(*server->server);
+    mir_display_configuration_policy(*server->server);
 
     try {
         server->server->apply_settings();

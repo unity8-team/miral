@@ -21,7 +21,6 @@
 // local
 #include "argvHelper.h"
 #include "mircursorimages.h"
-#include "mirdisplayconfigurationpolicy.h"
 #include "mirglconfig.h"
 #include "mirserverstatuslistener.h"
 #include "screensmodel.h"
@@ -83,13 +82,6 @@ MirServer::MirServer(int &argc, char **argv,
     override_the_server_status_listener([]
         {
             return std::make_shared<MirServerStatusListener>();
-        });
-
-    wrap_display_configuration_policy(
-        [](const std::shared_ptr<mg::DisplayConfigurationPolicy> &wrapped)
-            -> std::shared_ptr<mg::DisplayConfigurationPolicy>
-        {
-            return std::make_shared<MirDisplayConfigurationPolicy>(wrapped);
         });
 
     set_terminator([](int)
