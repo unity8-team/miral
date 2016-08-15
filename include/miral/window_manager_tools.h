@@ -97,12 +97,6 @@ public:
      */
     auto info_for(Window const& window) const -> WindowInfo&;
 
-    /** kill the active application
-     *
-     * @param sig the signal to send
-     */
-    void kill_active_application(int sig);
-
     /// Send close request to the window
     void ask_client_to_close(Window const& window);
 

@@ -47,7 +47,6 @@ libmiral.so.1 libmiral1 #MINVER#
  (c++)"miral::WindowManagerTools::for_each_application(std::function<void (miral::ApplicationInfo&)> const&)@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowManagerTools::select_active_window(miral::Window const&)@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowManagerTools::focus_next_application()@MIRAL_0.1" 0.1.0
- (c++)"miral::WindowManagerTools::kill_active_application(int)@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowManagerTools::focus_next_within_application()@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowManagerTools::WindowManagerTools(miral::WindowManagerToolsImplementation*)@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowManagerTools::WindowManagerTools(miral::WindowManagerTools const&)@MIRAL_0.1" 0.1.0
