@@ -70,6 +70,9 @@ libmiral.so.1 libmiral1 #MINVER#
  (c++)"miral::Output::used() const@MIRAL_0.1" 0.1.0
  (c++)"miral::Output::valid() const@MIRAL_0.1" 0.1.0
  (c++)"miral::QuitOnCtrlAltBkSp::operator()(mir::Server&)@MIRAL_0.1" 0.1.0
+ (c++)"miral::SetTerminator::operator()(mir::Server&) const@MIRAL_0.1" 0.1.0
+ (c++)"miral::SetTerminator::~SetTerminator()@MIRAL_0.1" 0.1.0
+ (c++)"miral::SetTerminator::SetTerminator(std::function<void (int)> const&)@MIRAL_0.1" 0.1.0
  (c++)"miral::SetWindowManagmentPolicy::operator()(mir::Server&) const@MIRAL_0.1" 0.1.0
  (c++)"miral::SetWindowManagmentPolicy::~SetWindowManagmentPolicy()@MIRAL_0.1" 0.1.0
  (c++)"miral::SetWindowManagmentPolicy::SetWindowManagmentPolicy(std::function<std::unique_ptr<miral::WindowManagementPolicy, std::default_delete<miral::WindowManagementPolicy> > (miral::WindowManagerTools const&)> const&)@MIRAL_0.1" 0.1.0
