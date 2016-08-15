@@ -43,6 +43,9 @@
 #include <mir/graphics/cursor.h>
 #include <mir/shell/shell.h>
 
+// miral
+#include <miral/set_terminator.h>
+
 namespace mg = mir::graphics;
 namespace mo  = mir::options;
 namespace msh = mir::shell;
@@ -107,11 +110,12 @@ MirServer::MirServer(int &argc, char **argv,
             return std::make_shared<MirDisplayConfigurationPolicy>(wrapped);
         });
 
-    set_terminator([](int)
+
+    miral::SetTerminator{[](int)
         {
             qDebug() << "Signal caught by Mir, stopping Mir server..";
             QCoreApplication::quit();
-        });
+        }}(*this);
 
     add_init_callback([this, &screensModel] {
         screensModel->init(the_display(), the_compositor(), the_shell());
