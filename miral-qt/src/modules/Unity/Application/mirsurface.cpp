@@ -1058,7 +1058,7 @@ void MirSurface::onCloseTimedOut()
 
     m_closingState = CloseOverdue;
 
-    //m_session->session()->destroy_surface(m_windowInfo); TODO use WindowManagerTools::ask_client_to_close(window)
+    m_controller->requestClose(m_windowInfo.window);
 }
 
 void MirSurface::setCloseTimer(AbstractTimer *timer)

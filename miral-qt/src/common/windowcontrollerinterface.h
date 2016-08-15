@@ -41,6 +41,8 @@ public:
     virtual void resize(const miral::Window &window, const QSize &size) = 0;
     virtual void move  (const miral::Window &window, const QPoint &topLeft) = 0;
 
+    virtual void requestClose(const miral::Window &window) = 0;
+
     virtual void setState(const miral::Window &window, const MirSurfaceState state) = 0;
 
     virtual void deliverKeyboardEvent(const miral::Window &window, const MirKeyboardEvent *event) = 0;

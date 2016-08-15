@@ -97,11 +97,13 @@ public:
      */
     auto info_for(Window const& window) const -> WindowInfo&;
 
-    /** kill the active application
+    /** retrieve metadata for a persistent surface id
      *
-     * @param sig the signal to send
+     * @param id        the persistent surface id
+     * @return          the metadata
+     * @throw           invalid_argument or runtime_error if the id is badly formatted/doesn't identify a current window
      */
-    void kill_active_application(int sig);
+    auto info_for_window_id(std::string const& id) const -> WindowInfo&;
 
     /// Send close request to the window
     void ask_client_to_close(Window const& window);
@@ -136,6 +138,7 @@ public:
 
     /// Apply modifications to a window
     void modify_window(WindowInfo& window_info, WindowSpecification const& modifications);
+
 /** @} */
 
     /** Multi-thread support

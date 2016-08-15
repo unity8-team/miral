@@ -35,7 +35,7 @@
 
 namespace mir
 {
-namespace shell { class DisplayLayout; }
+namespace shell { class DisplayLayout; class PersistentSurfaceStore; }
 }
 
 namespace miral
@@ -53,6 +53,7 @@ public:
     BasicWindowManager(
         mir::shell::FocusController* focus_controller,
         std::shared_ptr<mir::shell::DisplayLayout> const& display_layout,
+        std::shared_ptr<mir::shell::PersistentSurfaceStore> const& persistent_surface_store,
         WindowManagementPolicyBuilder const& build);
 
     void add_session(std::shared_ptr<mir::scene::Session> const& session) override;
@@ -108,8 +109,6 @@ public:
 
     auto info_for(Window const& window) const -> WindowInfo& override;
 
-    void kill_active_application(int sig) override;
-
     void ask_client_to_close(Window const& window) override;
 
     auto active_window() const -> Window override;
@@ -130,6 +129,8 @@ public:
 
     void modify_window(WindowInfo& window_info, WindowSpecification const& modifications) override;
 
+    auto info_for_window_id(std::string const& id) const -> WindowInfo& override;
+
     void invoke_under_lock(std::function<void()> const& callback) override;
 
 private:
@@ -138,6 +139,7 @@ private:
 
     mir::shell::FocusController* const focus_controller;
     std::shared_ptr<mir::shell::DisplayLayout> const display_layout;
+    std::shared_ptr<mir::shell::PersistentSurfaceStore> const persistent_surface_store;
     std::unique_ptr<WindowManagementPolicy> const policy;
 
     std::mutex mutex;
