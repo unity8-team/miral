@@ -252,3 +252,7 @@ libmiral.so.1 libmiral1 #MINVER#
  (c++)"vtable for miral::ActiveOutputsListener@MIRAL_0.1" 0.1.0
  (c++)"vtable for miral::WindowManagementPolicy@MIRAL_0.1" 0.1.0
  (c++)"vtable for miral::CanonicalWindowManagerPolicy@MIRAL_0.1" 0.1.0
+ (c++)"miral::SetTerminator::SetTerminator(std::function<void (int)> const&)@MIRAL_0.1" 0.1.0
+ (c++)"miral::SetTerminator::~SetTerminator()@MIRAL_0.1" 0.1.0
+ (c++)"miral::SetTerminator::~SetTerminator()@MIRAL_0.1" 0.1.0
+ (c++)"miral::SetTerminator::operator()(mir::Server&) const@MIRAL_0.1" 0.1.0
