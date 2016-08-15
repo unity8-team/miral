@@ -47,9 +47,6 @@ auto miral::WindowManagerTools::info_for(std::weak_ptr<mir::scene::Surface> cons
 auto miral::WindowManagerTools::info_for(Window const& window) const -> WindowInfo&
 { return tools->info_for(window); }
 
-void miral::WindowManagerTools::kill_active_application(int sig)
-{ tools->kill_active_application(sig); }
-
 void miral::WindowManagerTools::ask_client_to_close(Window const& window)
 { tools->ask_client_to_close(window); }
 

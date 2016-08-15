@@ -138,14 +138,13 @@ global:
     miral::WindowManagerTools::focus_next_within_application*;
     miral::WindowManagerTools::for_each_application*;
     miral::WindowManagerTools::info_for*;
+    miral::WindowManagerTools::info_for_window_id*;
     miral::WindowManagerTools::invoke_under_lock*;
-    miral::WindowManagerTools::kill_active_application*;
     miral::WindowManagerTools::modify_window*;
     miral::WindowManagerTools::operator*;
     miral::WindowManagerTools::raise_tree*;
     miral::WindowManagerTools::select_active_window*;
     miral::WindowManagerTools::window_at*;
-    miral::WindowManagerTools::info_for_window_id*;
     miral::WindowSpecification::?WindowSpecification*;
     miral::WindowSpecification::WindowSpecification*;
     miral::WindowSpecification::aux_rect*;

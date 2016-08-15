@@ -376,12 +376,6 @@ auto miral::BasicWindowManager::info_for(Window const& window) const
     return info_for(std::weak_ptr<mir::scene::Surface>(window));
 }
 
-void miral::BasicWindowManager::kill_active_application(int sig)
-{
-    if (auto const application = focus_controller->focused_session())
-        miral::kill(application, sig);
-}
-
 void miral::BasicWindowManager::ask_client_to_close(Window const& window)
 {
     if (auto const mir_surface = std::shared_ptr<scene::Surface>(window))

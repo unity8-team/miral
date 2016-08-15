@@ -109,8 +109,6 @@ public:
 
     auto info_for(Window const& window) const -> WindowInfo& override;
 
-    void kill_active_application(int sig) override;
-
     void ask_client_to_close(Window const& window) override;
 
     auto active_window() const -> Window override;
