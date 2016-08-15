@@ -21,6 +21,7 @@
 
 namespace mir { class Server; }
 
+// Configure the server for using the Qt compositor
 void usingQtCompositor(mir::Server& server);
 
 #endif //USING_QT_COMPOSITOR_H
