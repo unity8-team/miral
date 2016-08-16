@@ -24,6 +24,7 @@
 #include <mir/version.h>
 
 #include <chrono>
+#include <cstdlib>
 #include <mutex>
 #include <thread>
 
@@ -188,7 +189,7 @@ try
             option(*server);
 
 #if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 24, 0)
-        server->add_stop_callback(self->stop_callback);
+        server->add_stop_callback(stop_callback);
 #endif
 
         // Provide the command line and run the server
