@@ -35,7 +35,10 @@ class MirServer : public QObject,
     Q_OBJECT
 
 public:
-    MirServer(QObject* parent = 0);
+    MirServer(QObject* parent = 0) : QObject(parent)
+    {
+    }
+
     ~MirServer() = default;
 };
 

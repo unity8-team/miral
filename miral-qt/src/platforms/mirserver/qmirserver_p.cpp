@@ -28,9 +28,40 @@
 #include "sessionlistener.h"
 #include "sessionauthorizer.h"
 #include "windowmanagementpolicy.h"
+#include "argvHelper.h"
+#include "usingqtcompositor.h"
+
+// miral
+#include <miral/set_terminator.h>
+
+// mir
+#include <mir/shell/shell.h>
 
 void MirServerThread::run()
 {
+    bool unknownArgsFound = false;
+    server->server->set_command_line_handler([this, &unknownArgsFound](int filteredCount, const char* const filteredArgv[]) {
+        unknownArgsFound = true;
+        // Want to edit argv to match that which Mir returns, as those are for to Qt alone to process. Edit existing
+        // argc as filteredArgv only defined in this scope.
+        qtmir::editArgvToMatch(argc, argv, filteredCount, filteredArgv);
+        });
+
+    // Casting char** to be a const char** safe as Mir won't change it, nor will we
+    server->server->set_command_line(argc, const_cast<const char **>(argv));
+
+    usingQtCompositor(*server->server);
+
+    miral::SetTerminator{[](int)
+                             {
+                             qDebug() << "Signal caught by Mir, stopping Mir server..";
+                             QCoreApplication::quit();
+                             }}(*server->server);
+
+    server->server->add_init_callback([this] {
+        server->screensModel->init(server->server->the_display(), server->server->the_compositor(), server->server->the_shell());
+        });
+
     // This should eventually be replaced by miral::MirRunner::run()
     server->m_usingQtMirSessionAuthorizer(*server->server);
     server->m_usingQtMirSessionListener(*server->server);
@@ -44,6 +75,13 @@ void MirServerThread::run()
         qCritical() << ex.what();
         exit(1);
     }
+
+    if (!unknownArgsFound) { // mir parsed all the arguments, so edit argv to pretend to have just argv[0]
+        argc = 1;
+    }
+
+    qCDebug(QTMIR_MIR_MESSAGES) << "MirServer created";
+    qCDebug(QTMIR_MIR_MESSAGES) << "Command line arguments passed to Qt:" << QCoreApplication::arguments();
 
     auto const main_loop = server->server->the_main_loop();
     // By enqueuing the notification code in the main loop, we are

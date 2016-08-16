@@ -100,8 +100,8 @@ class MirServerThread : public QThread
     Q_OBJECT
 
 public:
-    MirServerThread(QMirServerPrivate* server)
-        : server(server)
+    MirServerThread(int &argc, char **argv, QMirServerPrivate* server)
+        : argc{argc}, argv{argv}, server(server)
     {}
 
     bool waitForMirStartup();
@@ -118,6 +118,8 @@ private:
     std::condition_variable started_cv;
     bool mir_running{false};
 
+    int &argc;
+    char **argv;
     QMirServerPrivate* const server;
 };
 

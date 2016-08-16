@@ -14,32 +14,4 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <QCoreApplication>
-
 #include "mirserver.h"
-
-// local
-#include "screensmodel.h"
-#include "logging.h"
-
-// std
-#include <memory>
-
-// egl
-#define MESA_EGL_NO_X11_HEADERS
-#include <EGL/egl.h>
-
-// mir
-#include <mir/shell/shell.h>
-
-namespace mg = mir::graphics;
-namespace mo  = mir::options;
-namespace msh = mir::shell;
-namespace ms = mir::scene;
-
-MirServer::MirServer(QObject* parent)
-    : QObject(parent)
-{
-}
-
-
