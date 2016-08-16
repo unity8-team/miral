@@ -45,7 +45,6 @@ namespace ms = mir::scene;
 MirServer::MirServer(int &argc, char **argv,
                      const QSharedPointer<ScreensModel> &screensModel, QObject* parent)
     : QObject(parent)
-    , m_screensModel(screensModel)
 {
     bool unknownArgsFound = false;
     set_command_line_handler([&argc, &argv, &unknownArgsFound](int filteredCount, const char* const filteredArgv[]) {
@@ -77,14 +76,6 @@ MirServer::MirServer(int &argc, char **argv,
 
     qCDebug(QTMIR_MIR_MESSAGES) << "MirServer created";
     qCDebug(QTMIR_MIR_MESSAGES) << "Command line arguments passed to Qt:" << QCoreApplication::arguments();
-}
-
-// Override default implementation to ensure we terminate the ScreensModel first.
-// Code path followed when Qt tries to shutdown the server.
-void MirServer::stop()
-{
-    m_screensModel->terminate();
-    mir::Server::stop();
 }
 
 

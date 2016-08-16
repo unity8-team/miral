@@ -37,12 +37,6 @@ class MirServer : public QObject,
 public:
     MirServer(int &argc, char **argv, const QSharedPointer<ScreensModel> &, QObject* parent = 0);
     ~MirServer() = default;
-
-    void stop();
-
-private:
-
-    const QSharedPointer<ScreensModel> m_screensModel;
 };
 
 #endif // MIRSERVER_H

@@ -63,6 +63,7 @@ void MirServerThread::run()
 
 void MirServerThread::stop()
 {
+    server->screensModel->terminate();
     server->server->stop();
 }
 
