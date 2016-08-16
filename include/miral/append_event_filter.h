@@ -37,7 +37,7 @@ public:
 
 private:
     class Filter;
-    std::shared_ptr<Filter> filter;
+    std::shared_ptr<Filter> const filter;
 };
 }
 

@@ -56,7 +56,7 @@ private:
     MirRunner(MirRunner const&) = delete;
     MirRunner& operator=(MirRunner const&) = delete;
     struct Self;
-    std::unique_ptr<Self> self;
+    std::unique_ptr<Self> const self;
 };
 }
 
