@@ -15,6 +15,7 @@
  */
 
 #include "qmirserver_p.h"
+#include <QCoreApplication>
 
 // Mir
 #include <mir/main_loop.h>

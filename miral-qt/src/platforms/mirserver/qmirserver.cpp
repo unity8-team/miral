@@ -21,11 +21,20 @@
 #include <QOpenGLContext>
 
 // local
+#include "argvHelper.h"
 #include "mirserver.h"
 #include "qmirserver.h"
 #include "qmirserver_p.h"
 #include "screen.h"
 #include "miropenglcontext.h"
+#include "usingqtcompositor.h"
+#include "logging.h"
+
+// miral
+#include <miral/set_terminator.h>
+
+// mir
+#include <mir/shell/shell.h>
 
 QMirServer::QMirServer(int &argc, char **argv, QObject *parent)
     : QObject(parent)
@@ -33,7 +42,38 @@ QMirServer::QMirServer(int &argc, char **argv, QObject *parent)
 {
     Q_D(QMirServer);
 
-    d->server = QSharedPointer<MirServer>(new MirServer(argc, argv, d->screensModel));
+    d->server = QSharedPointer<MirServer>(new MirServer());
+
+    bool unknownArgsFound = false;
+    d->server->set_command_line_handler([&argc, &argv, &unknownArgsFound](int filteredCount, const char* const filteredArgv[]) {
+        unknownArgsFound = true;
+        // Want to edit argv to match that which Mir returns, as those are for to Qt alone to process. Edit existing
+        // argc as filteredArgv only defined in this scope.
+        qtmir::editArgvToMatch(argc, argv, filteredCount, filteredArgv);
+        });
+
+    // Casting char** to be a const char** safe as Mir won't change it, nor will we
+    d->server->set_command_line(argc, const_cast<const char **>(argv));
+
+    usingQtCompositor(*d->server);
+
+    miral::SetTerminator{[](int)
+        {
+            qDebug() << "Signal caught by Mir, stopping Mir server..";
+            QCoreApplication::quit();
+        }}(*d->server);
+
+    d->server->add_init_callback([d] {
+            d->screensModel->init(d->server->the_display(), d->server->the_compositor(), d->server->the_shell());
+        });
+
+
+    if (!unknownArgsFound) { // mir parsed all the arguments, so edit argv to pretend to have just argv[0]
+        argc = 1;
+    }
+
+    qCDebug(QTMIR_MIR_MESSAGES) << "MirServer created";
+    qCDebug(QTMIR_MIR_MESSAGES) << "Command line arguments passed to Qt:" << QCoreApplication::arguments();
 
     d->serverThread = new MirServerThread(d);
 

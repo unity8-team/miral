@@ -19,10 +19,8 @@
 #include "mirserver.h"
 
 // local
-#include "argvHelper.h"
 #include "screensmodel.h"
 #include "logging.h"
-#include "usingqtcompositor.h"
 
 // std
 #include <memory>
@@ -34,48 +32,14 @@
 // mir
 #include <mir/shell/shell.h>
 
-// miral
-#include <miral/set_terminator.h>
-
 namespace mg = mir::graphics;
 namespace mo  = mir::options;
 namespace msh = mir::shell;
 namespace ms = mir::scene;
 
-MirServer::MirServer(int &argc, char **argv,
-                     const QSharedPointer<ScreensModel> &screensModel, QObject* parent)
+MirServer::MirServer(QObject* parent)
     : QObject(parent)
 {
-    bool unknownArgsFound = false;
-    set_command_line_handler([&argc, &argv, &unknownArgsFound](int filteredCount, const char* const filteredArgv[]) {
-        unknownArgsFound = true;
-        // Want to edit argv to match that which Mir returns, as those are for to Qt alone to process. Edit existing
-        // argc as filteredArgv only defined in this scope.
-        qtmir::editArgvToMatch(argc, argv, filteredCount, filteredArgv);
-    });
-
-    // Casting char** to be a const char** safe as Mir won't change it, nor will we
-    set_command_line(argc, const_cast<const char **>(argv));
-
-    usingQtCompositor(*this);
-
-    miral::SetTerminator{[](int)
-        {
-            qDebug() << "Signal caught by Mir, stopping Mir server..";
-            QCoreApplication::quit();
-        }}(*this);
-
-    add_init_callback([this, &screensModel] {
-        screensModel->init(the_display(), the_compositor(), the_shell());
-    });
-
-
-    if (!unknownArgsFound) { // mir parsed all the arguments, so edit argv to pretend to have just argv[0]
-        argc = 1;
-    }
-
-    qCDebug(QTMIR_MIR_MESSAGES) << "MirServer created";
-    qCDebug(QTMIR_MIR_MESSAGES) << "Command line arguments passed to Qt:" << QCoreApplication::arguments();
 }
 
 
