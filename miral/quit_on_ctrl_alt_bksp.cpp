@@ -22,54 +22,27 @@
 #include <mir/input/composite_event_filter.h>
 #include <mir/server.h>
 
-#include <linux/input.h>
-
-#include <functional>
-
-class miral::QuitOnCtrlAltBkSp::QuitFilter : public mir::input::EventFilter
+class miral::AppendEventFilter::Filter : public mir::input::EventFilter
 {
 public:
-    QuitFilter(std::function<void()> const& quit_action);
+    Filter(std::function<int(MirEvent const* event)> const& filter) :
+        filter{filter} {}
 
-    bool handle(MirEvent const& event) override;
+    bool handle(MirEvent const& event) override
+    {
+        return filter(&event);
+    }
 
 private:
-    std::function<void()> const quit_action;
+    std::function<int(MirEvent const* event)> const filter;
 };
 
-
-miral::QuitOnCtrlAltBkSp::QuitFilter::QuitFilter(std::function<void()> const& quit_action)
-    : quit_action{quit_action}
+miral::AppendEventFilter::AppendEventFilter(std::function<int(MirEvent const* event)> const& filter) :
+    quit_filter{std::make_shared<Filter>(filter)}
 {
 }
 
-bool miral::QuitOnCtrlAltBkSp::QuitFilter::handle(MirEvent const& event)
+void miral::AppendEventFilter::operator()(mir::Server& server)
 {
-    if (mir_event_get_type(&event) != mir_event_type_input)
-        return false;
-
-    MirInputEvent const* input_event = mir_event_get_input_event(&event);
-    if (mir_input_event_get_type(input_event) != mir_input_event_type_key)
-        return false;
-
-    MirKeyboardEvent const* kev = mir_input_event_get_keyboard_event(input_event);
-    if (mir_keyboard_event_action(kev) != mir_keyboard_action_down)
-        return false;
-
-    MirInputEventModifiers mods = mir_keyboard_event_modifiers(kev);
-    if (!(mods & mir_input_event_modifier_alt) || !(mods & mir_input_event_modifier_ctrl))
-        return false;
-
-    if (mir_keyboard_event_scan_code(kev) != KEY_BACKSPACE)
-        return false;
-
-    quit_action();
-    return true;
-}
-
-void miral::QuitOnCtrlAltBkSp::operator()(mir::Server& server)
-{
-    quit_filter = std::make_shared<QuitFilter>([&]{ server.stop(); });
-
     server.add_init_callback([this, &server] { server.the_composite_event_filter()->append(quit_filter); });
 }

@@ -26,6 +26,8 @@
 #include <miral/quit_on_ctrl_alt_bksp.h>
 #include <miral/internal_client.h>
 
+#include <linux/input.h>
+
 int main(int argc, char const* argv[])
 {
     using namespace miral;
@@ -39,13 +41,39 @@ int main(int argc, char const* argv[])
             add_window_manager_policy<TilingWindowManagerPolicy>("tiling", spinner, launcher, outputs_monitor),
         };
 
-    return MirRunner{argc, argv}.run_with(
+    MirRunner runner{argc, argv};
+
+    auto const quit_on_ctrl_alt_bksp = [&](MirEvent const* event)
+        {
+            if (mir_event_get_type(event) != mir_event_type_input)
+                return false;
+
+            MirInputEvent const* input_event = mir_event_get_input_event(event);
+            if (mir_input_event_get_type(input_event) != mir_input_event_type_key)
+                return false;
+
+            MirKeyboardEvent const* kev = mir_input_event_get_keyboard_event(input_event);
+            if (mir_keyboard_event_action(kev) != mir_keyboard_action_down)
+                return false;
+
+            MirInputEventModifiers mods = mir_keyboard_event_modifiers(kev);
+            if (!(mods & mir_input_event_modifier_alt) || !(mods & mir_input_event_modifier_ctrl))
+                return false;
+
+            if (mir_keyboard_event_scan_code(kev) != KEY_BACKSPACE)
+                return false;
+
+            runner.stop();
+            return true;
+        };
+
+    return runner.run_with(
         {
             window_managers,
             display_configuration_options,
             launcher,
             outputs_monitor,
-            QuitOnCtrlAltBkSp{},
+            AppendEventFilter{quit_on_ctrl_alt_bksp},
             StartupInternalClient{"Intro", spinner}
         });
 }
