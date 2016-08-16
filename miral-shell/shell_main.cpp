@@ -23,7 +23,7 @@
 #include <miral/display_configuration_option.h>
 #include <miral/runner.h>
 #include <miral/window_management_options.h>
-#include <miral/quit_on_ctrl_alt_bksp.h>
+#include <miral/append_event_filter.h>
 #include <miral/internal_client.h>
 
 #include <linux/input.h>

@@ -16,13 +16,13 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#ifndef MIRAL_QUITTER_H
-#define MIRAL_QUITTER_H
+#ifndef MIRAL_APPEND_EVENT_FILTER_H
+#define MIRAL_APPEND_EVENT_FILTER_H
+
+#include <mir_toolkit/event.h>
 
 #include <functional>
 #include <memory>
-
-#include <mir_toolkit/event.h>
 
 namespace mir { class Server; }
 
@@ -37,8 +37,8 @@ public:
 
 private:
     class Filter;
-    std::shared_ptr<Filter> quit_filter;
+    std::shared_ptr<Filter> filter;
 };
 }
 
-#endif //MIRAL_QUITTER_H
+#endif //MIRAL_APPEND_EVENT_FILTER_H

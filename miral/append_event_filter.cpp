@@ -16,7 +16,7 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#include "miral/quit_on_ctrl_alt_bksp.h"
+#include "miral/append_event_filter.h"
 
 #include <mir/input/event_filter.h>
 #include <mir/input/composite_event_filter.h>
@@ -38,11 +38,11 @@ private:
 };
 
 miral::AppendEventFilter::AppendEventFilter(std::function<int(MirEvent const* event)> const& filter) :
-    quit_filter{std::make_shared<Filter>(filter)}
+    filter{std::make_shared<Filter>(filter)}
 {
 }
 
 void miral::AppendEventFilter::operator()(mir::Server& server)
 {
-    server.add_init_callback([this, &server] { server.the_composite_event_filter()->append(quit_filter); });
+    server.add_init_callback([this, &server] { server.the_composite_event_filter()->append(filter); });
 }

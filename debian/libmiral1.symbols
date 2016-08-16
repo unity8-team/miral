@@ -13,6 +13,7 @@ libmiral.so.1 libmiral1 #MINVER#
  (c++)"miral::ActiveOutputsMonitor::for_each_output(std::function<void (std::vector<miral::Output, std::allocator<miral::Output> > const&)> const&) const@MIRAL_0.1" 0.1.0
  (c++)"miral::ActiveOutputsMonitor::operator=(miral::ActiveOutputsMonitor const&)@MIRAL_0.1" 0.1.0
  (c++)"miral::ActiveOutputsMonitor::operator()(mir::Server&)@MIRAL_0.1" 0.1.0
+ (c++)"miral::AppendEventFilter::operator()(mir::Server&)@MIRAL_0.1" 0.1.0
  (c++)"miral::ApplicationCredentials::ApplicationCredentials(mir::frontend::SessionCredentials const&)@MIRAL_0.1" 0.1.0
  (c++)"miral::ApplicationCredentials::gid() const@MIRAL_0.1" 0.1.0
  (c++)"miral::ApplicationCredentials::pid() const@MIRAL_0.1" 0.1.0
@@ -69,7 +70,6 @@ libmiral.so.1 libmiral1 #MINVER#
  (c++)"miral::Output::type() const@MIRAL_0.1" 0.1.0
  (c++)"miral::Output::used() const@MIRAL_0.1" 0.1.0
  (c++)"miral::Output::valid() const@MIRAL_0.1" 0.1.0
- (c++)"miral::AppendEventFilter::operator()(mir::Server&)@MIRAL_0.1" 0.1.0
  (c++)"miral::SetTerminator::operator()(mir::Server&) const@MIRAL_0.1" 0.1.0
  (c++)"miral::SetTerminator::~SetTerminator()@MIRAL_0.1" 0.1.0
  (c++)"miral::SetTerminator::SetTerminator(std::function<void (int)> const&)@MIRAL_0.1" 0.1.0
