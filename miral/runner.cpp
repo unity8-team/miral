@@ -33,15 +33,29 @@ inline auto filename(std::string path) -> std::string
 }
 }
 
+struct miral::MirRunner::Self
+{
+    Self(int argc, char const* argv[], std::string const& config_file) :
+        argc(argc), argv(argv), config_file{config_file} {}
+
+    auto run_with(std::initializer_list<std::function<void(::mir::Server&)>> options) -> int;
+
+    int const argc;
+    char const** const argv;
+    std::string const config_file;
+};
+
 miral::MirRunner::MirRunner(int argc, char const* argv[]) :
-    argc(argc), argv(argv), config_file(filename(argv[0]) + ".config")
+    self{std::make_unique<Self>(argc, argv, filename(argv[0]) + ".config")}
 {
 }
 
 miral::MirRunner::MirRunner(int argc, char const* argv[], char const* config_file) :
-    argc(argc), argv(argv), config_file{config_file}
+    self{std::make_unique<Self>(argc, argv, config_file)}
 {
 }
+
+miral::MirRunner::~MirRunner() = default;
 
 namespace
 {
@@ -150,7 +164,7 @@ void apply_env_hacks(::mir::Server& server)
 }
 }
 
-auto miral::MirRunner::run_with(std::initializer_list<std::function<void(::mir::Server&)>> options)
+auto miral::MirRunner::Self::run_with(std::initializer_list<std::function<void(::mir::Server&)>> options)
 -> int
 try
 {
@@ -181,4 +195,10 @@ catch (...)
 {
     mir::report_exception();
     return EXIT_FAILURE;
+}
+
+auto miral::MirRunner::run_with(std::initializer_list<std::function<void(::mir::Server&)>> options)
+-> int
+{
+    return self->run_with(options);
 }

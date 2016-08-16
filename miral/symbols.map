@@ -44,6 +44,7 @@ global:
     miral::InternalClientLauncher::InternalClientLauncher*;
     miral::InternalClientLauncher::launch*;
     miral::InternalClientLauncher::operator*;
+    miral::MirRunner::?MirRunner*;
     miral::MirRunner::MirRunner*;
     miral::MirRunner::run_with*;
     miral::Output::?Output*;

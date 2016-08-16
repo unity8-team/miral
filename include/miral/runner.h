@@ -21,7 +21,7 @@
 
 #include <functional>
 #include <initializer_list>
-#include <string>
+#include <memory>
 
 namespace mir { class Server; }
 
@@ -39,13 +39,15 @@ class MirRunner
 public:
     MirRunner(int argc, char const* argv[]);
     MirRunner(int argc, char const* argv[], char const* config_file);
+    ~MirRunner();
 
     auto run_with(std::initializer_list<std::function<void(::mir::Server&)>> options) -> int;
 
 private:
-    int const argc;
-    char const** const argv;
-    std::string const config_file;
+    MirRunner(MirRunner const&) = delete;
+    MirRunner& operator=(MirRunner const&) = delete;
+    struct Self;
+    std::unique_ptr<Self> self;
 };
 }
 
