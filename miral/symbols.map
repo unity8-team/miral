@@ -46,7 +46,9 @@ global:
     miral::InternalClientLauncher::operator*;
     miral::MirRunner::?MirRunner*;
     miral::MirRunner::MirRunner*;
+    miral::MirRunner::add_stop_callback*;
     miral::MirRunner::run_with*;
+    miral::MirRunner::stop*;
     miral::Output::?Output*;
     miral::Output::Output*;
     miral::Output::connected*;
