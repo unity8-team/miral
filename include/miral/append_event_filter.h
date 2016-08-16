@@ -16,24 +16,29 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#ifndef MIRAL_QUITTER_H
-#define MIRAL_QUITTER_H
+#ifndef MIRAL_APPEND_EVENT_FILTER_H
+#define MIRAL_APPEND_EVENT_FILTER_H
 
+#include <mir_toolkit/event.h>
+
+#include <functional>
 #include <memory>
 
 namespace mir { class Server; }
 
 namespace miral
 {
-class QuitOnCtrlAltBkSp
+class AppendEventFilter
 {
 public:
+    AppendEventFilter(std::function<int(MirEvent const* event)> const& filter);
+
     void operator()(mir::Server& server);
 
 private:
-    class QuitFilter;
-    std::shared_ptr<QuitFilter> quit_filter;
+    class Filter;
+    std::shared_ptr<Filter> const filter;
 };
 }
 
-#endif //MIRAL_QUITTER_H
+#endif //MIRAL_APPEND_EVENT_FILTER_H

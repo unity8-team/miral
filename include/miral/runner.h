@@ -21,7 +21,7 @@
 
 #include <functional>
 #include <initializer_list>
-#include <string>
+#include <memory>
 
 namespace mir { class Server; }
 
@@ -39,13 +39,24 @@ class MirRunner
 public:
     MirRunner(int argc, char const* argv[]);
     MirRunner(int argc, char const* argv[], char const* config_file);
+    ~MirRunner();
 
+    /// Add a callback to be invoked when the server is about to stop,
+    /// If multiple callbacks are added they will be invoked in the reverse sequence added.
+    void add_stop_callback(std::function<void()> const& stop_callback);
+
+    /// Apply the supplied initialization options and run the Mir server
+    /// \note blocks until the Mir server exits
     auto run_with(std::initializer_list<std::function<void(::mir::Server&)>> options) -> int;
 
+    /// Tell the Mir server to exit
+    void stop();
+
 private:
-    int const argc;
-    char const** const argv;
-    std::string const config_file;
+    MirRunner(MirRunner const&) = delete;
+    MirRunner& operator=(MirRunner const&) = delete;
+    struct Self;
+    std::unique_ptr<Self> const self;
 };
 }
 

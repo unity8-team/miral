@@ -56,10 +56,11 @@ struct TestServer : testing::Test, private TestRuntimeEnvironment
     using TestRuntimeEnvironment::add_to_environment;
     WindowManagerTools tools{nullptr};
 
+    MirRunner runner;
+
 private:
     struct TestWindowManagerPolicy;
 
-    MirRunner runner;
     mir::test::AutoJoinThread server_thread;
     std::mutex mutex;
     std::condition_variable started;
