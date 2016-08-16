@@ -33,11 +33,9 @@ QMirServer::QMirServer(int &argc, char **argv, QObject *parent)
 {
     Q_D(QMirServer);
 
-    d->screensModel = QSharedPointer<ScreensModel>(new ScreensModel());
-
     d->server = QSharedPointer<MirServer>(new MirServer(argc, argv, d->screensModel));
 
-    d->serverThread = new MirServerThread(d->server);
+    d->serverThread = new MirServerThread(d);
 
     connect(d->serverThread, &MirServerThread::stopped, this, &QMirServer::stopped);
 }
@@ -112,15 +110,15 @@ void *QMirServer::nativeResourceForIntegration(const QByteArray &resource) const
 
     if (d->server) {
         if (resource == "SessionAuthorizer")
-            result = d->server->sessionAuthorizer();
+            result = d->m_usingQtMirSessionAuthorizer.the_application_authorizer().get();
         else if (resource == "SessionListener")
-            result = d->server->sessionListener();
+            result = d->m_usingQtMirSessionListener.sessionListener();
         else if (resource == "PromptSessionListener")
-            result = d->server->promptSessionListener();
+            result = d->m_usingQtMirPromptSessionListener.promptSessionListener();
         else if (resource == "WindowController")
-            result = d->server->windowController();
+            result = d->m_usingQtMirWindowManager.windowController();
         else if (resource == "WindowModel")
-            result = d->server->windowModel();
+            result = d->m_usingQtMirWindowManager.windowModel();
         else if (resource == "ScreensController")
             result = screensController().data();
     }

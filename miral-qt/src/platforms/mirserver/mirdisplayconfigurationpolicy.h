@@ -17,20 +17,9 @@
 #ifndef MIRDISPLAYCONFIGURATIONPOLICY_H
 #define MIRDISPLAYCONFIGURATIONPOLICY_H
 
-#include <mir/graphics/display_configuration_policy.h>
+namespace mir { class Server; }
 
-#include <memory>
+void mir_display_configuration_policy(mir::Server& server);
 
-class MirDisplayConfigurationPolicy : public mir::graphics::DisplayConfigurationPolicy
-{
-public:
-    MirDisplayConfigurationPolicy(const std::shared_ptr<mir::graphics::DisplayConfigurationPolicy> &wrapped);
-
-    void apply_to(mir::graphics::DisplayConfiguration &conf) override;
-
-private:
-    const std::shared_ptr<mir::graphics::DisplayConfigurationPolicy> m_wrapped;
-    float m_defaultScale;
-};
 
 #endif // MIRDISPLAYCONFIGURATIONPOLICY_H
