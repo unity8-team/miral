@@ -53,14 +53,14 @@ void MirServerThread::run()
     usingQtCompositor(*server->server);
 
     miral::SetTerminator{[](int)
-                             {
-                             qDebug() << "Signal caught by Mir, stopping Mir server..";
-                             QCoreApplication::quit();
-                             }}(*server->server);
+        {
+            qDebug() << "Signal caught by Mir, stopping Mir server..";
+            QCoreApplication::quit();
+        }}(*server->server);
 
     server->server->add_init_callback([this] {
         server->screensModel->init(server->server->the_display(), server->server->the_compositor(), server->server->the_shell());
-        });
+    });
 
     // This should eventually be replaced by miral::MirRunner::run()
     server->m_usingQtMirSessionAuthorizer(*server->server);
