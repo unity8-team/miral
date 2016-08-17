@@ -51,18 +51,7 @@ void MirServerThread::run()
         qtmir::editArgvToMatch(argc, argv, filteredCount, filteredArgv);
     }};
 
-    // Casting char** to be a const char** safe as Mir won't change it, nor will we
-    server->server->set_command_line(argc, const_cast<const char **>(argv));
-
-    usingQtCompositor(*server->server);
-
-    miral::SetTerminator{[](int)
-    {
-        qDebug() << "Signal caught by Mir, stopping Mir server..";
-        QCoreApplication::quit();
-    }}(*server->server);
-
-    miral::AddInitCallback addInitCallback{[&, this]
+    miral::AddInitCallback addInitCallback{[this, &unknownArgsFound]
     {
         server->screensModel->init(server->server->the_display(), server->server->the_compositor(), server->server->the_shell());
 
@@ -86,6 +75,15 @@ void MirServerThread::run()
             });
     }};
 
+    miral::SetTerminator setTerminator{[](int)
+    {
+        qDebug() << "Signal caught by Mir, stopping Mir server..";
+        QCoreApplication::quit();
+    }};
+
+    // Casting char** to be a const char** safe as Mir won't change it, nor will we
+    server->server->set_command_line(argc, const_cast<const char **>(argv));
+
     // This should eventually be replaced by miral::MirRunner::run()
     server->m_usingQtMirSessionAuthorizer(*server->server);
     server->m_usingQtMirSessionListener(*server->server);
@@ -94,6 +92,8 @@ void MirServerThread::run()
     mir_display_configuration_policy(*server->server);
     setCommandLineHandler(*server->server);
     addInitCallback(*server->server);
+    usingQtCompositor(*server->server);
+    setTerminator(*server->server);
 
     try {
         server->server->apply_settings();
