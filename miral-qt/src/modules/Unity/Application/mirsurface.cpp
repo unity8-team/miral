@@ -196,8 +196,7 @@ Q_DECLARE_FLAGS(DirtyStates, DirtyState)
 } // namespace {
 
 MirSurface::MirSurface(WindowInfo windowInfo,
-        WindowControllerInterface* controller,
-        std::shared_ptr<SurfaceObserver> observer)
+        WindowControllerInterface* controller)
     : MirSurfaceInterface()
     , m_windowInfo(windowInfo)
     , m_controller(controller)
@@ -206,26 +205,28 @@ MirSurface::MirSurface(WindowInfo windowInfo,
     , m_textureUpdated(false)
     , m_currentFrameNumber(0)
     , m_live(true)
+    , m_surfaceObserver(std::make_shared<SurfaceObserver>())
     , m_position(toQPoint(windowInfo.window.top_left()))
     , m_size(toQSize(windowInfo.window.size()))
     , m_shellChrome(Mir::NormalChrome)
 {
     DEBUG_MSG << "()";
 
+    const auto &surface = static_cast<std::shared_ptr<mir::scene::Surface>>(windowInfo.window);
+    SurfaceObserver::registerObserverForSurface(m_surfaceObserver.get(), surface.get());
+    surface->add_observer(m_surfaceObserver);
+
     //m_shellChrome = creationHints.shellChrome; TODO - where will this come from now?
 
-    m_surfaceObserver = observer;
-    if (observer) {
-        connect(observer.get(), &SurfaceObserver::framesPosted, this, &MirSurface::onFramesPostedObserved);
-        connect(observer.get(), &SurfaceObserver::attributeChanged, this, &MirSurface::onAttributeChanged);
-        connect(observer.get(), &SurfaceObserver::nameChanged, this, &MirSurface::nameChanged);
-        connect(observer.get(), &SurfaceObserver::cursorChanged, this, &MirSurface::setCursor);
-        connect(observer.get(), &SurfaceObserver::shellChromeChanged, this, [&](MirShellChrome shell_chrome) {
-            setShellChrome(static_cast<Mir::ShellChrome>(shell_chrome));
-        });
-        connect(observer.get(), &SurfaceObserver::inputBoundsChanged, this, &MirSurface::setInputBounds);
-        observer->setListener(this);
-    }
+    connect(m_surfaceObserver.get(), &SurfaceObserver::framesPosted, this, &MirSurface::onFramesPostedObserved);
+    connect(m_surfaceObserver.get(), &SurfaceObserver::attributeChanged, this, &MirSurface::onAttributeChanged);
+    connect(m_surfaceObserver.get(), &SurfaceObserver::nameChanged, this, &MirSurface::nameChanged);
+    connect(m_surfaceObserver.get(), &SurfaceObserver::cursorChanged, this, &MirSurface::setCursor);
+    connect(m_surfaceObserver.get(), &SurfaceObserver::shellChromeChanged, this, [&](MirShellChrome shell_chrome) {
+        setShellChrome(static_cast<Mir::ShellChrome>(shell_chrome));
+    });
+    connect(m_surfaceObserver.get(), &SurfaceObserver::inputBoundsChanged, this, &MirSurface::setInputBounds);
+    m_surfaceObserver->setListener(this);
 
     //connect(session, &QObject::destroyed, this, &MirSurface::onSessionDestroyed); // TODO try using Shared pointer for lifecycle
 
@@ -1082,6 +1083,11 @@ void MirSurface::setCloseTimer(AbstractTimer *timer)
     if (timerWasRunning) {
         m_closeTimer->start();
     }
+}
+
+std::shared_ptr<SurfaceObserver> MirSurface::surfaceObserver() const
+{
+    return m_surfaceObserver;
 }
 
 void MirSurface::setInputBounds(const QRect &rect)
