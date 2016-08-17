@@ -101,8 +101,7 @@ void miral::TestServer::TearDown()
 {
     std::unique_lock<std::mutex> lock(mutex);
 
-    if (server_running)
-        server_running->stop();
+    runner.stop();
 
     started.wait_for(lock, timeout, [&] { return !server_running; });
 
