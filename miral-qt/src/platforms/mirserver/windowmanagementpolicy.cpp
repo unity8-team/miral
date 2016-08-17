@@ -188,24 +188,30 @@ void WindowManagementPolicy::deliver_pointer_event(const MirPointerEvent *event,
     }
 }
 
-/* Methods to allow Shell to request changes to the window stack */
+/* Methods to allow Shell to request changes to the window stack. Called from the Qt GUI thread */
 void WindowManagementPolicy::focus(const miral::Window &window)
 {
-    m_tools.select_active_window(window);
+    m_tools.invoke_under_lock([&window, this]() {
+        m_tools.select_active_window(window);
+    });
 }
 
 void WindowManagementPolicy::resize(const miral::Window &window, const Size size)
 {
     miral::WindowSpecification modifications;
     modifications.size() = size;
-    m_tools.modify_window(m_tools.info_for(window), modifications);
+    m_tools.invoke_under_lock([&window, &modifications, this]() {
+        m_tools.modify_window(m_tools.info_for(window), modifications);
+    });
 }
 
 void WindowManagementPolicy::move(const miral::Window &window, const Point topLeft)
 {
     miral::WindowSpecification modifications;
     modifications.top_left() = topLeft;
-    m_tools.modify_window(m_tools.info_for(window), modifications);
+    m_tools.invoke_under_lock([&window, &modifications, this]() {
+        m_tools.modify_window(m_tools.info_for(window), modifications);
+    });
 }
 
 void WindowManagementPolicy::ask_client_to_close(const miral::Window &window)
