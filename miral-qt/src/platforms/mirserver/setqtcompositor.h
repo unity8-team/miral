@@ -16,8 +16,8 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#ifndef USING_QT_COMPOSITOR_H
-#define USING_QT_COMPOSITOR_H
+#ifndef QTMIR_SET_QT_COMPOSITOR_H
+#define QTMIR_SET_QT_COMPOSITOR_H
 
 #include <memory>
 
@@ -28,7 +28,7 @@ class QtCompositor;
 namespace qtmir
 {
 // Configure the server for using the Qt compositor
-class UsingQtCompositor
+class SetQtCompositor
 {
 public:
     void operator()(mir::Server& server);
@@ -40,4 +40,4 @@ private:
 };
 }
 
-#endif //USING_QT_COMPOSITOR_H
+#endif //QTMIR_SET_QT_COMPOSITOR_H

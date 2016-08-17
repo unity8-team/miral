@@ -16,7 +16,7 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#include "usingqtcompositor.h"
+#include "setqtcompositor.h"
 
 // local
 #include "mircursorimages.h"
@@ -48,7 +48,7 @@ private:
 }
 
 
-void qtmir::UsingQtCompositor::operator()(mir::Server& server)
+void qtmir::SetQtCompositor::operator()(mir::Server& server)
 {
     server.override_the_compositor([this]
     {
@@ -70,7 +70,7 @@ void qtmir::UsingQtCompositor::operator()(mir::Server& server)
         { return std::make_shared<HiddenCursorWrapper>(wrapped); });
 }
 
-std::shared_ptr<QtCompositor> qtmir::UsingQtCompositor::the_qt_compositor() const
+std::shared_ptr<QtCompositor> qtmir::SetQtCompositor::the_qt_compositor() const
 {
     auto result = compositor.lock();
 

@@ -29,7 +29,7 @@
 #include "sessionauthorizer.h"
 #include "windowmanagementpolicy.h"
 #include "argvHelper.h"
-#include "usingqtcompositor.h"
+#include "setqtcompositor.h"
 
 // miral
 #include <miral/add_init_callback.h>
@@ -43,7 +43,7 @@ void MirServerThread::run()
 {
     bool unknownArgsFound = false;
 
-    qtmir::UsingQtCompositor usingQtCompositor;
+    qtmir::SetQtCompositor setQtCompositor;
 
     miral::SetCommandLineHandler setCommandLineHandler{[this, &unknownArgsFound](int filteredCount, const char* const filteredArgv[])
     {
@@ -55,7 +55,7 @@ void MirServerThread::run()
 
     miral::AddInitCallback addInitCallback{[&, this]
     {
-        server->screensModel->init(server->server->the_display(), server->server->the_compositor(), server->server->the_shell());
+        server->screensModel->init(server->server->the_display(), setQtCompositor.the_qt_compositor(), server->server->the_shell());
 
         if (!unknownArgsFound) { // mir parsed all the arguments, so edit argv to pretend to have just argv[0]
             argc = 1;
@@ -94,7 +94,7 @@ void MirServerThread::run()
     mir_display_configuration_policy(*server->server);
     setCommandLineHandler(*server->server);
     addInitCallback(*server->server);
-    usingQtCompositor(*server->server);
+    setQtCompositor(*server->server);
     setTerminator(*server->server);
 
     try {
