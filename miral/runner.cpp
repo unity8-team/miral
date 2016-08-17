@@ -39,7 +39,7 @@ inline auto filename(std::string path) -> std::string
 struct miral::MirRunner::Self
 {
     Self(int argc, char const* argv[], std::string const& config_file) :
-        argc(argc), argv(argv), config_file{config_file}, stop_callback{[]{}} {}
+        argc(argc), argv(argv), config_file{config_file} {}
 
     auto run_with(std::initializer_list<std::function<void(::mir::Server&)>> options) -> int;
 
@@ -48,7 +48,8 @@ struct miral::MirRunner::Self
     std::string const config_file;
     
     std::mutex mutex;
-    std::function<void()>  stop_callback;
+    std::function<void()> stop_callback{[]{}};
+    std::function<void()> exception_handler{static_cast<void(*)()>(mir::report_exception)};
     std::weak_ptr<mir::Server> weak_server;
 };
 
@@ -181,6 +182,7 @@ try
         std::lock_guard<decltype(mutex)> lock{mutex};
 
         server->set_config_filename(config_file);
+        server->set_exception_handler(exception_handler);
 
         enable_startup_applications(*server);
         enable_env_hacks(*server);
@@ -210,7 +212,7 @@ try
 }
 catch (...)
 {
-    mir::report_exception();
+    exception_handler();
     return EXIT_FAILURE;
 }
 
@@ -226,6 +228,12 @@ void miral::MirRunner::add_stop_callback(std::function<void()> const& stop_callb
         };
 
     self->stop_callback = updated;
+}
+
+void miral::MirRunner::set_exception_handler(std::function<void()> const& handler)
+{
+    std::lock_guard<decltype(self->mutex)> lock{self->mutex};
+    self->exception_handler = handler;
 }
 
 auto miral::MirRunner::run_with(std::initializer_list<std::function<void(::mir::Server&)>> options)

@@ -55,6 +55,7 @@ libmiral.so.1 libmiral1 #MINVER#
  (c++)"miral::MirRunner::MirRunner(int, char const**)@MIRAL_0.1" 0.1.0
  (c++)"miral::MirRunner::~MirRunner()@MIRAL_0.1" 0.1.0
  (c++)"miral::MirRunner::run_with(std::initializer_list<std::function<void (mir::Server&)> >)@MIRAL_0.1" 0.1.0
+ (c++)"miral::MirRunner::set_exception_handler(std::function<void ()> const&)@MIRAL_0.1" 0.1.0
  (c++)"miral::MirRunner::stop()@MIRAL_0.1" 0.1.0
  (c++)"miral::operator==(miral::Output::PhysicalSizeMM const&, miral::Output::PhysicalSizeMM const&)@MIRAL_0.1" 0.1.0
  (c++)"miral::operator==(miral::Window const&, miral::Window const&)@MIRAL_0.1" 0.1.0
