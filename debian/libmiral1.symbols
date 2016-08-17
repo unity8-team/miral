@@ -13,6 +13,9 @@ libmiral.so.1 libmiral1 #MINVER#
  (c++)"miral::ActiveOutputsMonitor::for_each_output(std::function<void (std::vector<miral::Output, std::allocator<miral::Output> > const&)> const&) const@MIRAL_0.1" 0.1.0
  (c++)"miral::ActiveOutputsMonitor::operator=(miral::ActiveOutputsMonitor const&)@MIRAL_0.1" 0.1.0
  (c++)"miral::ActiveOutputsMonitor::operator()(mir::Server&)@MIRAL_0.1" 0.1.0
+ (c++)"miral::AddInitCallback::~AddInitCallback()@MIRAL_0.1" 0.1.0
+ (c++)"miral::AddInitCallback::AddInitCallback(std::function<void ()> const&)@MIRAL_0.1" 0.1.0
+ (c++)"miral::AddInitCallback::operator()(mir::Server&) const@MIRAL_0.1" 0.1.0
  (c++)"miral::AppendEventFilter::AppendEventFilter(std::function<int (MirEvent const*)> const&)@MIRAL_0.1" 0.1.0
  (c++)"miral::AppendEventFilter::operator()(mir::Server&)@MIRAL_0.1" 0.1.0
  (c++)"miral::ApplicationCredentials::ApplicationCredentials(mir::frontend::SessionCredentials const&)@MIRAL_0.1" 0.1.0
@@ -74,6 +77,9 @@ libmiral.so.1 libmiral1 #MINVER#
  (c++)"miral::Output::type() const@MIRAL_0.1" 0.1.0
  (c++)"miral::Output::used() const@MIRAL_0.1" 0.1.0
  (c++)"miral::Output::valid() const@MIRAL_0.1" 0.1.0
+ (c++)"miral::SetCommandLineHandler::operator()(mir::Server&) const@MIRAL_0.1" 0.1.0
+ (c++)"miral::SetCommandLineHandler::~SetCommandLineHandler()@MIRAL_0.1" 0.1.0
+ (c++)"miral::SetCommandLineHandler::SetCommandLineHandler(std::function<void (int, char const* const*)> const&)@MIRAL_0.1" 0.1.0
  (c++)"miral::SetTerminator::operator()(mir::Server&) const@MIRAL_0.1" 0.1.0
  (c++)"miral::SetTerminator::~SetTerminator()@MIRAL_0.1" 0.1.0
  (c++)"miral::SetTerminator::SetTerminator(std::function<void (int)> const&)@MIRAL_0.1" 0.1.0

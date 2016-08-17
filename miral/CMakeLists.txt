@@ -12,6 +12,7 @@ add_library(miral-internal STATIC
 
 add_library(miral SHARED
     active_outputs.cpp                  ${CMAKE_SOURCE_DIR}/include/miral/active_outputs.h
+    add_init_callback.cpp               ${CMAKE_SOURCE_DIR}/include/miral/add_init_callback.h
     application.cpp                     ${CMAKE_SOURCE_DIR}/include/miral/application.h
     application_authorizer.cpp          ${CMAKE_SOURCE_DIR}/include/miral/application_authorizer.h
     application_info.cpp                ${CMAKE_SOURCE_DIR}/include/miral/application_info.h
@@ -25,6 +26,7 @@ add_library(miral SHARED
     window_management_options.cpp       ${CMAKE_SOURCE_DIR}/include/miral/window_management_options.h
     window_specification.cpp            ${CMAKE_SOURCE_DIR}/include/miral/window_specification.h
     internal_client.cpp                 ${CMAKE_SOURCE_DIR}/include/miral/internal_client.h
+    set_command_line_hander.cpp         ${CMAKE_SOURCE_DIR}/include/miral/set_command_line_hander.h
     set_terminator.cpp                  ${CMAKE_SOURCE_DIR}/include/miral/set_terminator.h
     set_window_managment_policy.cpp     ${CMAKE_SOURCE_DIR}/include/miral/set_window_managment_policy.h
     window_management_policy.cpp        ${CMAKE_SOURCE_DIR}/include/miral/window_management_policy.h

@@ -15,6 +15,9 @@ global:
     miral::ActiveOutputsMonitor::delete_listener*;
     miral::ActiveOutputsMonitor::for_each_output*;
     miral::ActiveOutputsMonitor::operator*;
+    miral::AddInitCallback::?AddInitCallback*;
+    miral::AddInitCallback::AddInitCallback*;
+    miral::AddInitCallback::operator*;
     miral::AppendEventFilter::AppendEventFilter*;
     miral::AppendEventFilter::operator*;
     miral::ApplicationAuthorizer::?ApplicationAuthorizer*;
@@ -67,6 +70,9 @@ global:
     miral::Output::type*;
     miral::Output::used*;
     miral::Output::valid*;
+    miral::SetCommandLineHandler::?SetCommandLineHandler*;
+    miral::SetCommandLineHandler::SetCommandLineHandler*;
+    miral::SetCommandLineHandler::operator*;
     miral::SetTerminator::?SetTerminator*;
     miral::SetTerminator::SetTerminator*;
     miral::SetTerminator::operator*;
@@ -214,6 +220,7 @@ global:
     non-virtual?thunk?to?miral::WindowManagementPolicy::advise_state_change*;
     typeinfo?for?miral::ActiveOutputsListener;
     typeinfo?for?miral::ActiveOutputsMonitor;
+    typeinfo?for?miral::AddInitCallback;
     typeinfo?for?miral::AppendEventFilter;
     typeinfo?for?miral::ApplicationAuthorizer;
     typeinfo?for?miral::ApplicationCredentials;
@@ -224,6 +231,7 @@ global:
     typeinfo?for?miral::MirRunner;
     typeinfo?for?miral::Output;
     typeinfo?for?miral::Output::PhysicalSizeMM;
+    typeinfo?for?miral::SetCommandLineHandler;
     typeinfo?for?miral::SetTerminator;
     typeinfo?for?miral::SetWindowManagmentPolicy;
     typeinfo?for?miral::StartupInternalClient;
@@ -242,6 +250,7 @@ global:
     typeinfo?for?miral::toolkit::SurfaceSpec;
     vtable?for?miral::ActiveOutputsListener;
     vtable?for?miral::ActiveOutputsMonitor;
+    vtable?for?miral::AddInitCallback;
     vtable?for?miral::AppendEventFilter;
     vtable?for?miral::ApplicationAuthorizer;
     vtable?for?miral::ApplicationCredentials;
@@ -252,6 +261,7 @@ global:
     vtable?for?miral::MirRunner;
     vtable?for?miral::Output;
     vtable?for?miral::Output::PhysicalSizeMM;
+    vtable?for?miral::SetCommandLineHandler;
     vtable?for?miral::SetTerminator;
     vtable?for?miral::SetWindowManagmentPolicy;
     vtable?for?miral::StartupInternalClient;
