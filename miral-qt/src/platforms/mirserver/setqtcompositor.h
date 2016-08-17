@@ -19,11 +19,14 @@
 #ifndef QTMIR_SET_QT_COMPOSITOR_H
 #define QTMIR_SET_QT_COMPOSITOR_H
 
+#include <QSharedPointer>
+
 #include <memory>
 
 namespace mir { class Server; }
 
 class QtCompositor;
+class ScreensModel;
 
 namespace qtmir
 {
@@ -31,12 +34,13 @@ namespace qtmir
 class SetQtCompositor
 {
 public:
+    explicit SetQtCompositor(QSharedPointer<ScreensModel> const& screensModel);
+
     void operator()(mir::Server& server);
 
-    std::shared_ptr<QtCompositor> the_qt_compositor() const;
-
 private:
-    std::weak_ptr<QtCompositor> compositor;
+    QSharedPointer<ScreensModel> const m_screensModel;
+    std::weak_ptr<QtCompositor> m_compositor;
 };
 }
 

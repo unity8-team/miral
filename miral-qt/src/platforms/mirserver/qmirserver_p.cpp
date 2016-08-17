@@ -36,14 +36,9 @@
 #include <miral/set_command_line_hander.h>
 #include <miral/set_terminator.h>
 
-// mir
-#include <mir/shell/shell.h>
-
 void MirServerThread::run()
 {
     bool unknownArgsFound = false;
-
-    qtmir::SetQtCompositor setQtCompositor;
 
     miral::SetCommandLineHandler setCommandLineHandler{[this, &unknownArgsFound](int filteredCount, const char* const filteredArgv[])
     {
@@ -55,8 +50,6 @@ void MirServerThread::run()
 
     miral::AddInitCallback addInitCallback{[&, this]
     {
-        server->screensModel->init(server->server->the_display(), setQtCompositor.the_qt_compositor(), server->server->the_shell());
-
         if (!unknownArgsFound) { // mir parsed all the arguments, so edit argv to pretend to have just argv[0]
             argc = 1;
         }
@@ -82,6 +75,8 @@ void MirServerThread::run()
         qDebug() << "Signal caught by Mir, stopping Mir server..";
         QCoreApplication::quit();
     }};
+
+    qtmir::SetQtCompositor setQtCompositor{server->screensModel};
 
     // Casting char** to be a const char** safe as Mir won't change it, nor will we
     server->server->set_command_line(argc, const_cast<const char **>(argv));

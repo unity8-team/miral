@@ -23,10 +23,12 @@
 #include "mirglconfig.h"
 #include "mirserverstatuslistener.h"
 #include "qtcompositor.h"
+#include "screensmodel.h"
 
 // mir
 #include <mir/graphics/cursor.h>
 #include <mir/server.h>
+#include <mir/shell/shell.h>
 
 namespace mg = mir::graphics;
 
@@ -47,13 +49,17 @@ private:
 };
 }
 
+qtmir::SetQtCompositor::SetQtCompositor(QSharedPointer<ScreensModel> const& screensModel) :
+    m_screensModel{screensModel}
+{
+}
 
 void qtmir::SetQtCompositor::operator()(mir::Server& server)
 {
     server.override_the_compositor([this]
     {
         auto result = std::make_shared<QtCompositor>();
-        compositor = result;
+        m_compositor = result;
         return result;
     });
 
@@ -68,14 +74,17 @@ void qtmir::SetQtCompositor::operator()(mir::Server& server)
 
     server.wrap_cursor([&](std::shared_ptr<mg::Cursor> const& wrapped)
         { return std::make_shared<HiddenCursorWrapper>(wrapped); });
+
+    server.add_init_callback([&, this]
+        {
+            if (auto const compositor = m_compositor.lock())
+            {
+                m_screensModel->init(server.the_display(), compositor, server.the_shell());
+            }
+            else
+            {
+                throw std::logic_error("No m_compositor available. Server not running?");
+            }
+        });
 }
 
-std::shared_ptr<QtCompositor> qtmir::SetQtCompositor::the_qt_compositor() const
-{
-    auto result = compositor.lock();
-
-    if (!result)
-        throw std::logic_error("No compositor available. Server not running?");
-
-    return result;
-}
