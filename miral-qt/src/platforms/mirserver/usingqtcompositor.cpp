@@ -47,10 +47,15 @@ private:
 };
 }
 
-void usingQtCompositor(mir::Server& server)
+
+void qtmir::UsingQtCompositor::operator()(mir::Server& server)
 {
-    server.override_the_compositor([]
-        { return std::make_shared<QtCompositor>(); });
+    server.override_the_compositor([this]
+    {
+        auto result = std::make_shared<QtCompositor>();
+        compositor = result;
+        return result;
+    });
 
     server.override_the_gl_config([]
         { return std::make_shared<MirGLConfig>(); });
@@ -63,4 +68,14 @@ void usingQtCompositor(mir::Server& server)
 
     server.wrap_cursor([&](std::shared_ptr<mg::Cursor> const& wrapped)
         { return std::make_shared<HiddenCursorWrapper>(wrapped); });
+}
+
+std::shared_ptr<QtCompositor> qtmir::UsingQtCompositor::the_qt_compositor() const
+{
+    auto result = compositor.lock();
+
+    if (!result)
+        throw std::logic_error("No compositor available. Server not running?");
+
+    return result;
 }

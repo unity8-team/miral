@@ -73,9 +73,10 @@ public Q_SLOTS:
 
 public:
     // called by MirServer
-    void init(const std::shared_ptr<mir::graphics::Display> &display,
-              const std::shared_ptr<mir::compositor::Compositor> &compositor,
-              const std::shared_ptr<mir::compositor::DisplayListener> &displayListener);
+    void init(
+        const std::shared_ptr<mir::graphics::Display>& display,
+        const std::shared_ptr<mir::compositor::Compositor>& compositor,
+        const std::shared_ptr<mir::compositor::DisplayListener>& displayListener);
     void terminate();
 
     // override for testing purposes

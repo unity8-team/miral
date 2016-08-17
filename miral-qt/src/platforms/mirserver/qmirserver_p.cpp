@@ -43,6 +43,8 @@ void MirServerThread::run()
 {
     bool unknownArgsFound = false;
 
+    qtmir::UsingQtCompositor usingQtCompositor;
+
     miral::SetCommandLineHandler setCommandLineHandler{[this, &unknownArgsFound](int filteredCount, const char* const filteredArgv[])
     {
         unknownArgsFound = true;
@@ -51,7 +53,7 @@ void MirServerThread::run()
         qtmir::editArgvToMatch(argc, argv, filteredCount, filteredArgv);
     }};
 
-    miral::AddInitCallback addInitCallback{[this, &unknownArgsFound]
+    miral::AddInitCallback addInitCallback{[&, this]
     {
         server->screensModel->init(server->server->the_display(), server->server->the_compositor(), server->server->the_shell());
 

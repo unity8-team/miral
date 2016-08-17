@@ -48,9 +48,10 @@ ScreensModel::ScreensModel(QObject *parent)
 }
 
 // init only after MirServer has initialized - runs on MirServerThread!!!
-void ScreensModel::init(const std::shared_ptr<mir::graphics::Display> &display,
-                        const std::shared_ptr<mir::compositor::Compositor> &compositor,
-                        const std::shared_ptr<mir::compositor::DisplayListener> &displayListener)
+void ScreensModel::init(
+    const std::shared_ptr<mir::graphics::Display>& display,
+    const std::shared_ptr<mir::compositor::Compositor>& compositor,
+    const std::shared_ptr<mir::compositor::DisplayListener>& displayListener)
 {
     m_display = display;
     m_compositor = compositor;

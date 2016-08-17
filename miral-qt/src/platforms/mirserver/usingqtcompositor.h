@@ -19,9 +19,25 @@
 #ifndef USING_QT_COMPOSITOR_H
 #define USING_QT_COMPOSITOR_H
 
+#include <memory>
+
 namespace mir { class Server; }
 
+class QtCompositor;
+
+namespace qtmir
+{
 // Configure the server for using the Qt compositor
-void usingQtCompositor(mir::Server& server);
+class UsingQtCompositor
+{
+public:
+    void operator()(mir::Server& server);
+
+    std::shared_ptr<QtCompositor> the_qt_compositor() const;
+
+private:
+    std::weak_ptr<QtCompositor> compositor;
+};
+}
 
 #endif //USING_QT_COMPOSITOR_H
