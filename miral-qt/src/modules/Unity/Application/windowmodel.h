@@ -38,6 +38,8 @@ public:
     };
 
     WindowModel();
+    explicit WindowModel(WindowModelNotifierInterface *notifier,
+                         WindowControllerInterface *controller); // For testing
 
     // QAbstractItemModel methods
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -59,6 +61,8 @@ private Q_SLOTS:
     void onWindowInfoChanged(const WindowInfo windowInfo, const unsigned int index);
 
 private:
+    void connectToWindowModelNotifier(WindowModelNotifierInterface *notifier);
+
     QVector<MirSurfaceInterface *> m_windowModel;
     WindowControllerInterface *m_windowController;
     MirSurfaceInterface* m_focusedWindow;
