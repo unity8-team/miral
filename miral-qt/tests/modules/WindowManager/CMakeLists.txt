@@ -1,7 +1,8 @@
 set(
-  MIR_SURFACE_MANAGER_TEST_SOURCES
+  MIR_WINDOW_MANAGER_TEST_SOURCES
 #  mirsurfaceitem_test.cpp #FIXME - reinstate these tests when functionality there
   mirsurface_test.cpp
+  windowmodel_test.cpp
   ${MIRAL_QT_SOURCE_DIR}/src/common/debughelpers.cpp
 )
 
@@ -15,10 +16,10 @@ include_directories(
   ${Qt5Quick_PRIVATE_INCLUDE_DIRS}
 )
 
-add_executable(surfacemanager_test ${MIR_SURFACE_MANAGER_TEST_SOURCES})
+add_executable(windowmanager_test ${MIR_WINDOW_MANAGER_TEST_SOURCES})
 
 target_link_libraries(
-  surfacemanager_test
+  windowmanager_test
 
   unityapplicationplugin
 
@@ -31,4 +32,4 @@ target_link_libraries(
   ${GMOCK_LIBRARIES}
 )
 
-add_test(SurfaceManager surfacemanager_test)
+add_test(WindowManager windowmanager_test)
