@@ -32,7 +32,8 @@
 #include "mirbuffersgtexture.h"
 #include "session.h"
 #include "windowcontrollerinterface.h"
-#include "windowmodelinterface.h"
+#include "windowmodelnotifierinterface.h"
+
 // mir
 #include <mir_toolkit/common.h>
 

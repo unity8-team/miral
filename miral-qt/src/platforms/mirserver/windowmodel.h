@@ -17,7 +17,7 @@
 #ifndef WINDOWMODEL_H
 #define WINDOWMODEL_H
 
-#include "windowmodelinterface.h"
+#include "windowmodelnotifierinterface.h"
 
 #include "miral/window_info.h"
 
@@ -25,7 +25,7 @@
 
 namespace qtmir {
 
-class WindowModel : public WindowModelInterface
+class WindowModel : public WindowModelNotifierInterface
 {
     Q_OBJECT
 public:

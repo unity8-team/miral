@@ -114,7 +114,7 @@ void UsingQtMirWindowManager::operator()(mir::Server& server)
     m_policy(server);
 }
 
-qtmir::WindowModelInterface *UsingQtMirWindowManager::windowModel()
+qtmir::WindowModelNotifierInterface *UsingQtMirWindowManager::windowModel()
 {
     return &m_windowModel;
 }

@@ -71,7 +71,7 @@ class UsingQtMirWindowManager
 public:
     UsingQtMirWindowManager(const QSharedPointer<ScreensModel> &model);
     void operator()(mir::Server& server);
-    qtmir::WindowModelInterface *windowModel();
+    qtmir::WindowModelNotifierInterface *windowModel();
     qtmir::WindowControllerInterface *windowController();
 
 private:
