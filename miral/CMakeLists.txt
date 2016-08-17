@@ -12,6 +12,7 @@ add_library(miral-internal STATIC
 
 add_library(miral SHARED
     active_outputs.cpp                  ${CMAKE_SOURCE_DIR}/include/miral/active_outputs.h
+    add_init_callback.cpp               ${CMAKE_SOURCE_DIR}/include/miral/add_init_callback.h
     application.cpp                     ${CMAKE_SOURCE_DIR}/include/miral/application.h
     application_authorizer.cpp          ${CMAKE_SOURCE_DIR}/include/miral/application_authorizer.h
     application_info.cpp                ${CMAKE_SOURCE_DIR}/include/miral/application_info.h
@@ -35,7 +36,7 @@ add_library(miral SHARED
                                         ${CMAKE_SOURCE_DIR}/include/miral/toolkit/persistent_id.h
                                         ${CMAKE_SOURCE_DIR}/include/miral/toolkit/connection.h
                                         ${CMAKE_SOURCE_DIR}/include/miral/toolkit/surface.h
-        add_init_callback.cpp ../include/miral/add_init_callback.h)
+)
 
 target_link_libraries(miral
     PUBLIC
