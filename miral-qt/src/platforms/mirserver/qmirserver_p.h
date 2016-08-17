@@ -33,7 +33,6 @@
 
 //miral
 #include <miral/application_authorizer.h>
-#include "miral/set_window_managment_policy.h"
 
 class MirServer;
 class QMirServer;
@@ -42,55 +41,32 @@ class PromptSessionListener;
 class SessionListener;
 class SessionAuthorizer;
 
-// TODO the UsingQtMirXXX classes introduced here are a step towards
-//      decoupling from libmirserver and using a libmiral-style API
-using UsingQtMirSessionAuthorizer = miral::SetApplicationAuthorizer<SessionAuthorizer>;
+namespace qtmir
+{
+using SetSessionAuthorizer = miral::SetApplicationAuthorizer<SessionAuthorizer>;
+}
 
-class UsingQtMirSessionListener
+class QMirServerPrivate : private qtmir::SetSessionAuthorizer
 {
 public:
-    void operator()(mir::Server& server);
-    SessionListener *sessionListener();
-
-private:
-    std::weak_ptr<SessionListener> m_sessionListener;
-};
-
-class UsingQtMirPromptSessionListener
-{
-public:
-    void operator()(mir::Server& server);
-    PromptSessionListener *promptSessionListener();
-
-private:
-    std::weak_ptr<PromptSessionListener> m_promptSessionListener;
-};
-
-class UsingQtMirWindowManager
-{
-public:
-    UsingQtMirWindowManager(const QSharedPointer<ScreensModel> &model);
-    void operator()(mir::Server& server);
-    qtmir::WindowModelInterface *windowModel();
-    qtmir::WindowControllerInterface *windowController();
-
-private:
-    struct Self;
-    std::shared_ptr<Self> const self;
-};
-
-class QMirServerPrivate
-{
-public:
+    QMirServerPrivate();
     const QSharedPointer<ScreensModel> screensModel{new ScreensModel()};
     QSharedPointer<MirServer> server;
     QSharedPointer<ScreensController> screensController;
     MirServerThread *serverThread;
 
-    UsingQtMirSessionAuthorizer m_usingQtMirSessionAuthorizer;
-    UsingQtMirSessionListener mutable m_usingQtMirSessionListener;
-    UsingQtMirPromptSessionListener mutable m_usingQtMirPromptSessionListener;
-    UsingQtMirWindowManager mutable m_usingQtMirWindowManager{screensModel};
+    void operator()(mir::Server& server);
+
+    SessionListener *sessionListener() const;
+    PromptSessionListener *promptSessionListener() const;
+    qtmir::WindowModelInterface *windowModel() const;
+    qtmir::WindowControllerInterface *windowController() const;
+
+    using qtmir::SetSessionAuthorizer::the_application_authorizer;
+
+private:
+    struct Self;
+    std::shared_ptr<Self> const self;
 };
 
 class MirServerThread : public QThread

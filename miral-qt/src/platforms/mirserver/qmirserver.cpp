@@ -108,15 +108,15 @@ void *QMirServer::nativeResourceForIntegration(const QByteArray &resource) const
 
     if (d->server) {
         if (resource == "SessionAuthorizer")
-            result = d->m_usingQtMirSessionAuthorizer.the_application_authorizer().get();
+            result = d->the_application_authorizer().get();
         else if (resource == "SessionListener")
-            result = d->m_usingQtMirSessionListener.sessionListener();
+            result = d->sessionListener();
         else if (resource == "PromptSessionListener")
-            result = d->m_usingQtMirPromptSessionListener.promptSessionListener();
+            result = d->promptSessionListener();
         else if (resource == "WindowController")
-            result = d->m_usingQtMirWindowManager.windowController();
+            result = d->windowController();
         else if (resource == "WindowModel")
-            result = d->m_usingQtMirWindowManager.windowModel();
+            result = d->windowModel();
         else if (resource == "ScreensController")
             result = screensController().data();
     }

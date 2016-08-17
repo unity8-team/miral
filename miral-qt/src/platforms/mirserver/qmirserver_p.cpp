@@ -35,6 +35,7 @@
 #include <miral/add_init_callback.h>
 #include <miral/set_command_line_hander.h>
 #include <miral/set_terminator.h>
+#include <miral/set_window_managment_policy.h>
 
 void MirServerThread::run()
 {
@@ -81,11 +82,8 @@ void MirServerThread::run()
     // Casting char** to be a const char** safe as Mir won't change it, nor will we
     server->server->set_command_line(argc, const_cast<const char **>(argv));
 
-    // This should eventually be replaced by miral::MirRunner::run()
-    server->m_usingQtMirSessionAuthorizer(*server->server);
-    server->m_usingQtMirSessionListener(*server->server);
-    server->m_usingQtMirPromptSessionListener(*server->server);
-    server->m_usingQtMirWindowManager(*server->server);
+    // This should eventually be replaced by miral::MirRunner::run_with()
+    (*server)(*server->server);
     mir_display_configuration_policy(*server->server);
     setCommandLineHandler(*server->server);
     addInitCallback(*server->server);
@@ -116,67 +114,64 @@ bool MirServerThread::waitForMirStartup()
     return mir_running;
 }
 
-void UsingQtMirSessionListener::operator()(mir::Server& server)
-{
-    server.override_the_session_listener([this]
-        {
-            auto const result = std::make_shared<SessionListener>();
-            m_sessionListener = result;
-            return result;
-        });
-}
-
-SessionListener *UsingQtMirSessionListener::sessionListener()
-{
-    return m_sessionListener.lock().get();
-}
-
-void UsingQtMirPromptSessionListener::operator()(mir::Server& server)
-{
-    server.override_the_prompt_session_listener([this]
-        {
-            auto const result = std::make_shared<PromptSessionListener>();
-            m_promptSessionListener = result;
-            return result;
-        });
-}
-
-PromptSessionListener *UsingQtMirPromptSessionListener::promptSessionListener()
-{
-    return m_promptSessionListener.lock().get();
-}
-
-struct UsingQtMirWindowManager::Self
+struct QMirServerPrivate::Self
 {
     Self(const QSharedPointer<ScreensModel> &model);
     const QSharedPointer<ScreensModel> &m_screensModel;
     miral::SetWindowManagmentPolicy m_policy;
     qtmir::WindowController m_windowController;
     qtmir::WindowModel m_windowModel;
+    std::weak_ptr<SessionListener> m_sessionListener;
+    std::weak_ptr<PromptSessionListener> m_promptSessionListener;
 };
 
-UsingQtMirWindowManager::Self::Self(const QSharedPointer<ScreensModel> &model)
+SessionListener *QMirServerPrivate::sessionListener() const
+{
+    return self->m_sessionListener.lock().get();
+}
+
+QMirServerPrivate::Self::Self(const QSharedPointer<ScreensModel> &model)
     : m_screensModel(model)
     , m_policy(miral::set_window_managment_policy<WindowManagementPolicy>(m_windowModel, m_windowController, m_screensModel))
 {
 }
 
-UsingQtMirWindowManager::UsingQtMirWindowManager(const QSharedPointer<ScreensModel> &model)
-    : self{std::make_shared<Self>(model)}
-{
-}
-
-void UsingQtMirWindowManager::operator()(mir::Server& server)
-{
-    self->m_policy(server);
-}
-
-qtmir::WindowModelInterface *UsingQtMirWindowManager::windowModel()
+qtmir::WindowModelInterface *QMirServerPrivate::windowModel() const
 {
     return &self->m_windowModel;
 }
 
-qtmir::WindowControllerInterface *UsingQtMirWindowManager::windowController()
+qtmir::WindowControllerInterface *QMirServerPrivate::windowController() const
 {
     return &self->m_windowController;
+}
+
+QMirServerPrivate::QMirServerPrivate() :
+    self{std::make_shared<Self>(screensModel)}
+{
+}
+
+PromptSessionListener *QMirServerPrivate::promptSessionListener() const
+{
+    return self->m_promptSessionListener.lock().get();
+}
+
+void QMirServerPrivate::operator()(mir::Server& server)
+{
+    qtmir::SetSessionAuthorizer::operator()(server);
+    server.override_the_session_listener([this]
+        {
+            auto const result = std::make_shared<SessionListener>();
+            self->m_sessionListener = result;
+            return result;
+        });
+
+    server.override_the_prompt_session_listener([this]
+        {
+            auto const result = std::make_shared<PromptSessionListener>();
+            self->m_promptSessionListener = result;
+            return result;
+        });
+
+    self->m_policy(server);
 }
