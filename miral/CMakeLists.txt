@@ -35,7 +35,7 @@ add_library(miral SHARED
                                         ${CMAKE_SOURCE_DIR}/include/miral/toolkit/persistent_id.h
                                         ${CMAKE_SOURCE_DIR}/include/miral/toolkit/connection.h
                                         ${CMAKE_SOURCE_DIR}/include/miral/toolkit/surface.h
-)
+        add_init_callback.cpp ../include/miral/add_init_callback.h)
 
 target_link_libraries(miral
     PUBLIC
