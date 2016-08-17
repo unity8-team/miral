@@ -45,7 +45,14 @@ public:
     /// If multiple callbacks are added they will be invoked in the reverse sequence added.
     void add_stop_callback(std::function<void()> const& stop_callback);
 
-    /// Apply the supplied initialization options and run the Mir server
+    /// Set a handler for exceptions caught in run_with().
+    /// run_with() invokes handler() in catch (...) blocks before returning EXIT_FAILURE.
+    /// Hence the exception can be re-thrown to retrieve type information.
+    /// The default action is to call mir::report_exception(std::cerr)
+    void set_exception_handler(std::function<void()> const& handler);
+
+    /// Apply the supplied initialization options and run the Mir server.
+    /// @returns EXIT_SUCCESS or EXIT_FAILURE according to whether the server ran successfully
     /// \note blocks until the Mir server exits
     auto run_with(std::initializer_list<std::function<void(::mir::Server&)>> options) -> int;
 
