@@ -16,6 +16,8 @@ libmiral.so.1 libmiral1 #MINVER#
  (c++)"miral::AddInitCallback::~AddInitCallback()@MIRAL_0.1" 0.1.0
  (c++)"miral::AddInitCallback::AddInitCallback(std::function<void ()> const&)@MIRAL_0.1" 0.1.0
  (c++)"miral::AddInitCallback::operator()(mir::Server&) const@MIRAL_0.1" 0.1.0
+ (c++)"miral::AppendEventFilter::AppendEventFilter(std::function<int (MirEvent const*)> const&)@MIRAL_0.1" 0.1.0
+ (c++)"miral::AppendEventFilter::operator()(mir::Server&)@MIRAL_0.1" 0.1.0
  (c++)"miral::ApplicationCredentials::ApplicationCredentials(mir::frontend::SessionCredentials const&)@MIRAL_0.1" 0.1.0
  (c++)"miral::ApplicationCredentials::gid() const@MIRAL_0.1" 0.1.0
  (c++)"miral::ApplicationCredentials::pid() const@MIRAL_0.1" 0.1.0
@@ -48,9 +50,12 @@ libmiral.so.1 libmiral1 #MINVER#
  (c++)"miral::InternalClientLauncher::launch(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::function<void (miral::toolkit::Connection)> const&, std::function<void (std::weak_ptr<mir::scene::Session>)> const&) const@MIRAL_0.1" 0.1.0
  (c++)"miral::InternalClientLauncher::operator()(mir::Server&)@MIRAL_0.1" 0.1.0
  (c++)"miral::kill(std::shared_ptr<mir::scene::Session> const&, int)@MIRAL_0.1" 0.1.0
+ (c++)"miral::MirRunner::add_stop_callback(std::function<void ()> const&)@MIRAL_0.1" 0.1.0
  (c++)"miral::MirRunner::MirRunner(int, char const**, char const*)@MIRAL_0.1" 0.1.0
  (c++)"miral::MirRunner::MirRunner(int, char const**)@MIRAL_0.1" 0.1.0
+ (c++)"miral::MirRunner::~MirRunner()@MIRAL_0.1" 0.1.0
  (c++)"miral::MirRunner::run_with(std::initializer_list<std::function<void (mir::Server&)> >)@MIRAL_0.1" 0.1.0
+ (c++)"miral::MirRunner::stop()@MIRAL_0.1" 0.1.0
  (c++)"miral::operator==(miral::Output::PhysicalSizeMM const&, miral::Output::PhysicalSizeMM const&)@MIRAL_0.1" 0.1.0
  (c++)"miral::operator==(miral::Window const&, miral::Window const&)@MIRAL_0.1" 0.1.0
  (c++)"miral::operator==(miral::Window const&, std::shared_ptr<mir::scene::Surface> const&)@MIRAL_0.1" 0.1.0
@@ -72,7 +77,6 @@ libmiral.so.1 libmiral1 #MINVER#
  (c++)"miral::Output::type() const@MIRAL_0.1" 0.1.0
  (c++)"miral::Output::used() const@MIRAL_0.1" 0.1.0
  (c++)"miral::Output::valid() const@MIRAL_0.1" 0.1.0
- (c++)"miral::QuitOnCtrlAltBkSp::operator()(mir::Server&)@MIRAL_0.1" 0.1.0
  (c++)"miral::SetCommandLineHandler::operator()(mir::Server&) const@MIRAL_0.1" 0.1.0
  (c++)"miral::SetCommandLineHandler::~SetCommandLineHandler()@MIRAL_0.1" 0.1.0
  (c++)"miral::SetCommandLineHandler::SetCommandLineHandler(std::function<void (int, char const* const*)> const&)@MIRAL_0.1" 0.1.0

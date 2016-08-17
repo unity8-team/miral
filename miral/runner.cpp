@@ -21,8 +21,11 @@
 #include <mir/server.h>
 #include <mir/report_exception.h>
 #include <mir/options/option.h>
+#include <mir/version.h>
 
 #include <chrono>
+#include <cstdlib>
+#include <mutex>
 #include <thread>
 
 namespace
@@ -33,15 +36,33 @@ inline auto filename(std::string path) -> std::string
 }
 }
 
+struct miral::MirRunner::Self
+{
+    Self(int argc, char const* argv[], std::string const& config_file) :
+        argc(argc), argv(argv), config_file{config_file}, stop_callback{[]{}} {}
+
+    auto run_with(std::initializer_list<std::function<void(::mir::Server&)>> options) -> int;
+
+    int const argc;
+    char const** const argv;
+    std::string const config_file;
+    
+    std::mutex mutex;
+    std::function<void()>  stop_callback;
+    std::weak_ptr<mir::Server> weak_server;
+};
+
 miral::MirRunner::MirRunner(int argc, char const* argv[]) :
-    argc(argc), argv(argv), config_file(filename(argv[0]) + ".config")
+    self{std::make_unique<Self>(argc, argv, filename(argv[0]) + ".config")}
 {
 }
 
 miral::MirRunner::MirRunner(int argc, char const* argv[], char const* config_file) :
-    argc(argc), argv(argv), config_file{config_file}
+    self{std::make_unique<Self>(argc, argv, config_file)}
 {
 }
+
+miral::MirRunner::~MirRunner() = default;
 
 namespace
 {
@@ -150,35 +171,81 @@ void apply_env_hacks(::mir::Server& server)
 }
 }
 
-auto miral::MirRunner::run_with(std::initializer_list<std::function<void(::mir::Server&)>> options)
+auto miral::MirRunner::Self::run_with(std::initializer_list<std::function<void(::mir::Server&)>> options)
 -> int
 try
 {
-    mir::Server server;
+    auto const server = std::make_shared<mir::Server>();
 
-    server.set_config_filename(config_file);
+    {
+        std::lock_guard<decltype(mutex)> lock{mutex};
 
-    enable_startup_applications(server);
-    enable_env_hacks(server);
+        server->set_config_filename(config_file);
 
-    for (auto& option : options)
-        option(server);
+        enable_startup_applications(*server);
+        enable_env_hacks(*server);
 
-    // Provide the command line and run the server
-    server.set_command_line(argc, argv);
-    server.apply_settings();
-    apply_env_hacks(server);
+        for (auto& option : options)
+            option(*server);
+
+#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 24, 0)
+        server->add_stop_callback(stop_callback);
+#endif
+
+        // Provide the command line and run the server
+        server->set_command_line(argc, argv);
+        server->apply_settings();
+        apply_env_hacks(*server);
+
+        weak_server = server;
+    }
 
     // Has to be done after apply_settings() parses the command-line and
     // before run() starts allocates resources and starts threads.
-    launch_startup_applications(server);
+    launch_startup_applications(*server);
 
-    server.run();
+    server->run();
 
-    return server.exited_normally() ? EXIT_SUCCESS : EXIT_FAILURE;
+    return server->exited_normally() ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 catch (...)
 {
     mir::report_exception();
     return EXIT_FAILURE;
 }
+
+void miral::MirRunner::add_stop_callback(std::function<void()> const& stop_callback)
+{
+    std::lock_guard<decltype(self->mutex)> lock{self->mutex};
+    auto const& existing = self->stop_callback;
+
+    auto const updated = [=]
+        {
+            stop_callback();
+            existing();
+        };
+
+    self->stop_callback = updated;
+}
+
+auto miral::MirRunner::run_with(std::initializer_list<std::function<void(::mir::Server&)>> options)
+-> int
+{
+    return self->run_with(options);
+}
+
+void miral::MirRunner::stop()
+{
+    std::lock_guard<decltype(self->mutex)> lock{self->mutex};
+
+    if (auto const server = self->weak_server.lock())
+    {
+#if MIR_SERVER_VERSION < MIR_VERSION_NUMBER(0, 24, 0)
+        // Before Mir-0.24 we can't intercept all stop() invocations,
+        // but we can deal with the ones we pass on
+        self->stop_callback();
+#endif
+        server->stop();
+    }
+}
+

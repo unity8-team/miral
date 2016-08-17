@@ -20,7 +20,7 @@ add_library(miral SHARED
     runner.cpp                          ${CMAKE_SOURCE_DIR}/include/miral/runner.h
     display_configuration_option.cpp    ${CMAKE_SOURCE_DIR}/include/miral/display_configuration_option.h
     output.cpp                          ${CMAKE_SOURCE_DIR}/include/miral/output.h
-    quit_on_ctrl_alt_bksp.cpp           ${CMAKE_SOURCE_DIR}/include/miral/quit_on_ctrl_alt_bksp.h
+    append_event_filter.cpp             ${CMAKE_SOURCE_DIR}/include/miral/append_event_filter.h
     window.cpp                          ${CMAKE_SOURCE_DIR}/include/miral/window.h
     window_info.cpp                     ${CMAKE_SOURCE_DIR}/include/miral/window_info.h
     window_management_options.cpp       ${CMAKE_SOURCE_DIR}/include/miral/window_management_options.h
