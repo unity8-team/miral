@@ -146,24 +146,37 @@ PromptSessionListener *UsingQtMirPromptSessionListener::promptSessionListener()
     return m_promptSessionListener.lock().get();
 }
 
-UsingQtMirWindowManager::UsingQtMirWindowManager(const QSharedPointer<ScreensModel> &model)
+struct UsingQtMirWindowManager::Self
+{
+    Self(const QSharedPointer<ScreensModel> &model);
+    const QSharedPointer<ScreensModel> &m_screensModel;
+    miral::SetWindowManagmentPolicy m_policy;
+    qtmir::WindowController m_windowController;
+    qtmir::WindowModel m_windowModel;
+};
+
+UsingQtMirWindowManager::Self::Self(const QSharedPointer<ScreensModel> &model)
     : m_screensModel(model)
     , m_policy(miral::set_window_managment_policy<WindowManagementPolicy>(m_windowModel, m_windowController, m_screensModel))
 {
 }
 
+UsingQtMirWindowManager::UsingQtMirWindowManager(const QSharedPointer<ScreensModel> &model)
+    : self{std::make_shared<Self>(model)}
+{
+}
+
 void UsingQtMirWindowManager::operator()(mir::Server& server)
 {
-    m_policy(server);
+    self->m_policy(server);
 }
 
 qtmir::WindowModelInterface *UsingQtMirWindowManager::windowModel()
 {
-    return &m_windowModel;
+    return &self->m_windowModel;
 }
 
 qtmir::WindowControllerInterface *UsingQtMirWindowManager::windowController()
 {
-    return &m_windowController;
+    return &self->m_windowController;
 }
-

@@ -75,16 +75,14 @@ public:
     qtmir::WindowControllerInterface *windowController();
 
 private:
-    const QSharedPointer<ScreensModel> &m_screensModel;
-    miral::SetWindowManagmentPolicy m_policy;
-    qtmir::WindowController m_windowController;
-    qtmir::WindowModel m_windowModel;
+    struct Self;
+    std::shared_ptr<Self> const self;
 };
 
 class QMirServerPrivate
 {
 public:
-    QSharedPointer<ScreensModel> screensModel{new ScreensModel()};
+    const QSharedPointer<ScreensModel> screensModel{new ScreensModel()};
     QSharedPointer<MirServer> server;
     QSharedPointer<ScreensController> screensController;
     MirServerThread *serverThread;
