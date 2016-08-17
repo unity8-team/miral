@@ -28,7 +28,7 @@
 // local
 #include "screenscontroller.h"
 #include "windowcontroller.h"
-#include "windowmodel.h"
+#include "windowmodelnotifier.h"
 #include "sessionauthorizer.h"
 
 //miral
@@ -71,14 +71,14 @@ class UsingQtMirWindowManager
 public:
     UsingQtMirWindowManager(const QSharedPointer<ScreensModel> &model);
     void operator()(mir::Server& server);
-    qtmir::WindowModelNotifierInterface *windowModel();
+    qtmir::WindowModelNotifierInterface *windowModelNotifier();
     qtmir::WindowControllerInterface *windowController();
 
 private:
     const QSharedPointer<ScreensModel> &m_screensModel;
     miral::SetWindowManagmentPolicy m_policy;
     qtmir::WindowController m_windowController;
-    qtmir::WindowModel m_windowModel;
+    qtmir::WindowModelNotifier m_windowModelNotifier;
 };
 
 class QMirServerPrivate

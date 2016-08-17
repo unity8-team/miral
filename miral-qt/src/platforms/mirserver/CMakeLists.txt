@@ -81,7 +81,7 @@ set(MIRSERVER_QPA_PLUGIN_SRC
     creationhints.cpp
     windowcontroller.cpp
     windowmanagementpolicy.cpp
-    windowmodel.cpp
+    windowmodelnotifier.cpp
     tracepoints.c
     usingqtcompositor.cpp usingqtcompositor.h
 # We need to run moc on these headers

@@ -39,7 +39,7 @@ WindowModel::WindowModel()
         qFatal("ERROR: Unity.Application QML plugin requires use of the 'mirserver' QPA plugin");
     }
 
-    auto windowModel = static_cast<WindowModelNotifierInterface*>(nativeInterface->nativeResourceForIntegration("WindowModel"));
+    auto windowModel = static_cast<WindowModelNotifierInterface*>(nativeInterface->nativeResourceForIntegration("WindowModelNotifier"));
     m_windowController = static_cast<WindowControllerInterface*>(nativeInterface->nativeResourceForIntegration("WindowController"));
 
     connect(windowModel, &WindowModelNotifierInterface::windowAdded,       this, &WindowModel::onWindowAdded);

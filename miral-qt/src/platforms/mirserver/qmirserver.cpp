@@ -117,8 +117,8 @@ void *QMirServer::nativeResourceForIntegration(const QByteArray &resource) const
             result = d->m_usingQtMirPromptSessionListener.promptSessionListener();
         else if (resource == "WindowController")
             result = d->m_usingQtMirWindowManager.windowController();
-        else if (resource == "WindowModel")
-            result = d->m_usingQtMirWindowManager.windowModel();
+        else if (resource == "WindowModelNotifier")
+            result = d->m_usingQtMirWindowManager.windowModelNotifier();
         else if (resource == "ScreensController")
             result = screensController().data();
     }

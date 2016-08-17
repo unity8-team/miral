@@ -105,7 +105,7 @@ PromptSessionListener *UsingQtMirPromptSessionListener::promptSessionListener()
 
 UsingQtMirWindowManager::UsingQtMirWindowManager(const QSharedPointer<ScreensModel> &model)
     : m_screensModel(model)
-    , m_policy(miral::set_window_managment_policy<WindowManagementPolicy>(m_windowModel, m_windowController, m_screensModel))
+    , m_policy(miral::set_window_managment_policy<WindowManagementPolicy>(m_windowModelNotifier, m_windowController, m_screensModel))
 {
 }
 
@@ -114,9 +114,9 @@ void UsingQtMirWindowManager::operator()(mir::Server& server)
     m_policy(server);
 }
 
-qtmir::WindowModelNotifierInterface *UsingQtMirWindowManager::windowModel()
+qtmir::WindowModelNotifierInterface *UsingQtMirWindowManager::windowModelNotifier()
 {
-    return &m_windowModel;
+    return &m_windowModelNotifier;
 }
 
 qtmir::WindowControllerInterface *UsingQtMirWindowManager::windowController()
