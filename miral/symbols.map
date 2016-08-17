@@ -53,6 +53,7 @@ global:
     miral::MirRunner::MirRunner*;
     miral::MirRunner::add_stop_callback*;
     miral::MirRunner::run_with*;
+    miral::MirRunner::set_exception_handler*;
     miral::MirRunner::stop*;
     miral::Output::?Output*;
     miral::Output::Output*;
