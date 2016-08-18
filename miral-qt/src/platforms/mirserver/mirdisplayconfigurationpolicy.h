@@ -19,7 +19,10 @@
 
 namespace mir { class Server; }
 
-void mir_display_configuration_policy(mir::Server& server);
+namespace qtmir
+{
+void setDisplayConfigurationPolicy(mir::Server& server);
+}
 
 
 #endif // MIRDISPLAYCONFIGURATIONPOLICY_H

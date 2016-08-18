@@ -16,12 +16,32 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#ifndef USING_QT_COMPOSITOR_H
-#define USING_QT_COMPOSITOR_H
+#ifndef QTMIR_SET_QT_COMPOSITOR_H
+#define QTMIR_SET_QT_COMPOSITOR_H
+
+#include <QSharedPointer>
+
+#include <memory>
 
 namespace mir { class Server; }
 
-// Configure the server for using the Qt compositor
-void usingQtCompositor(mir::Server& server);
+class QtCompositor;
+class ScreensModel;
 
-#endif //USING_QT_COMPOSITOR_H
+namespace qtmir
+{
+// Configure the server for using the Qt compositor
+class SetQtCompositor
+{
+public:
+    explicit SetQtCompositor(QSharedPointer<ScreensModel> const& screensModel);
+
+    void operator()(mir::Server& server);
+
+private:
+    QSharedPointer<ScreensModel> const m_screensModel;
+    std::weak_ptr<QtCompositor> m_compositor;
+};
+}
+
+#endif //QTMIR_SET_QT_COMPOSITOR_H
