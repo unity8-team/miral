@@ -10,8 +10,9 @@ add_executable(miral-test
     mru_window_list.cpp
     active_outputs.cpp
     persistent_surface_store.cpp
+    runner.cpp
     test_server.cpp         test_server.h
-        stop_callbacks.cpp)
+)
 
 target_link_libraries(miral-test
     ${MIRTEST_LDFLAGS}
