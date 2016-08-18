@@ -87,8 +87,7 @@ void MirServerThread::run()
         server->server = nullptr;
     });
 
-    // Ugly hack because MirRunner makes QMirServerPrivate non-copyable
-    auto initServerPrivate = [this](mir::Server& ms) { (*server)(ms); };
+    auto initServerPrivate = [this](mir::Server& ms) { server->init(ms); };
 
     server->runner.run_with(
         {
@@ -159,9 +158,9 @@ PromptSessionListener *QMirServerPrivate::promptSessionListener() const
     return self->m_promptSessionListener.lock().get();
 }
 
-void QMirServerPrivate::operator()(mir::Server& server)
+void QMirServerPrivate::init(mir::Server& server)
 {
-    this->server = & server;
+    this->server = &server;
 
     qtmir::SetSessionAuthorizer::operator()(server);
     server.override_the_session_listener([this]

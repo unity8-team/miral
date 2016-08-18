@@ -55,7 +55,7 @@ public:
     QSharedPointer<ScreensController> screensController;
     MirServerThread *serverThread;
 
-    void operator()(mir::Server& server);
+    void init(mir::Server& server);
 
     SessionListener *sessionListener() const;
     PromptSessionListener *promptSessionListener() const;
