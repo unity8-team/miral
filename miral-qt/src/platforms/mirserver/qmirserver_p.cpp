@@ -56,19 +56,6 @@ void MirServerThread::run()
         }
         qCDebug(QTMIR_MIR_MESSAGES) << "MirServer created";
         qCDebug(QTMIR_MIR_MESSAGES) << "Command line arguments passed to Qt:" << QCoreApplication::arguments();
-
-        auto const main_loop = server->server->the_main_loop();
-        // By enqueuing the notification code in the main loop, we are
-        // ensuring that the server has really and fully started before
-        // leaving wait_for_startup().
-        main_loop->enqueue(
-            this,
-            [&]
-            {
-                std::lock_guard<std::mutex> lock(mutex);
-                mir_running = true;
-                started_cv.notify_one();
-            });
     }};
 
     miral::SetTerminator setTerminator{[](int)
@@ -96,6 +83,19 @@ void MirServerThread::run()
         qCritical() << ex.what();
         exit(1);
     }
+
+    auto const main_loop = server->server->the_main_loop();
+    // By enqueuing the notification code in the main loop, we are
+    // ensuring that the server has really and fully started before
+    // leaving wait_for_startup().
+    main_loop->enqueue(
+        this,
+        [&]
+        {
+            std::lock_guard<std::mutex> lock(mutex);
+            mir_running = true;
+            started_cv.notify_one();
+        });
 
     server->server->run(); // blocks until Mir server stopped
     Q_EMIT stopped();
