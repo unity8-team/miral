@@ -41,6 +41,10 @@ public:
     MirRunner(int argc, char const* argv[], char const* config_file);
     ~MirRunner();
 
+    /// Add a callback to be invoked when the server has started,
+    /// If multiple callbacks are added they will be invoked in the sequence added.
+    void add_start_callback(std::function<void()> const& start_callback);
+
     /// Add a callback to be invoked when the server is about to stop,
     /// If multiple callbacks are added they will be invoked in the reverse sequence added.
     void add_stop_callback(std::function<void()> const& stop_callback);

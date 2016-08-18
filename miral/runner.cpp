@@ -19,6 +19,7 @@
 #include "miral/runner.h"
 
 #include <mir/server.h>
+#include <mir/main_loop.h>
 #include <mir/report_exception.h>
 #include <mir/options/option.h>
 #include <mir/version.h>
@@ -48,6 +49,7 @@ struct miral::MirRunner::Self
     std::string const config_file;
     
     std::mutex mutex;
+    std::function<void()> start_callback{[]{}};
     std::function<void()> stop_callback{[]{}};
     std::function<void()> exception_handler{static_cast<void(*)()>(mir::report_exception)};
     std::weak_ptr<mir::Server> weak_server;
@@ -206,7 +208,15 @@ try
     // before run() starts allocates resources and starts threads.
     launch_startup_applications(*server);
 
-    server->run();
+    {
+        // By enqueuing the notification code in the main loop, we are
+        // ensuring that the server has really and fully started.
+        auto const main_loop = server->the_main_loop();
+        main_loop->enqueue(this, start_callback);
+
+        server->run();
+    }
+
 
     return server->exited_normally() ? EXIT_SUCCESS : EXIT_FAILURE;
 }
@@ -214,6 +224,20 @@ catch (...)
 {
     exception_handler();
     return EXIT_FAILURE;
+}
+
+void miral::MirRunner::add_start_callback(std::function<void()> const& start_callback)
+{
+    std::lock_guard<decltype(self->mutex)> lock{self->mutex};
+    auto const& existing = self->start_callback;
+
+    auto const updated = [=]
+        {
+            existing();
+            start_callback();
+        };
+
+    self->start_callback = updated;
 }
 
 void miral::MirRunner::add_stop_callback(std::function<void()> const& stop_callback)
