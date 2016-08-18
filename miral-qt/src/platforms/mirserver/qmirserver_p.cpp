@@ -81,6 +81,10 @@ void MirServerThread::run()
 
     runner.add_start_callback([&]
     {
+        server->screensModel->update();
+        server->screensController = QSharedPointer<ScreensController>(
+                                   new ScreensController(server->screensModel, server->server->the_display(),
+                                                         server->server->the_display_configuration_controller()));
         std::lock_guard<std::mutex> lock(mutex);
         mir_running = true;
         started_cv.notify_one();
@@ -88,6 +92,7 @@ void MirServerThread::run()
 
     runner.add_stop_callback([&]
     {
+        server->screensController.clear();
         server->server = nullptr;
     });
 

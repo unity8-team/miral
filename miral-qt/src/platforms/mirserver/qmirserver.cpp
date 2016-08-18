@@ -54,10 +54,6 @@ bool QMirServer::start()
         qCritical() << "ERROR: QMirServer - Mir failed to start";
         return false;
     }
-    d->screensModel->update();
-    d->screensController = QSharedPointer<ScreensController>(
-                               new ScreensController(d->screensModel, d->server->the_display(),
-                                                     d->server->the_display_configuration_controller()));
     Q_EMIT started();
     return true;
 }
@@ -67,7 +63,6 @@ void QMirServer::stop()
     Q_D(QMirServer);
 
     if (d->serverThread->isRunning()) {
-        d->screensController.clear();
         d->serverThread->stop();
         if (!d->serverThread->wait(10000)) {
             // do something to indicate fail during shutdown
