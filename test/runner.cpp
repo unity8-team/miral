@@ -23,19 +23,27 @@
 
 namespace
 {
-struct StopCallbacks : miral::TestServer
+struct Runner : miral::TestServer
 {
     void SetUp() override
     {
-        runner.add_stop_callback([this] { callback(); });
-        miral::TestServer::SetUp();
     }
 
     MOCK_METHOD0(callback, void());
 };
 }
 
-TEST_F(StopCallbacks, are_called)
+TEST_F(Runner, stop_callback_is_called)
 {
+    runner.add_stop_callback([this] { callback(); });
+    miral::TestServer::SetUp();
     EXPECT_CALL(*this, callback());
+}
+
+TEST_F(Runner, start_callback_is_called)
+{
+    runner.add_start_callback([this] { callback(); });
+    EXPECT_CALL(*this, callback());
+    miral::TestServer::SetUp();
+    testing::Mock::VerifyAndClearExpectations(this);
 }

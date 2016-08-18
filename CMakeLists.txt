@@ -57,6 +57,8 @@ set(MIRAL_VERSION_PATCH 0)
 
 set(MIRAL_VERSION ${MIRAL_VERSION_MAJOR}.${MIRAL_VERSION_MINOR}.${MIRAL_VERSION_PATCH})
 
+find_package(GMock REQUIRED) # needed by both tests and miral-qt/tests
+
 add_subdirectory(miral)
 add_subdirectory(miral-shell)
 add_subdirectory(miral-kiosk)
