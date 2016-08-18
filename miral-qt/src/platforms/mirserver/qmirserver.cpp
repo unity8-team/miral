@@ -20,18 +20,18 @@
 #include <QOpenGLContext>
 
 // local
-#include "mirserver.h"
 #include "qmirserver.h"
 #include "qmirserver_p.h"
 #include "miropenglcontext.h"
 
+// mir (FIXME)
+#include <mir/server.h>
+
 QMirServer::QMirServer(int &argc, char **argv, QObject *parent)
     : QObject(parent)
-    , d_ptr(new QMirServerPrivate())
+    , d_ptr(new QMirServerPrivate(argc, const_cast<const char **>(argv)))
 {
     Q_D(QMirServer);
-
-    d->server = QSharedPointer<MirServer>(new MirServer());
 
     d->serverThread = new MirServerThread(argc, argv, d);
 

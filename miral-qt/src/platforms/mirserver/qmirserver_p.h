@@ -33,8 +33,8 @@
 
 //miral
 #include <miral/application_authorizer.h>
+#include <miral/runner.h>
 
-class MirServer;
 class QMirServer;
 class MirServerThread;
 class PromptSessionListener;
@@ -49,9 +49,9 @@ using SetSessionAuthorizer = miral::SetApplicationAuthorizer<SessionAuthorizer>;
 class QMirServerPrivate : private qtmir::SetSessionAuthorizer
 {
 public:
-    QMirServerPrivate();
+    QMirServerPrivate(int argc, char const* argv[]);
     const QSharedPointer<ScreensModel> screensModel{new ScreensModel()};
-    QSharedPointer<MirServer> server;
+    mir::Server* server{nullptr};
     QSharedPointer<ScreensController> screensController;
     MirServerThread *serverThread;
 
@@ -64,6 +64,7 @@ public:
 
     using qtmir::SetSessionAuthorizer::the_application_authorizer;
 
+    miral::MirRunner runner;
 private:
     struct Self;
     std::shared_ptr<Self> const self;

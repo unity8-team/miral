@@ -17,13 +17,9 @@
 #include "qmirserver_p.h"
 #include <QCoreApplication>
 
-// Mir
-#include <mir/main_loop.h>
-
 // local
 #include "logging.h"
 #include "mirdisplayconfigurationpolicy.h"
-#include "mirserver.h"
 #include "promptsessionlistener.h"
 #include "sessionlistener.h"
 #include "sessionauthorizer.h"
@@ -36,6 +32,9 @@
 #include <miral/set_command_line_hander.h>
 #include <miral/set_terminator.h>
 #include <miral/set_window_managment_policy.h>
+
+// mir (FIXME)
+#include <mir/server.h>
 
 void MirServerThread::run()
 {
@@ -66,45 +65,48 @@ void MirServerThread::run()
 
     qtmir::SetQtCompositor setQtCompositor{server->screensModel};
 
-    // Casting char** to be a const char** safe as Mir won't change it, nor will we
-    server->server->set_command_line(argc, const_cast<const char **>(argv));
+    server->runner.set_exception_handler([this]
+    {
+        try {
+            throw;
+        } catch (const std::exception &ex) {
+            qCritical() << ex.what();
+            exit(1);
+        }
+    });
 
-    // This should eventually be replaced by miral::MirRunner::run_with()
-    (*server)(*server->server);
-    mir_display_configuration_policy(*server->server);
-    setCommandLineHandler(*server->server);
-    addInitCallback(*server->server);
-    setQtCompositor(*server->server);
-    setTerminator(*server->server);
+    server->runner.add_start_callback([&]
+    {
+        std::lock_guard<std::mutex> lock(mutex);
+        mir_running = true;
+        started_cv.notify_one();
+    });
 
-    try {
-        server->server->apply_settings();
-    } catch (const std::exception &ex) {
-        qCritical() << ex.what();
-        exit(1);
-    }
+    server->runner.add_stop_callback([&]
+    {
+        server->server = nullptr;
+    });
 
-    auto const main_loop = server->server->the_main_loop();
-    // By enqueuing the notification code in the main loop, we are
-    // ensuring that the server has really and fully started before
-    // leaving wait_for_startup().
-    main_loop->enqueue(
-        this,
-        [&]
+    // Ugly hack because MirRunner makes QMirServerPrivate non-copyable
+    auto initServerPrivate = [this](mir::Server& ms) { (*server)(ms); };
+
+    server->runner.run_with(
         {
-            std::lock_guard<std::mutex> lock(mutex);
-            mir_running = true;
-            started_cv.notify_one();
+            initServerPrivate,
+            mir_display_configuration_policy,
+            setCommandLineHandler,
+            addInitCallback,
+            setQtCompositor,
+            setTerminator,
         });
 
-    server->server->run(); // blocks until Mir server stopped
     Q_EMIT stopped();
 }
 
 void MirServerThread::stop()
 {
     server->screensModel->terminate();
-    server->server->stop();
+    server->runner.stop();
 }
 
 bool MirServerThread::waitForMirStartup()
@@ -146,7 +148,8 @@ qtmir::WindowControllerInterface *QMirServerPrivate::windowController() const
     return &self->m_windowController;
 }
 
-QMirServerPrivate::QMirServerPrivate() :
+QMirServerPrivate::QMirServerPrivate(int argc, char const* argv[]) :
+    runner(argc, argv),
     self{std::make_shared<Self>(screensModel)}
 {
 }
@@ -158,6 +161,8 @@ PromptSessionListener *QMirServerPrivate::promptSessionListener() const
 
 void QMirServerPrivate::operator()(mir::Server& server)
 {
+    this->server = & server;
+
     qtmir::SetSessionAuthorizer::operator()(server);
     server.override_the_session_listener([this]
         {

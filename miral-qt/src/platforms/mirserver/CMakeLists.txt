@@ -64,7 +64,6 @@ set(MIRSERVER_QPA_PLUGIN_SRC
     sessionlistener.cpp
     surfaceobserver.cpp
     promptsessionlistener.cpp
-    mirserver.cpp
     mirserverstatuslistener.cpp
     screen.cpp
     screenwindow.cpp
