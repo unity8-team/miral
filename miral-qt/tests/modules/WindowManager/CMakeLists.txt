@@ -1,7 +1,7 @@
 set(
   MIR_WINDOW_MANAGER_TEST_SOURCES
 #  mirsurfaceitem_test.cpp #FIXME - reinstate these tests when functionality there
-  mirsurface_test.cpp
+#  mirsurface_test.cpp
   windowmodel_test.cpp
   ${MIRAL_QT_SOURCE_DIR}/src/common/debughelpers.cpp
 )
@@ -12,6 +12,7 @@ include_directories(
   ${MIRAL_QT_SOURCE_DIR}/src/platforms/mirserver
   ${MIRAL_QT_SOURCE_DIR}/tests/framework
   ${CMAKE_SOURCE_DIR}/include/miral   #FIXME
+  ${MIRTEST_INCLUDE_DIRS}
   ${MIRSERVER_INCLUDE_DIRS}
   ${Qt5Quick_PRIVATE_INCLUDE_DIRS}
 )
@@ -28,6 +29,7 @@ target_link_libraries(
   -L${CMAKE_BINARY_DIR}/miral-qt/tests/framework
   qtmir-test-framework-static
 
+  ${MIRTEST_LDFLAGS}
   ${GTEST_BOTH_LIBRARIES}
   ${GMOCK_LIBRARIES}
 )

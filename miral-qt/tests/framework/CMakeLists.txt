@@ -1,5 +1,6 @@
 include_directories(
     ${APPLICATION_API_INCLUDE_DIRS}
+    ${MIRAL_QT_SOURCE_DIR}/src/common
     ${MIRAL_QT_SOURCE_DIR}/src/platforms/mirserver
     ${MIRAL_QT_SOURCE_DIR}/src/modules
     ${MIRSERVER_INCLUDE_DIRS}
@@ -28,7 +29,9 @@ set(QTMIR_TEST_PRIVATE_SRC
     mock_shared_wakelock.cpp
     mock_surface.cpp
     mock_task_controller.cpp
+    mock_windowinfo.cpp
     stub_input_channel.cpp
+    stub_windowmodelnotifier.cpp
     fake_surface.h
     qtmir_test.cpp
 )
