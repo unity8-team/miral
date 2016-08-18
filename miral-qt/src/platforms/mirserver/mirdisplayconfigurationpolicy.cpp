@@ -114,7 +114,7 @@ void MirDisplayConfigurationPolicy::apply_to(mg::DisplayConfiguration &conf)
 }
 } //namespace
 
-void mir_display_configuration_policy(mir::Server& server)
+void qtmir::setDisplayConfigurationPolicy(mir::Server& server)
 {
     server.wrap_display_configuration_policy(
         [](const std::shared_ptr<mg::DisplayConfigurationPolicy> &wrapped)

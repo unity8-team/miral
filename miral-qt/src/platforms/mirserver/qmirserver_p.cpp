@@ -65,7 +65,11 @@ void MirServerThread::run()
 
     qtmir::SetQtCompositor setQtCompositor{server->screensModel};
 
-    server->runner.set_exception_handler([this]
+    auto initServerPrivate = [this](mir::Server& ms) { server->init(ms); };
+
+    auto& runner = server->runner;
+
+    runner.set_exception_handler([this]
     {
         try {
             throw;
@@ -75,24 +79,22 @@ void MirServerThread::run()
         }
     });
 
-    server->runner.add_start_callback([&]
+    runner.add_start_callback([&]
     {
         std::lock_guard<std::mutex> lock(mutex);
         mir_running = true;
         started_cv.notify_one();
     });
 
-    server->runner.add_stop_callback([&]
+    runner.add_stop_callback([&]
     {
         server->server = nullptr;
     });
 
-    auto initServerPrivate = [this](mir::Server& ms) { server->init(ms); };
-
-    server->runner.run_with(
+    runner.run_with(
         {
             initServerPrivate,
-            mir_display_configuration_policy,
+            qtmir::setDisplayConfigurationPolicy,
             setCommandLineHandler,
             addInitCallback,
             setQtCompositor,
