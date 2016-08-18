@@ -1,5 +1,3 @@
-find_package(GMock REQUIRED)
-
 include_directories(
         ${MIRTEST_INCLUDE_DIRS}
         ${GMOCK_INCLUDE_DIR}
