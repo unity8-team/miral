@@ -40,6 +40,8 @@ class MirServerThread;
 class PromptSessionListener;
 class SessionListener;
 class SessionAuthorizer;
+class QPlatformOpenGLContext;
+class QOpenGLContext;
 
 namespace qtmir
 {
@@ -61,6 +63,7 @@ public:
     PromptSessionListener *promptSessionListener() const;
     qtmir::WindowModelInterface *windowModel() const;
     qtmir::WindowControllerInterface *windowController() const;
+    QPlatformOpenGLContext *createPlatformOpenGLContext(QOpenGLContext *context) const;
 
     using qtmir::SetSessionAuthorizer::the_application_authorizer;
 

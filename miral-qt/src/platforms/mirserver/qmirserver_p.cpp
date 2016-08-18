@@ -16,6 +16,7 @@
 
 #include "qmirserver_p.h"
 #include <QCoreApplication>
+#include <QOpenGLContext>
 
 // local
 #include "logging.h"
@@ -26,6 +27,7 @@
 #include "windowmanagementpolicy.h"
 #include "argvHelper.h"
 #include "setqtcompositor.h"
+#include "miropenglcontext.h"
 
 // miral
 #include <miral/add_init_callback.h>
@@ -152,6 +154,11 @@ qtmir::WindowModelInterface *QMirServerPrivate::windowModel() const
 qtmir::WindowControllerInterface *QMirServerPrivate::windowController() const
 {
     return &self->m_windowController;
+}
+
+QPlatformOpenGLContext *QMirServerPrivate::createPlatformOpenGLContext(QOpenGLContext *context) const
+{
+    return new MirOpenGLContext(*server->the_display(), *server->the_gl_config(), context->format());
 }
 
 QMirServerPrivate::QMirServerPrivate(int argc, char const* argv[]) :

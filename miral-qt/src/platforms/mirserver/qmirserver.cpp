@@ -17,12 +17,10 @@
 // Qt
 #include <QObject>
 #include <QDebug>
-#include <QOpenGLContext>
 
 // local
 #include "qmirserver.h"
 #include "qmirserver_p.h"
-#include "miropenglcontext.h"
 
 // mir (FIXME)
 #include <mir/server.h>
@@ -93,7 +91,7 @@ QWeakPointer<ScreensController> QMirServer::screensController() const
 QPlatformOpenGLContext *QMirServer::createPlatformOpenGLContext(QOpenGLContext *context) const
 {
     Q_D(const QMirServer);
-    return new MirOpenGLContext(*d->server->the_display(), *d->server->the_gl_config(), context->format());
+    return d->createPlatformOpenGLContext(context);
 }
 
 void *QMirServer::nativeResourceForIntegration(const QByteArray &resource) const
