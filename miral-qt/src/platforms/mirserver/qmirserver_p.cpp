@@ -148,12 +148,12 @@ QMirServerPrivate::Self::Self(const QSharedPointer<ScreensModel> &model)
 
 qtmir::WindowModelInterface *QMirServerPrivate::windowModel() const
 {
-    return &self->m_windowModel;
+    return server ? &self->m_windowModel : nullptr;
 }
 
 qtmir::WindowControllerInterface *QMirServerPrivate::windowController() const
 {
-    return &self->m_windowController;
+    return server ? &self->m_windowController : nullptr;
 }
 
 QPlatformOpenGLContext *QMirServerPrivate::createPlatformOpenGLContext(QOpenGLContext *context) const
