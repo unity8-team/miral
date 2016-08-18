@@ -161,6 +161,11 @@ QPlatformOpenGLContext *QMirServerPrivate::createPlatformOpenGLContext(QOpenGLCo
     return new MirOpenGLContext(*server->the_display(), *server->the_gl_config(), context->format());
 }
 
+std::shared_ptr<mir::scene::PromptSessionManager> QMirServerPrivate::thePromptSessionManager() const
+{
+    return server->the_prompt_session_manager();
+}
+
 QMirServerPrivate::QMirServerPrivate(int argc, char const* argv[]) :
     runner(argc, argv),
     self{std::make_shared<Self>(screensModel)}

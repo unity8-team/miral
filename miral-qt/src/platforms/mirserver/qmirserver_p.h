@@ -35,6 +35,8 @@
 #include <miral/application_authorizer.h>
 #include <miral/runner.h>
 
+namespace mir { namespace scene { class PromptSessionManager; }}
+
 class QMirServer;
 class MirServerThread;
 class PromptSessionListener;
@@ -64,6 +66,7 @@ public:
     qtmir::WindowModelInterface *windowModel() const;
     qtmir::WindowControllerInterface *windowController() const;
     QPlatformOpenGLContext *createPlatformOpenGLContext(QOpenGLContext *context) const;
+    std::shared_ptr<mir::scene::PromptSessionManager> thePromptSessionManager() const;
 
     using qtmir::SetSessionAuthorizer::the_application_authorizer;
 

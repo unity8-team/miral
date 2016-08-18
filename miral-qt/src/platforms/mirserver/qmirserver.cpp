@@ -22,8 +22,6 @@
 #include "qmirserver.h"
 #include "qmirserver_p.h"
 
-// mir (FIXME)
-#include <mir/server.h>
 
 QMirServer::QMirServer(int &argc, char **argv, QObject *parent)
     : QObject(parent)
@@ -120,5 +118,5 @@ std::shared_ptr<mir::scene::PromptSessionManager> QMirServer::thePromptSessionMa
 {
     Q_D(const QMirServer);
 
-    return d->server->the_prompt_session_manager();
+    return d->thePromptSessionManager();
 }
