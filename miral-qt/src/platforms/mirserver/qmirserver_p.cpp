@@ -34,9 +34,6 @@
 #include <miral/set_command_line_hander.h>
 #include <miral/set_terminator.h>
 
-// mir (FIXME)
-#include <mir/server.h>
-
 void MirServerThread::run()
 {
     auto start_callback = [this]
@@ -85,7 +82,6 @@ std::shared_ptr<mir::scene::PromptSessionManager> QMirServerPrivate::thePromptSe
 
 QMirServerPrivate::QMirServerPrivate(int argc, char *argv[]) :
     runner(argc, const_cast<const char **>(argv)),
-    m_policy(miral::set_window_managment_policy<WindowManagementPolicy>(m_windowModel, m_windowController, screensModel)),
     argc{argc}, argv{argv}
 {
 }
@@ -124,6 +120,10 @@ void QMirServerPrivate::run(std::function<void()> const& start_callback)
 
     qtmir::SetQtCompositor setQtCompositor{screensModel};
 
+    miral::SetWindowManagmentPolicy setWindowManagmentPolicy{
+        miral::set_window_managment_policy<WindowManagementPolicy>(m_windowModel, m_windowController, screensModel)
+    };
+
     auto initServerPrivate = [this](mir::Server& ms) { init(ms); };
 
     runner.set_exception_handler([this]
@@ -157,6 +157,7 @@ void QMirServerPrivate::run(std::function<void()> const& start_callback)
         {
             static_cast<qtmir::SetSessionAuthorizer&>(*this),
             initServerPrivate,
+            setWindowManagmentPolicy,
             qtmir::setDisplayConfigurationPolicy,
             setCommandLineHandler,
             addInitCallback,
@@ -164,6 +165,14 @@ void QMirServerPrivate::run(std::function<void()> const& start_callback)
             setTerminator,
         });
 }
+
+void QMirServerPrivate::stop()
+{
+    runner.stop();
+}
+
+// mir (FIXME)
+#include <mir/server.h>
 
 void QMirServerPrivate::init(mir::Server& server)
 {
@@ -181,8 +190,6 @@ void QMirServerPrivate::init(mir::Server& server)
             return result;
         });
 
-    m_policy(server);
-
     server.add_init_callback([this, &server]
         {
             m_mirDisplay = server.the_display();
@@ -190,9 +197,4 @@ void QMirServerPrivate::init(mir::Server& server)
             m_mirDisplayConfigurationController = server.the_display_configuration_controller();
             m_mirPromptSessionManager = server.the_prompt_session_manager();
         });
-}
-
-void QMirServerPrivate::stop()
-{
-    runner.stop();
 }

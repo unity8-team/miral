@@ -75,7 +75,6 @@ private:
     void init(mir::Server& server);
 
     miral::MirRunner runner;
-    miral::SetWindowManagmentPolicy m_policy;
     mutable qtmir::WindowController m_windowController;
     mutable qtmir::WindowModel m_windowModel;
     std::weak_ptr<SessionListener> m_sessionListener;
