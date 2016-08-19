@@ -49,8 +49,7 @@ class MirSurface : public MirSurfaceInterface
 
 public:
     MirSurface(WindowInfo windowInfo,
-               WindowControllerInterface *controller,
-               std::shared_ptr<SurfaceObserver> observer);
+               WindowControllerInterface *controller);
     virtual ~MirSurface();
 
     ////
@@ -157,6 +156,7 @@ public:
 
     // useful for tests
     void setCloseTimer(AbstractTimer *timer);
+    std::shared_ptr<SurfaceObserver> surfaceObserver() const;
 
 public Q_SLOTS:
     void onCompositorSwappedBuffers() override;

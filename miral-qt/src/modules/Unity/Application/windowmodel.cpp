@@ -17,7 +17,6 @@
 #include "windowmodel.h"
 
 #include "mirsurface.h"
-#include "surfaceobserver.h"
 
 #include <mir/scene/surface.h>
 
@@ -60,13 +59,7 @@ QHash<int, QByteArray> WindowModel::roleNames() const
 void WindowModel::onWindowAdded(const WindowInfo windowInfo, const unsigned int index)
 {
     qDebug() << "Window Added!" << index;
-    std::shared_ptr<SurfaceObserver> surfaceObserver = std::make_shared<SurfaceObserver>();
-
-    const auto &surface = static_cast<std::shared_ptr<mir::scene::Surface>>(windowInfo.window);
-    SurfaceObserver::registerObserverForSurface(surfaceObserver.get(), surface.get());
-    surface->add_observer(surfaceObserver);
-
-    auto mirSurface = new MirSurface(windowInfo, m_windowController, surfaceObserver);
+    auto mirSurface = new MirSurface(windowInfo, m_windowController);
     beginInsertRows(QModelIndex(), index, index);
     m_windowModel.insert(index, mirSurface);
     endInsertRows();
