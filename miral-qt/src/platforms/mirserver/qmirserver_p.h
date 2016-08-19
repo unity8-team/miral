@@ -80,10 +80,10 @@ private:
     mutable qtmir::WindowModel m_windowModel;
     std::weak_ptr<SessionListener> m_sessionListener;
     std::weak_ptr<PromptSessionListener> m_promptSessionListener;
-    std::shared_ptr<mir::graphics::Display> m_mirDisplay;
+    std::weak_ptr<mir::graphics::Display> m_mirDisplay;
     std::shared_ptr<mir::graphics::GLConfig> m_mirGLConfig;
-    std::shared_ptr<mir::shell::DisplayConfigurationController> m_mirDisplayConfigurationController;
-    std::shared_ptr<mir::scene::PromptSessionManager> m_mirPromptSessionManager;
+    std::weak_ptr<mir::shell::DisplayConfigurationController> m_mirDisplayConfigurationController;
+    std::weak_ptr<mir::scene::PromptSessionManager> m_mirPromptSessionManager;
     int &argc;
     char **argv;
 };

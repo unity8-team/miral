@@ -75,12 +75,12 @@ qtmir::WindowControllerInterface *QMirServerPrivate::windowController() const
 
 QPlatformOpenGLContext *QMirServerPrivate::createPlatformOpenGLContext(QOpenGLContext *context) const
 {
-    return new MirOpenGLContext(*m_mirDisplay, *m_mirGLConfig, context->format());
+    return new MirOpenGLContext(*m_mirDisplay.lock(), *m_mirGLConfig, context->format());
 }
 
 std::shared_ptr<mir::scene::PromptSessionManager> QMirServerPrivate::thePromptSessionManager() const
 {
-    return m_mirPromptSessionManager;
+    return m_mirPromptSessionManager.lock();
 }
 
 QMirServerPrivate::QMirServerPrivate(int argc, char *argv[]) :
@@ -140,7 +140,8 @@ void QMirServerPrivate::run(std::function<void()> const& start_callback)
     {
         screensModel->update();
         screensController = QSharedPointer<ScreensController>(
-                                   new ScreensController(screensModel, m_mirDisplay, m_mirDisplayConfigurationController));
+                                   new ScreensController(screensModel, m_mirDisplay.lock(),
+                                                         m_mirDisplayConfigurationController.lock()));
     });
 
     runner.add_start_callback(start_callback);
@@ -149,14 +150,12 @@ void QMirServerPrivate::run(std::function<void()> const& start_callback)
     {
         screensModel->terminate();
         screensController.clear();
-        m_mirDisplay.reset();
         m_mirGLConfig.reset();
-        m_mirDisplayConfigurationController.reset();
-        m_mirPromptSessionManager.reset();
     });
 
     runner.run_with(
         {
+            static_cast<qtmir::SetSessionAuthorizer&>(*this),
             initServerPrivate,
             qtmir::setDisplayConfigurationPolicy,
             setCommandLineHandler,
@@ -168,7 +167,6 @@ void QMirServerPrivate::run(std::function<void()> const& start_callback)
 
 void QMirServerPrivate::init(mir::Server& server)
 {
-    qtmir::SetSessionAuthorizer::operator()(server);
     server.override_the_session_listener([this]
         {
             auto const result = std::make_shared<SessionListener>();
