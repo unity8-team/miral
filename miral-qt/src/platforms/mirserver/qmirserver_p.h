@@ -28,7 +28,7 @@
 // local
 #include "screenscontroller.h"
 #include "windowcontroller.h"
-#include "windowmodel.h"
+#include "windowmodelnotifier.h"
 #include "sessionauthorizer.h"
 
 //miral
@@ -64,7 +64,7 @@ public:
 
     SessionListener *sessionListener() const;
     PromptSessionListener *promptSessionListener() const;
-    qtmir::WindowModelInterface *windowModel() const;
+    qtmir::WindowModelNotifierInterface *windowModelNotifier() const;
     qtmir::WindowControllerInterface *windowController() const;
     QPlatformOpenGLContext *createPlatformOpenGLContext(QOpenGLContext *context) const;
     std::shared_ptr<mir::scene::PromptSessionManager> thePromptSessionManager() const;
@@ -76,7 +76,7 @@ private:
 
     miral::MirRunner runner;
     mutable qtmir::WindowController m_windowController;
-    mutable qtmir::WindowModel m_windowModel;
+    mutable qtmir::WindowModelNotifier m_windowModelNotifier;
     std::weak_ptr<SessionListener> m_sessionListener;
     std::weak_ptr<PromptSessionListener> m_promptSessionListener;
     std::weak_ptr<mir::graphics::Display> m_mirDisplay;

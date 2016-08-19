@@ -32,7 +32,8 @@
 #include "mirbuffersgtexture.h"
 #include "session.h"
 #include "windowcontrollerinterface.h"
-#include "windowmodelinterface.h"
+#include "windowmodelnotifierinterface.h"
+
 // mir
 #include <mir_toolkit/common.h>
 
@@ -49,8 +50,7 @@ class MirSurface : public MirSurfaceInterface
 
 public:
     MirSurface(WindowInfo windowInfo,
-               WindowControllerInterface *controller,
-               std::shared_ptr<SurfaceObserver> observer);
+               WindowControllerInterface *controller);
     virtual ~MirSurface();
 
     ////
@@ -157,6 +157,7 @@ public:
 
     // useful for tests
     void setCloseTimer(AbstractTimer *timer);
+    std::shared_ptr<SurfaceObserver> surfaceObserver() const;
 
 public Q_SLOTS:
     void onCompositorSwappedBuffers() override;

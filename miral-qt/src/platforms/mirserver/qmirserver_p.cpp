@@ -60,9 +60,9 @@ SessionListener *QMirServerPrivate::sessionListener() const
     return m_sessionListener.lock().get();
 }
 
-qtmir::WindowModelInterface *QMirServerPrivate::windowModel() const
+qtmir::WindowModelNotifierInterface *QMirServerPrivate::windowModelNotifier() const
 {
-    return &m_windowModel;
+    return &m_windowModelNotifier;
 }
 
 qtmir::WindowControllerInterface *QMirServerPrivate::windowController() const
@@ -149,7 +149,7 @@ void QMirServerPrivate::run(std::function<void()> const& start_callback)
         {
             static_cast<qtmir::SetSessionAuthorizer&>(*this),
             [this](mir::Server& ms) { init(ms); },
-            miral::set_window_managment_policy<WindowManagementPolicy>(m_windowModel, m_windowController, screensModel),
+            miral::set_window_managment_policy<WindowManagementPolicy>(m_windowModelNotifier, m_windowController, screensModel),
             qtmir::setDisplayConfigurationPolicy,
             setCommandLineHandler,
             addInitCallback,

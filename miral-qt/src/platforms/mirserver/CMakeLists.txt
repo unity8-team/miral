@@ -79,14 +79,14 @@ set(MIRSERVER_QPA_PLUGIN_SRC
     creationhints.cpp
     windowcontroller.cpp
     windowmanagementpolicy.cpp
-    windowmodel.cpp
+    windowmodelnotifier.cpp
     tracepoints.c
     setqtcompositor.cpp setqtcompositor.h
 # We need to run moc on these headers
     ${APPLICATION_API_INCLUDEDIR}/unity/shell/application/Mir.h
     ${APPLICATION_API_INCLUDEDIR}/unity/shell/application/MirMousePointerInterface.h
     ${MIRAL_QT_SOURCE_DIR}/src/common/windowcontrollerinterface.h
-    ${MIRAL_QT_SOURCE_DIR}/src/common/windowmodelinterface.h
+    ${MIRAL_QT_SOURCE_DIR}/src/common/windowmodelnotifierinterface.h
     )
 
 add_library(qpa-mirserver SHARED
