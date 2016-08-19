@@ -118,14 +118,6 @@ void QMirServerPrivate::run(std::function<void()> const& start_callback)
         QCoreApplication::quit();
     }};
 
-    qtmir::SetQtCompositor setQtCompositor{screensModel};
-
-    miral::SetWindowManagmentPolicy setWindowManagmentPolicy{
-        miral::set_window_managment_policy<WindowManagementPolicy>(m_windowModel, m_windowController, screensModel)
-    };
-
-    auto initServerPrivate = [this](mir::Server& ms) { init(ms); };
-
     runner.set_exception_handler([this]
     {
         try {
@@ -156,12 +148,12 @@ void QMirServerPrivate::run(std::function<void()> const& start_callback)
     runner.run_with(
         {
             static_cast<qtmir::SetSessionAuthorizer&>(*this),
-            initServerPrivate,
-            setWindowManagmentPolicy,
+            [this](mir::Server& ms) { init(ms); },
+            miral::set_window_managment_policy<WindowManagementPolicy>(m_windowModel, m_windowController, screensModel),
             qtmir::setDisplayConfigurationPolicy,
             setCommandLineHandler,
             addInitCallback,
-            setQtCompositor,
+            qtmir::SetQtCompositor{screensModel},
             setTerminator,
         });
 }
