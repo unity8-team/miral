@@ -27,27 +27,25 @@
 
 struct qtmir::OpenGLContextFactory::Self
 {
-    std::shared_ptr<mir::graphics::GLConfig> m_mirGLConfig;
+    std::shared_ptr<MirGLConfig> m_glConfig;
 };
 
 qtmir::OpenGLContextFactory::OpenGLContextFactory() :
     self{std::make_shared<Self>()}
-{}
+{
+}
 
 void qtmir::OpenGLContextFactory::operator()(mir::Server& server)
 {
     server.override_the_gl_config([this]
-        {
-            auto result = std::make_shared<MirGLConfig>();
-            self->m_mirGLConfig = result;
-            return result;
-        });
-
-
+        { return self->m_glConfig = std::make_shared<MirGLConfig>(); });
 }
 
-QPlatformOpenGLContext *qtmir::OpenGLContextFactory::createPlatformOpenGLContext(QSurfaceFormat format, mir::graphics::Display &mirDisplay) const
+QPlatformOpenGLContext *qtmir::OpenGLContextFactory::createPlatformOpenGLContext(
+    QSurfaceFormat format, mir::graphics::Display &mirDisplay) const
 {
-    return new MirOpenGLContext(mirDisplay, *self->m_mirGLConfig, format);
+    if (!self->m_glConfig)
+        throw std::logic_error("No gl config available. Server not running?");
 
+    return new MirOpenGLContext(mirDisplay, *self->m_glConfig, format);
 }

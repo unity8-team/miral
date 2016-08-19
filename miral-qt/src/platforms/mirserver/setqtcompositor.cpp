@@ -19,34 +19,12 @@
 #include "setqtcompositor.h"
 
 // local
-#include "mircursorimages.h"
-#include "mirserverstatuslistener.h"
 #include "qtcompositor.h"
 #include "screensmodel.h"
 
 // mir
-#include <mir/graphics/cursor.h>
 #include <mir/server.h>
 #include <mir/shell/shell.h>
-
-namespace mg = mir::graphics;
-
-namespace
-{
-struct HiddenCursorWrapper : mg::Cursor
-{
-    HiddenCursorWrapper(std::shared_ptr<mg::Cursor> const& wrapped) :
-        wrapped{wrapped} { wrapped->hide(); }
-    void show() override { }
-    void show(mg::CursorImage const&) override { }
-    void hide() override { wrapped->hide(); }
-
-    void move_to(mir::geometry::Point position) override { wrapped->move_to(position); }
-
-private:
-    std::shared_ptr<mg::Cursor> const wrapped;
-};
-}
 
 qtmir::SetQtCompositor::SetQtCompositor(QSharedPointer<ScreensModel> const& screensModel) :
     m_screensModel{screensModel}
@@ -61,15 +39,6 @@ void qtmir::SetQtCompositor::operator()(mir::Server& server)
         m_compositor = result;
         return result;
     });
-
-    server.override_the_server_status_listener([]
-        { return std::make_shared<MirServerStatusListener>(); });
-
-    server.override_the_cursor_images([]
-        { return std::make_shared<qtmir::MirCursorImages>(); });
-
-    server.wrap_cursor([&](std::shared_ptr<mg::Cursor> const& wrapped)
-        { return std::make_shared<HiddenCursorWrapper>(wrapped); });
 
     server.add_init_callback([&, this]
         {

@@ -162,11 +162,43 @@ void QMirServerPrivate::stop()
     runner.stop();
 }
 
+#include "mircursorimages.h"
+#include "mirserverstatuslistener.h"
+
 // mir (FIXME)
+#include <mir/graphics/cursor.h>
 #include <mir/server.h>
+
+namespace mg = mir::graphics;
+
+namespace
+{
+struct HiddenCursorWrapper : mg::Cursor
+{
+    HiddenCursorWrapper(std::shared_ptr<mg::Cursor> const& wrapped) :
+        wrapped{wrapped} { wrapped->hide(); }
+    void show() override { }
+    void show(mg::CursorImage const&) override { }
+    void hide() override { wrapped->hide(); }
+
+    void move_to(mir::geometry::Point position) override { wrapped->move_to(position); }
+
+private:
+    std::shared_ptr<mg::Cursor> const wrapped;
+};
+}
 
 void QMirServerPrivate::init(mir::Server& server)
 {
+    server.override_the_server_status_listener([]
+        { return std::make_shared<MirServerStatusListener>(); });
+
+    server.override_the_cursor_images([]
+        { return std::make_shared<qtmir::MirCursorImages>(); });
+
+    server.wrap_cursor([&](std::shared_ptr<mg::Cursor> const& wrapped)
+        { return std::make_shared<HiddenCursorWrapper>(wrapped); });
+
     server.override_the_session_listener([this]
         {
             auto const result = std::make_shared<SessionListener>();
