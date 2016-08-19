@@ -37,12 +37,8 @@
 #include <miral/application_authorizer.h>
 #include <miral/runner.h>
 
-namespace mir { namespace scene { class PromptSessionManager; }}
-
 class QMirServer;
 class MirServerThread;
-class PromptSessionListener;
-class SessionListener;
 class SessionAuthorizer;
 class QOpenGLContext;
 
