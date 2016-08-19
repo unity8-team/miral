@@ -14,10 +14,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WINDOWMODEL_H
-#define WINDOWMODEL_H
+#ifndef WINDOWMODELNOTIFIER_H
+#define WINDOWMODELNOTIFIER_H
 
-#include "windowmodelinterface.h"
+#include "windowmodelnotifierinterface.h"
 
 #include "miral/window_info.h"
 
@@ -25,12 +25,12 @@
 
 namespace qtmir {
 
-class WindowModel : public WindowModelInterface
+class WindowModelNotifier : public WindowModelNotifierInterface
 {
     Q_OBJECT
 public:
-    WindowModel();
-    virtual ~WindowModel();
+    WindowModelNotifier();
+    virtual ~WindowModelNotifier();
 
     void addWindow(const miral::WindowInfo &windowInfo);
     void removeWindow(const miral::WindowInfo &windowInfo);
@@ -48,4 +48,4 @@ private:
 
 } // namespace qtmir
 
-#endif // WINDOWMODEL_H
+#endif // WINDOWMODELNOTIFIER_H

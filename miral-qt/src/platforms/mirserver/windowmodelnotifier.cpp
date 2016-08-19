@@ -14,14 +14,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "windowmodel.h"
+#include "windowmodelnotifier.h"
 
 #include "mirqtconversion.h"
 #include <QDebug>
 
 /*
- * WindowModel - tracks Mir Window Manager operations and duplicates the window stack
- * that Mir has created internally. Any changes to this model are emitted as change
+ * WindowModelNotifier - tracks Mir Window Manager operations and duplicates the window stack
+ * that Mir has created internally. Any changes to this model are emitted as notify
  * signals to the Qt GUI thread which will effectively duplicate this model again.
  *
  * Use a window ID as a shared identifier between this Mir-side model and the Qt-side model
@@ -29,29 +29,29 @@
 
 using namespace qtmir;
 
-WindowModel::WindowModel()
+WindowModelNotifier::WindowModelNotifier()
 {
-    qDebug("WindowModel::WindowModel");
+    qDebug("WindowModelNotifier::WindowModelNotifier");
     qRegisterMetaType<qtmir::WindowInfo>();
 }
 
-WindowModel::~WindowModel()
+WindowModelNotifier::~WindowModelNotifier()
 {
 
 }
 
-void WindowModel::addWindow(const miral::WindowInfo &windowInfo)
+void WindowModelNotifier::addWindow(const miral::WindowInfo &windowInfo)
 {
-    qDebug("WindowModel::addWindow");
+    qDebug("WindowModelNotifier::addWindow");
     auto stackPosition = static_cast<unsigned int>(m_windowStack.count());
     m_windowStack.push_back(windowInfo.window()); // ASSUMPTION: Mir should tell us where in stack
 
     Q_EMIT windowAdded(windowInfo, stackPosition);
 }
 
-void WindowModel::removeWindow(const miral::WindowInfo &windowInfo)
+void WindowModelNotifier::removeWindow(const miral::WindowInfo &windowInfo)
 {
-    qDebug("WindowModel::removeWindow");
+    qDebug("WindowModelNotifier::removeWindow");
     const int pos = m_windowStack.indexOf(windowInfo.window());
     if (pos < 0) {
         qDebug("Unknown window removed");
@@ -62,7 +62,7 @@ void WindowModel::removeWindow(const miral::WindowInfo &windowInfo)
     Q_EMIT windowRemoved(upos);
 }
 
-void WindowModel::focusWindow(const miral::WindowInfo &windowInfo, const bool focus)
+void WindowModelNotifier::focusWindow(const miral::WindowInfo &windowInfo, const bool focus)
 {
     const int pos = m_windowStack.indexOf(windowInfo.window());
     if (pos < 0) {
@@ -77,7 +77,7 @@ void WindowModel::focusWindow(const miral::WindowInfo &windowInfo, const bool fo
     }
 }
 
-void WindowModel::moveWindow(const miral::WindowInfo &windowInfo, mir::geometry::Point topLeft)
+void WindowModelNotifier::moveWindow(const miral::WindowInfo &windowInfo, mir::geometry::Point topLeft)
 {
     const int pos = m_windowStack.indexOf(windowInfo.window());
     if (pos < 0) {
@@ -90,7 +90,7 @@ void WindowModel::moveWindow(const miral::WindowInfo &windowInfo, mir::geometry:
     Q_EMIT windowMoved(toQPoint(topLeft), upos);
 }
 
-void WindowModel::resizeWindow(const miral::WindowInfo &windowInfo, mir::geometry::Size newSize)
+void WindowModelNotifier::resizeWindow(const miral::WindowInfo &windowInfo, mir::geometry::Size newSize)
 {
     const int pos = m_windowStack.indexOf(windowInfo.window());
     if (pos < 0) {
@@ -103,7 +103,7 @@ void WindowModel::resizeWindow(const miral::WindowInfo &windowInfo, mir::geometr
     Q_EMIT windowResized(toQSize(newSize), upos);
 }
 
-void WindowModel::raiseWindows(const std::vector<miral::Window> &/*windows*/)
+void WindowModelNotifier::raiseWindows(const std::vector<miral::Window> &/*windows*/)
 {
 
 }

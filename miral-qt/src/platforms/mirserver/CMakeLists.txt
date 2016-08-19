@@ -79,7 +79,7 @@ set(MIRSERVER_QPA_PLUGIN_SRC
     creationhints.cpp
     windowcontroller.cpp
     windowmanagementpolicy.cpp
-    windowmodel.cpp
+    windowmodelnotifier.cpp
     tracepoints.c
     mirserverhooks.cpp mirserverhooks.h
     openglcontextfactory.cpp openglcontextfactory.h
@@ -88,7 +88,7 @@ set(MIRSERVER_QPA_PLUGIN_SRC
     ${APPLICATION_API_INCLUDEDIR}/unity/shell/application/Mir.h
     ${APPLICATION_API_INCLUDEDIR}/unity/shell/application/MirMousePointerInterface.h
     ${MIRAL_QT_SOURCE_DIR}/src/common/windowcontrollerinterface.h
-    ${MIRAL_QT_SOURCE_DIR}/src/common/windowmodelinterface.h
+    ${MIRAL_QT_SOURCE_DIR}/src/common/windowmodelnotifierinterface.h
 )
 
 add_library(qpa-mirserver SHARED

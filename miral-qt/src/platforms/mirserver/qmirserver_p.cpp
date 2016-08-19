@@ -136,7 +136,7 @@ void QMirServerPrivate::run(std::function<void()> const& start_callback)
             m_sessionAuthorizer,
             m_openGLContextFactory,
             m_mirServerHooks,
-            miral::set_window_managment_policy<WindowManagementPolicy>(m_windowModel, m_windowController, screensModel),
+            miral::set_window_managment_policy<WindowManagementPolicy>(m_windowModelNotifier, m_windowController, screensModel),
             qtmir::setDisplayConfigurationPolicy,
             setCommandLineHandler,
             addInitCallback,

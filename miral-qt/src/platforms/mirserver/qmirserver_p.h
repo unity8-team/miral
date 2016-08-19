@@ -29,7 +29,7 @@
 #include "openglcontextfactory.h"
 #include "screensmodel.h"
 #include "windowcontroller.h"
-#include "windowmodel.h"
+#include "windowmodelnotifier.h"
 #include "sessionauthorizer.h"
 #include "mirserverhooks.h"
 
@@ -67,8 +67,8 @@ public:
     auto the_application_authorizer() const -> std::shared_ptr<SessionAuthorizer>
         { return m_sessionAuthorizer.the_custom_application_authorizer(); }
 
-    qtmir::WindowModelInterface *windowModel() const
-        { return &m_windowModel; }
+    qtmir::WindowModelNotifierInterface *windowModelNotifier() const
+        { return &m_windowModelNotifier; }
 
     qtmir::WindowControllerInterface *windowController() const
         { return &m_windowController; }
@@ -80,9 +80,8 @@ private:
 
     miral::MirRunner runner;
 
-    mutable qtmir::WindowModel      m_windowModel;
+    mutable qtmir::WindowModelNotifier m_windowModelNotifier;
     mutable qtmir::WindowController m_windowController;
-
     int &argc;
     char **argv;
 };
