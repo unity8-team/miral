@@ -25,11 +25,11 @@
 
 QMirServer::QMirServer(int &argc, char **argv, QObject *parent)
     : QObject(parent)
-    , d_ptr(new QMirServerPrivate(argc, const_cast<const char **>(argv)))
+    , d_ptr(new QMirServerPrivate(argc, argv))
 {
     Q_D(QMirServer);
 
-    d->serverThread = new MirServerThread(argc, argv, d);
+    d->serverThread = new MirServerThread(d);
 
     connect(d->serverThread, &MirServerThread::stopped, this, &QMirServer::stopped);
 }

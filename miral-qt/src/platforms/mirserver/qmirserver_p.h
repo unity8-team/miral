@@ -54,7 +54,7 @@ using SetSessionAuthorizer = miral::SetApplicationAuthorizer<SessionAuthorizer>;
 class QMirServerPrivate : private qtmir::SetSessionAuthorizer
 {
 public:
-    QMirServerPrivate(int argc, char const* argv[]);
+    QMirServerPrivate(int argc, char* argv[]);
     const QSharedPointer<ScreensModel> screensModel{new ScreensModel()};
     mir::Server* server{nullptr};
     QSharedPointer<ScreensController> screensController;
@@ -62,6 +62,7 @@ public:
 
     void init(mir::Server& server);
 
+    void run();
     void stop();
 
     SessionListener *sessionListener() const;
@@ -80,6 +81,8 @@ private:
     mutable qtmir::WindowModel m_windowModel;
     std::weak_ptr<SessionListener> m_sessionListener;
     std::weak_ptr<PromptSessionListener> m_promptSessionListener;
+    int &argc;
+    char **argv;
 };
 
 class MirServerThread : public QThread
@@ -87,8 +90,8 @@ class MirServerThread : public QThread
     Q_OBJECT
 
 public:
-    MirServerThread(int &argc, char **argv, QMirServerPrivate* server)
-        : argc{argc}, argv{argv}, server(server)
+    MirServerThread(QMirServerPrivate* server)
+        : server(server)
     {}
 
     bool waitForMirStartup();
@@ -104,8 +107,6 @@ private:
     std::condition_variable started_cv;
     bool mir_running{false};
 
-    int &argc;
-    char **argv;
     QMirServerPrivate* const server;
 };
 

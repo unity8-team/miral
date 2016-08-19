@@ -39,73 +39,14 @@
 
 void MirServerThread::run()
 {
-    bool unknownArgsFound = false;
-
-    miral::SetCommandLineHandler setCommandLineHandler{[this, &unknownArgsFound](int filteredCount, const char* const filteredArgv[])
+    server->runner.add_start_callback([&]
     {
-        unknownArgsFound = true;
-        // Want to edit argv to match that which Mir returns, as those are for to Qt alone to process. Edit existing
-        // argc as filteredArgv only defined in this scope.
-        qtmir::editArgvToMatch(argc, argv, filteredCount, filteredArgv);
-    }};
-
-    miral::AddInitCallback addInitCallback{[&, this]
-    {
-        if (!unknownArgsFound) { // mir parsed all the arguments, so edit argv to pretend to have just argv[0]
-            argc = 1;
-        }
-        qCDebug(QTMIR_MIR_MESSAGES) << "MirServer created";
-        qCDebug(QTMIR_MIR_MESSAGES) << "Command line arguments passed to Qt:" << QCoreApplication::arguments();
-    }};
-
-    miral::SetTerminator setTerminator{[](int)
-    {
-        qDebug() << "Signal caught by Mir, stopping Mir server..";
-        QCoreApplication::quit();
-    }};
-
-    qtmir::SetQtCompositor setQtCompositor{server->screensModel};
-
-    auto initServerPrivate = [this](mir::Server& ms) { server->init(ms); };
-
-    auto& runner = server->runner;
-
-    runner.set_exception_handler([this]
-    {
-        try {
-            throw;
-        } catch (const std::exception &ex) {
-            qCritical() << ex.what();
-            exit(1);
-        }
-    });
-
-    runner.add_start_callback([&]
-    {
-        server->screensModel->update();
-        server->screensController = QSharedPointer<ScreensController>(
-                                   new ScreensController(server->screensModel, server->server->the_display(),
-                                                         server->server->the_display_configuration_controller()));
         std::lock_guard<std::mutex> lock(mutex);
         mir_running = true;
         started_cv.notify_one();
     });
 
-    runner.add_stop_callback([&]
-    {
-        server->screensController.clear();
-        server->server = nullptr;
-    });
-
-    runner.run_with(
-        {
-            initServerPrivate,
-            qtmir::setDisplayConfigurationPolicy,
-            setCommandLineHandler,
-            addInitCallback,
-            setQtCompositor,
-            setTerminator,
-        });
+    server->run();
 
     Q_EMIT stopped();
 }
@@ -142,15 +83,82 @@ std::shared_ptr<mir::scene::PromptSessionManager> QMirServerPrivate::thePromptSe
     return server->the_prompt_session_manager();
 }
 
-QMirServerPrivate::QMirServerPrivate(int argc, char const* argv[]) :
-    runner(argc, argv),
-    m_policy(miral::set_window_managment_policy<WindowManagementPolicy>(m_windowModel, m_windowController, screensModel))
+QMirServerPrivate::QMirServerPrivate(int argc, char *argv[]) :
+    runner(argc, const_cast<const char **>(argv)),
+    m_policy(miral::set_window_managment_policy<WindowManagementPolicy>(m_windowModel, m_windowController, screensModel)),
+    argc{argc}, argv{argv}
 {
 }
 
 PromptSessionListener *QMirServerPrivate::promptSessionListener() const
 {
     return m_promptSessionListener.lock().get();
+}
+
+void QMirServerPrivate::run()
+{
+    bool unknownArgsFound = false;
+
+    miral::SetCommandLineHandler setCommandLineHandler{[this, &unknownArgsFound](int filteredCount, const char* const filteredArgv[])
+    {
+        unknownArgsFound = true;
+        // Want to edit argv to match that which Mir returns, as those are for to Qt alone to process. Edit existing
+        // argc as filteredArgv only defined in this scope.
+        qtmir::editArgvToMatch(argc, argv, filteredCount, filteredArgv);
+    }};
+
+    miral::AddInitCallback addInitCallback{[&, this]
+    {
+        if (!unknownArgsFound) { // mir parsed all the arguments, so edit argv to pretend to have just argv[0]
+            argc = 1;
+        }
+        qCDebug(QTMIR_MIR_MESSAGES) << "MirServer created";
+        qCDebug(QTMIR_MIR_MESSAGES) << "Command line arguments passed to Qt:" << QCoreApplication::arguments();
+    }};
+
+    miral::SetTerminator setTerminator{[](int)
+    {
+        qDebug() << "Signal caught by Mir, stopping Mir server..";
+        QCoreApplication::quit();
+    }};
+
+    qtmir::SetQtCompositor setQtCompositor{screensModel};
+
+    auto initServerPrivate = [this](mir::Server& ms) { init(ms); };
+
+    runner.set_exception_handler([this]
+    {
+        try {
+            throw;
+        } catch (const std::exception &ex) {
+            qCritical() << ex.what();
+            exit(1);
+        }
+    });
+
+    runner.add_start_callback([&]
+    {
+        screensModel->update();
+        screensController = QSharedPointer<ScreensController>(
+                                   new ScreensController(screensModel, server->the_display(),
+                                                         server->the_display_configuration_controller()));
+    });
+
+    runner.add_stop_callback([&]
+    {
+        screensController.clear();
+        server = nullptr;
+    });
+
+    runner.run_with(
+        {
+            initServerPrivate,
+            qtmir::setDisplayConfigurationPolicy,
+            setCommandLineHandler,
+            addInitCallback,
+            setQtCompositor,
+            setTerminator,
+        });
 }
 
 void QMirServerPrivate::init(mir::Server& server)
