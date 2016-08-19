@@ -25,7 +25,7 @@ struct MirEvent {}; // otherwise won't compile otherwise due to incomplete type
 #include <QSignalSpy>
 
 // src/common
-#include "windowmodelinterface.h"
+#include "windowmodelnotifierinterface.h"
 
 // the test subject
 #include <Unity/Application/mirsurface.h>
