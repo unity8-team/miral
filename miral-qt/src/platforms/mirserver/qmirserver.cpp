@@ -83,16 +83,10 @@ bool QMirServer::isRunning() const
     return d->serverThread->isRunning();
 }
 
-QWeakPointer<ScreensModel> QMirServer::screensModel() const
+QSharedPointer<ScreensModel> QMirServer::screensModel() const
 {
     Q_D(const QMirServer);
     return d->screensModel;
-}
-
-QWeakPointer<ScreensController> QMirServer::screensController() const
-{
-    Q_D(const QMirServer);
-    return d->screensController;
 }
 
 QPlatformOpenGLContext *QMirServer::createPlatformOpenGLContext(QOpenGLContext *context) const
@@ -118,7 +112,7 @@ void *QMirServer::nativeResourceForIntegration(const QByteArray &resource) const
         else if (resource == "WindowModel")
             result = d->windowModel();
         else if (resource == "ScreensController")
-            result = screensController().data();
+            result = d->screensController.data();
     }
     return result;
 }
