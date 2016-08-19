@@ -1,4 +1,7 @@
-find_package(GMock)
+# if (NOT GMOCK_FOUND) doesn't work, dunno why - alan_g
+if (NOT GMOCK_LIBRARIES)
+    find_package(GMock)
+endif()
 
 add_subdirectory(framework)
 add_subdirectory(mirserver)

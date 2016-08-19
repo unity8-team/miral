@@ -60,10 +60,6 @@ set(MIRAL_VERSION ${MIRAL_VERSION_MAJOR}.${MIRAL_VERSION_MINOR}.${MIRAL_VERSION_
 add_subdirectory(miral)
 add_subdirectory(miral-shell)
 add_subdirectory(miral-kiosk)
-option(MIRAL_ENABLE_QT "Build Qt integration" OFF)
-if (MIRAL_ENABLE_QT)
-add_subdirectory(miral-qt)
-endif()
 
 pkg_check_modules(MIRTEST mirtest)
 if(NOT MIRTEST_FOUND)
@@ -79,9 +75,14 @@ else()
 
 if (MIRAL_ENABLE_TESTS)
     enable_testing()
-
+    find_package(GMock REQUIRED)
     add_subdirectory(test)
 endif()
+endif()
+
+option(MIRAL_ENABLE_QT "Build Qt integration" OFF)
+if (MIRAL_ENABLE_QT)
+    add_subdirectory(miral-qt)
 endif()
 
 include (cmake/Doxygen.cmake)
