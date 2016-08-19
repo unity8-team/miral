@@ -39,14 +39,14 @@
 
 void MirServerThread::run()
 {
-    server->runner.add_start_callback([&]
+    auto start_callback = [this]
     {
         std::lock_guard<std::mutex> lock(mutex);
         mir_running = true;
         started_cv.notify_one();
-    });
+    };
 
-    server->run();
+    server->run(start_callback);
 
     Q_EMIT stopped();
 }
@@ -95,7 +95,7 @@ PromptSessionListener *QMirServerPrivate::promptSessionListener() const
     return m_promptSessionListener.lock().get();
 }
 
-void QMirServerPrivate::run()
+void QMirServerPrivate::run(std::function<void()> const& start_callback)
 {
     bool unknownArgsFound = false;
 
@@ -144,8 +144,11 @@ void QMirServerPrivate::run()
                                                          server->the_display_configuration_controller()));
     });
 
+    runner.add_start_callback(start_callback);
+
     runner.add_stop_callback([&]
     {
+        screensModel->terminate();
         screensController.clear();
         server = nullptr;
     });
@@ -185,6 +188,5 @@ void QMirServerPrivate::init(mir::Server& server)
 
 void QMirServerPrivate::stop()
 {
-    screensModel->terminate();
     runner.stop();
 }

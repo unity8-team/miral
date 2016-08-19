@@ -56,13 +56,10 @@ class QMirServerPrivate : private qtmir::SetSessionAuthorizer
 public:
     QMirServerPrivate(int argc, char* argv[]);
     const QSharedPointer<ScreensModel> screensModel{new ScreensModel()};
-    mir::Server* server{nullptr};
     QSharedPointer<ScreensController> screensController;
     MirServerThread *serverThread;
 
-    void init(mir::Server& server);
-
-    void run();
+    void run(std::function<void()> const& start_callback);
     void stop();
 
     SessionListener *sessionListener() const;
@@ -74,8 +71,11 @@ public:
 
     using qtmir::SetSessionAuthorizer::the_application_authorizer;
 
-    miral::MirRunner runner;
 private:
+    void init(mir::Server& server);
+
+    miral::MirRunner runner;
+    mir::Server* server{nullptr};
     miral::SetWindowManagmentPolicy m_policy;
     mutable qtmir::WindowController m_windowController;
     mutable qtmir::WindowModel m_windowModel;
