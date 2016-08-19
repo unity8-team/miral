@@ -61,6 +61,8 @@ public:
 
     void init(mir::Server& server);
 
+    void stop();
+
     SessionListener *sessionListener() const;
     PromptSessionListener *promptSessionListener() const;
     qtmir::WindowModelInterface *windowModel() const;
@@ -92,7 +94,6 @@ Q_SIGNALS:
 
 public Q_SLOTS:
     void run() override;
-    void stop();
 
 private:
     std::mutex mutex;

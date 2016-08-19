@@ -59,7 +59,7 @@ void QMirServer::stop()
     Q_D(QMirServer);
 
     if (d->serverThread->isRunning()) {
-        d->serverThread->stop();
+        d->stop();
         if (!d->serverThread->wait(10000)) {
             // do something to indicate fail during shutdown
             qCritical() << "ERROR: QMirServer - Mir failed to shut down correctly, terminating it";

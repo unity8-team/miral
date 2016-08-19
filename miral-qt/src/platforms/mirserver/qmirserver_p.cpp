@@ -111,12 +111,6 @@ void MirServerThread::run()
     Q_EMIT stopped();
 }
 
-void MirServerThread::stop()
-{
-    server->screensModel->terminate();
-    server->runner.stop();
-}
-
 bool MirServerThread::waitForMirStartup()
 {
     std::unique_lock<decltype(mutex)> lock(mutex);
@@ -197,4 +191,10 @@ void QMirServerPrivate::init(mir::Server& server)
         });
 
     self->m_policy(server);
+}
+
+void QMirServerPrivate::stop()
+{
+    screensModel->terminate();
+    runner.stop();
 }
