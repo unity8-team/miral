@@ -1,4 +1,4 @@
-find_package(GtestGmock REQUIRED)
+find_package(GMock REQUIRED)
 
 include_directories(
         ${MIRTEST_INCLUDE_DIRS}
@@ -17,12 +17,14 @@ add_executable(miral-test
 target_link_libraries(miral-test
     ${MIRTEST_LDFLAGS}
     ${GTEST_BOTH_LIBRARIES}
-    ${GMOCK_LIBRARY}
-    ${GMOCK_MAIN_LIBRARY}
+    ${GMOCK_LIBRARIES}
     miral
     miral-internal
 )
 
-add_dependencies(miral-test GMock)
+add_dependencies(miral-test
+    ${GTEST_BOTH_LIBRARIES}
+    ${GMOCK_LIBRARIES}
+)
 
 add_test(NAME miral-test WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} COMMAND miral-test)
