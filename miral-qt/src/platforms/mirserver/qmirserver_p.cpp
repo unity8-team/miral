@@ -15,55 +15,99 @@
  */
 
 #include "qmirserver_p.h"
-
-// Mir
-#include <mir/main_loop.h>
+#include <QCoreApplication>
 
 // local
 #include "logging.h"
 #include "mirdisplayconfigurationpolicy.h"
-#include "mirserver.h"
 #include "promptsessionlistener.h"
 #include "sessionlistener.h"
 #include "sessionauthorizer.h"
 #include "windowmanagementpolicy.h"
+#include "argvHelper.h"
+#include "setqtcompositor.h"
+
+// miral
+#include <miral/add_init_callback.h>
+#include <miral/set_command_line_hander.h>
+#include <miral/set_terminator.h>
+#include <miral/set_window_managment_policy.h>
+
+// mir (FIXME)
+#include <mir/server.h>
 
 void MirServerThread::run()
 {
-    // This should eventually be replaced by miral::MirRunner::run()
-    server->m_usingQtMirSessionAuthorizer(*server->server);
-    server->m_usingQtMirSessionListener(*server->server);
-    server->m_usingQtMirPromptSessionListener(*server->server);
-    server->m_usingQtMirWindowManager(*server->server);
-    mir_display_configuration_policy(*server->server);
+    bool unknownArgsFound = false;
 
-    try {
-        server->server->apply_settings();
-    } catch (const std::exception &ex) {
-        qCritical() << ex.what();
-        exit(1);
-    }
+    miral::SetCommandLineHandler setCommandLineHandler{[this, &unknownArgsFound](int filteredCount, const char* const filteredArgv[])
+    {
+        unknownArgsFound = true;
+        // Want to edit argv to match that which Mir returns, as those are for to Qt alone to process. Edit existing
+        // argc as filteredArgv only defined in this scope.
+        qtmir::editArgvToMatch(argc, argv, filteredCount, filteredArgv);
+    }};
 
-    auto const main_loop = server->server->the_main_loop();
-    // By enqueuing the notification code in the main loop, we are
-    // ensuring that the server has really and fully started before
-    // leaving wait_for_startup().
-    main_loop->enqueue(
-        this,
-        [&]
+    miral::AddInitCallback addInitCallback{[&, this]
+    {
+        if (!unknownArgsFound) { // mir parsed all the arguments, so edit argv to pretend to have just argv[0]
+            argc = 1;
+        }
+        qCDebug(QTMIR_MIR_MESSAGES) << "MirServer created";
+        qCDebug(QTMIR_MIR_MESSAGES) << "Command line arguments passed to Qt:" << QCoreApplication::arguments();
+    }};
+
+    miral::SetTerminator setTerminator{[](int)
+    {
+        qDebug() << "Signal caught by Mir, stopping Mir server..";
+        QCoreApplication::quit();
+    }};
+
+    qtmir::SetQtCompositor setQtCompositor{server->screensModel};
+
+    auto initServerPrivate = [this](mir::Server& ms) { server->init(ms); };
+
+    auto& runner = server->runner;
+
+    runner.set_exception_handler([this]
+    {
+        try {
+            throw;
+        } catch (const std::exception &ex) {
+            qCritical() << ex.what();
+            exit(1);
+        }
+    });
+
+    runner.add_start_callback([&]
+    {
+        std::lock_guard<std::mutex> lock(mutex);
+        mir_running = true;
+        started_cv.notify_one();
+    });
+
+    runner.add_stop_callback([&]
+    {
+        server->server = nullptr;
+    });
+
+    runner.run_with(
         {
-            std::lock_guard<std::mutex> lock(mutex);
-            mir_running = true;
-            started_cv.notify_one();
+            initServerPrivate,
+            qtmir::setDisplayConfigurationPolicy,
+            setCommandLineHandler,
+            addInitCallback,
+            setQtCompositor,
+            setTerminator,
         });
 
-    server->server->run(); // blocks until Mir server stopped
     Q_EMIT stopped();
 }
 
 void MirServerThread::stop()
 {
-    server->server->stop();
+    server->screensModel->terminate();
+    server->runner.stop();
 }
 
 bool MirServerThread::waitForMirStartup()
@@ -73,54 +117,67 @@ bool MirServerThread::waitForMirStartup()
     return mir_running;
 }
 
-void UsingQtMirSessionListener::operator()(mir::Server& server)
+struct QMirServerPrivate::Self
 {
-    server.override_the_session_listener([this]
-        {
-            auto const result = std::make_shared<SessionListener>();
-            m_sessionListener = result;
-            return result;
-        });
+    Self(const QSharedPointer<ScreensModel> &model);
+    const QSharedPointer<ScreensModel> &m_screensModel;
+    miral::SetWindowManagmentPolicy m_policy;
+    qtmir::WindowController m_windowController;
+    qtmir::WindowModelNotifier m_windowModelNotifier;
+    std::weak_ptr<SessionListener> m_sessionListener;
+    std::weak_ptr<PromptSessionListener> m_promptSessionListener;
+};
+
+SessionListener *QMirServerPrivate::sessionListener() const
+{
+    return self->m_sessionListener.lock().get();
 }
 
-SessionListener *UsingQtMirSessionListener::sessionListener()
-{
-    return m_sessionListener.lock().get();
-}
-
-void UsingQtMirPromptSessionListener::operator()(mir::Server& server)
-{
-    server.override_the_prompt_session_listener([this]
-        {
-            auto const result = std::make_shared<PromptSessionListener>();
-            m_promptSessionListener = result;
-            return result;
-        });
-}
-
-PromptSessionListener *UsingQtMirPromptSessionListener::promptSessionListener()
-{
-    return m_promptSessionListener.lock().get();
-}
-
-UsingQtMirWindowManager::UsingQtMirWindowManager(const QSharedPointer<ScreensModel> &model)
+QMirServerPrivate::Self::Self(const QSharedPointer<ScreensModel> &model)
     : m_screensModel(model)
     , m_policy(miral::set_window_managment_policy<WindowManagementPolicy>(m_windowModelNotifier, m_windowController, m_screensModel))
 {
 }
 
-void UsingQtMirWindowManager::operator()(mir::Server& server)
+qtmir::WindowModelNotifierInterface *QMirServerPrivate::windowModelNotifier() const
 {
-    m_policy(server);
+    return &self->m_windowModelNotifier;
 }
 
-qtmir::WindowModelNotifierInterface *UsingQtMirWindowManager::windowModelNotifier()
+qtmir::WindowControllerInterface *QMirServerPrivate::windowController() const
 {
-    return &m_windowModelNotifier;
+    return &self->m_windowController;
 }
 
-qtmir::WindowControllerInterface *UsingQtMirWindowManager::windowController()
+QMirServerPrivate::QMirServerPrivate(int argc, char const* argv[]) :
+    runner(argc, argv),
+    self{std::make_shared<Self>(screensModel)}
 {
-    return &m_windowController;
 }
 
+PromptSessionListener *QMirServerPrivate::promptSessionListener() const
+{
+    return self->m_promptSessionListener.lock().get();
+}
+
+void QMirServerPrivate::init(mir::Server& server)
+{
+    this->server = &server;
+
+    qtmir::SetSessionAuthorizer::operator()(server);
+    server.override_the_session_listener([this]
+        {
+            auto const result = std::make_shared<SessionListener>();
+            self->m_sessionListener = result;
+            return result;
+        });
+
+    server.override_the_prompt_session_listener([this]
+        {
+            auto const result = std::make_shared<PromptSessionListener>();
+            self->m_promptSessionListener = result;
+            return result;
+        });
+
+    self->m_policy(server);
+}

@@ -25,7 +25,6 @@ endforeach(item ${Qt5Gui_PRIVATE_INCLUDE_DIRS})
 
 include_directories(
     ${MIRAL_QT_SOURCE_DIR}/src/common
-    ${CMAKE_SOURCE_DIR}/miral   #FIXME
 
     ${MIRCOMMON_INCLUDE_DIRS}
     ${MIRSERVER_INCLUDE_DIRS}
@@ -64,7 +63,6 @@ set(MIRSERVER_QPA_PLUGIN_SRC
     sessionlistener.cpp
     surfaceobserver.cpp
     promptsessionlistener.cpp
-    mirserver.cpp
     mirserverstatuslistener.cpp
     screen.cpp
     screenwindow.cpp
@@ -83,7 +81,7 @@ set(MIRSERVER_QPA_PLUGIN_SRC
     windowmanagementpolicy.cpp
     windowmodelnotifier.cpp
     tracepoints.c
-    usingqtcompositor.cpp usingqtcompositor.h
+    setqtcompositor.cpp setqtcompositor.h
 # We need to run moc on these headers
     ${APPLICATION_API_INCLUDEDIR}/unity/shell/application/Mir.h
     ${APPLICATION_API_INCLUDEDIR}/unity/shell/application/MirMousePointerInterface.h
