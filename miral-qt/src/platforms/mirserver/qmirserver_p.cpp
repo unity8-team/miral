@@ -65,22 +65,22 @@ SessionListener *QMirServerPrivate::sessionListener() const
 
 qtmir::WindowModelInterface *QMirServerPrivate::windowModel() const
 {
-    return server ? &m_windowModel : nullptr;
+    return &m_windowModel;
 }
 
 qtmir::WindowControllerInterface *QMirServerPrivate::windowController() const
 {
-    return server ? &m_windowController : nullptr;
+    return &m_windowController;
 }
 
 QPlatformOpenGLContext *QMirServerPrivate::createPlatformOpenGLContext(QOpenGLContext *context) const
 {
-    return new MirOpenGLContext(*server->the_display(), *server->the_gl_config(), context->format());
+    return new MirOpenGLContext(*m_mirDisplay, *m_mirGLConfig, context->format());
 }
 
 std::shared_ptr<mir::scene::PromptSessionManager> QMirServerPrivate::thePromptSessionManager() const
 {
-    return server->the_prompt_session_manager();
+    return m_mirPromptSessionManager;
 }
 
 QMirServerPrivate::QMirServerPrivate(int argc, char *argv[]) :
@@ -140,8 +140,7 @@ void QMirServerPrivate::run(std::function<void()> const& start_callback)
     {
         screensModel->update();
         screensController = QSharedPointer<ScreensController>(
-                                   new ScreensController(screensModel, server->the_display(),
-                                                         server->the_display_configuration_controller()));
+                                   new ScreensController(screensModel, m_mirDisplay, m_mirDisplayConfigurationController));
     });
 
     runner.add_start_callback(start_callback);
@@ -150,7 +149,10 @@ void QMirServerPrivate::run(std::function<void()> const& start_callback)
     {
         screensModel->terminate();
         screensController.clear();
-        server = nullptr;
+        m_mirDisplay.reset();
+        m_mirGLConfig.reset();
+        m_mirDisplayConfigurationController.reset();
+        m_mirPromptSessionManager.reset();
     });
 
     runner.run_with(
@@ -166,8 +168,6 @@ void QMirServerPrivate::run(std::function<void()> const& start_callback)
 
 void QMirServerPrivate::init(mir::Server& server)
 {
-    this->server = &server;
-
     qtmir::SetSessionAuthorizer::operator()(server);
     server.override_the_session_listener([this]
         {
@@ -184,6 +184,14 @@ void QMirServerPrivate::init(mir::Server& server)
         });
 
     m_policy(server);
+
+    server.add_init_callback([this, &server]
+        {
+            m_mirDisplay = server.the_display();
+            m_mirGLConfig = server.the_gl_config();
+            m_mirDisplayConfigurationController = server.the_display_configuration_controller();
+            m_mirPromptSessionManager = server.the_prompt_session_manager();
+        });
 }
 
 void QMirServerPrivate::stop()

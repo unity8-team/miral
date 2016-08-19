@@ -37,7 +37,7 @@
 #include <miral/set_window_managment_policy.h>
 
 namespace mir { namespace scene { class PromptSessionManager; }}
-
+namespace mir { namespace graphics { class GLConfig; }}
 class QMirServer;
 class MirServerThread;
 class PromptSessionListener;
@@ -75,12 +75,15 @@ private:
     void init(mir::Server& server);
 
     miral::MirRunner runner;
-    mir::Server* server{nullptr};
     miral::SetWindowManagmentPolicy m_policy;
     mutable qtmir::WindowController m_windowController;
     mutable qtmir::WindowModel m_windowModel;
     std::weak_ptr<SessionListener> m_sessionListener;
     std::weak_ptr<PromptSessionListener> m_promptSessionListener;
+    std::shared_ptr<mir::graphics::Display> m_mirDisplay;
+    std::shared_ptr<mir::graphics::GLConfig> m_mirGLConfig;
+    std::shared_ptr<mir::shell::DisplayConfigurationController> m_mirDisplayConfigurationController;
+    std::shared_ptr<mir::scene::PromptSessionManager> m_mirPromptSessionManager;
     int &argc;
     char **argv;
 };
