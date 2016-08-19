@@ -29,7 +29,6 @@ set(QTMIR_TEST_PRIVATE_SRC
     mock_shared_wakelock.cpp
     mock_surface.cpp
     mock_task_controller.cpp
-    mock_windowinfo.cpp
     stub_input_channel.cpp
     stub_windowmodelnotifier.cpp
     fake_surface.h
