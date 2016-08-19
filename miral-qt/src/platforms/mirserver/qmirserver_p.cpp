@@ -16,6 +16,7 @@
 
 #include "qmirserver_p.h"
 #include <QCoreApplication>
+#include <QOpenGLContext>
 
 // local
 #include "logging.h"
@@ -26,17 +27,71 @@
 #include "windowmanagementpolicy.h"
 #include "argvHelper.h"
 #include "setqtcompositor.h"
+#include "miropenglcontext.h"
 
 // miral
 #include <miral/add_init_callback.h>
 #include <miral/set_command_line_hander.h>
 #include <miral/set_terminator.h>
-#include <miral/set_window_managment_policy.h>
-
-// mir (FIXME)
-#include <mir/server.h>
 
 void MirServerThread::run()
+{
+    auto start_callback = [this]
+    {
+        std::lock_guard<std::mutex> lock(mutex);
+        mir_running = true;
+        started_cv.notify_one();
+    };
+
+    server->run(start_callback);
+
+    Q_EMIT stopped();
+}
+
+bool MirServerThread::waitForMirStartup()
+{
+    std::unique_lock<decltype(mutex)> lock(mutex);
+    started_cv.wait_for(lock, std::chrono::seconds{10}, [&]{ return mir_running; });
+    return mir_running;
+}
+
+SessionListener *QMirServerPrivate::sessionListener() const
+{
+    return m_sessionListener.lock().get();
+}
+
+qtmir::WindowModelInterface *QMirServerPrivate::windowModel() const
+{
+    return &m_windowModel;
+}
+
+qtmir::WindowControllerInterface *QMirServerPrivate::windowController() const
+{
+    return &m_windowController;
+}
+
+QPlatformOpenGLContext *QMirServerPrivate::createPlatformOpenGLContext(QOpenGLContext *context) const
+{
+    return new MirOpenGLContext(*m_mirDisplay.lock(), *m_mirGLConfig, context->format());
+}
+
+std::shared_ptr<mir::scene::PromptSessionManager> QMirServerPrivate::thePromptSessionManager() const
+{
+    return m_mirPromptSessionManager.lock();
+}
+
+QMirServerPrivate::QMirServerPrivate(int argc, char *argv[]) :
+    runner(argc, const_cast<const char **>(argv)),
+    argc{argc}, argv{argv}
+{
+}
+
+PromptSessionListener *QMirServerPrivate::promptSessionListener() const
+{
+    return m_promptSessionListener.lock().get();
+}
+
+void QMirServerPrivate::run(std::function<void()> const& start_callback)
 {
     bool unknownArgsFound = false;
 
@@ -63,12 +118,6 @@ void MirServerThread::run()
         QCoreApplication::quit();
     }};
 
-    qtmir::SetQtCompositor setQtCompositor{server->screensModel};
-
-    auto initServerPrivate = [this](mir::Server& ms) { server->init(ms); };
-
-    auto& runner = server->runner;
-
     runner.set_exception_handler([this]
     {
         try {
@@ -81,103 +130,63 @@ void MirServerThread::run()
 
     runner.add_start_callback([&]
     {
-        std::lock_guard<std::mutex> lock(mutex);
-        mir_running = true;
-        started_cv.notify_one();
+        screensModel->update();
+        screensController = QSharedPointer<ScreensController>(
+                                   new ScreensController(screensModel, m_mirDisplay.lock(),
+                                                         m_mirDisplayConfigurationController.lock()));
     });
+
+    runner.add_start_callback(start_callback);
 
     runner.add_stop_callback([&]
     {
-        server->server = nullptr;
+        screensModel->terminate();
+        screensController.clear();
+        m_mirGLConfig.reset();
     });
 
     runner.run_with(
         {
-            initServerPrivate,
+            static_cast<qtmir::SetSessionAuthorizer&>(*this),
+            [this](mir::Server& ms) { init(ms); },
+            miral::set_window_managment_policy<WindowManagementPolicy>(m_windowModel, m_windowController, screensModel),
             qtmir::setDisplayConfigurationPolicy,
             setCommandLineHandler,
             addInitCallback,
-            setQtCompositor,
+            qtmir::SetQtCompositor{screensModel},
             setTerminator,
         });
-
-    Q_EMIT stopped();
 }
 
-void MirServerThread::stop()
+void QMirServerPrivate::stop()
 {
-    server->screensModel->terminate();
-    server->runner.stop();
+    runner.stop();
 }
 
-bool MirServerThread::waitForMirStartup()
-{
-    std::unique_lock<decltype(mutex)> lock(mutex);
-    started_cv.wait_for(lock, std::chrono::seconds{10}, [&]{ return mir_running; });
-    return mir_running;
-}
-
-struct QMirServerPrivate::Self
-{
-    Self(const QSharedPointer<ScreensModel> &model);
-    const QSharedPointer<ScreensModel> &m_screensModel;
-    miral::SetWindowManagmentPolicy m_policy;
-    qtmir::WindowController m_windowController;
-    qtmir::WindowModel m_windowModel;
-    std::weak_ptr<SessionListener> m_sessionListener;
-    std::weak_ptr<PromptSessionListener> m_promptSessionListener;
-};
-
-SessionListener *QMirServerPrivate::sessionListener() const
-{
-    return self->m_sessionListener.lock().get();
-}
-
-QMirServerPrivate::Self::Self(const QSharedPointer<ScreensModel> &model)
-    : m_screensModel(model)
-    , m_policy(miral::set_window_managment_policy<WindowManagementPolicy>(m_windowModel, m_windowController, m_screensModel))
-{
-}
-
-qtmir::WindowModelInterface *QMirServerPrivate::windowModel() const
-{
-    return &self->m_windowModel;
-}
-
-qtmir::WindowControllerInterface *QMirServerPrivate::windowController() const
-{
-    return &self->m_windowController;
-}
-
-QMirServerPrivate::QMirServerPrivate(int argc, char const* argv[]) :
-    runner(argc, argv),
-    self{std::make_shared<Self>(screensModel)}
-{
-}
-
-PromptSessionListener *QMirServerPrivate::promptSessionListener() const
-{
-    return self->m_promptSessionListener.lock().get();
-}
+// mir (FIXME)
+#include <mir/server.h>
 
 void QMirServerPrivate::init(mir::Server& server)
 {
-    this->server = &server;
-
-    qtmir::SetSessionAuthorizer::operator()(server);
     server.override_the_session_listener([this]
         {
             auto const result = std::make_shared<SessionListener>();
-            self->m_sessionListener = result;
+            m_sessionListener = result;
             return result;
         });
 
     server.override_the_prompt_session_listener([this]
         {
             auto const result = std::make_shared<PromptSessionListener>();
-            self->m_promptSessionListener = result;
+            m_promptSessionListener = result;
             return result;
         });
 
-    self->m_policy(server);
+    server.add_init_callback([this, &server]
+        {
+            m_mirDisplay = server.the_display();
+            m_mirGLConfig = server.the_gl_config();
+            m_mirDisplayConfigurationController = server.the_display_configuration_controller();
+            m_mirPromptSessionManager = server.the_prompt_session_manager();
+        });
 }

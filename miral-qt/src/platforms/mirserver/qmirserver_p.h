@@ -34,12 +34,17 @@
 //miral
 #include <miral/application_authorizer.h>
 #include <miral/runner.h>
+#include <miral/set_window_managment_policy.h>
 
+namespace mir { namespace scene { class PromptSessionManager; }}
+namespace mir { namespace graphics { class GLConfig; }}
 class QMirServer;
 class MirServerThread;
 class PromptSessionListener;
 class SessionListener;
 class SessionAuthorizer;
+class QPlatformOpenGLContext;
+class QOpenGLContext;
 
 namespace qtmir
 {
@@ -49,25 +54,37 @@ using SetSessionAuthorizer = miral::SetApplicationAuthorizer<SessionAuthorizer>;
 class QMirServerPrivate : private qtmir::SetSessionAuthorizer
 {
 public:
-    QMirServerPrivate(int argc, char const* argv[]);
+    QMirServerPrivate(int argc, char* argv[]);
     const QSharedPointer<ScreensModel> screensModel{new ScreensModel()};
-    mir::Server* server{nullptr};
     QSharedPointer<ScreensController> screensController;
     MirServerThread *serverThread;
 
-    void init(mir::Server& server);
+    void run(std::function<void()> const& start_callback);
+    void stop();
 
     SessionListener *sessionListener() const;
     PromptSessionListener *promptSessionListener() const;
     qtmir::WindowModelInterface *windowModel() const;
     qtmir::WindowControllerInterface *windowController() const;
+    QPlatformOpenGLContext *createPlatformOpenGLContext(QOpenGLContext *context) const;
+    std::shared_ptr<mir::scene::PromptSessionManager> thePromptSessionManager() const;
 
     using qtmir::SetSessionAuthorizer::the_application_authorizer;
 
-    miral::MirRunner runner;
 private:
-    struct Self;
-    std::shared_ptr<Self> const self;
+    void init(mir::Server& server);
+
+    miral::MirRunner runner;
+    mutable qtmir::WindowController m_windowController;
+    mutable qtmir::WindowModel m_windowModel;
+    std::weak_ptr<SessionListener> m_sessionListener;
+    std::weak_ptr<PromptSessionListener> m_promptSessionListener;
+    std::weak_ptr<mir::graphics::Display> m_mirDisplay;
+    std::shared_ptr<mir::graphics::GLConfig> m_mirGLConfig;
+    std::weak_ptr<mir::shell::DisplayConfigurationController> m_mirDisplayConfigurationController;
+    std::weak_ptr<mir::scene::PromptSessionManager> m_mirPromptSessionManager;
+    int &argc;
+    char **argv;
 };
 
 class MirServerThread : public QThread
@@ -75,8 +92,8 @@ class MirServerThread : public QThread
     Q_OBJECT
 
 public:
-    MirServerThread(int &argc, char **argv, QMirServerPrivate* server)
-        : argc{argc}, argv{argv}, server(server)
+    MirServerThread(QMirServerPrivate* server)
+        : server(server)
     {}
 
     bool waitForMirStartup();
@@ -86,15 +103,12 @@ Q_SIGNALS:
 
 public Q_SLOTS:
     void run() override;
-    void stop();
 
 private:
     std::mutex mutex;
     std::condition_variable started_cv;
     bool mir_running{false};
 
-    int &argc;
-    char **argv;
     QMirServerPrivate* const server;
 };
 
