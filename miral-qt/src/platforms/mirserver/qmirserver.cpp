@@ -16,26 +16,24 @@
 
 // Qt
 #include <QObject>
-#include <QCoreApplication>
 #include <QDebug>
 #include <QOpenGLContext>
 
 // local
-#include "mirserver.h"
 #include "qmirserver.h"
 #include "qmirserver_p.h"
-#include "screen.h"
 #include "miropenglcontext.h"
+
+// mir (FIXME)
+#include <mir/server.h>
 
 QMirServer::QMirServer(int &argc, char **argv, QObject *parent)
     : QObject(parent)
-    , d_ptr(new QMirServerPrivate())
+    , d_ptr(new QMirServerPrivate(argc, const_cast<const char **>(argv)))
 {
     Q_D(QMirServer);
 
-    d->server = QSharedPointer<MirServer>(new MirServer(argc, argv, d->screensModel));
-
-    d->serverThread = new MirServerThread(d);
+    d->serverThread = new MirServerThread(argc, argv, d);
 
     connect(d->serverThread, &MirServerThread::stopped, this, &QMirServer::stopped);
 }
@@ -110,15 +108,15 @@ void *QMirServer::nativeResourceForIntegration(const QByteArray &resource) const
 
     if (d->server) {
         if (resource == "SessionAuthorizer")
-            result = d->m_usingQtMirSessionAuthorizer.the_application_authorizer().get();
+            result = d->the_application_authorizer().get();
         else if (resource == "SessionListener")
-            result = d->m_usingQtMirSessionListener.sessionListener();
+            result = d->sessionListener();
         else if (resource == "PromptSessionListener")
-            result = d->m_usingQtMirPromptSessionListener.promptSessionListener();
+            result = d->promptSessionListener();
         else if (resource == "WindowController")
-            result = d->m_usingQtMirWindowManager.windowController();
+            result = d->windowController();
         else if (resource == "WindowModelNotifier")
-            result = d->m_usingQtMirWindowManager.windowModelNotifier();
+            result = d->windowModelNotifier();
         else if (resource == "ScreensController")
             result = screensController().data();
     }

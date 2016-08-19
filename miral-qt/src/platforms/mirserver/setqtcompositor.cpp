@@ -16,17 +16,19 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#include "usingqtcompositor.h"
+#include "setqtcompositor.h"
 
 // local
 #include "mircursorimages.h"
 #include "mirglconfig.h"
 #include "mirserverstatuslistener.h"
 #include "qtcompositor.h"
+#include "screensmodel.h"
 
 // mir
 #include <mir/graphics/cursor.h>
 #include <mir/server.h>
+#include <mir/shell/shell.h>
 
 namespace mg = mir::graphics;
 
@@ -47,10 +49,19 @@ private:
 };
 }
 
-void usingQtCompositor(mir::Server& server)
+qtmir::SetQtCompositor::SetQtCompositor(QSharedPointer<ScreensModel> const& screensModel) :
+    m_screensModel{screensModel}
 {
-    server.override_the_compositor([]
-        { return std::make_shared<QtCompositor>(); });
+}
+
+void qtmir::SetQtCompositor::operator()(mir::Server& server)
+{
+    server.override_the_compositor([this]
+    {
+        auto result = std::make_shared<QtCompositor>();
+        m_compositor = result;
+        return result;
+    });
 
     server.override_the_gl_config([]
         { return std::make_shared<MirGLConfig>(); });
@@ -63,4 +74,17 @@ void usingQtCompositor(mir::Server& server)
 
     server.wrap_cursor([&](std::shared_ptr<mg::Cursor> const& wrapped)
         { return std::make_shared<HiddenCursorWrapper>(wrapped); });
+
+    server.add_init_callback([&, this]
+        {
+            if (auto const compositor = m_compositor.lock())
+            {
+                m_screensModel->init(server.the_display(), compositor, server.the_shell());
+            }
+            else
+            {
+                throw std::logic_error("No m_compositor available. Server not running?");
+            }
+        });
 }
+
