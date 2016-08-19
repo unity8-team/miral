@@ -20,7 +20,6 @@
 
 // local
 #include "mircursorimages.h"
-#include "mirglconfig.h"
 #include "mirserverstatuslistener.h"
 #include "qtcompositor.h"
 #include "screensmodel.h"
@@ -62,9 +61,6 @@ void qtmir::SetQtCompositor::operator()(mir::Server& server)
         m_compositor = result;
         return result;
     });
-
-    server.override_the_gl_config([]
-        { return std::make_shared<MirGLConfig>(); });
 
     server.override_the_server_status_listener([]
         { return std::make_shared<MirServerStatusListener>(); });

@@ -26,6 +26,7 @@
 #include <mutex>
 
 // local
+#include "openglcontextfactory.h"
 #include "screenscontroller.h"
 #include "windowcontroller.h"
 #include "windowmodel.h"
@@ -34,16 +35,14 @@
 //miral
 #include <miral/application_authorizer.h>
 #include <miral/runner.h>
-#include <miral/set_window_managment_policy.h>
 
 namespace mir { namespace scene { class PromptSessionManager; }}
-namespace mir { namespace graphics { class GLConfig; }}
+
 class QMirServer;
 class MirServerThread;
 class PromptSessionListener;
 class SessionListener;
 class SessionAuthorizer;
-class QPlatformOpenGLContext;
 class QOpenGLContext;
 
 namespace qtmir
@@ -76,6 +75,7 @@ private:
     void init(mir::Server& server);
 
     qtmir::SetSessionAuthorizer m_sessionAuthorizer;
+    qtmir::OpenGLContextFactory m_openGLContextFactory;
 
     miral::MirRunner runner;
     mutable qtmir::WindowController m_windowController;
@@ -83,7 +83,6 @@ private:
     std::weak_ptr<SessionListener> m_sessionListener;
     std::weak_ptr<PromptSessionListener> m_promptSessionListener;
     std::weak_ptr<mir::graphics::Display> m_mirDisplay;
-    std::shared_ptr<mir::graphics::GLConfig> m_mirGLConfig;
     std::weak_ptr<mir::shell::DisplayConfigurationController> m_mirDisplayConfigurationController;
     std::weak_ptr<mir::scene::PromptSessionManager> m_mirPromptSessionManager;
     int &argc;

@@ -23,16 +23,15 @@
 #include "mirdisplayconfigurationpolicy.h"
 #include "promptsessionlistener.h"
 #include "sessionlistener.h"
-#include "sessionauthorizer.h"
 #include "windowmanagementpolicy.h"
 #include "argvHelper.h"
 #include "setqtcompositor.h"
-#include "miropenglcontext.h"
 
 // miral
 #include <miral/add_init_callback.h>
 #include <miral/set_command_line_hander.h>
 #include <miral/set_terminator.h>
+#include <miral/set_window_managment_policy.h>
 
 void MirServerThread::run()
 {
@@ -72,7 +71,7 @@ qtmir::WindowControllerInterface *QMirServerPrivate::windowController() const
 
 QPlatformOpenGLContext *QMirServerPrivate::createPlatformOpenGLContext(QOpenGLContext *context) const
 {
-    return new MirOpenGLContext(*m_mirDisplay.lock(), *m_mirGLConfig, context->format());
+    return m_openGLContextFactory.createPlatformOpenGLContext(context->format(), *m_mirDisplay.lock());
 }
 
 std::shared_ptr<mir::scene::PromptSessionManager> QMirServerPrivate::thePromptSessionManager() const
@@ -142,12 +141,12 @@ void QMirServerPrivate::run(std::function<void()> const& start_callback)
     {
         screensModel->terminate();
         screensController.clear();
-        m_mirGLConfig.reset();
     });
 
     runner.run_with(
         {
             m_sessionAuthorizer,
+            m_openGLContextFactory,
             [this](mir::Server& ms) { init(ms); },
             miral::set_window_managment_policy<WindowManagementPolicy>(m_windowModel, m_windowController, screensModel),
             qtmir::setDisplayConfigurationPolicy,
@@ -185,7 +184,6 @@ void QMirServerPrivate::init(mir::Server& server)
     server.add_init_callback([this, &server]
         {
             m_mirDisplay = server.the_display();
-            m_mirGLConfig = server.the_gl_config();
             m_mirDisplayConfigurationController = server.the_display_configuration_controller();
             m_mirPromptSessionManager = server.the_prompt_session_manager();
         });

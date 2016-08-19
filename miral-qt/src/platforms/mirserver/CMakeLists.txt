@@ -87,7 +87,7 @@ set(MIRSERVER_QPA_PLUGIN_SRC
     ${APPLICATION_API_INCLUDEDIR}/unity/shell/application/MirMousePointerInterface.h
     ${MIRAL_QT_SOURCE_DIR}/src/common/windowcontrollerinterface.h
     ${MIRAL_QT_SOURCE_DIR}/src/common/windowmodelinterface.h
-    )
+        openglcontextfactory.cpp openglcontextfactory.h)
 
 add_library(qpa-mirserver SHARED
     ${MIRSERVER_QPA_PLUGIN_SRC}
