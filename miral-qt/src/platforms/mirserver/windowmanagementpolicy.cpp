@@ -25,7 +25,7 @@
 #include <QDebug>
 
 WindowManagementPolicy::WindowManagementPolicy(const miral::WindowManagerTools &tools,
-                                               qtmir::WindowModel &windowModel,
+                                               qtmir::WindowModelNotifier &windowModel,
                                                qtmir::WindowController &windowController,
                                                const QSharedPointer<ScreensModel> screensModel)
     : CanonicalWindowManagerPolicy(tools)

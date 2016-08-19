@@ -21,7 +21,7 @@
 
 #include "qteventfeeder.h"
 #include "windowcontroller.h"
-#include "windowmodel.h"
+#include "windowmodelnotifier.h"
 
 #include <QScopedPointer>
 #include <QSize>
@@ -34,7 +34,7 @@ class WindowManagementPolicy : public miral::CanonicalWindowManagerPolicy
 {
 public:
     WindowManagementPolicy(const miral::WindowManagerTools &tools,
-                           qtmir::WindowModel &windowModel,
+                           qtmir::WindowModelNotifier &windowModel,
                            qtmir::WindowController &windowController,
                            const QSharedPointer<ScreensModel> screensModel);
 
@@ -83,7 +83,7 @@ Q_SIGNALS:
 
 private:
     miral::WindowManagerTools m_tools;
-    qtmir::WindowModel &m_windowModel;
+    qtmir::WindowModelNotifier &m_windowModel;
     const QScopedPointer<QtEventFeeder> m_eventFeeder;
 };
 

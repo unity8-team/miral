@@ -28,7 +28,7 @@
 // local
 #include "screenscontroller.h"
 #include "windowcontroller.h"
-#include "windowmodel.h"
+#include "windowmodelnotifier.h"
 #include "sessionauthorizer.h"
 
 //miral
@@ -59,7 +59,7 @@ public:
 
     SessionListener *sessionListener() const;
     PromptSessionListener *promptSessionListener() const;
-    qtmir::WindowModelInterface *windowModel() const;
+    qtmir::WindowModelNotifierInterface *windowModelNotifier() const;
     qtmir::WindowControllerInterface *windowController() const;
 
     using qtmir::SetSessionAuthorizer::the_application_authorizer;

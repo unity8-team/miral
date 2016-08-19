@@ -25,7 +25,7 @@ struct MirEvent {}; // otherwise won't compile otherwise due to incomplete type
 #include <QSignalSpy>
 
 // src/common
-#include "windowmodelinterface.h"
+#include "windowmodelnotifierinterface.h"
 
 // the test subject
 #include <Unity/Application/mirsurface.h>
@@ -70,13 +70,11 @@ TEST_F(MirSurfaceTest, UpdateTextureBeforeDraw)
     miral::WindowInfo mockWindowInfo(mockWindow, {});
     QScopedPointer<WindowInfo> windowInfo(new WindowInfo(mockWindowInfo));
 
-    auto surfaceObserver = std::make_shared<SurfaceObserver>();
-
     EXPECT_CALL(*mockSurface.get(),buffers_ready_for_compositor(_))
         .WillRepeatedly(Return(1));
 
-    MirSurface surface(mockWindowInfo, nullptr, surfaceObserver);
-    surfaceObserver->frame_posted(1, mir::geometry::Size{1,1});
+    MirSurface surface(mockWindowInfo, nullptr);
+    surface.surfaceObserver()->frame_posted(1, mir::geometry::Size{1,1});
 
     QSignalSpy spyFrameDropped(&surface, SIGNAL(frameDropped()));
     QTest::qWait(300);
@@ -95,9 +93,8 @@ TEST_F(MirSurfaceTest, DeleteMirSurfaceOnLastNonLiveUnregisterView)
     miral::Window mockWindow(fakeSession, mockSurface);
     miral::WindowInfo mockWindowInfo(mockWindow, {});
     QScopedPointer<WindowInfo> windowInfo(new WindowInfo(mockWindowInfo));
-    auto surfaceObserver = std::make_shared<SurfaceObserver>();
 
-    MirSurface surface(mockWindowInfo, nullptr, surfaceObserver);
+    MirSurface surface(mockWindowInfo, nullptr);
 
     bool surfaceDeleted = false;
     QObject::connect(&surface, &QObject::destroyed, &surface, [&surfaceDeleted](){ surfaceDeleted = true; });
@@ -129,9 +126,8 @@ TEST_F(MirSurfaceTest, DoNotDeleteMirSurfaceOnLastLiveUnregisterView)
     miral::Window mockWindow(fakeSession, mockSurface);
     miral::WindowInfo mockWindowInfo(mockWindow, {});
     QScopedPointer<WindowInfo> windowInfo(new WindowInfo(mockWindowInfo));
-    auto surfaceObserver = std::make_shared<SurfaceObserver>();
 
-    MirSurface surface(mockWindowInfo, nullptr, surfaceObserver);
+    MirSurface surface(mockWindowInfo, nullptr);
 
     bool surfaceDeleted = false;
     QObject::connect(&surface, &QObject::destroyed, &surface, [&surfaceDeleted](){ surfaceDeleted = true; });
@@ -163,9 +159,8 @@ TEST_F(MirSurfaceTest, failedSurfaceCloseEventuallyDestroysSurface)
     miral::Window mockWindow(mockSession, mockSurface);
     miral::WindowInfo mockWindowInfo(mockWindow, {});
     QScopedPointer<WindowInfo> windowInfo(new WindowInfo(mockWindowInfo));
-    auto surfaceObserver = std::make_shared<SurfaceObserver>();
 
-    MirSurface surface(mockWindowInfo, nullptr, surfaceObserver);
+    MirSurface surface(mockWindowInfo, nullptr);
 
     bool surfaceDeleted = false;
     QObject::connect(&surface, &QObject::destroyed, &surface, [&surfaceDeleted](){ surfaceDeleted = true; });

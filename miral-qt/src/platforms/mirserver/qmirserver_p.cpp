@@ -123,7 +123,7 @@ struct QMirServerPrivate::Self
     const QSharedPointer<ScreensModel> &m_screensModel;
     miral::SetWindowManagmentPolicy m_policy;
     qtmir::WindowController m_windowController;
-    qtmir::WindowModel m_windowModel;
+    qtmir::WindowModelNotifier m_windowModelNotifier;
     std::weak_ptr<SessionListener> m_sessionListener;
     std::weak_ptr<PromptSessionListener> m_promptSessionListener;
 };
@@ -135,13 +135,13 @@ SessionListener *QMirServerPrivate::sessionListener() const
 
 QMirServerPrivate::Self::Self(const QSharedPointer<ScreensModel> &model)
     : m_screensModel(model)
-    , m_policy(miral::set_window_managment_policy<WindowManagementPolicy>(m_windowModel, m_windowController, m_screensModel))
+    , m_policy(miral::set_window_managment_policy<WindowManagementPolicy>(m_windowModelNotifier, m_windowController, m_screensModel))
 {
 }
 
-qtmir::WindowModelInterface *QMirServerPrivate::windowModel() const
+qtmir::WindowModelNotifierInterface *QMirServerPrivate::windowModelNotifier() const
 {
-    return &self->m_windowModel;
+    return &self->m_windowModelNotifier;
 }
 
 qtmir::WindowControllerInterface *QMirServerPrivate::windowController() const

@@ -14,8 +14,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WINDOWMODELINTERFACE_H
-#define WINDOWMODELINTERFACE_H
+#ifndef WINDOWMODELNOTIFIERINTERFACE_H
+#define WINDOWMODELNOTIFIERINTERFACE_H
 
 #include <QObject>
 #include <QSize>
@@ -58,12 +58,12 @@ public:
 };
 
 
-class WindowModelInterface : public QObject
+class WindowModelNotifierInterface : public QObject
 {
     Q_OBJECT
 public:
-    WindowModelInterface() = default;
-    virtual ~WindowModelInterface() = default;
+    WindowModelNotifierInterface() = default;
+    virtual ~WindowModelNotifierInterface() = default;
 
 Q_SIGNALS:
     void windowAdded(const qtmir::WindowInfo, const unsigned int index);
@@ -74,11 +74,11 @@ Q_SIGNALS:
     void windowInfoChanged(const qtmir::WindowInfo, const unsigned int index);
 
 private:
-    Q_DISABLE_COPY(WindowModelInterface)
+    Q_DISABLE_COPY(WindowModelNotifierInterface)
 };
 
 } // namespace qtmir
 
 Q_DECLARE_METATYPE(qtmir::WindowInfo)
 
-#endif // WINDOWMODELINTERFACE_H
+#endif // WINDOWMODELNOTIFIERINTERFACE_H

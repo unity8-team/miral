@@ -109,8 +109,8 @@ void *QMirServer::nativeResourceForIntegration(const QByteArray &resource) const
             result = d->promptSessionListener();
         else if (resource == "WindowController")
             result = d->windowController();
-        else if (resource == "WindowModel")
-            result = d->windowModel();
+        else if (resource == "WindowModelNotifier")
+            result = d->windowModelNotifier();
         else if (resource == "ScreensController")
             result = d->screensController.data();
     }
