@@ -20,8 +20,8 @@
 #include <QObject>
 #include <QMap>
 
-#include "mir/scene/session_listener.h"
-#include "mir/scene/session.h"
+#include <mir/scene/session_listener.h>
+#include <mir/scene/session.h>
 
 #include "creationhints.h"
 
