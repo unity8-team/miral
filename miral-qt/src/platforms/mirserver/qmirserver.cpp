@@ -116,6 +116,5 @@ void *QMirServer::nativeResourceForIntegration(const QByteArray &resource) const
 std::shared_ptr<mir::scene::PromptSessionManager> QMirServer::thePromptSessionManager() const
 {
     Q_D(const QMirServer);
-
     return d->thePromptSessionManager();
 }

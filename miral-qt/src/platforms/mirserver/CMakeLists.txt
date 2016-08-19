@@ -81,13 +81,15 @@ set(MIRSERVER_QPA_PLUGIN_SRC
     windowmanagementpolicy.cpp
     windowmodel.cpp
     tracepoints.c
+    mirserverhooks.cpp mirserverhooks.h
+    openglcontextfactory.cpp openglcontextfactory.h
     setqtcompositor.cpp setqtcompositor.h
 # We need to run moc on these headers
     ${APPLICATION_API_INCLUDEDIR}/unity/shell/application/Mir.h
     ${APPLICATION_API_INCLUDEDIR}/unity/shell/application/MirMousePointerInterface.h
     ${MIRAL_QT_SOURCE_DIR}/src/common/windowcontrollerinterface.h
     ${MIRAL_QT_SOURCE_DIR}/src/common/windowmodelinterface.h
-        openglcontextfactory.cpp openglcontextfactory.h)
+)
 
 add_library(qpa-mirserver SHARED
     ${MIRSERVER_QPA_PLUGIN_SRC}

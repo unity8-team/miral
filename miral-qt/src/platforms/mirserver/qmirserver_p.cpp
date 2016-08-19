@@ -15,14 +15,10 @@
  */
 
 #include "qmirserver_p.h"
-#include <QCoreApplication>
-#include <QOpenGLContext>
 
 // local
 #include "logging.h"
 #include "mirdisplayconfigurationpolicy.h"
-#include "promptsessionlistener.h"
-#include "sessionlistener.h"
 #include "windowmanagementpolicy.h"
 #include "argvHelper.h"
 #include "setqtcompositor.h"
@@ -32,6 +28,10 @@
 #include <miral/set_command_line_hander.h>
 #include <miral/set_terminator.h>
 #include <miral/set_window_managment_policy.h>
+
+// Qt
+#include <QCoreApplication>
+#include <QOpenGLContext>
 
 void MirServerThread::run()
 {
@@ -56,27 +56,17 @@ bool MirServerThread::waitForMirStartup()
 
 SessionListener *QMirServerPrivate::sessionListener() const
 {
-    return m_sessionListener.lock().get();
-}
-
-qtmir::WindowModelInterface *QMirServerPrivate::windowModel() const
-{
-    return &m_windowModel;
-}
-
-qtmir::WindowControllerInterface *QMirServerPrivate::windowController() const
-{
-    return &m_windowController;
+    return m_mirServerHooks.sessionListener();
 }
 
 QPlatformOpenGLContext *QMirServerPrivate::createPlatformOpenGLContext(QOpenGLContext *context) const
 {
-    return m_openGLContextFactory.createPlatformOpenGLContext(context->format(), *m_mirDisplay.lock());
+    return m_openGLContextFactory.createPlatformOpenGLContext(context->format(), *m_mirServerHooks.theMirDisplay());
 }
 
 std::shared_ptr<mir::scene::PromptSessionManager> QMirServerPrivate::thePromptSessionManager() const
 {
-    return m_mirPromptSessionManager.lock();
+    return m_mirServerHooks.thePromptSessionManager();
 }
 
 QMirServerPrivate::QMirServerPrivate(int argc, char *argv[]) :
@@ -87,7 +77,7 @@ QMirServerPrivate::QMirServerPrivate(int argc, char *argv[]) :
 
 PromptSessionListener *QMirServerPrivate::promptSessionListener() const
 {
-    return m_promptSessionListener.lock().get();
+    return m_mirServerHooks.promptSessionListener();
 }
 
 void QMirServerPrivate::run(std::function<void()> const& start_callback)
@@ -130,9 +120,7 @@ void QMirServerPrivate::run(std::function<void()> const& start_callback)
     runner.add_start_callback([&]
     {
         screensModel->update();
-        screensController = QSharedPointer<ScreensController>(
-                                   new ScreensController(screensModel, m_mirDisplay.lock(),
-                                                         m_mirDisplayConfigurationController.lock()));
+        screensController = m_mirServerHooks.createScreensController(screensModel);
     });
 
     runner.add_start_callback(start_callback);
@@ -147,7 +135,7 @@ void QMirServerPrivate::run(std::function<void()> const& start_callback)
         {
             m_sessionAuthorizer,
             m_openGLContextFactory,
-            [this](mir::Server& ms) { init(ms); },
+            m_mirServerHooks,
             miral::set_window_managment_policy<WindowManagementPolicy>(m_windowModel, m_windowController, screensModel),
             qtmir::setDisplayConfigurationPolicy,
             setCommandLineHandler,
@@ -160,63 +148,4 @@ void QMirServerPrivate::run(std::function<void()> const& start_callback)
 void QMirServerPrivate::stop()
 {
     runner.stop();
-}
-
-#include "mircursorimages.h"
-#include "mirserverstatuslistener.h"
-
-// mir (FIXME)
-#include <mir/graphics/cursor.h>
-#include <mir/server.h>
-
-namespace mg = mir::graphics;
-
-namespace
-{
-struct HiddenCursorWrapper : mg::Cursor
-{
-    HiddenCursorWrapper(std::shared_ptr<mg::Cursor> const& wrapped) :
-        wrapped{wrapped} { wrapped->hide(); }
-    void show() override { }
-    void show(mg::CursorImage const&) override { }
-    void hide() override { wrapped->hide(); }
-
-    void move_to(mir::geometry::Point position) override { wrapped->move_to(position); }
-
-private:
-    std::shared_ptr<mg::Cursor> const wrapped;
-};
-}
-
-void QMirServerPrivate::init(mir::Server& server)
-{
-    server.override_the_server_status_listener([]
-        { return std::make_shared<MirServerStatusListener>(); });
-
-    server.override_the_cursor_images([]
-        { return std::make_shared<qtmir::MirCursorImages>(); });
-
-    server.wrap_cursor([&](std::shared_ptr<mg::Cursor> const& wrapped)
-        { return std::make_shared<HiddenCursorWrapper>(wrapped); });
-
-    server.override_the_session_listener([this]
-        {
-            auto const result = std::make_shared<SessionListener>();
-            m_sessionListener = result;
-            return result;
-        });
-
-    server.override_the_prompt_session_listener([this]
-        {
-            auto const result = std::make_shared<PromptSessionListener>();
-            m_promptSessionListener = result;
-            return result;
-        });
-
-    server.add_init_callback([this, &server]
-        {
-            m_mirDisplay = server.the_display();
-            m_mirDisplayConfigurationController = server.the_display_configuration_controller();
-            m_mirPromptSessionManager = server.the_prompt_session_manager();
-        });
 }

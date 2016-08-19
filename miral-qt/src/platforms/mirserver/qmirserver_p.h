@@ -27,10 +27,11 @@
 
 // local
 #include "openglcontextfactory.h"
-#include "screenscontroller.h"
+#include "screensmodel.h"
 #include "windowcontroller.h"
 #include "windowmodel.h"
 #include "sessionauthorizer.h"
+#include "mirserverhooks.h"
 
 //miral
 #include <miral/application_authorizer.h>
@@ -58,33 +59,34 @@ public:
     QSharedPointer<ScreensController> screensController;
     MirServerThread *serverThread;
 
+    QPlatformOpenGLContext *createPlatformOpenGLContext(QOpenGLContext *context) const;
+
     void run(std::function<void()> const& start_callback);
     void stop();
 
     SessionListener *sessionListener() const;
     PromptSessionListener *promptSessionListener() const;
-    qtmir::WindowModelInterface *windowModel() const;
-    qtmir::WindowControllerInterface *windowController() const;
-    QPlatformOpenGLContext *createPlatformOpenGLContext(QOpenGLContext *context) const;
     std::shared_ptr<mir::scene::PromptSessionManager> thePromptSessionManager() const;
 
     auto the_application_authorizer() const -> std::shared_ptr<SessionAuthorizer>
         { return m_sessionAuthorizer.the_custom_application_authorizer(); }
 
-private:
-    void init(mir::Server& server);
+    qtmir::WindowModelInterface *windowModel() const
+        { return &m_windowModel; }
 
+    qtmir::WindowControllerInterface *windowController() const
+        { return &m_windowController; }
+
+private:
     qtmir::SetSessionAuthorizer m_sessionAuthorizer;
     qtmir::OpenGLContextFactory m_openGLContextFactory;
+    qtmir::MirServerHooks       m_mirServerHooks;
 
     miral::MirRunner runner;
+
+    mutable qtmir::WindowModel      m_windowModel;
     mutable qtmir::WindowController m_windowController;
-    mutable qtmir::WindowModel m_windowModel;
-    std::weak_ptr<SessionListener> m_sessionListener;
-    std::weak_ptr<PromptSessionListener> m_promptSessionListener;
-    std::weak_ptr<mir::graphics::Display> m_mirDisplay;
-    std::weak_ptr<mir::shell::DisplayConfigurationController> m_mirDisplayConfigurationController;
-    std::weak_ptr<mir::scene::PromptSessionManager> m_mirPromptSessionManager;
+
     int &argc;
     char **argv;
 };
