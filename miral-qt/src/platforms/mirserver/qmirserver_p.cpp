@@ -147,7 +147,7 @@ void QMirServerPrivate::run(std::function<void()> const& start_callback)
 
     runner.run_with(
         {
-            static_cast<qtmir::SetSessionAuthorizer&>(*this),
+            m_sessionAuthorizer,
             [this](mir::Server& ms) { init(ms); },
             miral::set_window_managment_policy<WindowManagementPolicy>(m_windowModel, m_windowController, screensModel),
             qtmir::setDisplayConfigurationPolicy,

@@ -51,7 +51,7 @@ namespace qtmir
 using SetSessionAuthorizer = miral::SetApplicationAuthorizer<SessionAuthorizer>;
 }
 
-class QMirServerPrivate : private qtmir::SetSessionAuthorizer
+class QMirServerPrivate
 {
 public:
     QMirServerPrivate(int argc, char* argv[]);
@@ -69,10 +69,13 @@ public:
     QPlatformOpenGLContext *createPlatformOpenGLContext(QOpenGLContext *context) const;
     std::shared_ptr<mir::scene::PromptSessionManager> thePromptSessionManager() const;
 
-    using qtmir::SetSessionAuthorizer::the_application_authorizer;
+    auto the_application_authorizer() const -> std::shared_ptr<SessionAuthorizer>
+        { return m_sessionAuthorizer.the_custom_application_authorizer(); }
 
 private:
     void init(mir::Server& server);
+
+    qtmir::SetSessionAuthorizer m_sessionAuthorizer;
 
     miral::MirRunner runner;
     mutable qtmir::WindowController m_windowController;
