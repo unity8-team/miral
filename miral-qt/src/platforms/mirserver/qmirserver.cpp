@@ -92,7 +92,7 @@ void *QMirServer::nativeResourceForIntegration(const QByteArray &resource) const
     void *result = nullptr;
 
     if (resource == "SessionAuthorizer")
-        result = d->the_application_authorizer().get();
+        result = d->theApplicationAuthorizer().get();
     else if (resource == "SessionListener")
         result = d->sessionListener();
     else if (resource == "PromptSessionListener")
@@ -110,5 +110,5 @@ void *QMirServer::nativeResourceForIntegration(const QByteArray &resource) const
 std::shared_ptr<mir::scene::PromptSessionManager> QMirServer::thePromptSessionManager() const
 {
     Q_D(const QMirServer);
-    return d->thePromptSessionManager();
+    return d->promptSessionManager();
 }

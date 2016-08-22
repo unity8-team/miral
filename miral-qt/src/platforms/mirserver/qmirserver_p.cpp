@@ -64,7 +64,7 @@ QPlatformOpenGLContext *QMirServerPrivate::createPlatformOpenGLContext(QOpenGLCo
     return m_openGLContextFactory.createPlatformOpenGLContext(context->format(), *m_mirServerHooks.theMirDisplay());
 }
 
-std::shared_ptr<mir::scene::PromptSessionManager> QMirServerPrivate::thePromptSessionManager() const
+std::shared_ptr<mir::scene::PromptSessionManager> QMirServerPrivate::promptSessionManager() const
 {
     return m_mirServerHooks.thePromptSessionManager();
 }
@@ -80,7 +80,7 @@ PromptSessionListener *QMirServerPrivate::promptSessionListener() const
     return m_mirServerHooks.promptSessionListener();
 }
 
-void QMirServerPrivate::run(std::function<void()> const& start_callback)
+void QMirServerPrivate::run(const std::function<void()> &startCallback)
 {
     bool unknownArgsFound = false;
 
@@ -123,7 +123,7 @@ void QMirServerPrivate::run(std::function<void()> const& start_callback)
         screensController = m_mirServerHooks.createScreensController(screensModel);
     });
 
-    runner.add_start_callback(start_callback);
+    runner.add_start_callback(startCallback);
 
     runner.add_stop_callback([&]
     {

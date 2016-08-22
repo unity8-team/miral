@@ -37,9 +37,7 @@
 #include <miral/application_authorizer.h>
 #include <miral/runner.h>
 
-class QMirServer;
 class MirServerThread;
-class SessionAuthorizer;
 class QOpenGLContext;
 
 namespace qtmir
@@ -57,14 +55,14 @@ public:
 
     QPlatformOpenGLContext *createPlatformOpenGLContext(QOpenGLContext *context) const;
 
-    void run(std::function<void()> const& start_callback);
+    void run(const std::function<void()> &startCallback);
     void stop();
 
     SessionListener *sessionListener() const;
     PromptSessionListener *promptSessionListener() const;
-    std::shared_ptr<mir::scene::PromptSessionManager> thePromptSessionManager() const;
+    std::shared_ptr<mir::scene::PromptSessionManager> promptSessionManager() const;
 
-    auto the_application_authorizer() const -> std::shared_ptr<SessionAuthorizer>
+    std::shared_ptr<SessionAuthorizer> theApplicationAuthorizer() const
         { return m_sessionAuthorizer.the_custom_application_authorizer(); }
 
     qtmir::WindowModelNotifierInterface *windowModelNotifier() const

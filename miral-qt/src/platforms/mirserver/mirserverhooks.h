@@ -25,7 +25,6 @@
 namespace mir { class Server; }
 namespace mir { namespace scene { class PromptSessionManager; }}
 namespace mir { namespace graphics { class Display; }}
-namespace mir { namespace shell { class DisplayConfigurationController; }}
 
 class PromptSessionListener;
 class SessionListener;

@@ -24,7 +24,6 @@
 namespace mir { namespace graphics { class Display; }}
 namespace mir { class Server; }
 
-class SessionAuthorizer;
 class QPlatformOpenGLContext;
 class QSurfaceFormat;
 
