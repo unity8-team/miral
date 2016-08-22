@@ -44,8 +44,7 @@ public:
     Q_SLOT void stop();
     bool isRunning() const;
 
-    QWeakPointer<ScreensController> screensController() const;
-    QWeakPointer<ScreensModel> screensModel() const;
+    QSharedPointer<ScreensModel> screensModel() const;
     QPlatformOpenGLContext *createPlatformOpenGLContext(QOpenGLContext *context) const;
     void *nativeResourceForIntegration(const QByteArray &resource) const;
     std::shared_ptr<mir::scene::PromptSessionManager> thePromptSessionManager() const;
