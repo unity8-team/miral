@@ -227,3 +227,85 @@ TEST_F(WindowModelTest, Add3WindowsRemoveSecondResultsInCorrectModel)
     auto miralWindow3 = getMirALWindowFromModel(model, 1);
     ASSERT_EQ(mirWindowInfo3.window(), miralWindow3);
 }
+
+/*
+ * Test: with 1 window, raise does nothing
+ */
+TEST_F(WindowModelTest, Raising1WindowDoesNothing)
+{
+    WindowModelNotifier notifier;
+    WindowModel model(&notifier, nullptr); // no need for controller in this testcase
+
+    auto mirWindowInfo1 = createMirALWindowInfo();
+    notifier.addWindow(mirWindowInfo1);
+
+    // Raise first window
+    notifier.raiseWindows({mirWindowInfo1.window()});
+
+    ASSERT_EQ(1, model.count());
+    auto topWindow = getMirALWindowFromModel(model, 0);
+    ASSERT_EQ(mirWindowInfo1.window(), topWindow);
+}
+
+/*
+ * Test: with 2 window, raising top window does nothing
+ */
+TEST_F(WindowModelTest, RaisingTopWindowDoesNothing)
+{
+    WindowModelNotifier notifier;
+    WindowModel model(&notifier, nullptr); // no need for controller in this testcase
+
+    auto mirWindowInfo1 = createMirALWindowInfo();
+    auto mirWindowInfo2 = createMirALWindowInfo();
+    notifier.addWindow(mirWindowInfo1);
+    notifier.addWindow(mirWindowInfo2);
+
+    // Raise second window (currently on top)
+    notifier.raiseWindows({mirWindowInfo2.window()});
+
+    // Check second window still on top
+    ASSERT_EQ(2, model.count());
+    auto topWindow = getMirALWindowFromModel(model, 1);
+    ASSERT_EQ(mirWindowInfo2.window(), topWindow);
+}
+
+/*
+ * Test: with 2 window, raising bottom window brings it to the top
+ */
+TEST_F(WindowModelTest, DISABLED_RaisingBottomWindowBringsItToTheTop)
+{
+    WindowModelNotifier notifier;
+    WindowModel model(&notifier, nullptr); // no need for controller in this testcase
+
+    auto mirWindowInfo1 = createMirALWindowInfo();
+    auto mirWindowInfo2 = createMirALWindowInfo();
+    notifier.addWindow(mirWindowInfo1);
+    notifier.addWindow(mirWindowInfo2);
+
+    // Raise first window (currently at bottom)
+    notifier.raiseWindows({mirWindowInfo1.window()});
+
+    // Check first window now on top
+    ASSERT_EQ(2, model.count());
+    auto topWindow = getMirALWindowFromModel(model, 1);
+    ASSERT_EQ(mirWindowInfo1.window(), topWindow);
+}
+
+/*
+ * Test: Mir moving a window updates MirSurface position
+ */
+TEST_F(WindowModelTest, WindowMoveUpdatesMirSurface)
+{
+    WindowModelNotifier notifier;
+    WindowModel model(&notifier, nullptr); // no need for controller in this testcase
+
+    auto mirWindowInfo1 = createMirALWindowInfo();
+    notifier.addWindow(mirWindowInfo1);
+
+    // Raise first window
+    notifier.raiseWindows({mirWindowInfo1.window()});
+
+    ASSERT_EQ(1, model.count());
+    auto topWindow = getMirALWindowFromModel(model, 0);
+    ASSERT_EQ(mirWindowInfo1.window(), topWindow);
+}
