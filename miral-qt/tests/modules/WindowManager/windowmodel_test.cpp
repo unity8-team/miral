@@ -21,6 +21,7 @@
 #include <QSignalSpy>
 
 #include "windowmodelnotifier.h"
+#include "Unity/Application/mirsurface.h"
 #include "Unity/Application/windowmodel.h"
 
 #include <mir/test/doubles/stub_surface.h>
@@ -49,8 +50,6 @@ public:
 
     miral::WindowInfo createMirALWindowInfo(int width = 200, int height = 300)
     {
-        const std::shared_ptr<StubSession> stubSession{std::make_shared<StubSession>()};
-        const std::shared_ptr<StubSurface> stubSurface{std::make_shared<StubSurface>()};
         const miral::Application app{stubSession};
         const miral::Window window{app, stubSurface};
 
@@ -58,6 +57,19 @@ public:
         windowSpec.of_size(Size{Width{width}, Height{height}});
         return miral::WindowInfo{window, windowSpec};
     }
+
+    MirSurface *getMirSurfaceFromModel(const WindowModel &model, int index)
+    {
+        return model.data(model.index(index, 0), WindowModel::SurfaceRole).value<MirSurface*>();
+    }
+
+    miral::Window getMirALWindowFromModel(const WindowModel &model, int index)
+    {
+        return getMirSurfaceFromModel(model, index)->windowInfo().window;
+    }
+
+    const std::shared_ptr<StubSession> stubSession{std::make_shared<StubSession>()};
+    const std::shared_ptr<StubSurface> stubSurface{std::make_shared<StubSurface>()};
 };
 
 /*
@@ -98,4 +110,70 @@ TEST_F(WindowModelTest, RemoveWindowSucceeds)
 
     ASSERT_EQ(0, model.count());
     EXPECT_EQ(1, spyCountChanged.count());
+}
+
+/*
+ * Test: that calling WindowModelNotifier.addWindow causes Qt-side WindowModel to
+ * have 2 windows in the correct order.
+ */
+TEST_F(WindowModelTest, Add2Windows)
+{
+    WindowModelNotifier notifier;
+    WindowModel model(&notifier, nullptr); // no need for controller in this testcase
+
+    auto mirWindowInfo1 = createMirALWindowInfo();
+    auto mirWindowInfo2 = createMirALWindowInfo();
+
+    notifier.addWindow(mirWindowInfo1);
+    notifier.addWindow(mirWindowInfo2);
+
+    ASSERT_EQ(2, model.count());
+    auto miralWindow1 = getMirALWindowFromModel(model, 0);
+    ASSERT_EQ(mirWindowInfo1.window(), miralWindow1);
+    auto miralWindow2 = getMirALWindowFromModel(model, 1);
+    ASSERT_EQ(mirWindowInfo2.window(), miralWindow2);
+}
+
+/*
+ * Test: that adding 2 windows, then removing the second, leaves the first.
+ */
+TEST_F(WindowModelTest, Add2WindowsAndRemoveSecondPreservesFirst)
+{
+    WindowModelNotifier notifier;
+    WindowModel model(&notifier, nullptr); // no need for controller in this testcase
+
+    auto mirWindowInfo1 = createMirALWindowInfo();
+    auto mirWindowInfo2 = createMirALWindowInfo();
+
+    notifier.addWindow(mirWindowInfo1);
+    notifier.addWindow(mirWindowInfo2);
+
+    // Remove second window
+    notifier.removeWindow(mirWindowInfo2);
+
+    ASSERT_EQ(1, model.count());
+    auto miralWindow = getMirALWindowFromModel(model, 0);
+    ASSERT_EQ(mirWindowInfo1.window(), miralWindow);
+}
+
+/*
+ * Test: that adding 2 windows, then removing the first, leaves the second.
+ */
+TEST_F(WindowModelTest, Add2WindowsAndRemoveFirstPreservesSecond)
+{
+    WindowModelNotifier notifier;
+    WindowModel model(&notifier, nullptr); // no need for controller in this testcase
+
+    auto mirWindowInfo1 = createMirALWindowInfo();
+    auto mirWindowInfo2 = createMirALWindowInfo();
+
+    notifier.addWindow(mirWindowInfo1);
+    notifier.addWindow(mirWindowInfo2);
+
+    // Remove first window
+    notifier.removeWindow(mirWindowInfo1);
+
+    ASSERT_EQ(1, model.count());
+    auto miralWindow = getMirALWindowFromModel(model, 0);
+    ASSERT_EQ(mirWindowInfo2.window(), miralWindow);
 }
