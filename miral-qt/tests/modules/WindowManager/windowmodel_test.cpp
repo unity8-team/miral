@@ -20,6 +20,7 @@
 #include <QTest>
 #include <QSignalSpy>
 
+#include "mirqtconversion.h"
 #include "windowmodelnotifier.h"
 #include "Unity/Application/mirsurface.h"
 #include "Unity/Application/windowmodel.h"
@@ -36,7 +37,6 @@ namespace mg = mir::graphics;
 using StubSurface = mir::test::doubles::StubSurface;
 using StubSession = mir::test::doubles::StubSession;
 using namespace testing;
-using namespace mir::geometry;
 
 
 class WindowModelTest : public ::testing::Test
@@ -48,13 +48,14 @@ public:
         QLoggingCategory::setFilterRules(QStringLiteral("qtmir.surfaces=false"));
     }
 
-    miral::WindowInfo createMirALWindowInfo(int width = 200, int height = 300)
+    miral::WindowInfo createMirALWindowInfo(QPoint position = {160, 320}, QSize size = {100, 200})
     {
         const miral::Application app{stubSession};
         const miral::Window window{app, stubSurface};
 
         ms::SurfaceCreationParameters windowSpec;
-        windowSpec.of_size(Size{Width{width}, Height{height}});
+        windowSpec.of_size(toMirSize(size));
+        windowSpec.of_position(toMirPoint(position));
         return miral::WindowInfo{window, windowSpec};
     }
 
@@ -292,20 +293,173 @@ TEST_F(WindowModelTest, DISABLED_RaisingBottomWindowBringsItToTheTop)
 }
 
 /*
- * Test: Mir moving a window updates MirSurface position
+ * Test: MirSurface has inital position set correctly from miral::WindowInfo
  */
 TEST_F(WindowModelTest, WindowMoveUpdatesMirSurface)
 {
     WindowModelNotifier notifier;
     WindowModel model(&notifier, nullptr); // no need for controller in this testcase
 
-    auto mirWindowInfo1 = createMirALWindowInfo();
+    QPoint position(100, 200);
+
+    auto mirWindowInfo = createMirALWindowInfo(position);
+    notifier.addWindow(mirWindowInfo);
+
+    auto surface = getMirSurfaceFromModel(model, 0);
+    ASSERT_EQ(position, surface->position());
+}
+
+/*
+ * Test: Mir moving a window updates MirSurface position
+ */
+TEST_F(WindowModelTest, MirSurfacePositionSetCorrectlyAtCreation)
+{
+    WindowModelNotifier notifier;
+    WindowModel model(&notifier, nullptr); // no need for controller in this testcase
+
+    QPoint oldPosition(100, 200),
+           newPosition(150, 220);
+
+    auto mirWindowInfo = createMirALWindowInfo(oldPosition);
+    notifier.addWindow(mirWindowInfo);
+
+    auto surface = getMirSurfaceFromModel(model, 0);
+
+    // Move window, check new position set
+    notifier.moveWindow(mirWindowInfo, toMirPoint(newPosition));
+
+    ASSERT_EQ(newPosition, surface->position());
+}
+
+/*
+ * Test: with 2 windows, ensure window move impacts the correct MirSurface
+ */
+TEST_F(WindowModelTest, WindowMoveUpdatesCorrectMirSurface)
+{
+    WindowModelNotifier notifier;
+    WindowModel model(&notifier, nullptr); // no need for controller in this testcase
+
+    QPoint oldPosition(100, 200),
+           newPosition(150, 220);
+
+    auto mirWindowInfo1 = createMirALWindowInfo(oldPosition);
+    auto mirWindowInfo2 = createMirALWindowInfo(QPoint(300, 400));
+    notifier.addWindow(mirWindowInfo1);
+    notifier.addWindow(mirWindowInfo2);
+
+    auto surface = getMirSurfaceFromModel(model, 0); // should be MirSurface for mirWindowInfo1
+
+    // Move window, check new position set
+    notifier.moveWindow(mirWindowInfo1, toMirPoint(newPosition));
+
+    ASSERT_EQ(newPosition, surface->position());
+}
+
+/*
+ * Test: with 2 windows, ensure window move does not impact other MirSurfaces
+ */
+TEST_F(WindowModelTest, WindowMoveDoesNotTouchOtherMirSurfaces)
+{
+    WindowModelNotifier notifier;
+    WindowModel model(&notifier, nullptr); // no need for controller in this testcase
+
+    QPoint fixedPosition(300, 400);
+
+    auto mirWindowInfo1 = createMirALWindowInfo(QPoint(100, 200));
+    auto mirWindowInfo2 = createMirALWindowInfo(fixedPosition);
+    notifier.addWindow(mirWindowInfo1);
+    notifier.addWindow(mirWindowInfo2);
+
+    auto surface = getMirSurfaceFromModel(model, 1); // should be MirSurface for mirWindowInfo2
+
+    // Move window, check new position set
+    notifier.moveWindow(mirWindowInfo1, toMirPoint(QPoint(350, 420)));
+
+    // Ensure other window untouched
+    ASSERT_EQ(fixedPosition, surface->position());
+}
+
+/*
+ * Test: MirSurface has inital size set correctly from miral::WindowInfo
+ */
+TEST_F(WindowModelTest, MirSurfaceSizeSetCorrectlyAtCreation)
+{
+    WindowModelNotifier notifier;
+    WindowModel model(&notifier, nullptr); // no need for controller in this testcase
+
+    QSize size(300, 200);
+
+    auto mirWindowInfo1 = createMirALWindowInfo(QPoint(), size);
     notifier.addWindow(mirWindowInfo1);
 
-    // Raise first window
-    notifier.raiseWindows({mirWindowInfo1.window()});
+    auto surface = getMirSurfaceFromModel(model, 0);
+    ASSERT_EQ(size, surface->size());
+}
 
-    ASSERT_EQ(1, model.count());
-    auto topWindow = getMirALWindowFromModel(model, 0);
-    ASSERT_EQ(mirWindowInfo1.window(), topWindow);
+/*
+ * Test: Mir resizing a window updates MirSurface size
+ */
+TEST_F(WindowModelTest, WindowResizeUpdatesMirSurface)
+{
+    WindowModelNotifier notifier;
+    WindowModel model(&notifier, nullptr); // no need for controller in this testcase
+
+    QSize newSize(150, 220);
+
+    auto mirWindowInfo1 = createMirALWindowInfo(QPoint(), QSize(300, 200));
+    notifier.addWindow(mirWindowInfo1);
+
+    auto surface = getMirSurfaceFromModel(model, 0);
+
+    // Move window, check new position set
+    notifier.resizeWindow(mirWindowInfo1, toMirSize(newSize));
+
+    ASSERT_EQ(newSize, surface->size());
+}
+
+/*
+ * Test: with 2 windows, ensure window resize impacts the correct MirSurface
+ */
+TEST_F(WindowModelTest, WindowResizeUpdatesCorrectMirSurface)
+{
+    WindowModelNotifier notifier;
+    WindowModel model(&notifier, nullptr); // no need for controller in this testcase
+
+    QSize newSize(150, 220);
+
+    auto mirWindowInfo1 = createMirALWindowInfo(QPoint(), QSize(100, 200));
+    auto mirWindowInfo2 = createMirALWindowInfo(QPoint(), QSize(300, 400));
+    notifier.addWindow(mirWindowInfo1);
+    notifier.addWindow(mirWindowInfo2);
+
+    auto surface = getMirSurfaceFromModel(model, 0);
+
+    // Move window, check new position set
+    notifier.resizeWindow(mirWindowInfo1, toMirSize(newSize));
+
+    ASSERT_EQ(newSize, surface->size());
+}
+
+/*
+ * Test: with 2 windows, ensure window resize does not impact other MirSurfaces
+ */
+TEST_F(WindowModelTest, WindowResizeDoesNotTouchOtherMirSurfaces)
+{
+    WindowModelNotifier notifier;
+    WindowModel model(&notifier, nullptr); // no need for controller in this testcase
+
+    QSize fixedPosition(300, 400);
+
+    auto mirWindowInfo1 = createMirALWindowInfo(QPoint(), QSize(100, 200));
+    auto mirWindowInfo2 = createMirALWindowInfo(QPoint(), fixedPosition);
+    notifier.addWindow(mirWindowInfo1);
+    notifier.addWindow(mirWindowInfo2);
+
+    auto surface = getMirSurfaceFromModel(model, 1);
+
+    // Move window
+    notifier.resizeWindow(mirWindowInfo1, toMirSize(QSize(150, 220)));
+
+    // Ensure other window untouched
+    ASSERT_EQ(fixedPosition, surface->size());
 }
