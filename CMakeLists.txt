@@ -6,6 +6,7 @@ if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 endif()
 
 include (GNUInstallDirs)
+include(CheckCXXCompilerFlag)
 
 cmake_policy(SET CMP0015 NEW)
 cmake_policy(SET CMP0022 NEW)
@@ -24,7 +25,8 @@ option(MIRAL_USE_LD_GOLD "Enable the \"gold\" linker" on)
 if (MIRAL_USE_LD_GOLD)
     set(MIRAL_COMPILER_FLAGS "${MIRAL_COMPILER_FLAGS} -fuse-ld=gold")
     set(MIRAL_LINKER_FLAGS     "${MIRAL_LINKER_FLAGS} -fuse-ld=gold")
-    if ("${CMAKE_CXX_COMPILER}" MATCHES "clang")
+    check_cxx_compiler_flag(-Wno-unused-command-line-argument MIRAL_COMPILE_WITH_W_NO_UNUSED_COMMAND_LINE_ARGUMENT)
+    if (MIRAL_COMPILE_WITH_W_NO_UNUSED_COMMAND_LINE_ARGUMENT)
         set(MIRAL_COMPILER_FLAGS "${MIRAL_COMPILER_FLAGS} -Wno-unused-command-line-argument")
     endif()
 endif()
@@ -37,6 +39,11 @@ if (MIRAL_USE_LTO)
         set(CMAKE_AR "gcc-ar")
         set(CMAKE_RANLIB "gcc-ranlib")
     endif()
+endif()
+
+check_cxx_compiler_flag(-Wno-mismatched-tags MIRAL_COMPILE_WITH_W_NO_MISMATCHED_TAGS)
+if (MIRAL_COMPILE_WITH_W_NO_MISMATCHED_TAGS)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-mismatched-tags")
 endif()
 
 set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} ${MIRAL_COMPILER_FLAGS}")
@@ -57,15 +64,9 @@ set(MIRAL_VERSION_PATCH 0)
 
 set(MIRAL_VERSION ${MIRAL_VERSION_MAJOR}.${MIRAL_VERSION_MINOR}.${MIRAL_VERSION_PATCH})
 
-find_package(GMock REQUIRED) # needed by both tests and miral-qt/tests
-
 add_subdirectory(miral)
 add_subdirectory(miral-shell)
 add_subdirectory(miral-kiosk)
-option(MIRAL_ENABLE_QT "Build Qt integration" OFF)
-if (MIRAL_ENABLE_QT)
-add_subdirectory(miral-qt)
-endif()
 
 pkg_check_modules(MIRTEST mirtest)
 if(NOT MIRTEST_FOUND)
@@ -81,9 +82,14 @@ else()
 
 if (MIRAL_ENABLE_TESTS)
     enable_testing()
-
+    find_package(GMock REQUIRED)
     add_subdirectory(test)
 endif()
+endif()
+
+option(MIRAL_ENABLE_QT "Build Qt integration" OFF)
+if (MIRAL_ENABLE_QT)
+    add_subdirectory(miral-qt)
 endif()
 
 include (cmake/Doxygen.cmake)

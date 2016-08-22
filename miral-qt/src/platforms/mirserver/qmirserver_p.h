@@ -26,48 +26,62 @@
 #include <mutex>
 
 // local
-#include "screenscontroller.h"
+#include "openglcontextfactory.h"
+#include "screensmodel.h"
 #include "windowcontroller.h"
 #include "windowmodelnotifier.h"
 #include "sessionauthorizer.h"
+#include "mirserverhooks.h"
 
 //miral
 #include <miral/application_authorizer.h>
 #include <miral/runner.h>
 
-class QMirServer;
 class MirServerThread;
-class PromptSessionListener;
-class SessionListener;
-class SessionAuthorizer;
+class QOpenGLContext;
 
 namespace qtmir
 {
 using SetSessionAuthorizer = miral::SetApplicationAuthorizer<SessionAuthorizer>;
 }
 
-class QMirServerPrivate : private qtmir::SetSessionAuthorizer
+class QMirServerPrivate
 {
 public:
-    QMirServerPrivate(int argc, char const* argv[]);
+    QMirServerPrivate(int argc, char* argv[]);
     const QSharedPointer<ScreensModel> screensModel{new ScreensModel()};
-    mir::Server* server{nullptr};
     QSharedPointer<ScreensController> screensController;
     MirServerThread *serverThread;
 
-    void init(mir::Server& server);
+    QPlatformOpenGLContext *createPlatformOpenGLContext(QOpenGLContext *context) const;
+
+    void run(const std::function<void()> &startCallback);
+    void stop();
 
     SessionListener *sessionListener() const;
     PromptSessionListener *promptSessionListener() const;
-    qtmir::WindowModelNotifierInterface *windowModelNotifier() const;
-    qtmir::WindowControllerInterface *windowController() const;
+    std::shared_ptr<mir::scene::PromptSessionManager> promptSessionManager() const;
 
-    using qtmir::SetSessionAuthorizer::the_application_authorizer;
+    std::shared_ptr<SessionAuthorizer> theApplicationAuthorizer() const
+        { return m_sessionAuthorizer.the_custom_application_authorizer(); }
+
+    qtmir::WindowModelNotifierInterface *windowModelNotifier() const
+        { return &m_windowModelNotifier; }
+
+    qtmir::WindowControllerInterface *windowController() const
+        { return &m_windowController; }
+
+private:
+    qtmir::SetSessionAuthorizer m_sessionAuthorizer;
+    qtmir::OpenGLContextFactory m_openGLContextFactory;
+    qtmir::MirServerHooks       m_mirServerHooks;
 
     miral::MirRunner runner;
-private:
-    struct Self;
-    std::shared_ptr<Self> const self;
+
+    mutable qtmir::WindowModelNotifier m_windowModelNotifier;
+    mutable qtmir::WindowController m_windowController;
+    int &argc;
+    char **argv;
 };
 
 class MirServerThread : public QThread
@@ -75,8 +89,8 @@ class MirServerThread : public QThread
     Q_OBJECT
 
 public:
-    MirServerThread(int &argc, char **argv, QMirServerPrivate* server)
-        : argc{argc}, argv{argv}, server(server)
+    MirServerThread(QMirServerPrivate* server)
+        : server(server)
     {}
 
     bool waitForMirStartup();
@@ -86,15 +100,12 @@ Q_SIGNALS:
 
 public Q_SLOTS:
     void run() override;
-    void stop();
 
 private:
     std::mutex mutex;
     std::condition_variable started_cv;
     bool mir_running{false};
 
-    int &argc;
-    char **argv;
     QMirServerPrivate* const server;
 };
 
