@@ -5,6 +5,8 @@ if (MIRTEST_VERSION VERSION_LESS 0.25)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-mismatched-tags")
     endif()
 endif()
+
+# Mir uses "C" linkage to avoid name-mangling some functions that are not intended not for C compatibility (lp:1615587)
 check_cxx_compiler_flag(-Wno-return-type-c-linkage MIRAL_COMPILE_WITH_W_RETURN_TYPE_C_LINKAGE)
 if (MIRAL_COMPILE_WITH_W_RETURN_TYPE_C_LINKAGE)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-return-type-c-linkage")
