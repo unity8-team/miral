@@ -47,26 +47,55 @@ public:
         QLoggingCategory::setFilterRules(QStringLiteral("qtmir.surfaces=false"));
     }
 
-    const std::shared_ptr<StubSession> stubSession{std::make_shared<StubSession>()};
-    const std::shared_ptr<StubSurface> stubSurface{std::make_shared<StubSurface>()};
-    const miral::Application app{stubSession};
-    const miral::Window windowA{app, stubSurface};
+    miral::WindowInfo createMirALWindowInfo(int width = 200, int height = 300)
+    {
+        const std::shared_ptr<StubSession> stubSession{std::make_shared<StubSession>()};
+        const std::shared_ptr<StubSurface> stubSurface{std::make_shared<StubSurface>()};
+        const miral::Application app{stubSession};
+        const miral::Window window{app, stubSurface};
 
-    WindowModelNotifier m_notifier;
+        ms::SurfaceCreationParameters windowSpec;
+        windowSpec.of_size(Size{Width{width}, Height{height}});
+        return miral::WindowInfo{window, windowSpec};
+    }
 };
 
+/*
+ * Test: that the WindowModelNotifier.addWindow causes the Qt-side WindowModel to
+ * add a new Window, and emit the countChanged signal.
+ */
 TEST_F(WindowModelTest, AddWindowSucceeds)
 {
-    WindowModel model(&m_notifier, nullptr); // no need for controller in this testcase
+    WindowModelNotifier notifier;
+    WindowModel model(&notifier, nullptr); // no need for controller in this testcase
 
-    ms::SurfaceCreationParameters windowASpec;
-    windowASpec.of_size(Size{Width{1024}, Height{768}});
-    miral::WindowInfo mirWindowInfo{windowA, windowASpec};
+    auto mirWindowInfo = createMirALWindowInfo();
 
     QSignalSpy spyCountChanged(&model, SIGNAL(countChanged()));
 
-    m_notifier.addWindow(mirWindowInfo);
+    notifier.addWindow(mirWindowInfo);
 
-    ASSERT_EQ(model.count(), 1);
-    EXPECT_EQ(spyCountChanged.count(), 1);
+    ASSERT_EQ(1, model.count());
+    EXPECT_EQ(1, spyCountChanged.count());
+}
+
+/*
+ * Test: that the WindowModelNotifier.removeWindow causes the Qt-side WindowModel to
+ * remove the Window from the model, and emit the countChanged signal.
+ */
+TEST_F(WindowModelTest, RemoveWindowSucceeds)
+{
+    WindowModelNotifier notifier;
+    WindowModel model(&notifier, nullptr); // no need for controller in this testcase
+
+    auto mirWindowInfo = createMirALWindowInfo();
+    notifier.addWindow(mirWindowInfo);
+
+    // Test removing the window
+    QSignalSpy spyCountChanged(&model, SIGNAL(countChanged()));
+
+    notifier.removeWindow(mirWindowInfo);
+
+    ASSERT_EQ(0, model.count());
+    EXPECT_EQ(1, spyCountChanged.count());
 }
