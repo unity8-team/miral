@@ -177,3 +177,53 @@ TEST_F(WindowModelTest, Add2WindowsAndRemoveFirstPreservesSecond)
     auto miralWindow = getMirALWindowFromModel(model, 0);
     ASSERT_EQ(mirWindowInfo2.window(), miralWindow);
 }
+
+/*
+ * Test: add 2 windows, remove first, add another window - ensure model order correct
+ */
+TEST_F(WindowModelTest, Add2WindowsRemoveFirstAddAnotherResultsInCorrectModel)
+{
+    WindowModelNotifier notifier;
+    WindowModel model(&notifier, nullptr); // no need for controller in this testcase
+
+    auto mirWindowInfo1 = createMirALWindowInfo();
+    auto mirWindowInfo2 = createMirALWindowInfo();
+    auto mirWindowInfo3 = createMirALWindowInfo();
+
+    notifier.addWindow(mirWindowInfo1);
+    notifier.addWindow(mirWindowInfo2);
+    notifier.removeWindow(mirWindowInfo1);
+
+    notifier.addWindow(mirWindowInfo3);
+
+    ASSERT_EQ(2, model.count());
+    auto miralWindow2 = getMirALWindowFromModel(model, 0);
+    ASSERT_EQ(mirWindowInfo2.window(), miralWindow2);
+    auto miralWindow3 = getMirALWindowFromModel(model, 1);
+    ASSERT_EQ(mirWindowInfo3.window(), miralWindow3);
+}
+
+/*
+ * Test: add 3 windows, remove second - ensure model order correct
+ */
+TEST_F(WindowModelTest, Add3WindowsRemoveSecondResultsInCorrectModel)
+{
+    WindowModelNotifier notifier;
+    WindowModel model(&notifier, nullptr); // no need for controller in this testcase
+
+    auto mirWindowInfo1 = createMirALWindowInfo();
+    auto mirWindowInfo2 = createMirALWindowInfo();
+    auto mirWindowInfo3 = createMirALWindowInfo();
+
+    notifier.addWindow(mirWindowInfo1);
+    notifier.addWindow(mirWindowInfo2);
+    notifier.addWindow(mirWindowInfo3);
+
+    notifier.removeWindow(mirWindowInfo2);
+
+    ASSERT_EQ(2, model.count());
+    auto miralWindow1 = getMirALWindowFromModel(model, 0);
+    ASSERT_EQ(mirWindowInfo1.window(), miralWindow1);
+    auto miralWindow3 = getMirALWindowFromModel(model, 1);
+    ASSERT_EQ(mirWindowInfo3.window(), miralWindow3);
+}
