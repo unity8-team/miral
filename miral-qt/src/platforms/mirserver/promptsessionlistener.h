@@ -19,7 +19,7 @@
 
 #include <QObject>
 
-#include "mir/scene/prompt_session_listener.h"
+#include <mir/scene/prompt_session_listener.h>
 
 class PromptSessionListener : public QObject, public mir::scene::PromptSessionListener
 {
