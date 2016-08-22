@@ -23,21 +23,19 @@
 #include "windowmodelnotifier.h"
 #include "Unity/Application/windowmodel.h"
 
-#include "stub_windowmodelnotifier.h"
-
 #include <mir/test/doubles/stub_surface.h>
 #include <mir/test/doubles/stub_session.h>
 
-#include "mirserver/mir/scene/surface_creation_parameters.h"
+#include <mir/scene/surface_creation_parameters.h>
 
 using namespace qtmir;
 
 namespace ms = mir::scene;
 namespace mg = mir::graphics;
-namespace geom = mir::geometry;
 using StubSurface = mir::test::doubles::StubSurface;
 using StubSession = mir::test::doubles::StubSession;
 using namespace testing;
+using namespace mir::geometry;
 
 
 class WindowModelTest : public ::testing::Test
@@ -49,12 +47,12 @@ public:
         QLoggingCategory::setFilterRules(QStringLiteral("qtmir.surfaces=false"));
     }
 
-    std::shared_ptr<StubSession> const stubSession{std::make_shared<StubSession>()};
-    std::shared_ptr<StubSurface> const stubSurface{std::make_shared<StubSurface>()};
-    miral::Application app{stubSession};
-    miral::Window windowA{app, stubSurface};
+    const std::shared_ptr<StubSession> stubSession{std::make_shared<StubSession>()};
+    const std::shared_ptr<StubSurface> stubSurface{std::make_shared<StubSurface>()};
+    const miral::Application app{stubSession};
+    const miral::Window windowA{app, stubSurface};
 
-    StubWindowModelNotifier m_notifier;
+    WindowModelNotifier m_notifier;
 };
 
 TEST_F(WindowModelTest, AddWindowSucceeds)
@@ -62,14 +60,12 @@ TEST_F(WindowModelTest, AddWindowSucceeds)
     WindowModel model(&m_notifier, nullptr); // no need for controller in this testcase
 
     ms::SurfaceCreationParameters windowASpec;
-    windowASpec.of_size(geom::Size{geom::Width{1024}, geom::Height{768}});
+    windowASpec.of_size(Size{Width{1024}, Height{768}});
     miral::WindowInfo mirWindowInfo{windowA, windowASpec};
-
-    WindowInfo window{mirWindowInfo};
 
     QSignalSpy spyCountChanged(&model, SIGNAL(countChanged()));
 
-    m_notifier.emitWindowAdded(window, 0);
+    m_notifier.addWindow(mirWindowInfo);
 
     ASSERT_EQ(model.count(), 1);
     EXPECT_EQ(spyCountChanged.count(), 1);
