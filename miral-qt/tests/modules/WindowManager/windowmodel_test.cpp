@@ -295,7 +295,7 @@ TEST_F(WindowModelTest, DISABLED_RaisingBottomWindowBringsItToTheTop)
 /*
  * Test: MirSurface has inital position set correctly from miral::WindowInfo
  */
-TEST_F(WindowModelTest, WindowMoveUpdatesMirSurface)
+TEST_F(WindowModelTest, MirSurfacePositionSetCorrectlyAtCreation)
 {
     WindowModelNotifier notifier;
     WindowModel model(&notifier, nullptr); // no need for controller in this testcase
@@ -312,7 +312,7 @@ TEST_F(WindowModelTest, WindowMoveUpdatesMirSurface)
 /*
  * Test: Mir moving a window updates MirSurface position
  */
-TEST_F(WindowModelTest, MirSurfacePositionSetCorrectlyAtCreation)
+TEST_F(WindowModelTest, WindowMoveUpdatesMirSurface)
 {
     WindowModelNotifier notifier;
     WindowModel model(&notifier, nullptr); // no need for controller in this testcase
@@ -347,7 +347,7 @@ TEST_F(WindowModelTest, WindowMoveUpdatesCorrectMirSurface)
     notifier.addWindow(mirWindowInfo1);
     notifier.addWindow(mirWindowInfo2);
 
-    auto surface = getMirSurfaceFromModel(model, 0); // should be MirSurface for mirWindowInfo1
+    auto surface = getMirSurfaceFromModel(model, 0); // will be MirSurface for mirWindowInfo1
 
     // Move window, check new position set
     notifier.moveWindow(mirWindowInfo1, toMirPoint(newPosition));
@@ -370,7 +370,7 @@ TEST_F(WindowModelTest, WindowMoveDoesNotTouchOtherMirSurfaces)
     notifier.addWindow(mirWindowInfo1);
     notifier.addWindow(mirWindowInfo2);
 
-    auto surface = getMirSurfaceFromModel(model, 1); // should be MirSurface for mirWindowInfo2
+    auto surface = getMirSurfaceFromModel(model, 1); // will be MirSurface for mirWindowInfo2
 
     // Move window, check new position set
     notifier.moveWindow(mirWindowInfo1, toMirPoint(QPoint(350, 420)));
