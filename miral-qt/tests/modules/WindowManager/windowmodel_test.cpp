@@ -295,7 +295,7 @@ TEST_F(WindowModelTest, DISABLED_RaisingBottomWindowBringsItToTheTop)
 /*
  * Test: MirSurface has inital position set correctly from miral::WindowInfo
  */
-TEST_F(WindowModelTest, MirSurfacePositionSetCorrectlyAtCreation)
+TEST_F(WindowModelTest, DISABLED_MirSurfacePositionSetCorrectlyAtCreation)
 {
     WindowModelNotifier notifier;
     WindowModel model(&notifier, nullptr); // no need for controller in this testcase
@@ -358,7 +358,7 @@ TEST_F(WindowModelTest, WindowMoveUpdatesCorrectMirSurface)
 /*
  * Test: with 2 windows, ensure window move does not impact other MirSurfaces
  */
-TEST_F(WindowModelTest, WindowMoveDoesNotTouchOtherMirSurfaces)
+TEST_F(WindowModelTest, DISABLED_WindowMoveDoesNotTouchOtherMirSurfaces)
 {
     WindowModelNotifier notifier;
     WindowModel model(&notifier, nullptr); // no need for controller in this testcase
@@ -382,7 +382,7 @@ TEST_F(WindowModelTest, WindowMoveDoesNotTouchOtherMirSurfaces)
 /*
  * Test: MirSurface has inital size set correctly from miral::WindowInfo
  */
-TEST_F(WindowModelTest, MirSurfaceSizeSetCorrectlyAtCreation)
+TEST_F(WindowModelTest, DISABLED_MirSurfaceSizeSetCorrectlyAtCreation)
 {
     WindowModelNotifier notifier;
     WindowModel model(&notifier, nullptr); // no need for controller in this testcase
@@ -443,7 +443,7 @@ TEST_F(WindowModelTest, WindowResizeUpdatesCorrectMirSurface)
 /*
  * Test: with 2 windows, ensure window resize does not impact other MirSurfaces
  */
-TEST_F(WindowModelTest, WindowResizeDoesNotTouchOtherMirSurfaces)
+TEST_F(WindowModelTest, DISABLED_WindowResizeDoesNotTouchOtherMirSurfaces)
 {
     WindowModelNotifier notifier;
     WindowModel model(&notifier, nullptr); // no need for controller in this testcase
