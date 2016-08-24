@@ -27,6 +27,7 @@
 
 #include <mir/test/doubles/stub_session.h>
 #include <mir/test/doubles/stub_surface.h>
+#include <mir/test/fake_shared.h>
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
@@ -34,6 +35,8 @@
 #include <atomic>
 
 using namespace miral;
+using namespace testing;
+namespace mt = mir::test;
 
 namespace
 {
@@ -99,20 +102,8 @@ struct StubPersistentSurfaceStore : mir::shell::PersistentSurfaceStore
     }
 };
 
-struct MockWindowManagerPolicy : CanonicalWindowManagerPolicy
-{
-    using CanonicalWindowManagerPolicy::CanonicalWindowManagerPolicy;
-
-    bool handle_touch_event(MirTouchEvent const* /*event*/) override { return false; }
-    bool handle_pointer_event(MirPointerEvent const* /*event*/) override { return false; }
-    bool handle_keyboard_event(MirKeyboardEvent const* /*event*/) override { return false; }
-};
-
 struct StubStubSession : mir::test::doubles::StubSession
 {
-    std::atomic<int> next_surface_id;
-    std::map<mir::frontend::SurfaceId, std::shared_ptr<mir::scene::Surface>> surfaces;
-
     mir::frontend::SurfaceId create_surface(
         mir::scene::SurfaceCreationParameters const& /*params*/,
         std::shared_ptr<mir::frontend::EventSink> const& /*sink*/) override
@@ -123,15 +114,26 @@ struct StubStubSession : mir::test::doubles::StubSession
         return id;
     }
 
-    std::shared_ptr<mir::scene::Surface> surface(
-        mir::frontend::SurfaceId surface) const override
+    std::shared_ptr<mir::scene::Surface> surface(mir::frontend::SurfaceId surface) const override
     {
         return surfaces.at(surface);
     }
+
+private:
+    std::atomic<int> next_surface_id;
+    std::map<mir::frontend::SurfaceId, std::shared_ptr<mir::scene::Surface>> surfaces;
 };
 
-auto window_management_policy_builder = [](WindowManagerTools const& tools)
-    -> std::unique_ptr<WindowManagementPolicy> { return std::make_unique<MockWindowManagerPolicy>(tools); };
+struct MockWindowManagerPolicy : CanonicalWindowManagerPolicy
+{
+    using CanonicalWindowManagerPolicy::CanonicalWindowManagerPolicy;
+
+    bool handle_touch_event(MirTouchEvent const* /*event*/) override { return false; }
+    bool handle_pointer_event(MirPointerEvent const* /*event*/) override { return false; }
+    bool handle_keyboard_event(MirKeyboardEvent const* /*event*/) override { return false; }
+
+    MOCK_METHOD1(advise_new_window, void (WindowInfo const& window_info));
+};
 
 X const display_left{0};
 Y const display_top{0};
@@ -143,11 +145,24 @@ Rectangle const display_area{{display_left, display_top}, {display_width, displa
 struct WindowPlacement : testing::Test
 {
     StubFocusController focus_controller;
-    std::shared_ptr<StubDisplayLayout> const display_layout{std::make_shared<StubDisplayLayout>()};
-    std::shared_ptr<StubPersistentSurfaceStore> const persistent_surface_store{std::make_shared<StubPersistentSurfaceStore>()};
-    std::shared_ptr<StubStubSession> const session{std::make_shared<StubStubSession>()};
+    StubDisplayLayout display_layout;
+    StubPersistentSurfaceStore persistent_surface_store;
+    std::shared_ptr<StubStubSession> session{std::make_shared<StubStubSession>()};
 
-    BasicWindowManager basic_window_manager{&focus_controller, display_layout, persistent_surface_store, window_management_policy_builder};
+    MockWindowManagerPolicy* window_manager_policy;
+    BasicWindowManager basic_window_manager{
+        &focus_controller,
+        mt::fake_shared(display_layout),
+        mt::fake_shared(persistent_surface_store),
+        [this](WindowManagerTools const& tools) -> std::unique_ptr<WindowManagementPolicy> 
+            {
+                auto policy = std::make_unique<MockWindowManagerPolicy>(tools);
+                window_manager_policy = policy.get();
+                return policy;
+            }
+        };
+
+    Window parent;
 
     void SetUp() override
     {
@@ -155,10 +170,13 @@ struct WindowPlacement : testing::Test
 
         mir::scene::SurfaceCreationParameters creation_parameters;
         basic_window_manager.add_session(session);
+
+        EXPECT_CALL(*window_manager_policy, advise_new_window(_))
+            .WillOnce(Invoke([this](WindowInfo const& window_info){ parent = window_info.window(); }));
+
         basic_window_manager.add_surface(session, creation_parameters, &WindowPlacement::create_surface);
     }
 
-private:
     static auto create_surface(std::shared_ptr<mir::scene::Session> const& session, mir::scene::SurfaceCreationParameters const& params)
     -> mir::frontend::SurfaceId
     {
@@ -172,5 +190,5 @@ private:
 
 TEST_F(WindowPlacement, fixture_doesnt_crash)
 {
-
+    ASSERT_THAT(parent, Ne(Window{}));
 }
