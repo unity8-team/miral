@@ -77,7 +77,7 @@ public:
  * Test: that the WindowModelNotifier.addWindow causes the Qt-side WindowModel to
  * increment model count
  */
-TEST_F(WindowModelTest, AddWindowIncrementsModelCount)
+TEST_F(WindowModelTest, WhenAddWindowNotifiedModelCountIncrements)
 {
     WindowModelNotifier notifier;
     WindowModel model(&notifier, nullptr); // no need for controller in this testcase
@@ -93,7 +93,7 @@ TEST_F(WindowModelTest, AddWindowIncrementsModelCount)
  * Test: that the WindowModelNotifier.addWindow causes the Qt-side WindowModel to
  * emit the countChanged signal.
  */
-TEST_F(WindowModelTest, AddWindowFiresCountChangedSignal)
+TEST_F(WindowModelTest, WhenAddWindowNotifiedModelEmitsCountChangedSignal)
 {
     WindowModelNotifier notifier;
     WindowModel model(&notifier, nullptr); // no need for controller in this testcase
@@ -128,7 +128,7 @@ TEST_F(WindowModelTest, WhenAddWindowNotifiedNewModelEntryHasCorrectWindow)
  * Test: that the WindowModelNotifier.removeWindow causes the Qt-side WindowModel to
  * remove the Window from the model, and emit the countChanged signal.
  */
-TEST_F(WindowModelTest, RemoveWindowDecrementsModelCount)
+TEST_F(WindowModelTest, WhenRemoveWindowNotifiedModelCountDecrements)
 {
     WindowModelNotifier notifier;
     WindowModel model(&notifier, nullptr); // no need for controller in this testcase
@@ -146,7 +146,7 @@ TEST_F(WindowModelTest, RemoveWindowDecrementsModelCount)
  * Test: that the WindowModelNotifier.removeWindow causes the Qt-side WindowModel to
  * emit the countChanged signal.
  */
-TEST_F(WindowModelTest, RemoveWindowFiresCountChangedSignal)
+TEST_F(WindowModelTest, WhenRemoveWindowNotifiedModelEmitsCountChangedSignal)
 {
     WindowModelNotifier notifier;
     WindowModel model(&notifier, nullptr); // no need for controller in this testcase
@@ -166,7 +166,7 @@ TEST_F(WindowModelTest, RemoveWindowFiresCountChangedSignal)
  * Test: that calling WindowModelNotifier.addWindow causes Qt-side WindowModel to
  * have 2 windows in the correct order.
  */
-TEST_F(WindowModelTest, Add2Windows)
+TEST_F(WindowModelTest, WhenAddingTwoWindowsModelHasCorrectOrder)
 {
     WindowModelNotifier notifier;
     WindowModel model(&notifier, nullptr); // no need for controller in this testcase
@@ -187,7 +187,7 @@ TEST_F(WindowModelTest, Add2Windows)
 /*
  * Test: that adding 2 windows, then removing the second, leaves the first.
  */
-TEST_F(WindowModelTest, Add2WindowsAndRemoveSecondPreservesFirst)
+TEST_F(WindowModelTest, WhenAddingTwoWindowsAndRemoveSecondModelPreservesFirst)
 {
     WindowModelNotifier notifier;
     WindowModel model(&notifier, nullptr); // no need for controller in this testcase
@@ -209,7 +209,7 @@ TEST_F(WindowModelTest, Add2WindowsAndRemoveSecondPreservesFirst)
 /*
  * Test: that adding 2 windows, then removing the first, leaves the second.
  */
-TEST_F(WindowModelTest, Add2WindowsAndRemoveFirstPreservesSecond)
+TEST_F(WindowModelTest, WhenAddingTwoWindowsAndRemoveFirstModelPreservesSecond)
 {
     WindowModelNotifier notifier;
     WindowModel model(&notifier, nullptr); // no need for controller in this testcase
@@ -231,7 +231,7 @@ TEST_F(WindowModelTest, Add2WindowsAndRemoveFirstPreservesSecond)
 /*
  * Test: add 2 windows, remove first, add another window - ensure model order correct
  */
-TEST_F(WindowModelTest, Add2WindowsRemoveFirstAddAnotherResultsInCorrectModel)
+TEST_F(WindowModelTest, WhenAddingTwoWindowsRemoveFirstAddAnotherResultsInCorrectModel)
 {
     WindowModelNotifier notifier;
     WindowModel model(&notifier, nullptr); // no need for controller in this testcase
@@ -256,7 +256,7 @@ TEST_F(WindowModelTest, Add2WindowsRemoveFirstAddAnotherResultsInCorrectModel)
 /*
  * Test: add 3 windows, remove second - ensure model order correct
  */
-TEST_F(WindowModelTest, Add3WindowsRemoveSecondResultsInCorrectModel)
+TEST_F(WindowModelTest, WhenAddingThreeWindowsRemoveSecondResultsInCorrectModel)
 {
     WindowModelNotifier notifier;
     WindowModel model(&notifier, nullptr); // no need for controller in this testcase
@@ -281,7 +281,7 @@ TEST_F(WindowModelTest, Add3WindowsRemoveSecondResultsInCorrectModel)
 /*
  * Test: with 1 window, raise does nothing
  */
-TEST_F(WindowModelTest, Raising1WindowDoesNothing)
+TEST_F(WindowModelTest, RaisingOneWindowDoesNothing)
 {
     WindowModelNotifier notifier;
     WindowModel model(&notifier, nullptr); // no need for controller in this testcase
