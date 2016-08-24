@@ -142,6 +142,8 @@ Height const display_height{480};
 
 Rectangle const display_area{{display_left, display_top}, {display_width, display_height}};
 
+auto const null_window = Window{};
+
 struct WindowPlacement : testing::Test
 {
     StubFocusController focus_controller;
@@ -163,6 +165,7 @@ struct WindowPlacement : testing::Test
         };
 
     Window parent;
+    Window child;
 
     void SetUp() override
     {
@@ -173,6 +176,13 @@ struct WindowPlacement : testing::Test
 
         EXPECT_CALL(*window_manager_policy, advise_new_window(_))
             .WillOnce(Invoke([this](WindowInfo const& window_info){ parent = window_info.window(); }));
+
+        basic_window_manager.add_surface(session, creation_parameters, &WindowPlacement::create_surface);
+
+        EXPECT_CALL(*window_manager_policy, advise_new_window(_))
+            .WillOnce(Invoke([this](WindowInfo const& window_info){ child = window_info.window(); }));
+
+        creation_parameters.parent = parent;
 
         basic_window_manager.add_surface(session, creation_parameters, &WindowPlacement::create_surface);
     }
@@ -188,7 +198,10 @@ struct WindowPlacement : testing::Test
 };
 }
 
-TEST_F(WindowPlacement, fixture_doesnt_crash)
+TEST_F(WindowPlacement, fixture_sets_up_parent_and_child)
 {
-    ASSERT_THAT(parent, Ne(Window{}));
+    ASSERT_THAT(parent, Ne(null_window));
+    ASSERT_THAT(child, Ne(null_window));
+    ASSERT_THAT(basic_window_manager.info_for(child).parent(), Eq(parent));
+    ASSERT_THAT(basic_window_manager.info_for(parent).children(), ElementsAre(child));
 }
