@@ -342,6 +342,39 @@ TEST_F(WindowModelTest, RaisingBottomWindowBringsItToTheTop)
 }
 
 /*
+ * Test: with 3 windows, raising bottom 2 windows brings them to the top in order
+ */
+TEST_F(WindowModelTest, Raising2BottomWindowsBringsThemToTheTop)
+{
+    WindowModelNotifier notifier;
+    WindowModel model(&notifier, nullptr); // no need for controller in this testcase
+
+    auto mirWindowInfo1 = createMirALWindowInfo();
+    auto mirWindowInfo2 = createMirALWindowInfo();
+    auto mirWindowInfo3 = createMirALWindowInfo();
+    notifier.addWindow(mirWindowInfo1);
+    notifier.addWindow(mirWindowInfo2);
+    notifier.addWindow(mirWindowInfo3);
+
+    // Current model state
+    // 2:   Window3
+    // 1:   Window2
+    // 0:   Window1
+
+    // Raise windows 1 & 2 (currently at bottom)
+    notifier.raiseWindows({mirWindowInfo1.window(), mirWindowInfo2.window()});
+
+    // Model should now be like this:
+    // 2:   Window1
+    // 1:   Window2
+    // 0:   Window3
+    ASSERT_EQ(3, model.count());
+    auto topWindow1 = getMirALWindowFromModel(model, 2);
+    EXPECT_EQ(mirWindowInfo1.window(), topWindow1);
+    auto topWindow2 = getMirALWindowFromModel(model, 1);
+    EXPECT_EQ(mirWindowInfo2.window(), topWindow2);}
+
+/*
  * Test: MirSurface has inital position set correctly from miral::WindowInfo
  */
 TEST_F(WindowModelTest, DISABLED_MirSurfacePositionSetCorrectlyAtCreation)
