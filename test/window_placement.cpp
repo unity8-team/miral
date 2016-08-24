@@ -42,64 +42,37 @@ namespace
 {
 struct StubFocusController : mir::shell::FocusController
 {
-    void focus_next_session() override
-    {
-    }
+    void focus_next_session() override {}
 
-    auto focused_session() const -> std::shared_ptr<mir::scene::Session> override
-    {
-        return {};
-    }
+    auto focused_session() const -> std::shared_ptr<mir::scene::Session> override { return {}; }
 
     void set_focus_to(
         std::shared_ptr<mir::scene::Session> const& /*focus_session*/,
-        std::shared_ptr<mir::scene::Surface> const& /*focus_surface*/) override
-    {
-    }
+        std::shared_ptr<mir::scene::Surface> const& /*focus_surface*/) override {}
 
-    auto focused_surface() const -> std::shared_ptr<mir::scene::Surface> override
-    {
-        return {};
-    }
+    auto focused_surface() const -> std::shared_ptr<mir::scene::Surface> override { return {}; }
 
-    void raise(mir::shell::SurfaceSet const& /*surfaces*/) override
-    {
-    }
+    void raise(mir::shell::SurfaceSet const& /*surfaces*/) override {}
 
     virtual auto surface_at(mir::geometry::Point /*cursor*/) const -> std::shared_ptr<mir::scene::Surface> override
-    {
-        return {};
-    }
-
+        { return {}; }
 };
 
 struct StubDisplayLayout : mir::shell::DisplayLayout
 {
-    void clip_to_output(mir::geometry::Rectangle& /*rect*/) override
-    {
-    }
+    void clip_to_output(mir::geometry::Rectangle& /*rect*/) override {}
 
-    void size_to_output(mir::geometry::Rectangle& /*rect*/) override
-    {
-    }
+    void size_to_output(mir::geometry::Rectangle& /*rect*/) override {}
 
     bool place_in_output(mir::graphics::DisplayConfigurationOutputId /*id*/, mir::geometry::Rectangle& /*rect*/) override
-    {
-        return false;
-    }
+        { return false; }
 };
 
 struct StubPersistentSurfaceStore : mir::shell::PersistentSurfaceStore
 {
-    Id id_for_surface(std::shared_ptr<mir::scene::Surface> const& /*surface*/) override
-    {
-        return {};
-    }
+    Id id_for_surface(std::shared_ptr<mir::scene::Surface> const& /*surface*/) override { return {}; }
 
-    auto surface_for_id(Id const& /*id*/) const -> std::shared_ptr<mir::scene::Surface> override
-    {
-        return {};
-    }
+    auto surface_for_id(Id const& /*id*/) const -> std::shared_ptr<mir::scene::Surface> override { return {}; }
 };
 
 struct StubSurface : mir::test::doubles::StubSurface
@@ -108,10 +81,11 @@ struct StubSurface : mir::test::doubles::StubSurface
 
     Point top_left() const override { return top_left_; }
     void move_to(Point const& top_left) override { top_left_ = top_left; }
-    Point top_left_;
 
     Size size() const override { return  size_; }
     void resize(Size const& size) override { size_ = size; }
+
+    Point top_left_;
     Size size_;
 };
 
@@ -218,8 +192,8 @@ struct WindowPlacement : testing::Test
 
     void TearDown() override
     {
-        std::cerr << "DEBUG parent position:" << Rectangle{parent.top_left(), parent.size()} << '\n';
-        std::cerr << "DEBUG child position :" << Rectangle{child.top_left(), child.size()} << '\n';
+//        std::cerr << "DEBUG parent position:" << Rectangle{parent.top_left(), parent.size()} << '\n';
+//        std::cerr << "DEBUG child position :" << Rectangle{child.top_left(), child.size()} << '\n';
     }
 };
 }
@@ -237,7 +211,7 @@ TEST_F(WindowPlacement, fixture_sets_up_parent_and_child)
     ASSERT_THAT(basic_window_manager.info_for(child).type(), Eq(mir_surface_type_menu));
 }
 
-TEST_F(WindowPlacement, given_aux_rect_away_from_right_side_when_placed_window_attaches_to_right_edge)
+TEST_F(WindowPlacement, given_aux_rect_away_from_right_side_modify_window_attaches_to_right_edge)
 {
     WindowSpecification modification;
 
@@ -254,7 +228,7 @@ TEST_F(WindowPlacement, given_aux_rect_away_from_right_side_when_placed_window_a
     ASSERT_THAT(child.top_left().x, Eq(right_of_rectangle));
 }
 
-TEST_F(WindowPlacement, given_aux_rect_near_right_side_when_placed_window_attaches_to_left_edge)
+TEST_F(WindowPlacement, given_aux_rect_near_right_side_modify_window_attaches_to_left_edge)
 {
     WindowSpecification modification;
 
@@ -270,7 +244,7 @@ TEST_F(WindowPlacement, given_aux_rect_near_right_side_when_placed_window_attach
     ASSERT_THAT(child.top_left().x + as_displacement(child.size()).dx, Eq(left_of_rectangle));
 }
 
-TEST_F(WindowPlacement, given_aux_rect_away_from_bottom_when_placed_window_attaches_to_bottom_edge)
+TEST_F(WindowPlacement, given_aux_rect_away_from_bottom_modify_window_attaches_to_bottom_edge)
 {
     WindowSpecification modification;
 
@@ -287,7 +261,7 @@ TEST_F(WindowPlacement, given_aux_rect_away_from_bottom_when_placed_window_attac
     ASSERT_THAT(child.top_left().y, Eq(bottom_of_rectangle));
 }
 
-TEST_F(WindowPlacement, given_aux_rect_near_bottom_when_placed_window_attaches_to_top_edge)
+TEST_F(WindowPlacement, given_aux_rect_near_bottom_modify_window_attaches_to_top_edge)
 {
     WindowSpecification modification;
 
