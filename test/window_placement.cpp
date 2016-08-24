@@ -241,7 +241,7 @@ TEST_F(WindowPlacement, given_aux_rect_away_from_right_side_when_placed_window_a
 {
     WindowSpecification modification;
 
-    Rectangle const rectangle_away_from_rhs{{20, 0}, {20, 20}};
+    Rectangle const rectangle_away_from_rhs{{20, 20}, {20, 20}};
     modification.aux_rect() = rectangle_away_from_rhs;
     modification.edge_attachment() = mir_edge_attachment_vertical;
     modification.size() = child.size(); // TODO Why is this mandatory?
@@ -252,15 +252,13 @@ TEST_F(WindowPlacement, given_aux_rect_away_from_right_side_when_placed_window_a
         as_displacement(rectangle_away_from_rhs.size).dx;
     
     ASSERT_THAT(child.top_left().x, Eq(right_of_rectangle));
-
-//    ASSERT_THAT(child.top_left().y, Eq(parent.top_left().y + (rectangle_away_from_rhs.top_left.y - Y{})));
 }
 
 TEST_F(WindowPlacement, given_aux_rect_near_right_side_when_placed_window_attaches_to_left_edge)
 {
     WindowSpecification modification;
 
-    Rectangle const rectangle_near_rhs{{600, 0}, {20, 20}};
+    Rectangle const rectangle_near_rhs{{600, 20}, {20, 20}};
     modification.aux_rect() = rectangle_near_rhs;
     modification.edge_attachment() = mir_edge_attachment_vertical;
     modification.size() = child.size(); // TODO Why is this mandatory?
@@ -270,6 +268,37 @@ TEST_F(WindowPlacement, given_aux_rect_near_right_side_when_placed_window_attach
     auto const left_of_rectangle = parent.top_left().x + (rectangle_near_rhs.top_left.x - X{});
 
     ASSERT_THAT(child.top_left().x + as_displacement(child.size()).dx, Eq(left_of_rectangle));
+}
 
-//    ASSERT_THAT(child.top_left().y, Eq(parent.top_left().y + (rectangle_near_rhs.top_left.y - Y{})));
+TEST_F(WindowPlacement, given_aux_rect_away_from_bottom_when_placed_window_attaches_to_bottom_edge)
+{
+    WindowSpecification modification;
+
+    Rectangle const rectangle_away_from_bottom{{20, 20}, {20, 20}};
+    modification.aux_rect() = rectangle_away_from_bottom;
+    modification.edge_attachment() = mir_edge_attachment_horizontal;
+    modification.size() = child.size(); // TODO Why is this mandatory?
+
+    basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
+
+    auto const bottom_of_rectangle = parent.top_left().y + (rectangle_away_from_bottom.top_left.y - Y{}) +
+                                    as_displacement(rectangle_away_from_bottom.size).dy;
+
+    ASSERT_THAT(child.top_left().y, Eq(bottom_of_rectangle));
+}
+
+TEST_F(WindowPlacement, given_aux_rect_near_bottom_when_placed_window_attaches_to_top_edge)
+{
+    WindowSpecification modification;
+
+    Rectangle const rectangle_near_bottom{{20, 400}, {20, 20}};
+    modification.aux_rect() = rectangle_near_bottom;
+    modification.edge_attachment() = mir_edge_attachment_horizontal;
+    modification.size() = child.size(); // TODO Why is this mandatory?
+
+    basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
+
+    auto const top_of_rectangle = parent.top_left().y + (rectangle_near_bottom.top_left.y - Y{});
+
+    ASSERT_THAT(child.top_left().y + as_displacement(child.size()).dy, Eq(top_of_rectangle));
 }
