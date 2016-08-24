@@ -1,5 +1,14 @@
 pkg_check_modules(MIRSERVER mirserver>=0.20 REQUIRED)
 
+if(${CMAKE_COMPILER_IS_GNUCXX})
+    set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} -flto")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -flto")
+    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -flto")
+    set(CMAKE_AR "gcc-ar")
+    set(CMAKE_NM "gcc-nm")
+    set(CMAKE_RANLIB "gcc-ranlib")
+endif()
+
 set(MIRAL_ABI 1)
 set(symbol_map ${CMAKE_CURRENT_SOURCE_DIR}/symbols.map)
 
