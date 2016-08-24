@@ -158,6 +158,7 @@ public:
     // useful for tests
     void setCloseTimer(AbstractTimer *timer);
     std::shared_ptr<SurfaceObserver> surfaceObserver() const;
+    WindowInfo windowInfo() const { return m_windowInfo; }
 
 public Q_SLOTS:
     void onCompositorSwappedBuffers() override;
