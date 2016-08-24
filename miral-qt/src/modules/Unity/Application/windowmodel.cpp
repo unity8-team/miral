@@ -59,6 +59,7 @@ void WindowModel::connectToWindowModelNotifier(WindowModelNotifierInterface *not
     connect(notifier, &WindowModelNotifierInterface::windowResized,     this, &WindowModel::onWindowResized);
     connect(notifier, &WindowModelNotifierInterface::windowFocused,     this, &WindowModel::onWindowFocused);
     connect(notifier, &WindowModelNotifierInterface::windowInfoChanged, this, &WindowModel::onWindowInfoChanged);
+    connect(notifier, &WindowModelNotifierInterface::windowsRaised,     this, &WindowModel::onWindowsRaised);
 }
 
 QHash<int, QByteArray> WindowModel::roleNames() const
@@ -116,6 +117,20 @@ void WindowModel::onWindowInfoChanged(const WindowInfo windowInfo, const int pos
 
     QModelIndex row = index(pos);
     Q_EMIT dataChanged(row, row, QVector<int>() << SurfaceRole);
+}
+
+void WindowModel::onWindowsRaised(QVector<int> indices)
+{
+    Q_FOREACH(auto index, indices) {
+        if (index == m_windowModel.count()-1) {
+            continue;
+        }
+
+        beginMoveRows(QModelIndex(), index, index, QModelIndex(), m_windowModel.count());
+        auto window = m_windowModel.takeAt(index);
+        m_windowModel.push_back(window);
+        endMoveRows();
+    }
 }
 
 int WindowModel::rowCount(const QModelIndex &/*parent*/) const
