@@ -42,7 +42,6 @@ WindowModelNotifier::~WindowModelNotifier()
 
 void WindowModelNotifier::addWindow(const miral::WindowInfo &windowInfo)
 {
-    qDebug("WindowModelNotifier::addWindow");
     auto stackPosition = m_windowStack.count();
     m_windowStack.push_back(windowInfo.window()); // ASSUMPTION: Mir should tell us where in stack
 
@@ -51,7 +50,6 @@ void WindowModelNotifier::addWindow(const miral::WindowInfo &windowInfo)
 
 void WindowModelNotifier::removeWindow(const miral::WindowInfo &windowInfo)
 {
-    qDebug("WindowModelNotifier::removeWindow");
     const int pos = m_windowStack.indexOf(windowInfo.window());
     if (pos < 0) {
         qDebug("Unknown window removed");

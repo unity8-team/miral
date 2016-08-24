@@ -71,7 +71,6 @@ QHash<int, QByteArray> WindowModel::roleNames() const
 
 void WindowModel::onWindowAdded(const WindowInfo windowInfo, const int index)
 {
-    qDebug() << "Window Added!" << index;
     auto mirSurface = new MirSurface(windowInfo, m_windowController);
     beginInsertRows(QModelIndex(), index, index);
     m_windowModel.insert(index, mirSurface);
@@ -81,7 +80,6 @@ void WindowModel::onWindowAdded(const WindowInfo windowInfo, const int index)
 
 void WindowModel::onWindowRemoved(const int index)
 {
-    qDebug() << "Window Removed!" << index;
     beginRemoveRows(QModelIndex(), index, index);
     m_windowModel.remove(index);
     endRemoveRows();
