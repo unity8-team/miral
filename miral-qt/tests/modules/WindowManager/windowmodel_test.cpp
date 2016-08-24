@@ -162,9 +162,9 @@ TEST_F(WindowModelTest, Add2Windows)
 
     ASSERT_EQ(2, model.count());
     auto miralWindow1 = getMirALWindowFromModel(model, 0);
-    ASSERT_EQ(mirWindowInfo1.window(), miralWindow1);
+    EXPECT_EQ(mirWindowInfo1.window(), miralWindow1);
     auto miralWindow2 = getMirALWindowFromModel(model, 1);
-    ASSERT_EQ(mirWindowInfo2.window(), miralWindow2);
+    EXPECT_EQ(mirWindowInfo2.window(), miralWindow2);
 }
 
 /*
@@ -186,7 +186,7 @@ TEST_F(WindowModelTest, Add2WindowsAndRemoveSecondPreservesFirst)
 
     ASSERT_EQ(1, model.count());
     auto miralWindow = getMirALWindowFromModel(model, 0);
-    ASSERT_EQ(mirWindowInfo1.window(), miralWindow);
+    EXPECT_EQ(mirWindowInfo1.window(), miralWindow);
 }
 
 /*
@@ -208,7 +208,7 @@ TEST_F(WindowModelTest, Add2WindowsAndRemoveFirstPreservesSecond)
 
     ASSERT_EQ(1, model.count());
     auto miralWindow = getMirALWindowFromModel(model, 0);
-    ASSERT_EQ(mirWindowInfo2.window(), miralWindow);
+    EXPECT_EQ(mirWindowInfo2.window(), miralWindow);
 }
 
 /*
@@ -231,9 +231,9 @@ TEST_F(WindowModelTest, Add2WindowsRemoveFirstAddAnotherResultsInCorrectModel)
 
     ASSERT_EQ(2, model.count());
     auto miralWindow2 = getMirALWindowFromModel(model, 0);
-    ASSERT_EQ(mirWindowInfo2.window(), miralWindow2);
+    EXPECT_EQ(mirWindowInfo2.window(), miralWindow2);
     auto miralWindow3 = getMirALWindowFromModel(model, 1);
-    ASSERT_EQ(mirWindowInfo3.window(), miralWindow3);
+    EXPECT_EQ(mirWindowInfo3.window(), miralWindow3);
 }
 
 /*
@@ -256,9 +256,9 @@ TEST_F(WindowModelTest, Add3WindowsRemoveSecondResultsInCorrectModel)
 
     ASSERT_EQ(2, model.count());
     auto miralWindow1 = getMirALWindowFromModel(model, 0);
-    ASSERT_EQ(mirWindowInfo1.window(), miralWindow1);
+    EXPECT_EQ(mirWindowInfo1.window(), miralWindow1);
     auto miralWindow3 = getMirALWindowFromModel(model, 1);
-    ASSERT_EQ(mirWindowInfo3.window(), miralWindow3);
+    EXPECT_EQ(mirWindowInfo3.window(), miralWindow3);
 }
 
 /*
@@ -277,7 +277,7 @@ TEST_F(WindowModelTest, Raising1WindowDoesNothing)
 
     ASSERT_EQ(1, model.count());
     auto topWindow = getMirALWindowFromModel(model, 0);
-    ASSERT_EQ(mirWindowInfo1.window(), topWindow);
+    EXPECT_EQ(mirWindowInfo1.window(), topWindow);
 }
 
 /*
@@ -299,7 +299,7 @@ TEST_F(WindowModelTest, RaisingTopWindowDoesNothing)
     // Check second window still on top
     ASSERT_EQ(2, model.count());
     auto topWindow = getMirALWindowFromModel(model, 1);
-    ASSERT_EQ(mirWindowInfo2.window(), topWindow);
+    EXPECT_EQ(mirWindowInfo2.window(), topWindow);
 }
 
 /*
@@ -321,7 +321,7 @@ TEST_F(WindowModelTest, DISABLED_RaisingBottomWindowBringsItToTheTop)
     // Check first window now on top
     ASSERT_EQ(2, model.count());
     auto topWindow = getMirALWindowFromModel(model, 1);
-    ASSERT_EQ(mirWindowInfo1.window(), topWindow);
+    EXPECT_EQ(mirWindowInfo1.window(), topWindow);
 }
 
 /*
@@ -338,7 +338,7 @@ TEST_F(WindowModelTest, DISABLED_MirSurfacePositionSetCorrectlyAtCreation)
     notifier.addWindow(mirWindowInfo);
 
     auto surface = getMirSurfaceFromModel(model, 0);
-    ASSERT_EQ(position, surface->position());
+    EXPECT_EQ(position, surface->position());
 }
 
 /*
@@ -360,7 +360,7 @@ TEST_F(WindowModelTest, WindowMoveUpdatesMirSurface)
     // Move window, check new position set
     notifier.moveWindow(mirWindowInfo, toMirPoint(newPosition));
 
-    ASSERT_EQ(newPosition, surface->position());
+    EXPECT_EQ(newPosition, surface->position());
 }
 
 /*
@@ -384,7 +384,7 @@ TEST_F(WindowModelTest, WindowMoveUpdatesCorrectMirSurface)
     // Move window, check new position set
     notifier.moveWindow(mirWindowInfo1, toMirPoint(newPosition));
 
-    ASSERT_EQ(newPosition, surface->position());
+    EXPECT_EQ(newPosition, surface->position());
 }
 
 /*
@@ -408,7 +408,7 @@ TEST_F(WindowModelTest, DISABLED_WindowMoveDoesNotTouchOtherMirSurfaces)
     notifier.moveWindow(mirWindowInfo1, toMirPoint(QPoint(350, 420)));
 
     // Ensure other window untouched
-    ASSERT_EQ(fixedPosition, surface->position());
+    EXPECT_EQ(fixedPosition, surface->position());
 }
 
 /*
@@ -425,7 +425,7 @@ TEST_F(WindowModelTest, DISABLED_MirSurfaceSizeSetCorrectlyAtCreation)
     notifier.addWindow(mirWindowInfo1);
 
     auto surface = getMirSurfaceFromModel(model, 0);
-    ASSERT_EQ(size, surface->size());
+    EXPECT_EQ(size, surface->size());
 }
 
 /*
@@ -446,7 +446,7 @@ TEST_F(WindowModelTest, WindowResizeUpdatesMirSurface)
     // Move window, check new position set
     notifier.resizeWindow(mirWindowInfo1, toMirSize(newSize));
 
-    ASSERT_EQ(newSize, surface->size());
+    EXPECT_EQ(newSize, surface->size());
 }
 
 /*
@@ -469,7 +469,7 @@ TEST_F(WindowModelTest, WindowResizeUpdatesCorrectMirSurface)
     // Move window, check new position set
     notifier.resizeWindow(mirWindowInfo1, toMirSize(newSize));
 
-    ASSERT_EQ(newSize, surface->size());
+    EXPECT_EQ(newSize, surface->size());
 }
 
 /*
@@ -493,5 +493,5 @@ TEST_F(WindowModelTest, DISABLED_WindowResizeDoesNotTouchOtherMirSurfaces)
     notifier.resizeWindow(mirWindowInfo1, toMirSize(QSize(150, 220)));
 
     // Ensure other window untouched
-    ASSERT_EQ(fixedPosition, surface->size());
+    EXPECT_EQ(fixedPosition, surface->size());
 }
