@@ -43,7 +43,7 @@ public:
 
 private:
     QVector<miral::Window> m_windowStack;
-    unsigned int m_focusedWindowIndex;
+    int m_focusedWindowIndex;
 };
 
 } // namespace qtmir

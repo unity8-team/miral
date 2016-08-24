@@ -66,12 +66,12 @@ public:
     virtual ~WindowModelNotifierInterface() = default;
 
 Q_SIGNALS:
-    void windowAdded(const qtmir::WindowInfo, const unsigned int index);
-    void windowRemoved(const unsigned int index);
-    void windowMoved(const QPoint topLeft, const unsigned int index);
-    void windowResized(const QSize size, const unsigned int index);
-    void windowFocused(const unsigned int index);
-    void windowInfoChanged(const qtmir::WindowInfo, const unsigned int index);
+    void windowAdded(const qtmir::WindowInfo, const int index);
+    void windowRemoved(const int index);
+    void windowMoved(const QPoint topLeft, const int index);
+    void windowResized(const QSize size, const int index);
+    void windowFocused(const int index);
+    void windowInfoChanged(const qtmir::WindowInfo, const int index);
 
 private:
     Q_DISABLE_COPY(WindowModelNotifierInterface)
