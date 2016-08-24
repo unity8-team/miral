@@ -119,11 +119,13 @@ void WindowModel::onWindowInfoChanged(const WindowInfo windowInfo, const int pos
 
 void WindowModel::onWindowsRaised(QVector<int> indices)
 {
-    Q_FOREACH(auto index, indices) {
-        if (index == m_windowModel.count()-1) {
+    for (int i=indices.count() - 1; i >= 0; i--) {
+        auto index = indices[i];
+        if (index == m_windowModel.count() - 1) { // nothing to do
             continue;
         }
 
+        // TODO - if indices are sequential, combine row moves into blocks.
         beginMoveRows(QModelIndex(), index, index, QModelIndex(), m_windowModel.count());
         auto window = m_windowModel.takeAt(index);
         m_windowModel.push_back(window);
