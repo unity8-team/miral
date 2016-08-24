@@ -18,11 +18,22 @@
 
 #include "../miral/basic_window_manager.h"
 
+#include <miral/canonical_window_manager.h>
+
+#include <mir/frontend/surface_id.h>
+#include <mir/scene/surface_creation_parameters.h>
 #include <mir/shell/display_layout.h>
 #include <mir/shell/persistent_surface_store.h>
 
+#include <mir/test/doubles/stub_session.h>
+#include <mir/test/doubles/stub_surface.h>
+
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
+
+#include <atomic>
+
+using namespace miral;
 
 namespace
 {
@@ -88,16 +99,78 @@ struct StubPersistentSurfaceStore : mir::shell::PersistentSurfaceStore
     }
 };
 
-auto window_management_policy_builder = [](miral::WindowManagerTools const& /*tools*/)
-    -> std::unique_ptr<miral::WindowManagementPolicy> { return {}; };
+struct MockWindowManagerPolicy : CanonicalWindowManagerPolicy
+{
+    using CanonicalWindowManagerPolicy::CanonicalWindowManagerPolicy;
+
+    bool handle_touch_event(MirTouchEvent const* /*event*/) override { return false; }
+    bool handle_pointer_event(MirPointerEvent const* /*event*/) override { return false; }
+    bool handle_keyboard_event(MirKeyboardEvent const* /*event*/) override { return false; }
+};
+
+struct StubStubSession : mir::test::doubles::StubSession
+{
+    std::atomic<int> next_surface_id;
+    std::map<mir::frontend::SurfaceId, std::shared_ptr<mir::scene::Surface>> surfaces;
+
+    mir::frontend::SurfaceId create_surface(
+        mir::scene::SurfaceCreationParameters const& /*params*/,
+        std::shared_ptr<mir::frontend::EventSink> const& /*sink*/) override
+    {
+        auto id = mir::frontend::SurfaceId{next_surface_id.fetch_add(1)};
+        auto surface = std::make_shared<mir::test::doubles::StubSurface>();
+        surfaces[id] = surface;
+        return id;
+    }
+
+    std::shared_ptr<mir::scene::Surface> surface(
+        mir::frontend::SurfaceId surface) const override
+    {
+        return surfaces.at(surface);
+    }
+};
+
+auto window_management_policy_builder = [](WindowManagerTools const& tools)
+    -> std::unique_ptr<WindowManagementPolicy> { return std::make_unique<MockWindowManagerPolicy>(tools); };
+
+X const display_left{0};
+Y const display_top{0};
+Width  const display_width{640};
+Height const display_height{480};
+
+Rectangle const display_area{{display_left, display_top}, {display_width, display_height}};
 
 struct WindowPlacement : testing::Test
 {
     StubFocusController focus_controller;
     std::shared_ptr<StubDisplayLayout> const display_layout{std::make_shared<StubDisplayLayout>()};
     std::shared_ptr<StubPersistentSurfaceStore> const persistent_surface_store{std::make_shared<StubPersistentSurfaceStore>()};
+    std::shared_ptr<StubStubSession> const session{std::make_shared<StubStubSession>()};
 
-    miral::BasicWindowManager basicwindowmanager{&focus_controller, display_layout, persistent_surface_store, window_management_policy_builder};
+    BasicWindowManager basic_window_manager{&focus_controller, display_layout, persistent_surface_store, window_management_policy_builder};
+
+    void SetUp() override
+    {
+        basic_window_manager.add_display(display_area);
+
+        mir::scene::SurfaceCreationParameters creation_parameters;
+        basic_window_manager.add_session(session);
+        basic_window_manager.add_surface(session, creation_parameters, &WindowPlacement::create_surface);
+    }
+
+private:
+    static auto create_surface(std::shared_ptr<mir::scene::Session> const& session, mir::scene::SurfaceCreationParameters const& params)
+    -> mir::frontend::SurfaceId
+    {
+        // This type is Mir-internal, I hope we don't need to create it here
+        std::shared_ptr<mir::frontend::EventSink> const sink;
+
+        return session->create_surface(params, sink);
+    }
 };
+}
+
+TEST_F(WindowPlacement, fixture_doesnt_crash)
+{
 
 }
