@@ -322,7 +322,7 @@ TEST_F(WindowModelTest, RaisingTopWindowDoesNothing)
 /*
  * Test: with 2 window, raising bottom window brings it to the top
  */
-TEST_F(WindowModelTest, DISABLED_RaisingBottomWindowBringsItToTheTop)
+TEST_F(WindowModelTest, RaisingBottomWindowBringsItToTheTop)
 {
     WindowModelNotifier notifier;
     WindowModel model(&notifier, nullptr); // no need for controller in this testcase
