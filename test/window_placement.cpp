@@ -156,7 +156,7 @@ struct WindowPlacement : testing::Test
             {
                 auto policy = std::make_unique<MockWindowManagerPolicy>(tools);
                 window_manager_policy = policy.get();
-                return policy;
+                return std::move(policy);
             }
         };
 
