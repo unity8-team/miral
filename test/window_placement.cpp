@@ -215,6 +215,12 @@ struct WindowPlacement : testing::Test
 
         Mock::VerifyAndClearExpectations(window_manager_policy);
     }
+
+    void TearDown() override
+    {
+        std::cerr << "DEBUG parent position:" << Rectangle{parent.top_left(), parent.size()} << '\n';
+        std::cerr << "DEBUG child position :" << Rectangle{child.top_left(), child.size()} << '\n';
+    }
 };
 }
 
@@ -229,4 +235,41 @@ TEST_F(WindowPlacement, fixture_sets_up_parent_and_child)
     ASSERT_THAT(child.size(), Eq(initial_child_size));
     ASSERT_THAT(basic_window_manager.info_for(child).parent(), Eq(parent));
     ASSERT_THAT(basic_window_manager.info_for(child).type(), Eq(mir_surface_type_menu));
+}
+
+TEST_F(WindowPlacement, given_aux_rect_away_from_right_side_when_placed_window_attaches_to_right_edge)
+{
+    WindowSpecification modification;
+
+    Rectangle const rectangle_away_from_rhs{{20, 0}, {20, 20}};
+    modification.aux_rect() = rectangle_away_from_rhs;
+    modification.edge_attachment() = mir_edge_attachment_vertical;
+    modification.size() = child.size(); // TODO Why is this mandatory?
+
+    basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
+
+    auto const right_of_rectangle = parent.top_left().x + (rectangle_away_from_rhs.top_left.x - X{}) + 
+        as_displacement(rectangle_away_from_rhs.size).dx;
+    
+    ASSERT_THAT(child.top_left().x, Eq(right_of_rectangle));
+
+//    ASSERT_THAT(child.top_left().y, Eq(parent.top_left().y + (rectangle_away_from_rhs.top_left.y - Y{})));
+}
+
+TEST_F(WindowPlacement, given_aux_rect_near_right_side_when_placed_window_attaches_to_left_edge)
+{
+    WindowSpecification modification;
+
+    Rectangle const rectangle_near_rhs{{600, 0}, {20, 20}};
+    modification.aux_rect() = rectangle_near_rhs;
+    modification.edge_attachment() = mir_edge_attachment_vertical;
+    modification.size() = child.size(); // TODO Why is this mandatory?
+
+    basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
+
+    auto const left_of_rectangle = parent.top_left().x + (rectangle_near_rhs.top_left.x - X{});
+
+    ASSERT_THAT(child.top_left().x + as_displacement(child.size()).dx, Eq(left_of_rectangle));
+
+//    ASSERT_THAT(child.top_left().y, Eq(parent.top_left().y + (rectangle_near_rhs.top_left.y - Y{})));
 }
