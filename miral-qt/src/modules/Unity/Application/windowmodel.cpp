@@ -119,16 +119,62 @@ void WindowModel::onWindowInfoChanged(const WindowInfo windowInfo, const int pos
 
 void WindowModel::onWindowsRaised(QVector<int> indices)
 {
-    for (int i=indices.count() - 1; i >= 0; i--) {
-        auto index = indices[i];
-        if (index == m_windowModel.count() - 1) { // nothing to do
+    qDebug() << "onWindowsRaised" << indices;
+    const int modelCount = m_windowModel.count();
+
+    // Filter some NO-OPs - Qt will crash on endMoveRows() if you try NO-OPs!!!
+    // A NO-OP is if
+    //    1. "indices" is an empty list
+    //    2. "indices" of the form (modelCount - 1, modelCount - 2,...)
+    {
+        bool noop = true;
+        int counter = modelCount - 1;
+        Q_FOREACH(int index, indices) {
+            if (index != counter) {
+                noop = false;
+                break;
+            }
+            counter--;
+        }
+
+        if (noop) {
+            return;
+        }
+    }
+
+    // Ok, not a NO-OP. Precompute the list of indices of Windows/Surfaces to
+    // raise, including the offsets due to indices which have already been moved.
+    QVector<int> moveList;
+
+    for (int i=indices.count()-1; i>=0; i--) {
+        const int index = indices[i];
+        int moveCount = 0;
+
+        // how many list items under "index" have been moved so far
+        for (int j=indices.count()-1; j>i; j--) {
+            if (indices[j] < index) {
+                moveCount++;
+            }
+        }
+
+        if (index - moveCount == modelCount - 1) { // is NO-OP, would be moving last element to itself
             continue;
         }
 
-        // TODO - if indices are sequential, combine row moves into blocks.
-        beginMoveRows(QModelIndex(), index, index, QModelIndex(), m_windowModel.count());
-        auto window = m_windowModel.takeAt(index);
+        moveList.prepend(index - moveCount);
+    }
+
+    // Perform the moving, trusting the moveList is correct for each iteration.
+    QModelIndex parent;
+    for (int i=moveList.count()-1; i>=0; i--) {
+        const int move = moveList[i];
+
+        beginMoveRows(parent, move, move, parent, modelCount);
+
+        // QVector missing a move method in Qt5.4
+        const auto window = m_windowModel.takeAt(move);
         m_windowModel.push_back(window);
+
         endMoveRows();
     }
 }
