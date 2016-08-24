@@ -108,6 +108,23 @@ TEST_F(WindowModelTest, AddWindowFiresCountChangedSignal)
 }
 
 /*
+ * Test: that the WindowModelNotifier.addWindow causes the Qt-side WindowModel to
+ * gain an entry which has the correct miral::Window
+ */
+TEST_F(WindowModelTest, WhenAddWindowNotifiedNewModelEntryHasCorrectWindow)
+{
+    WindowModelNotifier notifier;
+    WindowModel model(&notifier, nullptr); // no need for controller in this testcase
+
+    auto mirWindowInfo = createMirALWindowInfo();
+
+    notifier.addWindow(mirWindowInfo);
+
+    auto miralWindow = getMirALWindowFromModel(model, 0);
+    EXPECT_EQ(mirWindowInfo.window(), miralWindow);
+}
+
+/*
  * Test: that the WindowModelNotifier.removeWindow causes the Qt-side WindowModel to
  * remove the Window from the model, and emit the countChanged signal.
  */
