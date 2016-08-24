@@ -102,14 +102,27 @@ struct StubPersistentSurfaceStore : mir::shell::PersistentSurfaceStore
     }
 };
 
+struct StubSurface : mir::test::doubles::StubSurface
+{
+    StubSurface(Point top_left, Size size) : top_left_{top_left}, size_{size} {}
+
+    Point top_left() const override { return top_left_; }
+    void move_to(Point const& top_left) override { top_left_ = top_left; }
+    Point top_left_;
+
+    Size size() const override { return  size_; }
+    void resize(Size const& size) override { size_ = size; }
+    Size size_;
+};
+
 struct StubStubSession : mir::test::doubles::StubSession
 {
     mir::frontend::SurfaceId create_surface(
-        mir::scene::SurfaceCreationParameters const& /*params*/,
+        mir::scene::SurfaceCreationParameters const& params,
         std::shared_ptr<mir::frontend::EventSink> const& /*sink*/) override
     {
         auto id = mir::frontend::SurfaceId{next_surface_id.fetch_add(1)};
-        auto surface = std::make_shared<mir::test::doubles::StubSurface>();
+        auto surface = std::make_shared<StubSurface>(params.top_left, params.size);
         surfaces[id] = surface;
         return id;
     }
@@ -144,6 +157,15 @@ Rectangle const display_area{{display_left, display_top}, {display_width, displa
 
 auto const null_window = Window{};
 
+auto create_surface(std::shared_ptr<mir::scene::Session> const& session, mir::scene::SurfaceCreationParameters const& params)
+-> mir::frontend::SurfaceId
+{
+    // This type is Mir-internal, I hope we don't need to create it here
+    std::shared_ptr<mir::frontend::EventSink> const sink;
+
+    return session->create_surface(params, sink);
+}
+
 struct WindowPlacement : testing::Test
 {
     StubFocusController focus_controller;
@@ -164,6 +186,9 @@ struct WindowPlacement : testing::Test
             }
         };
 
+    Size const initial_parent_size{600, 400};
+    Size const initial_child_size{300, 300};
+
     Window parent;
     Window child;
 
@@ -177,23 +202,18 @@ struct WindowPlacement : testing::Test
         EXPECT_CALL(*window_manager_policy, advise_new_window(_))
             .WillOnce(Invoke([this](WindowInfo const& window_info){ parent = window_info.window(); }));
 
-        basic_window_manager.add_surface(session, creation_parameters, &WindowPlacement::create_surface);
+        creation_parameters.size = initial_parent_size;
+        basic_window_manager.add_surface(session, creation_parameters, &create_surface);
 
         EXPECT_CALL(*window_manager_policy, advise_new_window(_))
             .WillOnce(Invoke([this](WindowInfo const& window_info){ child = window_info.window(); }));
 
+        creation_parameters.type = mir_surface_type_menu;
         creation_parameters.parent = parent;
+        creation_parameters.size = initial_child_size;
+        basic_window_manager.add_surface(session, creation_parameters, &create_surface);
 
-        basic_window_manager.add_surface(session, creation_parameters, &WindowPlacement::create_surface);
-    }
-
-    static auto create_surface(std::shared_ptr<mir::scene::Session> const& session, mir::scene::SurfaceCreationParameters const& params)
-    -> mir::frontend::SurfaceId
-    {
-        // This type is Mir-internal, I hope we don't need to create it here
-        std::shared_ptr<mir::frontend::EventSink> const sink;
-
-        return session->create_surface(params, sink);
+        Mock::VerifyAndClearExpectations(window_manager_policy);
     }
 };
 }
@@ -201,7 +221,12 @@ struct WindowPlacement : testing::Test
 TEST_F(WindowPlacement, fixture_sets_up_parent_and_child)
 {
     ASSERT_THAT(parent, Ne(null_window));
-    ASSERT_THAT(child, Ne(null_window));
-    ASSERT_THAT(basic_window_manager.info_for(child).parent(), Eq(parent));
+    ASSERT_THAT(parent.size(), Eq(initial_parent_size));
     ASSERT_THAT(basic_window_manager.info_for(parent).children(), ElementsAre(child));
+    ASSERT_THAT(basic_window_manager.info_for(parent).type(), Eq(mir_surface_type_normal));
+
+    ASSERT_THAT(child, Ne(null_window));
+    ASSERT_THAT(child.size(), Eq(initial_child_size));
+    ASSERT_THAT(basic_window_manager.info_for(child).parent(), Eq(parent));
+    ASSERT_THAT(basic_window_manager.info_for(child).type(), Eq(mir_surface_type_menu));
 }
