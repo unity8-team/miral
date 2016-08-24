@@ -75,9 +75,25 @@ public:
 
 /*
  * Test: that the WindowModelNotifier.addWindow causes the Qt-side WindowModel to
- * add a new Window, and emit the countChanged signal.
+ * increment model count
  */
-TEST_F(WindowModelTest, AddWindowSucceeds)
+TEST_F(WindowModelTest, AddWindowIncrementsModelCount)
+{
+    WindowModelNotifier notifier;
+    WindowModel model(&notifier, nullptr); // no need for controller in this testcase
+
+    auto mirWindowInfo = createMirALWindowInfo();
+
+    notifier.addWindow(mirWindowInfo);
+
+    EXPECT_EQ(1, model.count());
+}
+
+/*
+ * Test: that the WindowModelNotifier.addWindow causes the Qt-side WindowModel to
+ * emit the countChanged signal.
+ */
+TEST_F(WindowModelTest, AddWindowFiresCountChangedSignal)
 {
     WindowModelNotifier notifier;
     WindowModel model(&notifier, nullptr); // no need for controller in this testcase
@@ -88,7 +104,6 @@ TEST_F(WindowModelTest, AddWindowSucceeds)
 
     notifier.addWindow(mirWindowInfo);
 
-    ASSERT_EQ(1, model.count());
     EXPECT_EQ(1, spyCountChanged.count());
 }
 
@@ -96,7 +111,25 @@ TEST_F(WindowModelTest, AddWindowSucceeds)
  * Test: that the WindowModelNotifier.removeWindow causes the Qt-side WindowModel to
  * remove the Window from the model, and emit the countChanged signal.
  */
-TEST_F(WindowModelTest, RemoveWindowSucceeds)
+TEST_F(WindowModelTest, RemoveWindowDecrementsModelCount)
+{
+    WindowModelNotifier notifier;
+    WindowModel model(&notifier, nullptr); // no need for controller in this testcase
+
+    auto mirWindowInfo = createMirALWindowInfo();
+    notifier.addWindow(mirWindowInfo);
+
+    // Test removing the window
+    notifier.removeWindow(mirWindowInfo);
+
+    EXPECT_EQ(0, model.count());
+}
+
+/*
+ * Test: that the WindowModelNotifier.removeWindow causes the Qt-side WindowModel to
+ * emit the countChanged signal.
+ */
+TEST_F(WindowModelTest, RemoveWindowFiresCountChangedSignal)
 {
     WindowModelNotifier notifier;
     WindowModel model(&notifier, nullptr); // no need for controller in this testcase
@@ -109,7 +142,6 @@ TEST_F(WindowModelTest, RemoveWindowSucceeds)
 
     notifier.removeWindow(mirWindowInfo);
 
-    ASSERT_EQ(0, model.count());
     EXPECT_EQ(1, spyCountChanged.count());
 }
 
