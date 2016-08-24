@@ -49,8 +49,11 @@ typedef testing::NiceMock<mir::scene::MockPromptSessionManager> StubPromptSessio
 // For better output in ASSERT_* and EXPECT_* error messages
 void PrintTo(const Application::InternalState& state, ::std::ostream* os);
 void PrintTo(const SessionInterface::State& state, ::std::ostream* os);
-
 } // namespace qtmir
+
+void PrintTo(const QString &string, ::std::ostream* os);
+void PrintTo(const QSize &size, ::std::ostream *os);
+void PrintTo(const QPoint &point, ::std::ostream *os);
 
 namespace testing {
 

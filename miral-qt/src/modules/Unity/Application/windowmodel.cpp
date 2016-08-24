@@ -38,15 +38,27 @@ WindowModel::WindowModel()
         qFatal("ERROR: Unity.Application QML plugin requires use of the 'mirserver' QPA plugin");
     }
 
-    auto windowModel = static_cast<WindowModelNotifierInterface*>(nativeInterface->nativeResourceForIntegration("WindowModelNotifier"));
     m_windowController = static_cast<WindowControllerInterface*>(nativeInterface->nativeResourceForIntegration("WindowController"));
 
-    connect(windowModel, &WindowModelNotifierInterface::windowAdded,       this, &WindowModel::onWindowAdded);
-    connect(windowModel, &WindowModelNotifierInterface::windowRemoved,     this, &WindowModel::onWindowRemoved);
-    connect(windowModel, &WindowModelNotifierInterface::windowMoved,       this, &WindowModel::onWindowMoved);
-    connect(windowModel, &WindowModelNotifierInterface::windowResized,     this, &WindowModel::onWindowResized);
-    connect(windowModel, &WindowModelNotifierInterface::windowFocused,     this, &WindowModel::onWindowFocused);
-    connect(windowModel, &WindowModelNotifierInterface::windowInfoChanged, this, &WindowModel::onWindowInfoChanged);
+    auto windowModel = static_cast<WindowModelNotifierInterface*>(nativeInterface->nativeResourceForIntegration("WindowModelNotifier"));
+    connectToWindowModelNotifier(windowModel);
+}
+
+WindowModel::WindowModel(WindowModelNotifierInterface *notifier,
+                         WindowControllerInterface *controller)
+    : m_windowController(controller)
+{
+    connectToWindowModelNotifier(notifier);
+}
+
+void WindowModel::connectToWindowModelNotifier(WindowModelNotifierInterface *notifier)
+{
+    connect(notifier, &WindowModelNotifierInterface::windowAdded,       this, &WindowModel::onWindowAdded);
+    connect(notifier, &WindowModelNotifierInterface::windowRemoved,     this, &WindowModel::onWindowRemoved);
+    connect(notifier, &WindowModelNotifierInterface::windowMoved,       this, &WindowModel::onWindowMoved);
+    connect(notifier, &WindowModelNotifierInterface::windowResized,     this, &WindowModel::onWindowResized);
+    connect(notifier, &WindowModelNotifierInterface::windowFocused,     this, &WindowModel::onWindowFocused);
+    connect(notifier, &WindowModelNotifierInterface::windowInfoChanged, this, &WindowModel::onWindowInfoChanged);
 }
 
 QHash<int, QByteArray> WindowModel::roleNames() const

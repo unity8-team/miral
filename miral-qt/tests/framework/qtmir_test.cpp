@@ -79,6 +79,31 @@ void PrintTo(const Session::State& state, ::std::ostream* os)
 }
 } // namespace qtmir
 
+void PrintTo(const QString &text, ::std::ostream *os)
+{
+    *os << text.toUtf8().constData();
+}
+
+void PrintTo(const QSize &size, ::std::ostream *os)
+{
+    QString output;
+    QDebug debug(&output);
+
+    debug << size;
+
+    *os << output.toUtf8().constData();
+}
+
+void PrintTo(const QPoint &point, ::std::ostream *os)
+{
+    QString output;
+    QDebug debug(&output);
+
+    debug << point;
+
+    *os << output.toUtf8().constData();
+}
+
 namespace testing
 {
 
