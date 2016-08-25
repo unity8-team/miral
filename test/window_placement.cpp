@@ -167,6 +167,7 @@ struct WindowPlacement : testing::Test
     Rectangle const rectangle_near_rhs{{600, 20}, {20, 20}};
     Rectangle const rectangle_away_from_bottom{{20, 20}, {20, 20}};
     Rectangle const rectangle_near_bottom{{20, 400}, {20, 20}};
+    Rectangle const rectangle_near_both_sides{{0, 20}, {600, 20}};
 
     Window parent;
     Window child;
@@ -226,6 +227,16 @@ TEST_F(WindowPlacement, fixture_sets_up_parent_and_child)
     ASSERT_THAT(basic_window_manager.info_for(child).type(), Eq(mir_surface_type_menu));
 }
 
+
+/* From the Mir toolkit API:
+ * Positioning of the surface is specified with respect to the parent surface
+ * via an adjacency rectangle. The server will attempt to choose an edge of the
+ * adjacency rectangle on which to place the surface taking in to account
+ * screen-edge proximity or similar constraints. In addition, the server can use
+ * the edge affinity hint to consider only horizontal or only vertical adjacency
+ * edges in the given rectangle.
+ */
+
 TEST_F(WindowPlacement, given_aux_rect_away_from_right_side_modify_window_attaches_to_right_edge)
 {
     modification.aux_rect() = rectangle_away_from_rhs;
@@ -244,6 +255,18 @@ TEST_F(WindowPlacement, given_aux_rect_near_right_side_modify_window_attaches_to
     modification.edge_attachment() = mir_edge_attachment_vertical;
 
     auto const expected_position = abs_position_of(rectangle_near_rhs).top_left - as_displacement(child.size()).dx;
+
+    EXPECT_CALL(*window_manager_policy, advise_move_to(_, expected_position));
+    basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
+    ASSERT_THAT(child.top_left(), Eq(expected_position));
+}
+
+TEST_F(WindowPlacement, given_aux_rect_near_both_sides_modify_window_attaches_to_right_edge)
+{
+    modification.aux_rect() = rectangle_near_both_sides;
+    modification.edge_attachment() = mir_edge_attachment_vertical;
+
+    auto const expected_position = abs_position_of(rectangle_near_both_sides).top_right();
 
     EXPECT_CALL(*window_manager_policy, advise_move_to(_, expected_position));
     basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);

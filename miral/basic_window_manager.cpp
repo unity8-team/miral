@@ -1081,28 +1081,44 @@ auto miral::BasicWindowManager::place_relative(Point const& parent_top_left, Win
     auto const bot_left = aux_rect.bottom_left()-Point{} + parent_top_left;
 
     if (edge_attachment & mir_edge_attachment_vertical)
+    {
+        if (active_display_area.contains(top_right + Displacement{width, height}))
         {
-            if (active_display_area.contains(top_right + Displacement{width, height}))
-            {
-                result = top_right;
-            }
-            else if (active_display_area.contains(top_left + Displacement{-width, height}))
-            {
-                result = top_left + Displacement{-width, 0};
-            }
+            result = top_right;
         }
+        else if (active_display_area.contains(top_left + Displacement{-width, height}))
+        {
+            result = top_left + Displacement{-width, 0};
+        }
+    }
 
-    if (edge_attachment & mir_edge_attachment_horizontal)
+    if (!result.is_set() && edge_attachment & mir_edge_attachment_horizontal)
+    {
+        if (active_display_area.contains(bot_left + Displacement{width, height}))
         {
-            if (active_display_area.contains(bot_left + Displacement{width, height}))
-            {
-                result = bot_left;
-            }
-            else if (active_display_area.contains(top_left + Displacement{width, -height}))
-            {
-                result = top_left + Displacement{0, -height};
-            }
+            result = bot_left;
         }
+        else if (active_display_area.contains(top_left + Displacement{width, -height}))
+        {
+            result = top_left + Displacement{0, -height};
+        }
+    }
+
+    if (!result.is_set())
+    {
+        if (edge_attachment & mir_edge_attachment_vertical)
+        {
+            result = top_right;
+        }
+        else if (edge_attachment & mir_edge_attachment_horizontal)
+        {
+            result = bot_left;
+        }
+        else
+        {
+            result = top_right;
+        }
+    }
 
     return result;
 }
