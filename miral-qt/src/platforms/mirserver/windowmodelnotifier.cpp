@@ -43,7 +43,7 @@ WindowModelNotifier::~WindowModelNotifier()
 void WindowModelNotifier::addWindow(const miral::WindowInfo &windowInfo)
 {
     qDebug("WindowModelNotifier::addWindow");
-    auto stackPosition = static_cast<unsigned int>(m_windowStack.count());
+    auto stackPosition = m_windowStack.count();
     m_windowStack.push_back(windowInfo.window()); // ASSUMPTION: Mir should tell us where in stack
 
     Q_EMIT windowAdded(windowInfo, stackPosition);
@@ -58,8 +58,7 @@ void WindowModelNotifier::removeWindow(const miral::WindowInfo &windowInfo)
         return;
     }
     m_windowStack.removeAt(pos);
-    auto upos = static_cast<unsigned int>(pos);
-    Q_EMIT windowRemoved(upos);
+    Q_EMIT windowRemoved(pos);
 }
 
 void WindowModelNotifier::focusWindow(const miral::WindowInfo &windowInfo, const bool focus)
@@ -69,11 +68,10 @@ void WindowModelNotifier::focusWindow(const miral::WindowInfo &windowInfo, const
         qDebug("Unknown window focused");
         return;
     }
-    auto upos = static_cast<unsigned int>(pos);
 
-    if (focus && m_focusedWindowIndex != upos) {
-        m_focusedWindowIndex = upos;
-        Q_EMIT windowFocused(upos);
+    if (focus && m_focusedWindowIndex != pos) {
+        m_focusedWindowIndex = pos;
+        Q_EMIT windowFocused(pos);
     }
 }
 
@@ -84,10 +82,9 @@ void WindowModelNotifier::moveWindow(const miral::WindowInfo &windowInfo, mir::g
         qDebug("Unknown window moved");
         return;
     }
-    auto upos = static_cast<unsigned int>(pos);
 
     // Note: windowInfo.window() is in the state before the move
-    Q_EMIT windowMoved(toQPoint(topLeft), upos);
+    Q_EMIT windowMoved(toQPoint(topLeft), pos);
 }
 
 void WindowModelNotifier::resizeWindow(const miral::WindowInfo &windowInfo, mir::geometry::Size newSize)
@@ -97,10 +94,9 @@ void WindowModelNotifier::resizeWindow(const miral::WindowInfo &windowInfo, mir:
         qDebug("Unknown window resized");
         return;
     }
-    auto upos = static_cast<unsigned int>(pos);
 
     // Note: windowInfo.window() is in the state before the resize
-    Q_EMIT windowResized(toQSize(newSize), upos);
+    Q_EMIT windowResized(toQSize(newSize), pos);
 }
 
 void WindowModelNotifier::raiseWindows(const std::vector<miral::Window> &/*windows*/)

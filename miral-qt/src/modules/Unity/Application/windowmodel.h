@@ -53,12 +53,12 @@ Q_SIGNALS:
     void countChanged();
 
 private Q_SLOTS:
-    void onWindowAdded(const WindowInfo windowInfo, const unsigned int index);
-    void onWindowRemoved(const unsigned int index);
-    void onWindowMoved(const QPoint topLeft, const unsigned int index);
-    void onWindowResized(const QSize size, const unsigned int index);
-    void onWindowFocused(const unsigned int index);
-    void onWindowInfoChanged(const WindowInfo windowInfo, const unsigned int index);
+    void onWindowAdded(const WindowInfo windowInfo, const int index);
+    void onWindowRemoved(const int index);
+    void onWindowMoved(const QPoint topLeft, const int index);
+    void onWindowResized(const QSize size, const int index);
+    void onWindowFocused(const int index);
+    void onWindowInfoChanged(const WindowInfo windowInfo, const int index);
 
 private:
     void connectToWindowModelNotifier(WindowModelNotifierInterface *notifier);
