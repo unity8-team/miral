@@ -394,7 +394,7 @@ TEST_F(WindowModelTest, Raising2WindowsInSwappedOrderReordersTheModel)
     // 1:   Window2
     // 0:   Window1
 
-    // Raise windows 1 & 2 (bottom two, but in opposite order)
+    // Raise windows 1 & 2 (in opposite order)
     notifier.raiseWindows({mirWindowInfo1.window(), mirWindowInfo2.window()});
 
     // Model should now be like this:
