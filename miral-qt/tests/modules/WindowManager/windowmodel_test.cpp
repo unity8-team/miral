@@ -380,7 +380,7 @@ TEST_F(WindowModelTest, Raising2BottomWindowsBringsThemToTheTop)
 /*
  * Test: with 2 window, raise the 2 windows in swapped order reorders the model
  */
-TEST_F(WindowModelTest, Raising2BottomWindowsInSwappedOrderReordersTheModel)
+TEST_F(WindowModelTest, Raising2WindowsInSwappedOrderReordersTheModel)
 {
     WindowModelNotifier notifier;
     WindowModel model(&notifier, nullptr); // no need for controller in this testcase
