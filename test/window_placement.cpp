@@ -120,6 +120,7 @@ struct MockWindowManagerPolicy : CanonicalWindowManagerPolicy
     bool handle_keyboard_event(MirKeyboardEvent const* /*event*/) override { return false; }
 
     MOCK_METHOD1(advise_new_window, void (WindowInfo const& window_info));
+    MOCK_METHOD2(advise_move_to, void(WindowInfo const& window_info, Point top_left));
 };
 
 X const display_left{0};
@@ -220,12 +221,14 @@ TEST_F(WindowPlacement, given_aux_rect_away_from_right_side_modify_window_attach
     modification.edge_attachment() = mir_edge_attachment_vertical;
     modification.size() = child.size(); // TODO Why is this mandatory?
 
-    basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
+    auto const right_of_rectangle = parent.top_left().x + (rectangle_away_from_rhs.top_left.x - X{}) +
+                                    as_displacement(rectangle_away_from_rhs.size).dx;
+    auto const top_of_rectangle = parent.top_left().y + (rectangle_away_from_rhs.top_left.y - Y{});
+    Point const expected_position{right_of_rectangle, top_of_rectangle};
 
-    auto const right_of_rectangle = parent.top_left().x + (rectangle_away_from_rhs.top_left.x - X{}) + 
-        as_displacement(rectangle_away_from_rhs.size).dx;
-    
-    ASSERT_THAT(child.top_left().x, Eq(right_of_rectangle));
+    EXPECT_CALL(*window_manager_policy, advise_move_to(_, expected_position));
+    basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
+    ASSERT_THAT(child.top_left(), Eq(expected_position));
 }
 
 TEST_F(WindowPlacement, given_aux_rect_near_right_side_modify_window_attaches_to_left_edge)
@@ -237,11 +240,13 @@ TEST_F(WindowPlacement, given_aux_rect_near_right_side_modify_window_attaches_to
     modification.edge_attachment() = mir_edge_attachment_vertical;
     modification.size() = child.size(); // TODO Why is this mandatory?
 
-    basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
-
     auto const left_of_rectangle = parent.top_left().x + (rectangle_near_rhs.top_left.x - X{});
+    auto const top_of_rectangle = parent.top_left().y + (rectangle_near_rhs.top_left.y - Y{});
+    Point const expected_position{left_of_rectangle - as_displacement(child.size()).dx, top_of_rectangle};
 
-    ASSERT_THAT(child.top_left().x + as_displacement(child.size()).dx, Eq(left_of_rectangle));
+    EXPECT_CALL(*window_manager_policy, advise_move_to(_, expected_position));
+    basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
+    ASSERT_THAT(child.top_left(), Eq(expected_position));
 }
 
 TEST_F(WindowPlacement, given_aux_rect_away_from_bottom_modify_window_attaches_to_bottom_edge)
@@ -253,12 +258,15 @@ TEST_F(WindowPlacement, given_aux_rect_away_from_bottom_modify_window_attaches_t
     modification.edge_attachment() = mir_edge_attachment_horizontal;
     modification.size() = child.size(); // TODO Why is this mandatory?
 
-    basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
-
+    auto const left_of_rectangle = parent.top_left().x + (rectangle_away_from_bottom.top_left.x - X{});
     auto const bottom_of_rectangle = parent.top_left().y + (rectangle_away_from_bottom.top_left.y - Y{}) +
-                                    as_displacement(rectangle_away_from_bottom.size).dy;
+                                     as_displacement(rectangle_away_from_bottom.size).dy;
 
-    ASSERT_THAT(child.top_left().y, Eq(bottom_of_rectangle));
+    Point const expected_position{left_of_rectangle, bottom_of_rectangle};
+
+    EXPECT_CALL(*window_manager_policy, advise_move_to(_, expected_position));
+    basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
+    ASSERT_THAT(child.top_left(), Eq(expected_position));
 }
 
 TEST_F(WindowPlacement, given_aux_rect_near_bottom_modify_window_attaches_to_top_edge)
@@ -270,9 +278,12 @@ TEST_F(WindowPlacement, given_aux_rect_near_bottom_modify_window_attaches_to_top
     modification.edge_attachment() = mir_edge_attachment_horizontal;
     modification.size() = child.size(); // TODO Why is this mandatory?
 
-    basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
-
+    auto const left_of_rectangle = parent.top_left().x + (rectangle_near_bottom.top_left.x - X{});
     auto const top_of_rectangle = parent.top_left().y + (rectangle_near_bottom.top_left.y - Y{});
 
-    ASSERT_THAT(child.top_left().y + as_displacement(child.size()).dy, Eq(top_of_rectangle));
+    Point const expected_position{left_of_rectangle, top_of_rectangle - as_displacement(child.size()).dy};
+
+    EXPECT_CALL(*window_manager_policy, advise_move_to(_, expected_position));
+    basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
+    ASSERT_THAT(child.top_left(), Eq(expected_position));
 }
