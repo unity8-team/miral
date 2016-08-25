@@ -322,7 +322,7 @@ TEST_F(WindowModelTest, RaisingTopWindowDoesNothing)
 /*
  * Test: with 2 window, raising bottom window brings it to the top
  */
-TEST_F(WindowModelTest, DISABLED_RaisingBottomWindowBringsItToTheTop)
+TEST_F(WindowModelTest, RaisingBottomWindowBringsItToTheTop)
 {
     WindowModelNotifier notifier;
     WindowModel model(&notifier, nullptr); // no need for controller in this testcase
@@ -339,6 +339,109 @@ TEST_F(WindowModelTest, DISABLED_RaisingBottomWindowBringsItToTheTop)
     ASSERT_EQ(2, model.count());
     auto topWindow = getMirALWindowFromModel(model, 1);
     EXPECT_EQ(mirWindowInfo1.window(), topWindow);
+}
+
+/*
+ * Test: with 3 windows, raising bottom 2 windows brings them to the top in order
+ */
+TEST_F(WindowModelTest, Raising2BottomWindowsBringsThemToTheTop)
+{
+    WindowModelNotifier notifier;
+    WindowModel model(&notifier, nullptr); // no need for controller in this testcase
+
+    auto mirWindowInfo1 = createMirALWindowInfo();
+    auto mirWindowInfo2 = createMirALWindowInfo();
+    auto mirWindowInfo3 = createMirALWindowInfo();
+    notifier.addWindow(mirWindowInfo1);
+    notifier.addWindow(mirWindowInfo2);
+    notifier.addWindow(mirWindowInfo3);
+
+    // Current model state
+    // 2:   Window3
+    // 1:   Window2
+    // 0:   Window1
+
+    // Raise windows 1 & 2 (currently at bottom)
+    notifier.raiseWindows({mirWindowInfo1.window(), mirWindowInfo2.window()});
+
+    // Model should now be like this:
+    // 2:   Window1
+    // 1:   Window2
+    // 0:   Window3
+    ASSERT_EQ(3, model.count());
+    auto topWindow = getMirALWindowFromModel(model, 2);
+    EXPECT_EQ(mirWindowInfo1.window(), topWindow);
+    auto middleWindow = getMirALWindowFromModel(model, 1);
+    EXPECT_EQ(mirWindowInfo2.window(), middleWindow);
+    auto bottomWindow = getMirALWindowFromModel(model, 0);
+    EXPECT_EQ(mirWindowInfo3.window(), bottomWindow);
+}
+
+/*
+ * Test: with 2 window, raise the 2 windows in swapped order reorders the model
+ */
+TEST_F(WindowModelTest, Raising2WindowsInSwappedOrderReordersTheModel)
+{
+    WindowModelNotifier notifier;
+    WindowModel model(&notifier, nullptr); // no need for controller in this testcase
+
+    auto mirWindowInfo1 = createMirALWindowInfo();
+    auto mirWindowInfo2 = createMirALWindowInfo();
+    notifier.addWindow(mirWindowInfo1);
+    notifier.addWindow(mirWindowInfo2);
+
+    // Current model state
+    // 1:   Window2
+    // 0:   Window1
+
+    // Raise windows 1 & 2 (in opposite order)
+    notifier.raiseWindows({mirWindowInfo1.window(), mirWindowInfo2.window()});
+
+    // Model should now be like this:
+    // 1:   Window1
+    // 0:   Window2
+    ASSERT_EQ(2, model.count());
+    auto topWindow = getMirALWindowFromModel(model, 1);
+    EXPECT_EQ(mirWindowInfo1.window(), topWindow);
+    auto bottomWindow = getMirALWindowFromModel(model, 0);
+    EXPECT_EQ(mirWindowInfo2.window(), bottomWindow);
+}
+
+/*
+ * Test: with 3 windows, raise the bottom 2 windows in swapped order reorders the model
+ * so that the bottom window is at the top, and middle window remains in place.
+ */
+TEST_F(WindowModelTest, With3WindowsRaising2BottomWindowsInSwappedOrderReordersTheModel)
+{
+    WindowModelNotifier notifier;
+    WindowModel model(&notifier, nullptr); // no need for controller in this testcase
+
+    auto mirWindowInfo1 = createMirALWindowInfo();
+    auto mirWindowInfo2 = createMirALWindowInfo();
+    auto mirWindowInfo3 = createMirALWindowInfo();
+    notifier.addWindow(mirWindowInfo1);
+    notifier.addWindow(mirWindowInfo2);
+    notifier.addWindow(mirWindowInfo3);
+
+    // Current model state
+    // 2:   Window3
+    // 1:   Window2
+    // 0:   Window1
+
+    // Raise windows 2 & 1 (i.e. bottom two, but in opposite order)
+    notifier.raiseWindows({mirWindowInfo2.window(), mirWindowInfo1.window()});
+
+    // Model should now be like this:
+    // 2:   Window2
+    // 1:   Window1
+    // 0:   Window3
+    ASSERT_EQ(3, model.count());
+    auto topWindow = getMirALWindowFromModel(model, 2);
+    EXPECT_EQ(mirWindowInfo2.window(), topWindow);
+    auto middleWindow = getMirALWindowFromModel(model, 1);
+    EXPECT_EQ(mirWindowInfo1.window(), middleWindow);
+    auto bottomWindow = getMirALWindowFromModel(model, 0);
+    EXPECT_EQ(mirWindowInfo3.window(), bottomWindow);
 }
 
 /*
