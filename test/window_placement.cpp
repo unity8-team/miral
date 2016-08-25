@@ -163,9 +163,15 @@ struct WindowPlacement : testing::Test
 
     Size const initial_parent_size{600, 400};
     Size const initial_child_size{300, 300};
+    Rectangle const rectangle_away_from_rhs{{20, 20}, {20, 20}};
+    Rectangle const rectangle_near_rhs{{600, 20}, {20, 20}};
+    Rectangle const rectangle_away_from_bottom{{20, 20}, {20, 20}};
+    Rectangle const rectangle_near_bottom{{20, 400}, {20, 20}};
 
     Window parent;
     Window child;
+
+    WindowSpecification modification;
 
     void SetUp() override
     {
@@ -188,6 +194,8 @@ struct WindowPlacement : testing::Test
         creation_parameters.size = initial_child_size;
         basic_window_manager.add_surface(session, creation_parameters, &create_surface);
 
+        modification.size() = child.size(); // TODO Why is setting size() mandatory?
+
         Mock::VerifyAndClearExpectations(window_manager_policy);
     }
 
@@ -196,6 +204,12 @@ struct WindowPlacement : testing::Test
 //        std::cerr << "DEBUG parent position:" << Rectangle{parent.top_left(), parent.size()} << '\n';
 //        std::cerr << "DEBUG child position :" << Rectangle{child.top_left(), child.size()} << '\n';
     }
+
+    Rectangle abs_position_of(Rectangle const& rectangle)
+    {
+        return {rectangle.top_left + (parent.top_left() - Point{}), rectangle.size};
+    }
+
 };
 }
 
@@ -214,17 +228,10 @@ TEST_F(WindowPlacement, fixture_sets_up_parent_and_child)
 
 TEST_F(WindowPlacement, given_aux_rect_away_from_right_side_modify_window_attaches_to_right_edge)
 {
-    WindowSpecification modification;
-
-    Rectangle const rectangle_away_from_rhs{{20, 20}, {20, 20}};
     modification.aux_rect() = rectangle_away_from_rhs;
     modification.edge_attachment() = mir_edge_attachment_vertical;
-    modification.size() = child.size(); // TODO Why is this mandatory?
 
-    auto const right_of_rectangle = parent.top_left().x + (rectangle_away_from_rhs.top_left.x - X{}) +
-                                    as_displacement(rectangle_away_from_rhs.size).dx;
-    auto const top_of_rectangle = parent.top_left().y + (rectangle_away_from_rhs.top_left.y - Y{});
-    Point const expected_position{right_of_rectangle, top_of_rectangle};
+    auto const expected_position = abs_position_of(rectangle_away_from_rhs).top_right();
 
     EXPECT_CALL(*window_manager_policy, advise_move_to(_, expected_position));
     basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
@@ -233,16 +240,10 @@ TEST_F(WindowPlacement, given_aux_rect_away_from_right_side_modify_window_attach
 
 TEST_F(WindowPlacement, given_aux_rect_near_right_side_modify_window_attaches_to_left_edge)
 {
-    WindowSpecification modification;
-
-    Rectangle const rectangle_near_rhs{{600, 20}, {20, 20}};
     modification.aux_rect() = rectangle_near_rhs;
     modification.edge_attachment() = mir_edge_attachment_vertical;
-    modification.size() = child.size(); // TODO Why is this mandatory?
 
-    auto const left_of_rectangle = parent.top_left().x + (rectangle_near_rhs.top_left.x - X{});
-    auto const top_of_rectangle = parent.top_left().y + (rectangle_near_rhs.top_left.y - Y{});
-    Point const expected_position{left_of_rectangle - as_displacement(child.size()).dx, top_of_rectangle};
+    auto const expected_position = abs_position_of(rectangle_near_rhs).top_left - as_displacement(child.size()).dx;
 
     EXPECT_CALL(*window_manager_policy, advise_move_to(_, expected_position));
     basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
@@ -251,18 +252,10 @@ TEST_F(WindowPlacement, given_aux_rect_near_right_side_modify_window_attaches_to
 
 TEST_F(WindowPlacement, given_aux_rect_away_from_bottom_modify_window_attaches_to_bottom_edge)
 {
-    WindowSpecification modification;
-
-    Rectangle const rectangle_away_from_bottom{{20, 20}, {20, 20}};
     modification.aux_rect() = rectangle_away_from_bottom;
     modification.edge_attachment() = mir_edge_attachment_horizontal;
-    modification.size() = child.size(); // TODO Why is this mandatory?
 
-    auto const left_of_rectangle = parent.top_left().x + (rectangle_away_from_bottom.top_left.x - X{});
-    auto const bottom_of_rectangle = parent.top_left().y + (rectangle_away_from_bottom.top_left.y - Y{}) +
-                                     as_displacement(rectangle_away_from_bottom.size).dy;
-
-    Point const expected_position{left_of_rectangle, bottom_of_rectangle};
+    auto const expected_position = abs_position_of(rectangle_away_from_bottom).bottom_left();
 
     EXPECT_CALL(*window_manager_policy, advise_move_to(_, expected_position));
     basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
@@ -271,17 +264,10 @@ TEST_F(WindowPlacement, given_aux_rect_away_from_bottom_modify_window_attaches_t
 
 TEST_F(WindowPlacement, given_aux_rect_near_bottom_modify_window_attaches_to_top_edge)
 {
-    WindowSpecification modification;
-
-    Rectangle const rectangle_near_bottom{{20, 400}, {20, 20}};
     modification.aux_rect() = rectangle_near_bottom;
     modification.edge_attachment() = mir_edge_attachment_horizontal;
-    modification.size() = child.size(); // TODO Why is this mandatory?
 
-    auto const left_of_rectangle = parent.top_left().x + (rectangle_near_bottom.top_left.x - X{});
-    auto const top_of_rectangle = parent.top_left().y + (rectangle_near_bottom.top_left.y - Y{});
-
-    Point const expected_position{left_of_rectangle, top_of_rectangle - as_displacement(child.size()).dy};
+    auto const expected_position = abs_position_of(rectangle_near_bottom).top_left - as_displacement(child.size()).dy;
 
     EXPECT_CALL(*window_manager_policy, advise_move_to(_, expected_position));
     basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
