@@ -7,9 +7,9 @@ earlier Ubuntu versions or other distributions.
 You’ll need a few development and utility packages installed, along with the
 Mir development packages:
 
-    $ sudo apt-get install cmake g++ make bzr python-pil
+    $ sudo apt-get install cmake g++ make bzr python-pil uuid-dev libglib2.0-dev
     $ sudo apt-get install libmirserver-dev libmirclient-dev mirtest-dev
-    $ sudo apt-get install mir-graphics-drivers-desktop
+    $ sudo apt-get install mir-graphics-drivers-desktop libgles2-mesa-dev
 
 (If you’re working on a phone or tablet use mir-graphics-drivers-android in
 place of mir-graphics-drivers-desktop.)
