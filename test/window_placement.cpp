@@ -184,21 +184,22 @@ struct WindowPlacement : testing::Test
         basic_window_manager.add_session(session);
 
         EXPECT_CALL(*window_manager_policy, advise_new_window(_))
-            .WillOnce(Invoke([this](WindowInfo const& window_info){ parent = window_info.window(); }));
+            .WillOnce(Invoke([this](WindowInfo const& window_info){ parent = window_info.window(); }))
+            .WillOnce(Invoke([this](WindowInfo const& window_info){ child = window_info.window(); }));
 
         creation_parameters.size = initial_parent_size;
         basic_window_manager.add_surface(session, creation_parameters, &create_surface);
-
-        EXPECT_CALL(*window_manager_policy, advise_new_window(_))
-            .WillOnce(Invoke([this](WindowInfo const& window_info){ child = window_info.window(); }));
 
         creation_parameters.type = mir_surface_type_menu;
         creation_parameters.parent = parent;
         creation_parameters.size = initial_child_size;
         basic_window_manager.add_surface(session, creation_parameters, &create_surface);
 
-        modification.size() = child.size(); // TODO Why is setting size() mandatory?
+        // TODO Why is setting size() mandatory?
+        // Answer: the original placement code was for surface creation, where a size is required
+        modification.size() = child.size();
 
+        // Clear the expectations used to capture parent & child
         Mock::VerifyAndClearExpectations(window_manager_policy);
     }
 
