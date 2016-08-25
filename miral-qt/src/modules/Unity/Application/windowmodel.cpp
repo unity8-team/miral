@@ -119,7 +119,6 @@ void WindowModel::onWindowInfoChanged(const WindowInfo windowInfo, const int pos
 
 void WindowModel::onWindowsRaised(QVector<int> indices)
 {
-    qDebug() << "onWindowsRaised" << indices;
     const int modelCount = m_windowModel.count();
 
     // Filter some NO-OPs - Qt will crash on endMoveRows() if you try NO-OPs!!!
