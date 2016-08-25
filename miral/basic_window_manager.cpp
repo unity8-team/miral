@@ -499,6 +499,9 @@ void miral::BasicWindowManager::raise_tree(Window const& root)
 
 void miral::BasicWindowManager::move_tree(miral::WindowInfo& root, mir::geometry::Displacement movement)
 {
+    if (movement == mir::geometry::Displacement{})
+        return;
+
     auto const top_left = root.window().top_left() + movement;
 
     policy->advise_move_to(root, top_left);
@@ -670,8 +673,12 @@ auto miral::BasicWindowManager::info_for_window_id(std::string const& id) const 
 
 void miral::BasicWindowManager::place_and_size(WindowInfo& root, Point const& new_pos, Size const& new_size)
 {
-    policy->advise_resize(root, new_size);
-    root.window().resize(new_size);
+    if (root.window().size() != new_size)
+    {
+        policy->advise_resize(root, new_size);
+        root.window().resize(new_size);
+    }
+
     move_tree(root, new_pos - root.window().top_left());
 }
 

@@ -72,6 +72,7 @@ Q_SIGNALS:
     void windowResized(const QSize size, const int index);
     void windowFocused(const int index);
     void windowInfoChanged(const qtmir::WindowInfo, const int index);
+    void windowsRaised(const QVector<int> indices);
 
 private:
     Q_DISABLE_COPY(WindowModelNotifierInterface)

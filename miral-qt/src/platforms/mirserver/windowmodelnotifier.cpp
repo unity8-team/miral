@@ -31,8 +31,8 @@ using namespace qtmir;
 
 WindowModelNotifier::WindowModelNotifier()
 {
-    qDebug("WindowModelNotifier::WindowModelNotifier");
     qRegisterMetaType<qtmir::WindowInfo>();
+    qRegisterMetaType<QVector<int>>();
 }
 
 WindowModelNotifier::~WindowModelNotifier()
@@ -42,7 +42,6 @@ WindowModelNotifier::~WindowModelNotifier()
 
 void WindowModelNotifier::addWindow(const miral::WindowInfo &windowInfo)
 {
-    qDebug("WindowModelNotifier::addWindow");
     auto stackPosition = m_windowStack.count();
     m_windowStack.push_back(windowInfo.window()); // ASSUMPTION: Mir should tell us where in stack
 
@@ -51,7 +50,6 @@ void WindowModelNotifier::addWindow(const miral::WindowInfo &windowInfo)
 
 void WindowModelNotifier::removeWindow(const miral::WindowInfo &windowInfo)
 {
-    qDebug("WindowModelNotifier::removeWindow");
     const int pos = m_windowStack.indexOf(windowInfo.window());
     if (pos < 0) {
         qDebug("Unknown window removed");
@@ -99,7 +97,23 @@ void WindowModelNotifier::resizeWindow(const miral::WindowInfo &windowInfo, mir:
     Q_EMIT windowResized(toQSize(newSize), pos);
 }
 
-void WindowModelNotifier::raiseWindows(const std::vector<miral::Window> &/*windows*/)
+void WindowModelNotifier::raiseWindows(const std::vector<miral::Window> &windows)
 {
+    QVector<int> indices;
+    for (auto window: windows) {
+        const int pos = m_windowStack.indexOf(window);
+        if (pos < 0) {
+            qDebug("Unknown window raised");
+            continue;
+        }
+        indices.push_back(pos);
+    }
 
+    Q_FOREACH(auto index, indices) {
+        // QVector missing a move method in Qt5.4
+        auto window = m_windowStack.takeAt(index);
+        m_windowStack.push_back(window);
+    }
+
+    Q_EMIT windowsRaised(indices);
 }

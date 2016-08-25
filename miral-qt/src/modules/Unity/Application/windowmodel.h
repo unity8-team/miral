@@ -59,6 +59,7 @@ private Q_SLOTS:
     void onWindowResized(const QSize size, const int index);
     void onWindowFocused(const int index);
     void onWindowInfoChanged(const WindowInfo windowInfo, const int index);
+    void onWindowsRaised(const QVector<int> indices);
 
 private:
     void connectToWindowModelNotifier(WindowModelNotifierInterface *notifier);
