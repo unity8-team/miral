@@ -168,6 +168,7 @@ struct WindowPlacement : testing::Test
     Rectangle const rectangle_away_from_bottom{{20, 20}, {20, 20}};
     Rectangle const rectangle_near_bottom{{20, 400}, {20, 20}};
     Rectangle const rectangle_near_both_sides{{0, 20}, {600, 20}};
+    Rectangle const rectangle_near_both_sides_and_bottom{{0, 400}, {600, 20}};
 
     Window parent;
     Window child;
@@ -237,7 +238,7 @@ TEST_F(WindowPlacement, fixture_sets_up_parent_and_child)
  * edges in the given rectangle.
  */
 
-TEST_F(WindowPlacement, given_aux_rect_away_from_right_side_modify_window_attaches_to_right_edge)
+TEST_F(WindowPlacement, given_aux_rect_away_from_right_side_edge_attachment_vertical_attaches_to_right_edge)
 {
     modification.aux_rect() = rectangle_away_from_rhs;
     modification.edge_attachment() = mir_edge_attachment_vertical;
@@ -249,7 +250,7 @@ TEST_F(WindowPlacement, given_aux_rect_away_from_right_side_modify_window_attach
     ASSERT_THAT(child.top_left(), Eq(expected_position));
 }
 
-TEST_F(WindowPlacement, given_aux_rect_near_right_side_modify_window_attaches_to_left_edge)
+TEST_F(WindowPlacement, given_aux_rect_near_right_sideedge_attachment_vertical_attaches_to_left_edge)
 {
     modification.aux_rect() = rectangle_near_rhs;
     modification.edge_attachment() = mir_edge_attachment_vertical;
@@ -261,7 +262,7 @@ TEST_F(WindowPlacement, given_aux_rect_near_right_side_modify_window_attaches_to
     ASSERT_THAT(child.top_left(), Eq(expected_position));
 }
 
-TEST_F(WindowPlacement, given_aux_rect_near_both_sides_modify_window_attaches_to_right_edge)
+TEST_F(WindowPlacement, given_aux_rect_near_both_sides_edge_attachment_vertical_attaches_to_right_edge)
 {
     modification.aux_rect() = rectangle_near_both_sides;
     modification.edge_attachment() = mir_edge_attachment_vertical;
@@ -273,7 +274,7 @@ TEST_F(WindowPlacement, given_aux_rect_near_both_sides_modify_window_attaches_to
     ASSERT_THAT(child.top_left(), Eq(expected_position));
 }
 
-TEST_F(WindowPlacement, given_aux_rect_away_from_bottom_modify_window_attaches_to_bottom_edge)
+TEST_F(WindowPlacement, given_aux_rect_away_from_bottom_edge_attachment_horizontal_attaches_to_bottom_edge)
 {
     modification.aux_rect() = rectangle_away_from_bottom;
     modification.edge_attachment() = mir_edge_attachment_horizontal;
@@ -285,10 +286,34 @@ TEST_F(WindowPlacement, given_aux_rect_away_from_bottom_modify_window_attaches_t
     ASSERT_THAT(child.top_left(), Eq(expected_position));
 }
 
-TEST_F(WindowPlacement, given_aux_rect_near_bottom_modify_window_attaches_to_top_edge)
+TEST_F(WindowPlacement, given_aux_rect_near_bottom_edge_attachment_horizontal_attaches_to_top_edge)
 {
     modification.aux_rect() = rectangle_near_bottom;
     modification.edge_attachment() = mir_edge_attachment_horizontal;
+
+    auto const expected_position = aux_rect_position().top_left - as_displacement(child.size()).dy;
+
+    EXPECT_CALL(*window_manager_policy, advise_move_to(_, expected_position));
+    basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
+    ASSERT_THAT(child.top_left(), Eq(expected_position));
+}
+
+TEST_F(WindowPlacement, given_aux_rect_near_both_sides_edge_attachment_any_attaches_to_bottom_edge)
+{
+    modification.aux_rect() = rectangle_near_both_sides;
+    modification.edge_attachment() = mir_edge_attachment_any;
+
+    auto const expected_position = aux_rect_position().bottom_left();
+
+    EXPECT_CALL(*window_manager_policy, advise_move_to(_, expected_position));
+    basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
+    ASSERT_THAT(child.top_left(), Eq(expected_position));
+}
+
+TEST_F(WindowPlacement, given_aux_rect_near_both_sides_and_bottom_edge_attachment_any_attaches_to_top_edge)
+{
+    modification.aux_rect() = rectangle_near_both_sides_and_bottom;
+    modification.edge_attachment() = mir_edge_attachment_any;
 
     auto const expected_position = aux_rect_position().top_left - as_displacement(child.size()).dy;
 
