@@ -68,7 +68,7 @@ QHash<int, QByteArray> WindowModel::roleNames() const
     return roleNames;
 }
 
-void WindowModel::onWindowAdded(const WindowInfo windowInfo, const unsigned int index)
+void WindowModel::onWindowAdded(const WindowInfo windowInfo, const int index)
 {
     qDebug() << "Window Added!" << index;
     auto mirSurface = new MirSurface(windowInfo, m_windowController);
@@ -78,7 +78,7 @@ void WindowModel::onWindowAdded(const WindowInfo windowInfo, const unsigned int 
     Q_EMIT countChanged();
 }
 
-void WindowModel::onWindowRemoved(const unsigned int index)
+void WindowModel::onWindowRemoved(const int index)
 {
     qDebug() << "Window Removed!" << index;
     beginRemoveRows(QModelIndex(), index, index);
@@ -87,19 +87,19 @@ void WindowModel::onWindowRemoved(const unsigned int index)
     Q_EMIT countChanged();
 }
 
-void WindowModel::onWindowMoved(const QPoint topLeft, const unsigned int index)
+void WindowModel::onWindowMoved(const QPoint topLeft, const int index)
 {
     auto mirSurface = static_cast<MirSurface *>(m_windowModel.value(index));
     mirSurface->setPosition(topLeft);
 }
 
-void WindowModel::onWindowResized(const QSize size, const unsigned int index)
+void WindowModel::onWindowResized(const QSize size, const int index)
 {
     auto mirSurface = static_cast<MirSurface *>(m_windowModel.value(index));
     mirSurface->setSize(size);
 }
 
-void WindowModel::onWindowFocused(const unsigned int index)
+void WindowModel::onWindowFocused(const int index)
 {
     auto mirSurface = static_cast<MirSurface *>(m_windowModel.value(index));
     if (m_focusedWindow && m_focusedWindow != mirSurface) {
@@ -109,7 +109,7 @@ void WindowModel::onWindowFocused(const unsigned int index)
     m_focusedWindow = mirSurface;
 }
 
-void WindowModel::onWindowInfoChanged(const WindowInfo windowInfo, const unsigned int pos)
+void WindowModel::onWindowInfoChanged(const WindowInfo windowInfo, const int pos)
 {
     auto mirSurface = static_cast<MirSurface *>(m_windowModel.value(pos));
     mirSurface->updateWindowInfo(windowInfo);
