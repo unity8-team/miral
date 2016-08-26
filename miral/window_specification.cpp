@@ -42,7 +42,6 @@ struct miral::WindowSpecification::Self
     mir::optional_value<MirOrientationMode> preferred_orientation;
     mir::optional_value<BufferStreamId> content_id;
     mir::optional_value<Rectangle> aux_rect;
-    mir::optional_value<MirEdgeAttachment> edge_attachment; // TODO deprecate
     mir::optional_value<MirPlacementHints> placement_hints;
     mir::optional_value<MirPlacementGravity> window_placement_gravity;
     mir::optional_value<MirPlacementGravity> aux_rect_placement_gravity;
@@ -74,7 +73,6 @@ miral::WindowSpecification::Self::Self(mir::shell::SurfaceSpecification const& s
     state(spec.state),
     preferred_orientation(spec.preferred_orientation),
     aux_rect(spec.aux_rect),
-    edge_attachment(spec.edge_attachment),
     min_width(spec.min_width),
     min_height(spec.min_height),
     max_width(spec.max_width),
@@ -238,7 +236,6 @@ miral::WindowSpecification::Self::Self(mir::scene::SurfaceCreationParameters con
     state(params.state),
     preferred_orientation(params.preferred_orientation),
     aux_rect(params.aux_rect),
-    edge_attachment(params.edge_attachment),
     min_width(params.min_width),
     min_height(params.min_height),
     max_width(params.max_width),
@@ -321,7 +318,6 @@ void miral::WindowSpecification::Self::update(mir::scene::SurfaceCreationParamet
     copy_if_set(params.preferred_orientation, preferred_orientation);
     copy_if_set(params.content_id, content_id);
     copy_if_set(params.aux_rect, aux_rect);
-    copy_if_set(params.edge_attachment, edge_attachment);
     copy_if_set(params.min_width, min_width);
     copy_if_set(params.min_height, min_height);
     copy_if_set(params.max_width, max_width);
