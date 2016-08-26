@@ -163,9 +163,18 @@ struct WindowPlacement : testing::Test
 
     Size const initial_parent_size{600, 400};
     Size const initial_child_size{300, 300};
+    Rectangle const rectangle_away_from_rhs{{20, 20}, {20, 20}};
+    Rectangle const rectangle_near_rhs{{600, 20}, {20, 20}};
+    Rectangle const rectangle_away_from_bottom{{20, 20}, {20, 20}};
+    Rectangle const rectangle_near_bottom{{20, 400}, {20, 20}};
+    Rectangle const rectangle_near_both_sides{{0, 20}, {600, 20}};
+    Rectangle const rectangle_near_both_sides_and_bottom{{0, 400}, {600, 20}};
+    Rectangle const rectangle_near_all_sides{{0, 20}, {600, 400}};
 
     Window parent;
     Window child;
+
+    WindowSpecification modification;
 
     void SetUp() override
     {
@@ -188,6 +197,8 @@ struct WindowPlacement : testing::Test
         creation_parameters.size = initial_child_size;
         basic_window_manager.add_surface(session, creation_parameters, &create_surface);
 
+        modification.size() = child.size(); // TODO Why is setting size() mandatory?
+
         Mock::VerifyAndClearExpectations(window_manager_policy);
     }
 
@@ -195,6 +206,32 @@ struct WindowPlacement : testing::Test
     {
 //        std::cerr << "DEBUG parent position:" << Rectangle{parent.top_left(), parent.size()} << '\n';
 //        std::cerr << "DEBUG child position :" << Rectangle{child.top_left(), child.size()} << '\n';
+    }
+
+    auto aux_rect_position() -> Rectangle
+    {
+        auto const rectangle = modification.aux_rect().value();
+        return {rectangle.top_left + (parent.top_left() - Point{}), rectangle.size};
+    }
+
+    auto on_top_edge() -> Point
+    {
+        return aux_rect_position().top_left - as_displacement(child.size()).dy;
+    }
+
+    auto on_right_edge() -> Point
+    {
+        return aux_rect_position().top_right();
+    }
+
+    auto on_left_edge() -> Point
+    {
+        return aux_rect_position().top_left - as_displacement(child.size()).dx;
+    }
+
+    auto on_bottom_edge() -> Point
+    {
+        return aux_rect_position().bottom_left();
     }
 };
 }
@@ -212,76 +249,106 @@ TEST_F(WindowPlacement, fixture_sets_up_parent_and_child)
     ASSERT_THAT(basic_window_manager.info_for(child).type(), Eq(mir_surface_type_menu));
 }
 
-TEST_F(WindowPlacement, given_aux_rect_away_from_right_side_modify_window_attaches_to_right_edge)
-{
-    WindowSpecification modification;
 
-    Rectangle const rectangle_away_from_rhs{{20, 20}, {20, 20}};
+/* From the Mir toolkit API:
+ * Positioning of the surface is specified with respect to the parent surface
+ * via an adjacency rectangle. The server will attempt to choose an edge of the
+ * adjacency rectangle on which to place the surface taking in to account
+ * screen-edge proximity or similar constraints. In addition, the server can use
+ * the edge affinity hint to consider only horizontal or only vertical adjacency
+ * edges in the given rectangle.
+ */
+
+TEST_F(WindowPlacement, given_aux_rect_away_from_right_side_edge_attachment_vertical_attaches_to_right_edge)
+{
     modification.aux_rect() = rectangle_away_from_rhs;
     modification.edge_attachment() = mir_edge_attachment_vertical;
-    modification.size() = child.size(); // TODO Why is this mandatory?
 
-    auto const right_of_rectangle = parent.top_left().x + (rectangle_away_from_rhs.top_left.x - X{}) +
-                                    as_displacement(rectangle_away_from_rhs.size).dx;
-    auto const top_of_rectangle = parent.top_left().y + (rectangle_away_from_rhs.top_left.y - Y{});
-    Point const expected_position{right_of_rectangle, top_of_rectangle};
+    auto const expected_position = on_right_edge();
 
     EXPECT_CALL(*window_manager_policy, advise_move_to(_, expected_position));
     basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
     ASSERT_THAT(child.top_left(), Eq(expected_position));
 }
 
-TEST_F(WindowPlacement, given_aux_rect_near_right_side_modify_window_attaches_to_left_edge)
+TEST_F(WindowPlacement, given_aux_rect_near_right_sideedge_attachment_vertical_attaches_to_left_edge)
 {
-    WindowSpecification modification;
-
-    Rectangle const rectangle_near_rhs{{600, 20}, {20, 20}};
     modification.aux_rect() = rectangle_near_rhs;
     modification.edge_attachment() = mir_edge_attachment_vertical;
-    modification.size() = child.size(); // TODO Why is this mandatory?
 
-    auto const left_of_rectangle = parent.top_left().x + (rectangle_near_rhs.top_left.x - X{});
-    auto const top_of_rectangle = parent.top_left().y + (rectangle_near_rhs.top_left.y - Y{});
-    Point const expected_position{left_of_rectangle - as_displacement(child.size()).dx, top_of_rectangle};
+    auto const expected_position = on_left_edge();
 
     EXPECT_CALL(*window_manager_policy, advise_move_to(_, expected_position));
     basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
     ASSERT_THAT(child.top_left(), Eq(expected_position));
 }
 
-TEST_F(WindowPlacement, given_aux_rect_away_from_bottom_modify_window_attaches_to_bottom_edge)
+TEST_F(WindowPlacement, given_aux_rect_near_both_sides_edge_attachment_vertical_attaches_to_right_edge)
 {
-    WindowSpecification modification;
+    modification.aux_rect() = rectangle_near_both_sides;
+    modification.edge_attachment() = mir_edge_attachment_vertical;
 
-    Rectangle const rectangle_away_from_bottom{{20, 20}, {20, 20}};
+    auto const expected_position = on_right_edge();
+
+    EXPECT_CALL(*window_manager_policy, advise_move_to(_, expected_position));
+    basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
+    ASSERT_THAT(child.top_left(), Eq(expected_position));
+}
+
+TEST_F(WindowPlacement, given_aux_rect_away_from_bottom_edge_attachment_horizontal_attaches_to_bottom_edge)
+{
     modification.aux_rect() = rectangle_away_from_bottom;
     modification.edge_attachment() = mir_edge_attachment_horizontal;
-    modification.size() = child.size(); // TODO Why is this mandatory?
 
-    auto const left_of_rectangle = parent.top_left().x + (rectangle_away_from_bottom.top_left.x - X{});
-    auto const bottom_of_rectangle = parent.top_left().y + (rectangle_away_from_bottom.top_left.y - Y{}) +
-                                     as_displacement(rectangle_away_from_bottom.size).dy;
-
-    Point const expected_position{left_of_rectangle, bottom_of_rectangle};
+    auto const expected_position = on_bottom_edge();
 
     EXPECT_CALL(*window_manager_policy, advise_move_to(_, expected_position));
     basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
     ASSERT_THAT(child.top_left(), Eq(expected_position));
 }
 
-TEST_F(WindowPlacement, given_aux_rect_near_bottom_modify_window_attaches_to_top_edge)
+TEST_F(WindowPlacement, given_aux_rect_near_bottom_edge_attachment_horizontal_attaches_to_top_edge)
 {
-    WindowSpecification modification;
-
-    Rectangle const rectangle_near_bottom{{20, 400}, {20, 20}};
     modification.aux_rect() = rectangle_near_bottom;
     modification.edge_attachment() = mir_edge_attachment_horizontal;
-    modification.size() = child.size(); // TODO Why is this mandatory?
 
-    auto const left_of_rectangle = parent.top_left().x + (rectangle_near_bottom.top_left.x - X{});
-    auto const top_of_rectangle = parent.top_left().y + (rectangle_near_bottom.top_left.y - Y{});
+    auto const expected_position = on_top_edge();
 
-    Point const expected_position{left_of_rectangle, top_of_rectangle - as_displacement(child.size()).dy};
+    EXPECT_CALL(*window_manager_policy, advise_move_to(_, expected_position));
+    basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
+    ASSERT_THAT(child.top_left(), Eq(expected_position));
+}
+
+TEST_F(WindowPlacement, given_aux_rect_near_both_sides_edge_attachment_any_attaches_to_bottom_edge)
+{
+    modification.aux_rect() = rectangle_near_both_sides;
+    modification.edge_attachment() = mir_edge_attachment_any;
+
+    auto const expected_position = on_bottom_edge();
+
+    EXPECT_CALL(*window_manager_policy, advise_move_to(_, expected_position));
+    basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
+    ASSERT_THAT(child.top_left(), Eq(expected_position));
+}
+
+TEST_F(WindowPlacement, given_aux_rect_near_both_sides_and_bottom_edge_attachment_any_attaches_to_top_edge)
+{
+    modification.aux_rect() = rectangle_near_both_sides_and_bottom;
+    modification.edge_attachment() = mir_edge_attachment_any;
+
+    auto const expected_position = on_top_edge();
+
+    EXPECT_CALL(*window_manager_policy, advise_move_to(_, expected_position));
+    basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
+    ASSERT_THAT(child.top_left(), Eq(expected_position));
+}
+
+TEST_F(WindowPlacement, given_aux_rect_near_all_sides_attachment_any_attaches_to_right_edge)
+{
+    modification.aux_rect() = rectangle_near_all_sides;
+    modification.edge_attachment() = mir_edge_attachment_any;
+
+    auto const expected_position = on_right_edge();
 
     EXPECT_CALL(*window_manager_policy, advise_move_to(_, expected_position));
     basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
