@@ -164,10 +164,10 @@ global:
     miral::WindowSpecification::WindowSpecification*;
     miral::WindowSpecification::aux_rect*;
     miral::WindowSpecification::aux_rect_placement_gravity*;
+    miral::WindowSpecification::aux_rect_placement_gravity_alt*;
     miral::WindowSpecification::aux_rect_placement_offset*;
     miral::WindowSpecification::buffer_usage*;
     miral::WindowSpecification::content_id*;
-    miral::WindowSpecification::edge_attachment*;
     miral::WindowSpecification::height_inc*;
     miral::WindowSpecification::input_mode*;
     miral::WindowSpecification::input_shape*;

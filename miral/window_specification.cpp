@@ -440,11 +440,6 @@ auto miral::WindowSpecification::aux_rect() const -> mir::optional_value<Rectang
     return self->aux_rect;
 }
 
-auto miral::WindowSpecification::edge_attachment() const -> mir::optional_value<MirEdgeAttachment> const&
-{
-    return self->edge_attachment;
-}
-
 auto miral::WindowSpecification::placement_hints() const -> mir::optional_value<MirPlacementHints> const&
 {
     return self->placement_hints;
@@ -588,11 +583,6 @@ auto miral::WindowSpecification::content_id() -> mir::optional_value<BufferStrea
 auto miral::WindowSpecification::aux_rect() -> mir::optional_value<Rectangle>&
 {
     return self->aux_rect;
-}
-
-auto miral::WindowSpecification::edge_attachment() -> mir::optional_value<MirEdgeAttachment>&
-{
-    return self->edge_attachment;
 }
 
 auto miral::WindowSpecification::placement_hints() -> mir::optional_value<MirPlacementHints>&

@@ -637,7 +637,7 @@ void miral::BasicWindowManager::modify_window(WindowInfo& window_info, WindowSpe
         place_and_size(window_info, new_pos, window.size());
     }
 
-    if (window_info.parent() && modifications.aux_rect().is_set() && modifications.edge_attachment().is_set())
+    if (window_info.parent() && modifications.placement_hints().is_set())
     {
         auto parent = window_info.parent();
 
@@ -1003,7 +1003,7 @@ auto miral::BasicWindowManager::place_new_surface(ApplicationInfo const& app_inf
         }
     }
 
-    if (has_parent && parameters.aux_rect().is_set() && parameters.edge_attachment().is_set())
+    if (has_parent && parameters.aux_rect().is_set() && parameters.placement_hints().is_set())
     {
         auto const position = place_relative(info_for(parameters.parent().value()).window().top_left(), parameters);
 
@@ -1208,6 +1208,7 @@ auto miral::BasicWindowManager::place_relative(Point const& parent_top_left, Win
     auto const size = parameters.size().value();
     auto const hints = parameters.placement_hints().value();
     auto const active_display_area = active_display();
+    auto const win_gravity = parameters.window_placement_gravity().value();
 
     Rectangle aux_rect = parameters.aux_rect().value();
     aux_rect.top_left = aux_rect.top_left + (parent_top_left-Point{});
@@ -1216,8 +1217,6 @@ auto miral::BasicWindowManager::place_relative(Point const& parent_top_left, Win
 
      if (parameters.aux_rect_placement_gravity_alt().is_set())
          rect_gravities.push_back(parameters.aux_rect_placement_gravity_alt().value());
-
-    auto win_gravity = parameters.window_placement_gravity().value();
 
     mir::optional_value<Point> default_result;
 

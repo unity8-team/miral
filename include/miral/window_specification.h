@@ -22,13 +22,16 @@
 #include "miral/stream_specification.h"
 
 #include <mir_toolkit/common.h>
+#include <mir_toolkit/version.h>
 #include <mir/optional_value.h>
 #include <mir/geometry/rectangles.h>
 
 #include <memory>
 
 // TODO this wants to move to Mir's toolkit API
-// It is inspired by GdkGravity
+#if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 4, 0)
+
+// Inspired by GdkGravity
 typedef enum MirPlacementGravity
 {
     mir_placement_gravity_northwest = 1,   // the reference point is at the top left corner.
@@ -42,8 +45,7 @@ typedef enum MirPlacementGravity
     mir_placement_gravity_southeast,       // the reference point is at the lower right corner.
 } MirPlacementGravity;
 
-// TODO this wants to move to Mir's toolkit API
-// It is inspired by GdkAnchorHints
+// Inspired by GdkAnchorHints
 /**
  * Positioning hints for aligning a window relative to a rectangle.
  *
@@ -82,7 +84,7 @@ typedef enum MirPlacementHints
     // allow resizing window on both axes
     mir_placement_hints_resize = mir_placement_hints_resize_x|mir_placement_hints_resize_y,
 } MirPlacementHints;
-
+#endif
 
 namespace mir
 {
@@ -134,7 +136,6 @@ public:
     auto state() const -> mir::optional_value<MirSurfaceState> const&;
     auto preferred_orientation() const -> mir::optional_value<MirOrientationMode> const&;
     auto aux_rect() const -> mir::optional_value<Rectangle> const&;
-    auto edge_attachment() const -> mir::optional_value<MirEdgeAttachment> const&;  // TODO deprecate
     auto placement_hints() const -> mir::optional_value<MirPlacementHints> const&;
     auto window_placement_gravity() const -> mir::optional_value<MirPlacementGravity> const&;
     auto aux_rect_placement_gravity() const -> mir::optional_value<MirPlacementGravity> const&;
@@ -165,7 +166,6 @@ public:
     auto preferred_orientation() -> mir::optional_value<MirOrientationMode>&;
     auto content_id() -> mir::optional_value<BufferStreamId>&;
     auto aux_rect() -> mir::optional_value<Rectangle>&;
-    auto edge_attachment() -> mir::optional_value<MirEdgeAttachment>&;  // TODO deprecate
     auto placement_hints() -> mir::optional_value<MirPlacementHints>&;
     auto window_placement_gravity() -> mir::optional_value<MirPlacementGravity>&;
     auto aux_rect_placement_gravity() -> mir::optional_value<MirPlacementGravity>&;

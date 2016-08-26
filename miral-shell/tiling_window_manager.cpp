@@ -154,7 +154,6 @@ void TilingWindowManagerPolicy::handle_modify_window(
     reset(mods.top_left());
     reset(mods.size());
     reset(mods.output_id());
-    reset(mods.edge_attachment());
     reset(mods.min_width());
     reset(mods.min_height());
     reset(mods.max_width());
