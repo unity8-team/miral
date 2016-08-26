@@ -642,7 +642,11 @@ void miral::BasicWindowManager::modify_window(WindowInfo& window_info, WindowSpe
 
         if (parent)
         {
-            auto new_pos = place_relative(parent.top_left(), modifications);
+            // FIXME: nasty frig to avoid needing to respecify size
+            auto mods = modifications;
+            if (!mods.size().is_set()) mods.size() = window.size();
+
+            auto new_pos = place_relative(parent.top_left(), mods);
 
             if (new_pos.is_set())
                 move_tree(window_info, new_pos.value() - window.top_left());
