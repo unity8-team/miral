@@ -1165,34 +1165,36 @@ auto anchor_for(Rectangle const& aux_rect, MirPlacementGravity rect_gravity) -> 
 
 auto offset_for(Size const& size, MirPlacementGravity rect_gravity) -> Displacement
 {
+    auto const displacement = as_displacement(size);
+
     switch (rect_gravity)
     {
     case mir_placement_gravity_northwest:
         return {0, 0};
 
     case mir_placement_gravity_north:
-        return {-0.5*as_displacement(size).dx, 0};
+        return {-0.5 * displacement.dx, 0};
 
     case mir_placement_gravity_northeast:
-        return {-1*as_displacement(size).dx, 0};
+        return {-1 * displacement.dx, 0};
 
     case mir_placement_gravity_west:
-        return {0, -0.5*as_displacement(size).dy};
+        return {0, -0.5 * displacement.dy};
 
     case mir_placement_gravity_centre:
-        return {-0.5*as_displacement(size).dx, -0.5*as_displacement(size).dy};
+        return {-0.5 * displacement.dx, -0.5 * displacement.dy};
 
     case mir_placement_gravity_east:
-        return {-1*as_displacement(size).dx, -0.5*as_displacement(size).dy};
+        return {-1 * displacement.dx, -0.5 * displacement.dy};
 
     case mir_placement_gravity_southwest:
-        return {0, -1*as_displacement(size).dy};
+        return {0, -1 * displacement.dy};
 
     case mir_placement_gravity_south:
-        return {-0.5*as_displacement(size).dx, -1*as_displacement(size).dy};
+        return {-0.5 * displacement.dx, -1 * displacement.dy};
 
     case mir_placement_gravity_southeast:
-        return {-1*as_displacement(size).dx, -1*as_displacement(size).dy};
+        return {-1 * displacement.dx, -1 * displacement.dy};
 
     default:
         BOOST_THROW_EXCEPTION(std::runtime_error("bad placement gravity"));
@@ -1228,6 +1230,13 @@ auto miral::BasicWindowManager::place_relative(Point const& parent_top_left, Win
     if (hints | mir_placement_hints_flip_y)
     {
         auto result = anchor_for(aux_rect, flip_y(rect_gravity)) + offset_for(size, flip_y(win_gravity));
+        if (active_display_area.contains(Rectangle{result, size}))
+            return result;
+    }
+
+    if (hints | mir_placement_hints_flip_x && hints | mir_placement_hints_flip_y)
+    {
+        auto result = anchor_for(aux_rect, flip_x(flip_y(rect_gravity))) + offset_for(size, flip_x(flip_y(win_gravity)));
         if (active_display_area.contains(Rectangle{result, size}))
             return result;
     }
