@@ -138,6 +138,7 @@ public:
     auto placement_hints() const -> mir::optional_value<MirPlacementHints> const&;
     auto window_placement_gravity() const -> mir::optional_value<MirPlacementGravity> const&;
     auto aux_rect_placement_gravity() const -> mir::optional_value<MirPlacementGravity> const&;
+    auto aux_rect_placement_gravity_alt() const -> mir::optional_value<MirPlacementGravity> const&;
     auto aux_rect_placement_offset() const -> mir::optional_value<Displacement> const&;
     auto min_width() const -> mir::optional_value<Width> const&;
     auto min_height() const -> mir::optional_value<Height> const&;
@@ -168,6 +169,7 @@ public:
     auto placement_hints() -> mir::optional_value<MirPlacementHints>&;
     auto window_placement_gravity() -> mir::optional_value<MirPlacementGravity>&;
     auto aux_rect_placement_gravity() -> mir::optional_value<MirPlacementGravity>&;
+    auto aux_rect_placement_gravity_alt() -> mir::optional_value<MirPlacementGravity>&;
     auto aux_rect_placement_offset() -> mir::optional_value<Displacement>&;
     auto min_width() -> mir::optional_value<Width>&;
     auto min_height() -> mir::optional_value<Height>&;

@@ -1212,33 +1212,47 @@ auto miral::BasicWindowManager::place_relative(Point const& parent_top_left, Win
     Rectangle aux_rect = parameters.aux_rect().value();
     aux_rect.top_left = aux_rect.top_left + (parent_top_left-Point{});
 
-    auto rect_gravity = parameters.aux_rect_placement_gravity().value();
+    std::vector<MirPlacementGravity> rect_gravities{parameters.aux_rect_placement_gravity().value()};
+
+     if (parameters.aux_rect_placement_gravity_alt().is_set())
+         rect_gravities.push_back(parameters.aux_rect_placement_gravity_alt().value());
+
     auto win_gravity = parameters.window_placement_gravity().value();
 
-    auto default_result = anchor_for(aux_rect, rect_gravity) + offset_for(size, win_gravity);
+    mir::optional_value<Point> default_result;
 
-    if (active_display_area.contains(Rectangle{default_result, size}))
-        return default_result;
-
-    if (hints | mir_placement_hints_flip_x)
+    for (auto const& rect_gravity : rect_gravities)
     {
-        auto result = anchor_for(aux_rect, flip_x(rect_gravity)) + offset_for(size, flip_x(win_gravity));
-        if (active_display_area.contains(Rectangle{result, size}))
-            return result;
-    }
+        {
+            auto result = anchor_for(aux_rect, rect_gravity) + offset_for(size, win_gravity);
 
-    if (hints | mir_placement_hints_flip_y)
-    {
-        auto result = anchor_for(aux_rect, flip_y(rect_gravity)) + offset_for(size, flip_y(win_gravity));
-        if (active_display_area.contains(Rectangle{result, size}))
-            return result;
-    }
+            if (active_display_area.contains(Rectangle{result, size}))
+                return result;
 
-    if (hints | mir_placement_hints_flip_x && hints | mir_placement_hints_flip_y)
-    {
-        auto result = anchor_for(aux_rect, flip_x(flip_y(rect_gravity))) + offset_for(size, flip_x(flip_y(win_gravity)));
-        if (active_display_area.contains(Rectangle{result, size}))
-            return result;
+            if (!default_result.is_set())
+                default_result = result;
+        }
+
+        if (hints | mir_placement_hints_flip_x)
+        {
+            auto result = anchor_for(aux_rect, flip_x(rect_gravity)) + offset_for(size, flip_x(win_gravity));
+            if (active_display_area.contains(Rectangle{result, size}))
+                return result;
+        }
+
+        if (hints | mir_placement_hints_flip_y)
+        {
+            auto result = anchor_for(aux_rect, flip_y(rect_gravity)) + offset_for(size, flip_y(win_gravity));
+            if (active_display_area.contains(Rectangle{result, size}))
+                return result;
+        }
+
+        if (hints | mir_placement_hints_flip_x && hints | mir_placement_hints_flip_y)
+        {
+            auto result = anchor_for(aux_rect, flip_x(flip_y(rect_gravity))) + offset_for(size, flip_x(flip_y(win_gravity)));
+            if (active_display_area.contains(Rectangle{result, size}))
+                return result;
+        }
     }
 
     return default_result;
