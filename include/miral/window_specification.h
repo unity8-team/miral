@@ -74,7 +74,7 @@ typedef enum MirPlacementHints
     mir_placement_hints_resize_y = 1 << 5,  // allow resizing window vertically
 
     // allow flipping anchors on both axes
-    mir_placement_hints_flip   = mir_placement_hints_flip_x|mir_placement_hints_flip_y,
+    mir_placement_hints_flip_any = mir_placement_hints_flip_x|mir_placement_hints_flip_y,
 
     // allow sliding window on both axes
     mir_placement_hints_slide  = mir_placement_hints_slide_x|mir_placement_hints_slide_y,
@@ -167,7 +167,7 @@ public:
     auto edge_attachment() -> mir::optional_value<MirEdgeAttachment>&;  // TODO deprecate
     auto placement_hints() -> mir::optional_value<MirPlacementHints>&;
     auto window_placement_gravity() -> mir::optional_value<MirPlacementGravity>&;
-    auto aux_rect_placement_gravity() -> mir::optional_value<MirPlacementGravity>;
+    auto aux_rect_placement_gravity() -> mir::optional_value<MirPlacementGravity>&;
     auto aux_rect_placement_offset() -> mir::optional_value<Displacement>&;
     auto min_width() -> mir::optional_value<Width>&;
     auto min_height() -> mir::optional_value<Height>&;
