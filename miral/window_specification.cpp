@@ -93,20 +93,20 @@ miral::WindowSpecification::Self::Self(mir::shell::SurfaceSpecification const& s
         switch (spec.edge_attachment.value())
         {
         case mir_edge_attachment_vertical:
-            window_placement_gravity = mir_placement_gravity_northeast;
-            aux_rect_placement_gravity = mir_placement_gravity_northwest;
+            window_placement_gravity = mir_placement_gravity_northwest;
+            aux_rect_placement_gravity = mir_placement_gravity_northeast;
             placement_hints = mir_placement_hints_flip_x;
             break;
 
         case mir_edge_attachment_horizontal:
-            window_placement_gravity = mir_placement_gravity_northeast;
+            window_placement_gravity = mir_placement_gravity_northwest;
             aux_rect_placement_gravity = mir_placement_gravity_southwest;
             placement_hints = mir_placement_hints_flip_y;
             break;
 
         case mir_edge_attachment_any:
-            window_placement_gravity = mir_placement_gravity_northeast;
-            aux_rect_placement_gravity = mir_placement_gravity_northwest;
+            window_placement_gravity = mir_placement_gravity_northwest;
+            aux_rect_placement_gravity = mir_placement_gravity_northeast;
             placement_hints = mir_placement_hints_flip_any;
             break;
         }
@@ -256,20 +256,20 @@ miral::WindowSpecification::Self::Self(mir::scene::SurfaceCreationParameters con
         switch (params.edge_attachment.value())
         {
         case mir_edge_attachment_vertical:
-            window_placement_gravity = mir_placement_gravity_northeast;
-            aux_rect_placement_gravity = mir_placement_gravity_northwest;
+            window_placement_gravity = mir_placement_gravity_northwest;
+            aux_rect_placement_gravity = mir_placement_gravity_northeast;
             placement_hints = mir_placement_hints_flip_x;
             break;
 
         case mir_edge_attachment_horizontal:
-            window_placement_gravity = mir_placement_gravity_northeast;
+            window_placement_gravity = mir_placement_gravity_northwest;
             aux_rect_placement_gravity = mir_placement_gravity_southwest;
             placement_hints = mir_placement_hints_flip_y;
             break;
 
         case mir_edge_attachment_any:
-            window_placement_gravity = mir_placement_gravity_northeast;
-            aux_rect_placement_gravity = mir_placement_gravity_northwest;
+            window_placement_gravity = mir_placement_gravity_northwest;
+            aux_rect_placement_gravity = mir_placement_gravity_northeast;
             placement_hints = mir_placement_hints_flip_any;
             break;
         }

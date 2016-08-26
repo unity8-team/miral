@@ -32,6 +32,7 @@
 #include <algorithm>
 
 using namespace mir;
+using namespace mir::geometry;
 
 namespace
 {
@@ -1070,61 +1071,58 @@ auto miral::BasicWindowManager::place_new_surface(ApplicationInfo const& app_inf
     return parameters;
 }
 
+namespace
+{
+auto anchor_for(Rectangle const& aux_rect, MirPlacementGravity rect_gravity) -> Point
+{
+    switch (rect_gravity)
+    {
+    case mir_placement_gravity_northwest:
+        return aux_rect.top_left;
+
+    case mir_placement_gravity_north:
+        return aux_rect.top_left + 0.5*as_displacement(aux_rect.size).dx;
+
+    case mir_placement_gravity_northeast:
+        return aux_rect.top_right();
+
+    case mir_placement_gravity_west:
+        return aux_rect.top_left + 0.5*as_displacement(aux_rect.size).dy;
+
+    case mir_placement_gravity_centre:
+        return aux_rect.top_left + 0.5*as_displacement(aux_rect.size);
+
+    case mir_placement_gravity_east:
+        return aux_rect.top_right() + 0.5*as_displacement(aux_rect.size).dy;
+
+    case mir_placement_gravity_southwest:
+        return aux_rect.bottom_left();
+
+    case mir_placement_gravity_south:
+        return aux_rect.bottom_left() + 0.5*as_displacement(aux_rect.size).dx;
+
+    case mir_placement_gravity_southeast:
+        return aux_rect.bottom_right();
+
+    default:
+        BOOST_THROW_EXCEPTION(std::runtime_error("bad placement gravity"));
+    }
+}
+}
+
 auto miral::BasicWindowManager::place_relative(Point const& parent_top_left, WindowSpecification const& parameters)
 -> mir::optional_value<Point>
 {
-    mir::optional_value<Point> result;
-    auto const active_display_area = active_display();
-    auto const width = parameters.size().value().width.as_int();
-    auto const height = parameters.size().value().height.as_int();
+//    auto const active_display_area = active_display();
+//    auto const width = parameters.size().value().width.as_int();
+//    auto const height = parameters.size().value().height.as_int();
 
-    auto const edge_attachment = parameters.edge_attachment().value();
-    auto const aux_rect = parameters.aux_rect().value();
-    auto const top_left = aux_rect.top_left     -Point{} + parent_top_left;
-    auto const top_right= aux_rect.top_right()  -Point{} + parent_top_left;
-    auto const bot_left = aux_rect.bottom_left()-Point{} + parent_top_left;
+    Rectangle aux_rect = parameters.aux_rect().value();
+    aux_rect.top_left = aux_rect.top_left + (parent_top_left-Point{});
 
-    if (edge_attachment & mir_edge_attachment_vertical)
-    {
-        if (active_display_area.contains(top_right + Displacement{width, height}))
-        {
-            result = top_right;
-        }
-        else if (active_display_area.contains(top_left + Displacement{-width, height}))
-        {
-            result = top_left + Displacement{-width, 0};
-        }
-    }
+    auto rect_anchor = anchor_for(aux_rect, parameters.aux_rect_placement_gravity().value());
 
-    if (!result.is_set() && edge_attachment & mir_edge_attachment_horizontal)
-    {
-        if (active_display_area.contains(bot_left + Displacement{width, height}))
-        {
-            result = bot_left;
-        }
-        else if (active_display_area.contains(top_left + Displacement{width, -height}))
-        {
-            result = top_left + Displacement{0, -height};
-        }
-    }
-
-    if (!result.is_set())
-    {
-        if (edge_attachment & mir_edge_attachment_vertical)
-        {
-            result = top_right;
-        }
-        else if (edge_attachment & mir_edge_attachment_horizontal)
-        {
-            result = bot_left;
-        }
-        else
-        {
-            result = top_right;
-        }
-    }
-
-    return result;
+    return rect_anchor;
 }
 
 void miral::BasicWindowManager::validate_modification_request(
