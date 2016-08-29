@@ -123,8 +123,8 @@ To run Qt applications under Mir you may need to install qtubuntu-desktop:
 Building the tests
 ------------------
 
-MirAL comes with a set of tests, if you intend to build these then the add
-the following packages:
+MirAL comes with a set of tests, if you intend to build these then add the
+following packages:
 
     $ sudo apt-get install cmake-extras google-mock mirtest-dev mir-test-tools
     $ sudo apt-get install libboost-filesystem-dev libboost-system-dev
