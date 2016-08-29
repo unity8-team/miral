@@ -178,6 +178,7 @@ struct WindowPlacement : testing::Test
     Rectangle const rectangle_near_both_sides{{0, 20}, {600, 20}};
     Rectangle const rectangle_near_both_sides_and_bottom{{0, 400}, {600, 20}};
     Rectangle const rectangle_near_all_sides{{0, 20}, {600, 400}};
+    Rectangle const rectangle_near_both_bottom_right{{400, 400}, {200, 20}};
 
     Window parent;
     Window child;
@@ -502,7 +503,6 @@ TEST_F(WindowPlacement, given_aux_rect_near_bottom_and_offset_placement_is_flipp
 
 TEST_F(WindowPlacement, given_aux_rect_near_bottom_right_and_offset_placement_is_flipped_both_ways)
 {
-    Rectangle const rectangle_near_both_bottom_right{{400, 400}, {200, 20}};
     Displacement const displacement{42, 13};
 
     modification.aux_rect() = rectangle_near_both_bottom_right;
@@ -572,6 +572,20 @@ TEST_F(WindowPlacement, given_aux_rect_near_top_placement_can_slide_in_y)
     modification.aux_rect_placement_gravity() = mir_placement_gravity_northwest;
 
     Point const expected_position{aux_rect_position().top_left.x, display_area.top_left.y};
+
+    EXPECT_CALL(*window_manager_policy, advise_move_to(_, expected_position));
+    basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
+    ASSERT_THAT(child.top_left(), Eq(expected_position));
+}
+
+TEST_F(WindowPlacement, given_aux_rect_near_bottom_right_and_offset_placement_can_slide_in_x_and_y)
+{
+    modification.aux_rect() = rectangle_near_both_bottom_right;
+    modification.placement_hints() = mir_placement_hints_slide;
+    modification.window_placement_gravity() = mir_placement_gravity_northwest;
+    modification.aux_rect_placement_gravity() = mir_placement_gravity_southwest;
+
+    auto const expected_position = display_area.bottom_right() - as_displacement(child.size());
 
     EXPECT_CALL(*window_manager_policy, advise_move_to(_, expected_position));
     basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
