@@ -581,7 +581,7 @@ TEST_F(WindowPlacement, given_aux_rect_near_top_placement_can_slide_in_y)
 TEST_F(WindowPlacement, given_aux_rect_near_bottom_right_and_offset_placement_can_slide_in_x_and_y)
 {
     modification.aux_rect() = rectangle_near_both_bottom_right;
-    modification.placement_hints() = mir_placement_hints_slide;
+    modification.placement_hints() = mir_placement_hints_slide_any;
     modification.window_placement_gravity() = mir_placement_gravity_northwest;
     modification.aux_rect_placement_gravity() = mir_placement_gravity_southwest;
 

@@ -84,10 +84,10 @@ typedef enum MirPlacementHints
     mir_placement_hints_flip_any = mir_placement_hints_flip_x|mir_placement_hints_flip_y,
 
     // allow sliding window on both axes
-    mir_placement_hints_slide  = mir_placement_hints_slide_x|mir_placement_hints_slide_y,
+    mir_placement_hints_slide_any  = mir_placement_hints_slide_x|mir_placement_hints_slide_y,
 
     // allow resizing window on both axes
-    mir_placement_hints_resize = mir_placement_hints_resize_x|mir_placement_hints_resize_y,
+    mir_placement_hints_resize_any = mir_placement_hints_resize_x|mir_placement_hints_resize_y,
 } MirPlacementHints;
 #endif
 
