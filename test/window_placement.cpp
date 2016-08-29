@@ -503,7 +503,7 @@ TEST_F(WindowPlacement, given_aux_rect_near_bottom_and_offset_placement_is_flipp
 TEST_F(WindowPlacement, given_aux_rect_near_bottom_right_and_offset_placement_is_flipped_both_ways)
 {
     Rectangle const rectangle_near_both_bottom_right{{400, 400}, {200, 20}};
-    auto const displacement = Displacement{42, 13};
+    Displacement const displacement{42, 13};
 
     modification.aux_rect() = rectangle_near_both_bottom_right;
     modification.placement_hints() = mir_placement_hints_flip_any;
