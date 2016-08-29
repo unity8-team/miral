@@ -1127,6 +1127,9 @@ auto flip_y(MirPlacementGravity rect_gravity) -> MirPlacementGravity
     }
 }
 
+auto flip_x(Displacement const& d) -> Displacement { return {-1*d.dx, d.dy}; }
+auto flip_y(Displacement const& d) -> Displacement { return {d.dx, -1*d.dy}; }
+
 auto antipodes(MirPlacementGravity rect_gravity) -> MirPlacementGravity
 {
     switch (rect_gravity)
@@ -1243,6 +1246,9 @@ auto miral::BasicWindowManager::place_relative(Point const& parent_top_left, Win
     auto const active_display_area = active_display();
     auto const win_gravity = parameters.window_placement_gravity().value();
 
+    auto offset = parameters.aux_rect_placement_offset().is_set() ?
+                  parameters.aux_rect_placement_offset().value() : Displacement{};
+
     Rectangle aux_rect = parameters.aux_rect().value();
     aux_rect.top_left = aux_rect.top_left + (parent_top_left-Point{});
 
@@ -1256,7 +1262,7 @@ auto miral::BasicWindowManager::place_relative(Point const& parent_top_left, Win
     for (auto const& rect_gravity : rect_gravities)
     {
         {
-            auto result = anchor_for(aux_rect, rect_gravity) + offset_for(size, win_gravity);
+            auto result = anchor_for(aux_rect, rect_gravity) + offset_for(size, win_gravity) + offset;
 
             if (active_display_area.contains(Rectangle{result, size}))
                 return result;
@@ -1267,21 +1273,27 @@ auto miral::BasicWindowManager::place_relative(Point const& parent_top_left, Win
 
         if (hints & mir_placement_hints_flip_x)
         {
-            auto result = anchor_for(aux_rect, flip_x(rect_gravity)) + offset_for(size, flip_x(win_gravity));
+            auto result = anchor_for(aux_rect, flip_x(rect_gravity)) +
+                offset_for(size, flip_x(win_gravity)) + flip_x(offset);
+
             if (active_display_area.contains(Rectangle{result, size}))
                 return result;
         }
 
         if (hints & mir_placement_hints_flip_y)
         {
-            auto result = anchor_for(aux_rect, flip_y(rect_gravity)) + offset_for(size, flip_y(win_gravity));
+            auto result = anchor_for(aux_rect, flip_y(rect_gravity)) +
+                offset_for(size, flip_y(win_gravity)) + flip_y(offset);
+
             if (active_display_area.contains(Rectangle{result, size}))
                 return result;
         }
 
         if (hints & mir_placement_hints_flip_x && hints & mir_placement_hints_flip_y)
         {
-            auto result = anchor_for(aux_rect, flip_x(flip_y(rect_gravity))) + offset_for(size, flip_x(flip_y(win_gravity)));
+            auto result = anchor_for(aux_rect, flip_x(flip_y(rect_gravity))) +
+                offset_for(size, flip_x(flip_y(win_gravity))) + flip_x(flip_y(offset));
+
             if (active_display_area.contains(Rectangle{result, size}))
                 return result;
         }
