@@ -1301,10 +1301,10 @@ auto miral::BasicWindowManager::place_relative(Point const& parent_top_left, Win
 
     for (auto const& rect_gravity : rect_gravities)
     {
+        auto result = anchor_for(aux_rect, rect_gravity) + offset_for(size, win_gravity) + offset;
+
         if (hints & mir_placement_hints_slide_x)
         {
-            auto result = anchor_for(aux_rect, rect_gravity) + offset_for(size, win_gravity) + offset;
-
             auto const left_overhang  = result.x - active_display_area.top_left.x;
             auto const right_overhang = (result + as_displacement(size)).x - active_display_area.top_right().x;
 
@@ -1312,6 +1312,20 @@ auto miral::BasicWindowManager::place_relative(Point const& parent_top_left, Win
                 result -= left_overhang;
             else if (right_overhang > DeltaX{0})
                 result -= right_overhang;
+
+            if (active_display_area.contains(Rectangle{result, size}))
+                return result;
+        }
+
+        if (hints & mir_placement_hints_slide_y)
+        {
+            auto const top_overhang  = result.y - active_display_area.top_left.y;
+            auto const bot_overhang = (result + as_displacement(size)).y - active_display_area.bottom_left().y;
+
+            if (top_overhang < DeltaY{0})
+                result -= top_overhang;
+            else if (bot_overhang > DeltaY{0})
+                result -= bot_overhang;
 
             if (active_display_area.contains(Rectangle{result, size}))
                 return result;

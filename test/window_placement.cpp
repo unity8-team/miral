@@ -547,3 +547,33 @@ TEST_F(WindowPlacement, given_aux_rect_near_left_side_placement_can_slide_in_x)
     basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
     ASSERT_THAT(child.top_left(), Eq(expected_position));
 }
+
+TEST_F(WindowPlacement, given_aux_rect_near_bottom_placement_can_slide_in_y)
+{
+    modification.aux_rect() = rectangle_near_bottom;
+    modification.placement_hints() = mir_placement_hints_slide_y;
+    modification.window_placement_gravity() = mir_placement_gravity_northwest;
+    modification.aux_rect_placement_gravity() = mir_placement_gravity_southwest;
+
+    Point const expected_position{
+        aux_rect_position().top_left.x,
+        (display_area.bottom_left() - as_displacement(child.size())).y};
+
+    EXPECT_CALL(*window_manager_policy, advise_move_to(_, expected_position));
+    basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
+    ASSERT_THAT(child.top_left(), Eq(expected_position));
+}
+
+TEST_F(WindowPlacement, given_aux_rect_near_top_placement_can_slide_in_y)
+{
+    modification.aux_rect() = rectangle_near_all_sides;
+    modification.placement_hints() = mir_placement_hints_slide_y;
+    modification.window_placement_gravity() = mir_placement_gravity_southwest;
+    modification.aux_rect_placement_gravity() = mir_placement_gravity_northwest;
+
+    Point const expected_position{aux_rect_position().top_left.x, display_area.top_left.y};
+
+    EXPECT_CALL(*window_manager_policy, advise_move_to(_, expected_position));
+    basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
+    ASSERT_THAT(child.top_left(), Eq(expected_position));
+}
