@@ -650,7 +650,7 @@ void miral::BasicWindowManager::modify_window(WindowInfo& window_info, WindowSpe
             auto new_pos = place_relative(parent.top_left(), mods);
 
             if (new_pos.is_set())
-                move_tree(window_info, new_pos.value() - window.top_left());
+                place_and_size(window_info, new_pos.value().top_left, new_pos.value().size);
         }
     }
 
@@ -1009,7 +1009,8 @@ auto miral::BasicWindowManager::place_new_surface(ApplicationInfo const& app_inf
 
         if (position.is_set())
         {
-            parameters.top_left() = position.value();
+            parameters.top_left() = position.value().top_left;
+            parameters.size() = position.value().size;
             positioned = true;
         }
     }
@@ -1239,9 +1240,9 @@ auto offset_for(Size const& size, MirPlacementGravity rect_gravity) -> Displacem
 }
 
 auto miral::BasicWindowManager::place_relative(Point const& parent_top_left, WindowSpecification const& parameters)
--> mir::optional_value<Point>
+-> mir::optional_value<Rectangle>
 {
-    auto const size = parameters.size().value();
+    auto size = parameters.size().value();
     auto const hints = parameters.placement_hints().value();
     auto const active_display_area = active_display();
     auto const win_gravity = parameters.window_placement_gravity().value();
@@ -1257,7 +1258,7 @@ auto miral::BasicWindowManager::place_relative(Point const& parent_top_left, Win
      if (hints & mir_placement_hints_antipodes)
          rect_gravities.push_back(antipodes(parameters.aux_rect_placement_gravity().value()));
 
-    mir::optional_value<Point> default_result;
+    mir::optional_value<Rectangle> default_result;
 
     for (auto const& rect_gravity : rect_gravities)
     {
@@ -1265,10 +1266,10 @@ auto miral::BasicWindowManager::place_relative(Point const& parent_top_left, Win
             auto result = anchor_for(aux_rect, rect_gravity) + offset_for(size, win_gravity) + offset;
 
             if (active_display_area.contains(Rectangle{result, size}))
-                return result;
+                return Rectangle{result, size};
 
             if (!default_result.is_set())
-                default_result = result;
+                default_result = Rectangle{result, size};
         }
 
         if (hints & mir_placement_hints_flip_x)
@@ -1277,7 +1278,7 @@ auto miral::BasicWindowManager::place_relative(Point const& parent_top_left, Win
                 offset_for(size, flip_x(win_gravity)) + flip_x(offset);
 
             if (active_display_area.contains(Rectangle{result, size}))
-                return result;
+                return Rectangle{result, size};
         }
 
         if (hints & mir_placement_hints_flip_y)
@@ -1286,7 +1287,7 @@ auto miral::BasicWindowManager::place_relative(Point const& parent_top_left, Win
                 offset_for(size, flip_y(win_gravity)) + flip_y(offset);
 
             if (active_display_area.contains(Rectangle{result, size}))
-                return result;
+                return Rectangle{result, size};
         }
 
         if (hints & mir_placement_hints_flip_x && hints & mir_placement_hints_flip_y)
@@ -1295,7 +1296,7 @@ auto miral::BasicWindowManager::place_relative(Point const& parent_top_left, Win
                 offset_for(size, flip_x(flip_y(win_gravity))) + flip_x(flip_y(offset));
 
             if (active_display_area.contains(Rectangle{result, size}))
-                return result;
+                return Rectangle{result, size};
         }
     }
 
@@ -1326,7 +1327,47 @@ auto miral::BasicWindowManager::place_relative(Point const& parent_top_left, Win
         }
 
         if (active_display_area.contains(Rectangle{result, size}))
-            return result;
+            return Rectangle{result, size};
+    }
+
+    for (auto const& rect_gravity : rect_gravities)
+    {
+        auto result = anchor_for(aux_rect, rect_gravity) + offset_for(size, win_gravity) + offset;
+
+        if (hints & mir_placement_hints_resize_x)
+        {
+            auto const left_overhang  = result.x - active_display_area.top_left.x;
+            auto const right_overhang = (result + as_displacement(size)).x - active_display_area.top_right().x;
+
+            if (left_overhang < DeltaX{0})
+            {
+                result -= left_overhang;
+                size = Size{size.width + left_overhang, size.height};
+            }
+            else if (right_overhang > DeltaX{0})
+            {
+                size = Size{size.width - right_overhang, size.height};
+            }
+        }
+
+        if (hints & mir_placement_hints_resize_y)
+        {
+            auto const top_overhang  = result.y - active_display_area.top_left.y;
+            auto const bot_overhang = (result + as_displacement(size)).y - active_display_area.bottom_left().y;
+
+            if (top_overhang < DeltaY{0})
+            {
+                result -= top_overhang;
+                size = Size{size.width, size.height + top_overhang};
+            }
+            else if (bot_overhang > DeltaY{0})
+            {
+                size = Size{size.width, size.height - bot_overhang};
+            }
+        }
+
+        if (active_display_area.contains(Rectangle{result, size}))
+            return Rectangle{result, size};
     }
 
     return default_result;
