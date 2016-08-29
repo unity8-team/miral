@@ -643,11 +643,7 @@ void miral::BasicWindowManager::modify_window(WindowInfo& window_info, WindowSpe
 
         if (parent)
         {
-            // FIXME: nasty frig to avoid needing to respecify size
-            auto mods = modifications;
-            if (!mods.size().is_set()) mods.size() = window.size();
-
-            auto new_pos = place_relative(parent.top_left(), mods);
+            auto new_pos = place_relative(parent.top_left(), modifications, window.size());
 
             if (new_pos.is_set())
                 place_and_size(window_info, new_pos.value().top_left, new_pos.value().size);
@@ -1005,7 +1001,10 @@ auto miral::BasicWindowManager::place_new_surface(ApplicationInfo const& app_inf
 
     if (has_parent && parameters.aux_rect().is_set() && parameters.placement_hints().is_set())
     {
-        auto const position = place_relative(info_for(parameters.parent().value()).window().top_left(), parameters);
+        auto const position = place_relative(
+            info_for(parameters.parent().value()).window().top_left(),
+            parameters,
+            parameters.size().value());
 
         if (position.is_set())
         {
@@ -1239,13 +1238,15 @@ auto offset_for(Size const& size, MirPlacementGravity rect_gravity) -> Displacem
 }
 }
 
-auto miral::BasicWindowManager::place_relative(Point const& parent_top_left, WindowSpecification const& parameters)
+auto miral::BasicWindowManager::place_relative(Point const& parent_top_left, WindowSpecification const& parameters, Size size)
 -> mir::optional_value<Rectangle>
 {
-    auto size = parameters.size().value();
     auto const hints = parameters.placement_hints().value();
     auto const active_display_area = active_display();
     auto const win_gravity = parameters.window_placement_gravity().value();
+
+    if (parameters.size().is_set())
+        size = parameters.size().value();
 
     auto offset = parameters.aux_rect_placement_offset().is_set() ?
                   parameters.aux_rect_placement_offset().value() : Displacement{};
@@ -1344,7 +1345,8 @@ auto miral::BasicWindowManager::place_relative(Point const& parent_top_left, Win
                 result -= left_overhang;
                 size = Size{size.width + left_overhang, size.height};
             }
-            else if (right_overhang > DeltaX{0})
+
+            if (right_overhang > DeltaX{0})
             {
                 size = Size{size.width - right_overhang, size.height};
             }
@@ -1360,7 +1362,8 @@ auto miral::BasicWindowManager::place_relative(Point const& parent_top_left, Win
                 result -= top_overhang;
                 size = Size{size.width, size.height + top_overhang};
             }
-            else if (bot_overhang > DeltaY{0})
+
+            if (bot_overhang > DeltaY{0})
             {
                 size = Size{size.width, size.height - bot_overhang};
             }
