@@ -141,6 +141,14 @@ auto create_surface(std::shared_ptr<mir::scene::Session> const& session, mir::sc
     return session->create_surface(params, sink);
 }
 
+mir::shell::SurfaceSpecification edge_attachment(Rectangle const& aux_rect, MirEdgeAttachment attachment)
+{
+    mir::shell::SurfaceSpecification result;
+    result.aux_rect = aux_rect;
+    result.edge_attachment = attachment;
+    return result;
+}
+
 struct WindowPlacement : testing::Test
 {
     StubFocusController focus_controller;
@@ -229,14 +237,6 @@ struct WindowPlacement : testing::Test
     auto on_bottom_edge() -> Point
     {
         return aux_rect_position().bottom_left();
-    }
-
-    mir::shell::SurfaceSpecification edge_attachment(Rectangle const& aux_rect, MirEdgeAttachment attachment)
-    {
-        mir::shell::SurfaceSpecification legacy_modification;
-        legacy_modification.aux_rect = aux_rect;
-        legacy_modification.edge_attachment = attachment;
-        return legacy_modification;
     }
 };
 }
