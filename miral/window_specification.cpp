@@ -589,6 +589,11 @@ auto miral::WindowSpecification::aux_rect_placement_gravity() -> mir::optional_v
     return self->aux_rect_placement_gravity;
 }
 
+auto miral::WindowSpecification::aux_rect_placement_offset() -> mir::optional_value<Displacement>&
+{
+    return self->aux_rect_placement_offset;
+}
+
 auto miral::WindowSpecification::min_width() -> mir::optional_value<Width>&
 {
     return self->min_width;

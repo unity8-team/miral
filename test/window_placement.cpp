@@ -351,3 +351,115 @@ TEST_F(WindowPlacement, given_aux_rect_near_all_sides_attachment_any_attaches_to
     basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
     ASSERT_THAT(child.top_left(), Eq(expected_position));
 }
+
+namespace
+{
+MirPlacementGravity const all_gravities[] =
+{
+    mir_placement_gravity_northwest,
+    mir_placement_gravity_north,
+    mir_placement_gravity_northeast,
+    mir_placement_gravity_west,
+    mir_placement_gravity_centre,
+    mir_placement_gravity_east,
+    mir_placement_gravity_southwest,
+    mir_placement_gravity_south,
+    mir_placement_gravity_southeast,
+};
+
+auto position_of(MirPlacementGravity rect_gravity, Rectangle rectangle) -> Point
+{
+    auto const displacement = as_displacement(rectangle.size);
+
+    switch (rect_gravity)
+    {
+    case mir_placement_gravity_northwest:
+        return rectangle.top_left;
+
+    case mir_placement_gravity_north:
+        return rectangle.top_left + Displacement{0.5 * displacement.dx, 0};
+
+    case mir_placement_gravity_northeast:
+        return rectangle.top_right();
+
+    case mir_placement_gravity_west:
+        return rectangle.top_left + Displacement{0, 0.5 * displacement.dy};
+
+    case mir_placement_gravity_centre:
+        return rectangle.top_left + 0.5 * displacement;
+
+    case mir_placement_gravity_east:
+        return rectangle.top_right() + Displacement{0, 0.5 * displacement.dy};
+
+    case mir_placement_gravity_southwest:
+        return rectangle.bottom_left();
+
+    case mir_placement_gravity_south:
+        return rectangle.bottom_left() + Displacement{0.5 * displacement.dx, 0};
+
+    case mir_placement_gravity_southeast:
+        return rectangle.bottom_right();
+
+    default:
+        throw std::runtime_error("bad placement gravity");
+    }
+
+}
+}
+
+TEST_F(WindowPlacement, given_no_hints_can_attach_by_every_gravity)
+{
+    modification.aux_rect() = Rectangle{{100, 50}, { 20, 20}};
+    modification.placement_hints() = MirPlacementHints{};
+
+    for (auto const rect_gravity : all_gravities)
+    {
+        modification.aux_rect_placement_gravity() = rect_gravity;
+
+        auto const rect_anchor = position_of(rect_gravity, aux_rect_position());
+
+        for (auto const window_gravity : all_gravities)
+        {
+            modification.window_placement_gravity() = window_gravity;
+
+            EXPECT_CALL(*window_manager_policy, advise_move_to(_, _));
+            basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
+
+            Rectangle child_rect{child.top_left(), child.size()};
+
+            EXPECT_THAT(position_of(window_gravity, child_rect), Eq(rect_anchor))
+                        << "rect_gravity=" << rect_gravity << ", window_gravity=" << window_gravity;
+            Mock::VerifyAndClearExpectations(window_manager_policy);
+        }
+    }
+}
+
+TEST_F(WindowPlacement, given_no_hints_can_attach_by_offset_at_every_gravity)
+{
+    auto const offset = Displacement{42, 13};
+
+    modification.aux_rect() = Rectangle{{100, 50}, { 20, 20}};
+    modification.placement_hints() = MirPlacementHints{};
+    modification.aux_rect_placement_offset() = offset;
+
+    for (auto const rect_gravity : all_gravities)
+    {
+        modification.aux_rect_placement_gravity() = rect_gravity;
+
+        auto const rect_anchor = position_of(rect_gravity, aux_rect_position()) + offset;
+
+        for (auto const window_gravity : all_gravities)
+        {
+            modification.window_placement_gravity() = window_gravity;
+
+            EXPECT_CALL(*window_manager_policy, advise_move_to(_, _));
+            basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
+
+            Rectangle child_rect{child.top_left(), child.size()};
+
+            EXPECT_THAT(position_of(window_gravity, child_rect), Eq(rect_anchor))
+                        << "rect_gravity=" << rect_gravity << ", window_gravity=" << window_gravity;
+            Mock::VerifyAndClearExpectations(window_manager_policy);
+        }
+    }
+}
