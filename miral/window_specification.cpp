@@ -45,7 +45,6 @@ struct miral::WindowSpecification::Self
     mir::optional_value<MirPlacementHints> placement_hints;
     mir::optional_value<MirPlacementGravity> window_placement_gravity;
     mir::optional_value<MirPlacementGravity> aux_rect_placement_gravity;
-    mir::optional_value<MirPlacementGravity> aux_rect_placement_gravity_alt;
     mir::optional_value<Displacement> aux_rect_placement_offset;
     mir::optional_value<Width> min_width;
     mir::optional_value<Height> min_height;
@@ -106,8 +105,7 @@ miral::WindowSpecification::Self::Self(mir::shell::SurfaceSpecification const& s
         case mir_edge_attachment_any:
             window_placement_gravity = mir_placement_gravity_northwest;
             aux_rect_placement_gravity = mir_placement_gravity_northeast;
-            aux_rect_placement_gravity_alt = mir_placement_gravity_southwest;
-            placement_hints = mir_placement_hints_flip_any;
+            placement_hints = MirPlacementHints(mir_placement_hints_flip_any | mir_placement_hints_antipodes);
             break;
         }
     }
@@ -451,11 +449,6 @@ auto miral::WindowSpecification::aux_rect_placement_gravity() const -> mir::opti
     return self->aux_rect_placement_gravity;
 }
 
-auto miral::WindowSpecification::aux_rect_placement_gravity_alt() const -> mir::optional_value<MirPlacementGravity> const&
-{
-    return self->aux_rect_placement_gravity_alt;
-}
-
 auto miral::WindowSpecification::aux_rect_placement_offset() const -> mir::optional_value<Displacement> const&
 {
     return self->aux_rect_placement_offset;
@@ -594,16 +587,6 @@ auto miral::WindowSpecification::window_placement_gravity() -> mir::optional_val
 auto miral::WindowSpecification::aux_rect_placement_gravity() -> mir::optional_value<MirPlacementGravity>&
 {
     return self->aux_rect_placement_gravity;
-}
-
-auto miral::WindowSpecification::aux_rect_placement_gravity_alt() -> mir::optional_value<MirPlacementGravity>&
-{
-    return self->aux_rect_placement_gravity_alt;
-}
-
-auto miral::WindowSpecification::aux_rect_placement_offset() -> mir::optional_value<Displacement>&
-{
-    return self->aux_rect_placement_offset;
 }
 
 auto miral::WindowSpecification::min_width() -> mir::optional_value<Width>&

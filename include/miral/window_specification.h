@@ -63,6 +63,10 @@ typedef enum MirPlacementGravity
  * If mir_placement_hints_resize_x is set, the window can be shrunken
  * horizontally to fit.
  *
+ * If mir_placement_hints_antipodes is set then the rect gravity may be
+ * substituted with the opposite corner (e.g. mir_placement_gravity_northeast
+ * to mir_placement_gravity_southwest) in combination with other options.
+ *
  * When multiple flags are set, flipping should take precedence over sliding,
  * which should take precedence over resizing.
  */
@@ -74,6 +78,7 @@ typedef enum MirPlacementHints
     mir_placement_hints_slide_y  = 1 << 3,  // allow sliding window vertically
     mir_placement_hints_resize_x = 1 << 4,  // allow resizing window horizontally
     mir_placement_hints_resize_y = 1 << 5,  // allow resizing window vertically
+    mir_placement_hints_antipodes= 1 << 6,  // allow flipping aux_anchor to opposite corner
 
     // allow flipping anchors on both axes
     mir_placement_hints_flip_any = mir_placement_hints_flip_x|mir_placement_hints_flip_y,
@@ -139,7 +144,6 @@ public:
     auto placement_hints() const -> mir::optional_value<MirPlacementHints> const&;
     auto window_placement_gravity() const -> mir::optional_value<MirPlacementGravity> const&;
     auto aux_rect_placement_gravity() const -> mir::optional_value<MirPlacementGravity> const&;
-    auto aux_rect_placement_gravity_alt() const -> mir::optional_value<MirPlacementGravity> const&;
     auto aux_rect_placement_offset() const -> mir::optional_value<Displacement> const&;
     auto min_width() const -> mir::optional_value<Width> const&;
     auto min_height() const -> mir::optional_value<Height> const&;
@@ -169,8 +173,7 @@ public:
     auto placement_hints() -> mir::optional_value<MirPlacementHints>&;
     auto window_placement_gravity() -> mir::optional_value<MirPlacementGravity>&;
     auto aux_rect_placement_gravity() -> mir::optional_value<MirPlacementGravity>&;
-    auto aux_rect_placement_gravity_alt() -> mir::optional_value<MirPlacementGravity>&;
-    auto aux_rect_placement_offset() -> mir::optional_value<Displacement>&;
+
     auto min_width() -> mir::optional_value<Width>&;
     auto min_height() -> mir::optional_value<Height>&;
     auto max_width() -> mir::optional_value<Width>&;
