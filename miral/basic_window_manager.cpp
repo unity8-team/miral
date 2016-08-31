@@ -1256,8 +1256,8 @@ auto miral::BasicWindowManager::place_relative(Point const& parent_top_left, Win
 
     std::vector<MirPlacementGravity> rect_gravities{parameters.aux_rect_placement_gravity().value()};
 
-     if (hints & mir_placement_hints_antipodes)
-         rect_gravities.push_back(antipodes(parameters.aux_rect_placement_gravity().value()));
+    if (hints & mir_placement_hints_antipodes)
+        rect_gravities.push_back(antipodes(parameters.aux_rect_placement_gravity().value()));
 
     mir::optional_value<Rectangle> default_result;
 
