@@ -163,9 +163,10 @@ global:
     miral::WindowSpecification::?WindowSpecification*;
     miral::WindowSpecification::WindowSpecification*;
     miral::WindowSpecification::aux_rect*;
+    miral::WindowSpecification::aux_rect_placement_gravity*;
+    miral::WindowSpecification::aux_rect_placement_offset*;
     miral::WindowSpecification::buffer_usage*;
     miral::WindowSpecification::content_id*;
-    miral::WindowSpecification::edge_attachment*;
     miral::WindowSpecification::height_inc*;
     miral::WindowSpecification::input_mode*;
     miral::WindowSpecification::input_shape*;
@@ -180,6 +181,7 @@ global:
     miral::WindowSpecification::output_id*;
     miral::WindowSpecification::parent*;
     miral::WindowSpecification::pixel_format*;
+    miral::WindowSpecification::placement_hints*;
     miral::WindowSpecification::preferred_orientation*;
     miral::WindowSpecification::shell_chrome*;
     miral::WindowSpecification::size*;
@@ -189,6 +191,7 @@ global:
     miral::WindowSpecification::type*;
     miral::WindowSpecification::update*;
     miral::WindowSpecification::width_inc*;
+    miral::WindowSpecification::window_placement_gravity*;
     miral::display_configuration_options*;
     miral::equivalent_display_area*;
     miral::kill*;

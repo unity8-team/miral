@@ -32,6 +32,7 @@
 #include <algorithm>
 
 using namespace mir;
+using namespace mir::geometry;
 
 namespace
 {
@@ -636,7 +637,7 @@ void miral::BasicWindowManager::modify_window(WindowInfo& window_info, WindowSpe
         place_and_size(window_info, new_pos, window.size());
     }
 
-    if (window_info.parent() && modifications.aux_rect().is_set() && modifications.edge_attachment().is_set())
+    if (window_info.parent() && modifications.placement_hints().is_set())
     {
         auto parent = window_info.parent();
 
@@ -1002,7 +1003,7 @@ auto miral::BasicWindowManager::place_new_surface(ApplicationInfo const& app_inf
         }
     }
 
-    if (has_parent && parameters.aux_rect().is_set() && parameters.edge_attachment().is_set())
+    if (has_parent && parameters.aux_rect().is_set() && parameters.placement_hints().is_set())
     {
         auto const position = place_relative(info_for(parameters.parent().value()).window().top_left(), parameters);
 
@@ -1070,61 +1071,223 @@ auto miral::BasicWindowManager::place_new_surface(ApplicationInfo const& app_inf
     return parameters;
 }
 
+namespace
+{
+auto flip_x(MirPlacementGravity rect_gravity) -> MirPlacementGravity
+{
+    switch (rect_gravity)
+    {
+    case mir_placement_gravity_northwest:
+        return mir_placement_gravity_northeast;
+
+    case mir_placement_gravity_northeast:
+        return mir_placement_gravity_northwest;
+
+    case mir_placement_gravity_west:
+        return mir_placement_gravity_east;
+
+    case mir_placement_gravity_east:
+        return mir_placement_gravity_west;
+
+    case mir_placement_gravity_southwest:
+        return mir_placement_gravity_southeast;
+
+    case mir_placement_gravity_southeast:
+        return mir_placement_gravity_southwest;
+
+    default:
+        return rect_gravity;
+    }
+}
+
+auto flip_y(MirPlacementGravity rect_gravity) -> MirPlacementGravity
+{
+    switch (rect_gravity)
+    {
+    case mir_placement_gravity_northwest:
+        return mir_placement_gravity_southwest;
+
+    case mir_placement_gravity_north:
+        return mir_placement_gravity_south;
+
+    case mir_placement_gravity_northeast:
+        return mir_placement_gravity_southeast;
+
+    case mir_placement_gravity_southwest:
+        return mir_placement_gravity_northwest;
+
+    case mir_placement_gravity_south:
+        return mir_placement_gravity_north;
+
+    case mir_placement_gravity_southeast:
+        return mir_placement_gravity_northeast;
+
+    default:
+        return rect_gravity;
+    }
+}
+
+auto antipodes(MirPlacementGravity rect_gravity) -> MirPlacementGravity
+{
+    switch (rect_gravity)
+    {
+    case mir_placement_gravity_northwest:
+        return mir_placement_gravity_southeast;
+
+    case mir_placement_gravity_north:
+        return mir_placement_gravity_south;
+
+    case mir_placement_gravity_northeast:
+        return mir_placement_gravity_southwest;
+
+    case mir_placement_gravity_west:
+        return mir_placement_gravity_east;
+
+    case mir_placement_gravity_east:
+        return mir_placement_gravity_west;
+
+    case mir_placement_gravity_southwest:
+        return mir_placement_gravity_northeast;
+
+    case mir_placement_gravity_south:
+        return mir_placement_gravity_north;
+
+    case mir_placement_gravity_southeast:
+        return mir_placement_gravity_northwest;
+
+    default:
+        return rect_gravity;
+    }
+}
+
+auto anchor_for(Rectangle const& aux_rect, MirPlacementGravity rect_gravity) -> Point
+{
+    switch (rect_gravity)
+    {
+    case mir_placement_gravity_northwest:
+        return aux_rect.top_left;
+
+    case mir_placement_gravity_north:
+        return aux_rect.top_left + 0.5*as_displacement(aux_rect.size).dx;
+
+    case mir_placement_gravity_northeast:
+        return aux_rect.top_right();
+
+    case mir_placement_gravity_west:
+        return aux_rect.top_left + 0.5*as_displacement(aux_rect.size).dy;
+
+    case mir_placement_gravity_centre:
+        return aux_rect.top_left + 0.5*as_displacement(aux_rect.size);
+
+    case mir_placement_gravity_east:
+        return aux_rect.top_right() + 0.5*as_displacement(aux_rect.size).dy;
+
+    case mir_placement_gravity_southwest:
+        return aux_rect.bottom_left();
+
+    case mir_placement_gravity_south:
+        return aux_rect.bottom_left() + 0.5*as_displacement(aux_rect.size).dx;
+
+    case mir_placement_gravity_southeast:
+        return aux_rect.bottom_right();
+
+    default:
+        BOOST_THROW_EXCEPTION(std::runtime_error("bad placement gravity"));
+    }
+}
+
+auto offset_for(Size const& size, MirPlacementGravity rect_gravity) -> Displacement
+{
+    auto const displacement = as_displacement(size);
+
+    switch (rect_gravity)
+    {
+    case mir_placement_gravity_northwest:
+        return {0, 0};
+
+    case mir_placement_gravity_north:
+        return {-0.5 * displacement.dx, 0};
+
+    case mir_placement_gravity_northeast:
+        return {-1 * displacement.dx, 0};
+
+    case mir_placement_gravity_west:
+        return {0, -0.5 * displacement.dy};
+
+    case mir_placement_gravity_centre:
+        return {-0.5 * displacement.dx, -0.5 * displacement.dy};
+
+    case mir_placement_gravity_east:
+        return {-1 * displacement.dx, -0.5 * displacement.dy};
+
+    case mir_placement_gravity_southwest:
+        return {0, -1 * displacement.dy};
+
+    case mir_placement_gravity_south:
+        return {-0.5 * displacement.dx, -1 * displacement.dy};
+
+    case mir_placement_gravity_southeast:
+        return {-1 * displacement.dx, -1 * displacement.dy};
+
+    default:
+        BOOST_THROW_EXCEPTION(std::runtime_error("bad placement gravity"));
+    }
+}
+}
+
 auto miral::BasicWindowManager::place_relative(Point const& parent_top_left, WindowSpecification const& parameters)
 -> mir::optional_value<Point>
 {
-    mir::optional_value<Point> result;
+    auto const size = parameters.size().value();
+    auto const hints = parameters.placement_hints().value();
     auto const active_display_area = active_display();
-    auto const width = parameters.size().value().width.as_int();
-    auto const height = parameters.size().value().height.as_int();
+    auto const win_gravity = parameters.window_placement_gravity().value();
 
-    auto const edge_attachment = parameters.edge_attachment().value();
-    auto const aux_rect = parameters.aux_rect().value();
-    auto const top_left = aux_rect.top_left     -Point{} + parent_top_left;
-    auto const top_right= aux_rect.top_right()  -Point{} + parent_top_left;
-    auto const bot_left = aux_rect.bottom_left()-Point{} + parent_top_left;
+    Rectangle aux_rect = parameters.aux_rect().value();
+    aux_rect.top_left = aux_rect.top_left + (parent_top_left-Point{});
 
-    if (edge_attachment & mir_edge_attachment_vertical)
+    std::vector<MirPlacementGravity> rect_gravities{parameters.aux_rect_placement_gravity().value()};
+
+     if (hints & mir_placement_hints_antipodes)
+         rect_gravities.push_back(antipodes(parameters.aux_rect_placement_gravity().value()));
+
+    mir::optional_value<Point> default_result;
+
+    for (auto const& rect_gravity : rect_gravities)
     {
-        if (active_display_area.contains(top_right + Displacement{width, height}))
         {
-            result = top_right;
+            auto result = anchor_for(aux_rect, rect_gravity) + offset_for(size, win_gravity);
+
+            if (active_display_area.contains(Rectangle{result, size}))
+                return result;
+
+            if (!default_result.is_set())
+                default_result = result;
         }
-        else if (active_display_area.contains(top_left + Displacement{-width, height}))
+
+        if (hints & mir_placement_hints_flip_x)
         {
-            result = top_left + Displacement{-width, 0};
+            auto result = anchor_for(aux_rect, flip_x(rect_gravity)) + offset_for(size, flip_x(win_gravity));
+            if (active_display_area.contains(Rectangle{result, size}))
+                return result;
+        }
+
+        if (hints & mir_placement_hints_flip_y)
+        {
+            auto result = anchor_for(aux_rect, flip_y(rect_gravity)) + offset_for(size, flip_y(win_gravity));
+            if (active_display_area.contains(Rectangle{result, size}))
+                return result;
+        }
+
+        if (hints & mir_placement_hints_flip_x && hints & mir_placement_hints_flip_y)
+        {
+            auto result = anchor_for(aux_rect, flip_x(flip_y(rect_gravity))) + offset_for(size, flip_x(flip_y(win_gravity)));
+            if (active_display_area.contains(Rectangle{result, size}))
+                return result;
         }
     }
 
-    if (!result.is_set() && edge_attachment & mir_edge_attachment_horizontal)
-    {
-        if (active_display_area.contains(bot_left + Displacement{width, height}))
-        {
-            result = bot_left;
-        }
-        else if (active_display_area.contains(top_left + Displacement{width, -height}))
-        {
-            result = top_left + Displacement{0, -height};
-        }
-    }
-
-    if (!result.is_set())
-    {
-        if (edge_attachment & mir_edge_attachment_vertical)
-        {
-            result = top_right;
-        }
-        else if (edge_attachment & mir_edge_attachment_horizontal)
-        {
-            result = bot_left;
-        }
-        else
-        {
-            result = top_right;
-        }
-    }
-
-    return result;
+    return default_result;
 }
 
 void miral::BasicWindowManager::validate_modification_request(

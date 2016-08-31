@@ -42,7 +42,10 @@ struct miral::WindowSpecification::Self
     mir::optional_value<MirOrientationMode> preferred_orientation;
     mir::optional_value<BufferStreamId> content_id;
     mir::optional_value<Rectangle> aux_rect;
-    mir::optional_value<MirEdgeAttachment> edge_attachment;
+    mir::optional_value<MirPlacementHints> placement_hints;
+    mir::optional_value<MirPlacementGravity> window_placement_gravity;
+    mir::optional_value<MirPlacementGravity> aux_rect_placement_gravity;
+    mir::optional_value<Displacement> aux_rect_placement_offset;
     mir::optional_value<Width> min_width;
     mir::optional_value<Height> min_height;
     mir::optional_value<Width> max_width;
@@ -69,7 +72,6 @@ miral::WindowSpecification::Self::Self(mir::shell::SurfaceSpecification const& s
     state(spec.state),
     preferred_orientation(spec.preferred_orientation),
     aux_rect(spec.aux_rect),
-    edge_attachment(spec.edge_attachment),
     min_width(spec.min_width),
     min_height(spec.min_height),
     max_width(spec.max_width),
@@ -84,6 +86,30 @@ miral::WindowSpecification::Self::Self(mir::shell::SurfaceSpecification const& s
     input_mode(),
     shell_chrome(spec.shell_chrome)
 {
+    if (spec.edge_attachment.is_set())
+    {
+        switch (spec.edge_attachment.value())
+        {
+        case mir_edge_attachment_vertical:
+            window_placement_gravity = mir_placement_gravity_northwest;
+            aux_rect_placement_gravity = mir_placement_gravity_northeast;
+            placement_hints = mir_placement_hints_flip_x;
+            break;
+
+        case mir_edge_attachment_horizontal:
+            window_placement_gravity = mir_placement_gravity_northwest;
+            aux_rect_placement_gravity = mir_placement_gravity_southwest;
+            placement_hints = mir_placement_hints_flip_y;
+            break;
+
+        case mir_edge_attachment_any:
+            window_placement_gravity = mir_placement_gravity_northwest;
+            aux_rect_placement_gravity = mir_placement_gravity_northeast;
+            placement_hints = MirPlacementHints(mir_placement_hints_flip_any | mir_placement_hints_antipodes);
+            break;
+        }
+    }
+
     if (spec.width.is_set() && spec.height.is_set())
         size = Size(spec.width.value(), spec.height.value());
 
@@ -208,7 +234,6 @@ miral::WindowSpecification::Self::Self(mir::scene::SurfaceCreationParameters con
     state(params.state),
     preferred_orientation(params.preferred_orientation),
     aux_rect(params.aux_rect),
-    edge_attachment(params.edge_attachment),
     min_width(params.min_width),
     min_height(params.min_height),
     max_width(params.max_width),
@@ -223,6 +248,30 @@ miral::WindowSpecification::Self::Self(mir::scene::SurfaceCreationParameters con
     input_mode(static_cast<InputReceptionMode>(params.input_mode)),
     shell_chrome(params.shell_chrome)
 {
+    if (params.edge_attachment.is_set())
+    {
+        switch (params.edge_attachment.value())
+        {
+        case mir_edge_attachment_vertical:
+            window_placement_gravity = mir_placement_gravity_northwest;
+            aux_rect_placement_gravity = mir_placement_gravity_northeast;
+            placement_hints = mir_placement_hints_flip_x;
+            break;
+
+        case mir_edge_attachment_horizontal:
+            window_placement_gravity = mir_placement_gravity_northwest;
+            aux_rect_placement_gravity = mir_placement_gravity_southwest;
+            placement_hints = mir_placement_hints_flip_y;
+            break;
+
+        case mir_edge_attachment_any:
+            window_placement_gravity = mir_placement_gravity_northwest;
+            aux_rect_placement_gravity = mir_placement_gravity_northeast;
+            placement_hints = mir_placement_hints_flip_any;
+            break;
+        }
+    }
+
     if (params.content_id.is_set())
         content_id = BufferStreamId{params.content_id.value().as_value()};
 
@@ -267,7 +316,6 @@ void miral::WindowSpecification::Self::update(mir::scene::SurfaceCreationParamet
     copy_if_set(params.preferred_orientation, preferred_orientation);
     copy_if_set(params.content_id, content_id);
     copy_if_set(params.aux_rect, aux_rect);
-    copy_if_set(params.edge_attachment, edge_attachment);
     copy_if_set(params.min_width, min_width);
     copy_if_set(params.min_height, min_height);
     copy_if_set(params.max_width, max_width);
@@ -386,9 +434,24 @@ auto miral::WindowSpecification::aux_rect() const -> mir::optional_value<Rectang
     return self->aux_rect;
 }
 
-auto miral::WindowSpecification::edge_attachment() const -> mir::optional_value<MirEdgeAttachment> const&
+auto miral::WindowSpecification::placement_hints() const -> mir::optional_value<MirPlacementHints> const&
 {
-    return self->edge_attachment;
+    return self->placement_hints;
+}
+
+auto miral::WindowSpecification::window_placement_gravity() const -> mir::optional_value<MirPlacementGravity> const&
+{
+    return self->window_placement_gravity;
+}
+
+auto miral::WindowSpecification::aux_rect_placement_gravity() const -> mir::optional_value<MirPlacementGravity> const&
+{
+    return self->aux_rect_placement_gravity;
+}
+
+auto miral::WindowSpecification::aux_rect_placement_offset() const -> mir::optional_value<Displacement> const&
+{
+    return self->aux_rect_placement_offset;
 }
 
 auto miral::WindowSpecification::min_width() const -> mir::optional_value<Width> const&
@@ -511,9 +574,19 @@ auto miral::WindowSpecification::aux_rect() -> mir::optional_value<Rectangle>&
     return self->aux_rect;
 }
 
-auto miral::WindowSpecification::edge_attachment() -> mir::optional_value<MirEdgeAttachment>&
+auto miral::WindowSpecification::placement_hints() -> mir::optional_value<MirPlacementHints>&
 {
-    return self->edge_attachment;
+    return self->placement_hints;
+}
+
+auto miral::WindowSpecification::window_placement_gravity() -> mir::optional_value<MirPlacementGravity>&
+{
+    return self->window_placement_gravity;
+}
+
+auto miral::WindowSpecification::aux_rect_placement_gravity() -> mir::optional_value<MirPlacementGravity>&
+{
+    return self->aux_rect_placement_gravity;
 }
 
 auto miral::WindowSpecification::min_width() -> mir::optional_value<Width>&
