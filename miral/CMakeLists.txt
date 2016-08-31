@@ -63,6 +63,7 @@ set_target_properties(miral
         LINK_DEPENDS ${symbol_map}
 )
 
+set(LIBDIR "${CMAKE_INSTALL_FULL_LIBDIR}")
 set(INCLUDEDIR "${CMAKE_INSTALL_PREFIX}/include/miral")
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/miral.pc.in
