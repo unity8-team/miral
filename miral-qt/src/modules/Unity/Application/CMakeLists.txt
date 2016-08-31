@@ -1,3 +1,10 @@
+# /usr/include/libubuntu-app-launch-2/ubuntu-app-launch/oom.h:34:21: error: type qualifiers ignored on function return type [-Werror=ignored-qualifiers]
+# const Score focused();
+check_cxx_compiler_flag(-Wno-ignored-qualifiers MIRAL_COMPILE_WITH_W_NO_IGNORED_QUALIFIERS)
+if (MIRAL_COMPILE_WITH_W_NO_IGNORED_QUALIFIERS)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-ignored-qualifiers")
+endif()
+
 include_directories(
     ${GLIB_INCLUDE_DIRS}
     ${GIO_INCLUDE_DIRS}
