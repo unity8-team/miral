@@ -72,6 +72,11 @@ miral::WindowSpecification::Self::Self(mir::shell::SurfaceSpecification const& s
     state(spec.state),
     preferred_orientation(spec.preferred_orientation),
     aux_rect(spec.aux_rect),
+#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 25, 0)
+    placement_hints(spec.placement_hints),
+    window_placement_gravity(spec.surface_placement_gravity),
+    aux_rect_placement_gravity(spec.aux_rect_placement_gravity),
+#endif
     min_width(spec.min_width),
     min_height(spec.min_height),
     max_width(spec.max_width),
@@ -86,7 +91,12 @@ miral::WindowSpecification::Self::Self(mir::shell::SurfaceSpecification const& s
     input_mode(),
     shell_chrome(spec.shell_chrome)
 {
-    if (spec.edge_attachment.is_set())
+#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 25, 0)
+    if (spec.aux_rect_placement_offset_x.is_set() && spec.aux_rect_placement_offset_y.is_set())
+        aux_rect_placement_offset = Displacement{spec.aux_rect_placement_offset_x.value(), spec.aux_rect_placement_offset_y.value()};
+#endif
+
+    if (spec.edge_attachment.is_set() && !placement_hints.is_set())
     {
         switch (spec.edge_attachment.value())
         {
@@ -234,6 +244,11 @@ miral::WindowSpecification::Self::Self(mir::scene::SurfaceCreationParameters con
     state(params.state),
     preferred_orientation(params.preferred_orientation),
     aux_rect(params.aux_rect),
+#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 25, 0)
+    placement_hints(params.placement_hints),
+    window_placement_gravity(params.surface_placement_gravity),
+    aux_rect_placement_gravity(params.aux_rect_placement_gravity),
+#endif
     min_width(params.min_width),
     min_height(params.min_height),
     max_width(params.max_width),
@@ -248,7 +263,12 @@ miral::WindowSpecification::Self::Self(mir::scene::SurfaceCreationParameters con
     input_mode(static_cast<InputReceptionMode>(params.input_mode)),
     shell_chrome(params.shell_chrome)
 {
-    if (params.edge_attachment.is_set())
+#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 25, 0)
+    if (params.aux_rect_placement_offset_x.is_set() && params.aux_rect_placement_offset_y.is_set())
+        aux_rect_placement_offset = Displacement{params.aux_rect_placement_offset_x.value(), params.aux_rect_placement_offset_y.value()};
+#endif
+
+    if (params.edge_attachment.is_set() && !placement_hints.is_set())
     {
         switch (params.edge_attachment.value())
         {
@@ -347,6 +367,18 @@ void miral::WindowSpecification::Self::update(mir::scene::SurfaceCreationParamet
         }
 
         params.streams = std::move(dest);
+    }
+#endif
+#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 25, 0)
+    copy_if_set(params.placement_hints, placement_hints);
+    copy_if_set(params.surface_placement_gravity, window_placement_gravity);
+    copy_if_set(params.aux_rect_placement_gravity, aux_rect_placement_gravity);
+
+    if (aux_rect_placement_offset.is_set())
+    {
+        auto const offset = aux_rect_placement_offset.value();
+        params.aux_rect_placement_offset_x = offset.dx.as_int();
+        params.aux_rect_placement_offset_y = offset.dy.as_int();
     }
 #endif
 }
