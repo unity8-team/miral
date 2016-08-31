@@ -121,6 +121,7 @@ struct MockWindowManagerPolicy : CanonicalWindowManagerPolicy
 
     MOCK_METHOD1(advise_new_window, void (WindowInfo const& window_info));
     MOCK_METHOD2(advise_move_to, void(WindowInfo const& window_info, Point top_left));
+    MOCK_METHOD2(advise_resize, void(miral::WindowInfo const& window_info, Size const& new_size));
 };
 
 X const display_left{0};
@@ -172,12 +173,13 @@ struct WindowPlacement : testing::Test
     Size const initial_parent_size{600, 400};
     Size const initial_child_size{300, 300};
     Rectangle const rectangle_away_from_rhs{{20, 20}, {20, 20}};
-    Rectangle const rectangle_near_rhs{{600, 20}, {20, 20}};
+    Rectangle const rectangle_near_rhs{{600, 20}, {10, 20}};
     Rectangle const rectangle_away_from_bottom{{20, 20}, {20, 20}};
     Rectangle const rectangle_near_bottom{{20, 400}, {20, 20}};
     Rectangle const rectangle_near_both_sides{{0, 20}, {600, 20}};
     Rectangle const rectangle_near_both_sides_and_bottom{{0, 400}, {600, 20}};
     Rectangle const rectangle_near_all_sides{{0, 20}, {600, 400}};
+    Rectangle const rectangle_near_both_bottom_right{{400, 400}, {200, 20}};
 
     Window parent;
     Window child;
@@ -275,7 +277,7 @@ TEST_F(WindowPlacement, given_aux_rect_away_from_right_side_edge_attachment_vert
     ASSERT_THAT(child.top_left(), Eq(expected_position));
 }
 
-TEST_F(WindowPlacement, given_aux_rect_near_right_sideedge_attachment_vertical_attaches_to_left_edge)
+TEST_F(WindowPlacement, given_aux_rect_near_right_side_edge_attachment_vertical_attaches_to_left_edge)
 {
     modification = edge_attachment(rectangle_near_rhs, mir_edge_attachment_vertical);
 
@@ -350,4 +352,330 @@ TEST_F(WindowPlacement, given_aux_rect_near_all_sides_attachment_any_attaches_to
     EXPECT_CALL(*window_manager_policy, advise_move_to(_, expected_position));
     basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
     ASSERT_THAT(child.top_left(), Eq(expected_position));
+}
+
+namespace
+{
+MirPlacementGravity const all_gravities[] =
+{
+    mir_placement_gravity_northwest,
+    mir_placement_gravity_north,
+    mir_placement_gravity_northeast,
+    mir_placement_gravity_west,
+    mir_placement_gravity_centre,
+    mir_placement_gravity_east,
+    mir_placement_gravity_southwest,
+    mir_placement_gravity_south,
+    mir_placement_gravity_southeast,
+};
+
+auto position_of(MirPlacementGravity rect_gravity, Rectangle rectangle) -> Point
+{
+    auto const displacement = as_displacement(rectangle.size);
+
+    switch (rect_gravity)
+    {
+    case mir_placement_gravity_northwest:
+        return rectangle.top_left;
+
+    case mir_placement_gravity_north:
+        return rectangle.top_left + Displacement{0.5 * displacement.dx, 0};
+
+    case mir_placement_gravity_northeast:
+        return rectangle.top_right();
+
+    case mir_placement_gravity_west:
+        return rectangle.top_left + Displacement{0, 0.5 * displacement.dy};
+
+    case mir_placement_gravity_centre:
+        return rectangle.top_left + 0.5 * displacement;
+
+    case mir_placement_gravity_east:
+        return rectangle.top_right() + Displacement{0, 0.5 * displacement.dy};
+
+    case mir_placement_gravity_southwest:
+        return rectangle.bottom_left();
+
+    case mir_placement_gravity_south:
+        return rectangle.bottom_left() + Displacement{0.5 * displacement.dx, 0};
+
+    case mir_placement_gravity_southeast:
+        return rectangle.bottom_right();
+
+    default:
+        throw std::runtime_error("bad placement gravity");
+    }
+
+}
+}
+
+TEST_F(WindowPlacement, given_no_hints_can_attach_by_every_gravity)
+{
+    modification.aux_rect() = Rectangle{{100, 50}, { 20, 20}};
+    modification.placement_hints() = MirPlacementHints{};
+
+    for (auto const rect_gravity : all_gravities)
+    {
+        modification.aux_rect_placement_gravity() = rect_gravity;
+
+        auto const rect_anchor = position_of(rect_gravity, aux_rect_position());
+
+        for (auto const window_gravity : all_gravities)
+        {
+            modification.window_placement_gravity() = window_gravity;
+
+            EXPECT_CALL(*window_manager_policy, advise_move_to(_, _));
+            basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
+
+            Rectangle child_rect{child.top_left(), child.size()};
+
+            EXPECT_THAT(position_of(window_gravity, child_rect), Eq(rect_anchor))
+                        << "rect_gravity=" << rect_gravity << ", window_gravity=" << window_gravity;
+            Mock::VerifyAndClearExpectations(window_manager_policy);
+        }
+    }
+}
+
+TEST_F(WindowPlacement, given_no_hints_can_attach_by_offset_at_every_gravity)
+{
+    auto const offset = Displacement{42, 13};
+
+    modification.aux_rect() = Rectangle{{100, 50}, { 20, 20}};
+    modification.placement_hints() = MirPlacementHints{};
+    modification.aux_rect_placement_offset() = offset;
+
+    for (auto const rect_gravity : all_gravities)
+    {
+        modification.aux_rect_placement_gravity() = rect_gravity;
+
+        auto const rect_anchor = position_of(rect_gravity, aux_rect_position()) + offset;
+
+        for (auto const window_gravity : all_gravities)
+        {
+            modification.window_placement_gravity() = window_gravity;
+
+            EXPECT_CALL(*window_manager_policy, advise_move_to(_, _));
+            basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
+
+            Rectangle child_rect{child.top_left(), child.size()};
+
+            EXPECT_THAT(position_of(window_gravity, child_rect), Eq(rect_anchor))
+                        << "rect_gravity=" << rect_gravity << ", window_gravity=" << window_gravity;
+            Mock::VerifyAndClearExpectations(window_manager_policy);
+        }
+    }
+}
+
+TEST_F(WindowPlacement, given_aux_rect_near_right_side_and_offset_placement_is_flipped)
+{
+    DeltaX const x_offset{42};
+    DeltaY const y_offset{13};
+
+    modification.aux_rect() = rectangle_near_rhs;
+    modification.placement_hints() = mir_placement_hints_flip_x;
+    modification.aux_rect_placement_offset() = Displacement{x_offset, y_offset};
+    modification.window_placement_gravity() = mir_placement_gravity_northwest;
+    modification.aux_rect_placement_gravity() = mir_placement_gravity_northeast;
+
+    auto const expected_position = on_left_edge() + Displacement{-1*x_offset, y_offset};
+
+    EXPECT_CALL(*window_manager_policy, advise_move_to(_, expected_position));
+    basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
+    ASSERT_THAT(child.top_left(), Eq(expected_position));
+}
+
+TEST_F(WindowPlacement, given_aux_rect_near_bottom_and_offset_placement_is_flipped)
+{
+    DeltaX const x_offset{42};
+    DeltaY const y_offset{13};
+
+    modification.aux_rect() = rectangle_near_bottom;
+    modification.placement_hints() = mir_placement_hints_flip_y;
+    modification.aux_rect_placement_offset() = Displacement{x_offset, y_offset};
+    modification.window_placement_gravity() = mir_placement_gravity_northwest;
+    modification.aux_rect_placement_gravity() = mir_placement_gravity_southwest;
+
+    auto const expected_position = on_top_edge() + Displacement{x_offset, -1*y_offset};
+
+    EXPECT_CALL(*window_manager_policy, advise_move_to(_, expected_position));
+    basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
+    ASSERT_THAT(child.top_left(), Eq(expected_position));
+}
+
+TEST_F(WindowPlacement, given_aux_rect_near_bottom_right_and_offset_placement_is_flipped_both_ways)
+{
+    Displacement const displacement{42, 13};
+
+    modification.aux_rect() = rectangle_near_both_bottom_right;
+    modification.placement_hints() = mir_placement_hints_flip_any;
+    modification.aux_rect_placement_offset() = displacement;
+    modification.window_placement_gravity() = mir_placement_gravity_northwest;
+    modification.aux_rect_placement_gravity() = mir_placement_gravity_southeast;
+
+    auto const expected_position = aux_rect_position().top_left - as_displacement(child.size()) - displacement;
+
+    EXPECT_CALL(*window_manager_policy, advise_move_to(_, expected_position));
+    basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
+    ASSERT_THAT(child.top_left(), Eq(expected_position));
+}
+
+TEST_F(WindowPlacement, given_aux_rect_near_right_side_placement_can_slide_in_x)
+{
+    modification.aux_rect() = rectangle_near_rhs;
+    modification.placement_hints() = mir_placement_hints_slide_x;
+    modification.window_placement_gravity() = mir_placement_gravity_northwest;
+    modification.aux_rect_placement_gravity() = mir_placement_gravity_northeast;
+
+    Point const expected_position{display_area.top_right().x - as_displacement(child.size()).dx, aux_rect_position().top_left.y};
+
+    EXPECT_CALL(*window_manager_policy, advise_move_to(_, expected_position));
+    basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
+    ASSERT_THAT(child.top_left(), Eq(expected_position));
+}
+
+TEST_F(WindowPlacement, given_aux_rect_near_left_side_placement_can_slide_in_x)
+{
+    Rectangle const rectangle_near_left_side{{0, 20}, {20, 20}};
+
+    modification.aux_rect() = rectangle_near_left_side;
+    modification.placement_hints() = mir_placement_hints_slide_x;
+    modification.window_placement_gravity() = mir_placement_gravity_northeast;
+    modification.aux_rect_placement_gravity() = mir_placement_gravity_northwest;
+
+    Point const expected_position{display_area.top_left.x, aux_rect_position().top_left.y};
+
+    EXPECT_CALL(*window_manager_policy, advise_move_to(_, expected_position));
+    basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
+    ASSERT_THAT(child.top_left(), Eq(expected_position));
+}
+
+TEST_F(WindowPlacement, given_aux_rect_near_bottom_placement_can_slide_in_y)
+{
+    modification.aux_rect() = rectangle_near_bottom;
+    modification.placement_hints() = mir_placement_hints_slide_y;
+    modification.window_placement_gravity() = mir_placement_gravity_northwest;
+    modification.aux_rect_placement_gravity() = mir_placement_gravity_southwest;
+
+    Point const expected_position{
+        aux_rect_position().top_left.x,
+        (display_area.bottom_left() - as_displacement(child.size())).y};
+
+    EXPECT_CALL(*window_manager_policy, advise_move_to(_, expected_position));
+    basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
+    ASSERT_THAT(child.top_left(), Eq(expected_position));
+}
+
+TEST_F(WindowPlacement, given_aux_rect_near_top_placement_can_slide_in_y)
+{
+    modification.aux_rect() = rectangle_near_all_sides;
+    modification.placement_hints() = mir_placement_hints_slide_y;
+    modification.window_placement_gravity() = mir_placement_gravity_southwest;
+    modification.aux_rect_placement_gravity() = mir_placement_gravity_northwest;
+
+    Point const expected_position{aux_rect_position().top_left.x, display_area.top_left.y};
+
+    EXPECT_CALL(*window_manager_policy, advise_move_to(_, expected_position));
+    basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
+    ASSERT_THAT(child.top_left(), Eq(expected_position));
+}
+
+TEST_F(WindowPlacement, given_aux_rect_near_bottom_right_and_offset_placement_can_slide_in_x_and_y)
+{
+    modification.aux_rect() = rectangle_near_both_bottom_right;
+    modification.placement_hints() = mir_placement_hints_slide_any;
+    modification.window_placement_gravity() = mir_placement_gravity_northwest;
+    modification.aux_rect_placement_gravity() = mir_placement_gravity_southwest;
+
+    auto const expected_position = display_area.bottom_right() - as_displacement(child.size());
+
+    EXPECT_CALL(*window_manager_policy, advise_move_to(_, expected_position));
+    basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
+    ASSERT_THAT(child.top_left(), Eq(expected_position));
+}
+
+TEST_F(WindowPlacement, given_aux_rect_near_right_side_placement_can_resize_in_x)
+{
+    modification.aux_rect() = rectangle_near_rhs;
+    modification.placement_hints() = mir_placement_hints_resize_x;
+    modification.window_placement_gravity() = mir_placement_gravity_northwest;
+    modification.aux_rect_placement_gravity() = mir_placement_gravity_northeast;
+
+    auto const expected_position = aux_rect_position().top_right();
+    Size const expected_size{as_size(display_area.bottom_right()-aux_rect_position().bottom_right()).width, child.size().height};
+
+    EXPECT_CALL(*window_manager_policy, advise_move_to(_, expected_position));
+    EXPECT_CALL(*window_manager_policy, advise_resize(_, expected_size));
+    basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
+    ASSERT_THAT(child.top_left(), Eq(expected_position));
+    ASSERT_THAT(child.size(), Eq(expected_size));
+}
+
+TEST_F(WindowPlacement, given_aux_rect_near_left_side_placement_can_resize_in_x)
+{
+    Rectangle const rectangle_near_left_side{{0, 20}, {20, 20}};
+
+    modification.aux_rect() = rectangle_near_left_side;
+    modification.placement_hints() = mir_placement_hints_resize_x;
+    modification.window_placement_gravity() = mir_placement_gravity_northeast;
+    modification.aux_rect_placement_gravity() = mir_placement_gravity_northwest;
+
+    Point const expected_position{display_area.top_left.x, aux_rect_position().top_left.y};
+    Size const expected_size{as_size(aux_rect_position().top_left-display_area.top_left).width, child.size().height};
+
+    EXPECT_CALL(*window_manager_policy, advise_move_to(_, expected_position));
+    EXPECT_CALL(*window_manager_policy, advise_resize(_, expected_size));
+    basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
+    ASSERT_THAT(child.top_left(), Eq(expected_position));
+    ASSERT_THAT(child.size(), Eq(expected_size));
+}
+
+TEST_F(WindowPlacement, given_aux_rect_near_bottom_placement_can_resize_in_y)
+{
+    modification.aux_rect() = rectangle_near_bottom;
+    modification.placement_hints() = mir_placement_hints_resize_y;
+    modification.window_placement_gravity() = mir_placement_gravity_northwest;
+    modification.aux_rect_placement_gravity() = mir_placement_gravity_southwest;
+
+    auto const expected_position = aux_rect_position().bottom_left();
+    Size const expected_size{child.size().width, as_size(display_area.bottom_left()-aux_rect_position().bottom_left()).height};
+
+    EXPECT_CALL(*window_manager_policy, advise_move_to(_, expected_position));
+    EXPECT_CALL(*window_manager_policy, advise_resize(_, expected_size));
+    basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
+    ASSERT_THAT(child.top_left(), Eq(expected_position));
+    ASSERT_THAT(child.size(), Eq(expected_size));
+}
+
+TEST_F(WindowPlacement, given_aux_rect_near_top_placement_can_resize_in_y)
+{
+    modification.aux_rect() = rectangle_near_all_sides;
+    modification.placement_hints() = mir_placement_hints_resize_y;
+    modification.window_placement_gravity() = mir_placement_gravity_southwest;
+    modification.aux_rect_placement_gravity() = mir_placement_gravity_northwest;
+
+    Point const expected_position{aux_rect_position().top_left.x, display_area.top_left.y};
+    Size const expected_size{child.size().width, as_size(aux_rect_position().top_left-display_area.top_left).height};
+
+    EXPECT_CALL(*window_manager_policy, advise_move_to(_, expected_position));
+    EXPECT_CALL(*window_manager_policy, advise_resize(_, expected_size));
+    basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
+    ASSERT_THAT(child.top_left(), Eq(expected_position));
+    ASSERT_THAT(child.size(), Eq(expected_size));
+}
+
+TEST_F(WindowPlacement, given_aux_rect_near_bottom_right_and_offset_placement_can_resize_in_x_and_y)
+{
+    modification.aux_rect() = rectangle_near_both_bottom_right;
+    modification.placement_hints() = mir_placement_hints_resize_any;
+    modification.window_placement_gravity() = mir_placement_gravity_northwest;
+    modification.aux_rect_placement_gravity() = mir_placement_gravity_southeast;
+
+    auto const expected_position = aux_rect_position().bottom_right();
+    auto const expected_size = as_size(display_area.bottom_right()-expected_position);
+
+    EXPECT_CALL(*window_manager_policy, advise_move_to(_, expected_position));
+    EXPECT_CALL(*window_manager_policy, advise_resize(_, expected_size));
+    basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
+    ASSERT_THAT(child.top_left(), Eq(expected_position));
+    ASSERT_THAT(child.size(), Eq(expected_size));
 }

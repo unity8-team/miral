@@ -643,14 +643,10 @@ void miral::BasicWindowManager::modify_window(WindowInfo& window_info, WindowSpe
 
         if (parent)
         {
-            // FIXME: nasty frig to avoid needing to respecify size
-            auto mods = modifications;
-            if (!mods.size().is_set()) mods.size() = window.size();
-
-            auto new_pos = place_relative(parent.top_left(), mods);
+            auto new_pos = place_relative(parent.top_left(), modifications, window.size());
 
             if (new_pos.is_set())
-                move_tree(window_info, new_pos.value() - window.top_left());
+                place_and_size(window_info, new_pos.value().top_left, new_pos.value().size);
         }
     }
 
@@ -1005,11 +1001,15 @@ auto miral::BasicWindowManager::place_new_surface(ApplicationInfo const& app_inf
 
     if (has_parent && parameters.aux_rect().is_set() && parameters.placement_hints().is_set())
     {
-        auto const position = place_relative(info_for(parameters.parent().value()).window().top_left(), parameters);
+        auto const position = place_relative(
+            info_for(parameters.parent().value()).window().top_left(),
+            parameters,
+            parameters.size().value());
 
         if (position.is_set())
         {
-            parameters.top_left() = position.value();
+            parameters.top_left() = position.value().top_left;
+            parameters.size() = position.value().size;
             positioned = true;
         }
     }
@@ -1127,6 +1127,9 @@ auto flip_y(MirPlacementGravity rect_gravity) -> MirPlacementGravity
     }
 }
 
+auto flip_x(Displacement const& d) -> Displacement { return {-1*d.dx, d.dy}; }
+auto flip_y(Displacement const& d) -> Displacement { return {d.dx, -1*d.dy}; }
+
 auto antipodes(MirPlacementGravity rect_gravity) -> MirPlacementGravity
 {
     switch (rect_gravity)
@@ -1235,13 +1238,18 @@ auto offset_for(Size const& size, MirPlacementGravity rect_gravity) -> Displacem
 }
 }
 
-auto miral::BasicWindowManager::place_relative(Point const& parent_top_left, WindowSpecification const& parameters)
--> mir::optional_value<Point>
+auto miral::BasicWindowManager::place_relative(Point const& parent_top_left, WindowSpecification const& parameters, Size size)
+-> mir::optional_value<Rectangle>
 {
-    auto const size = parameters.size().value();
     auto const hints = parameters.placement_hints().value();
     auto const active_display_area = active_display();
     auto const win_gravity = parameters.window_placement_gravity().value();
+
+    if (parameters.size().is_set())
+        size = parameters.size().value();
+
+    auto offset = parameters.aux_rect_placement_offset().is_set() ?
+                  parameters.aux_rect_placement_offset().value() : Displacement{};
 
     Rectangle aux_rect = parameters.aux_rect().value();
     aux_rect.top_left = aux_rect.top_left + (parent_top_left-Point{});
@@ -1251,40 +1259,118 @@ auto miral::BasicWindowManager::place_relative(Point const& parent_top_left, Win
      if (hints & mir_placement_hints_antipodes)
          rect_gravities.push_back(antipodes(parameters.aux_rect_placement_gravity().value()));
 
-    mir::optional_value<Point> default_result;
+    mir::optional_value<Rectangle> default_result;
 
     for (auto const& rect_gravity : rect_gravities)
     {
         {
-            auto result = anchor_for(aux_rect, rect_gravity) + offset_for(size, win_gravity);
+            auto result = anchor_for(aux_rect, rect_gravity) + offset_for(size, win_gravity) + offset;
 
             if (active_display_area.contains(Rectangle{result, size}))
-                return result;
+                return Rectangle{result, size};
 
             if (!default_result.is_set())
-                default_result = result;
+                default_result = Rectangle{result, size};
         }
 
         if (hints & mir_placement_hints_flip_x)
         {
-            auto result = anchor_for(aux_rect, flip_x(rect_gravity)) + offset_for(size, flip_x(win_gravity));
+            auto result = anchor_for(aux_rect, flip_x(rect_gravity)) +
+                offset_for(size, flip_x(win_gravity)) + flip_x(offset);
+
             if (active_display_area.contains(Rectangle{result, size}))
-                return result;
+                return Rectangle{result, size};
         }
 
         if (hints & mir_placement_hints_flip_y)
         {
-            auto result = anchor_for(aux_rect, flip_y(rect_gravity)) + offset_for(size, flip_y(win_gravity));
+            auto result = anchor_for(aux_rect, flip_y(rect_gravity)) +
+                offset_for(size, flip_y(win_gravity)) + flip_y(offset);
+
             if (active_display_area.contains(Rectangle{result, size}))
-                return result;
+                return Rectangle{result, size};
         }
 
         if (hints & mir_placement_hints_flip_x && hints & mir_placement_hints_flip_y)
         {
-            auto result = anchor_for(aux_rect, flip_x(flip_y(rect_gravity))) + offset_for(size, flip_x(flip_y(win_gravity)));
+            auto result = anchor_for(aux_rect, flip_x(flip_y(rect_gravity))) +
+                offset_for(size, flip_x(flip_y(win_gravity))) + flip_x(flip_y(offset));
+
             if (active_display_area.contains(Rectangle{result, size}))
-                return result;
+                return Rectangle{result, size};
         }
+    }
+
+    for (auto const& rect_gravity : rect_gravities)
+    {
+        auto result = anchor_for(aux_rect, rect_gravity) + offset_for(size, win_gravity) + offset;
+
+        if (hints & mir_placement_hints_slide_x)
+        {
+            auto const left_overhang  = result.x - active_display_area.top_left.x;
+            auto const right_overhang = (result + as_displacement(size)).x - active_display_area.top_right().x;
+
+            if (left_overhang < DeltaX{0})
+                result -= left_overhang;
+            else if (right_overhang > DeltaX{0})
+                result -= right_overhang;
+        }
+
+        if (hints & mir_placement_hints_slide_y)
+        {
+            auto const top_overhang  = result.y - active_display_area.top_left.y;
+            auto const bot_overhang = (result + as_displacement(size)).y - active_display_area.bottom_left().y;
+
+            if (top_overhang < DeltaY{0})
+                result -= top_overhang;
+            else if (bot_overhang > DeltaY{0})
+                result -= bot_overhang;
+        }
+
+        if (active_display_area.contains(Rectangle{result, size}))
+            return Rectangle{result, size};
+    }
+
+    for (auto const& rect_gravity : rect_gravities)
+    {
+        auto result = anchor_for(aux_rect, rect_gravity) + offset_for(size, win_gravity) + offset;
+
+        if (hints & mir_placement_hints_resize_x)
+        {
+            auto const left_overhang  = result.x - active_display_area.top_left.x;
+            auto const right_overhang = (result + as_displacement(size)).x - active_display_area.top_right().x;
+
+            if (left_overhang < DeltaX{0})
+            {
+                result -= left_overhang;
+                size = Size{size.width + left_overhang, size.height};
+            }
+
+            if (right_overhang > DeltaX{0})
+            {
+                size = Size{size.width - right_overhang, size.height};
+            }
+        }
+
+        if (hints & mir_placement_hints_resize_y)
+        {
+            auto const top_overhang  = result.y - active_display_area.top_left.y;
+            auto const bot_overhang = (result + as_displacement(size)).y - active_display_area.bottom_left().y;
+
+            if (top_overhang < DeltaY{0})
+            {
+                result -= top_overhang;
+                size = Size{size.width, size.height + top_overhang};
+            }
+
+            if (bot_overhang > DeltaY{0})
+            {
+                size = Size{size.width, size.height - bot_overhang};
+            }
+        }
+
+        if (active_display_area.contains(Rectangle{result, size}))
+            return Rectangle{result, size};
     }
 
     return default_result;
