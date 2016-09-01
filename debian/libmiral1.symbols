@@ -229,8 +229,6 @@ libmiral.so.1 libmiral1 #MINVER#
  (c++)"miral::WindowSpecification::size()@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowSpecification::state() const@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowSpecification::state()@MIRAL_0.1" 0.1.0
- (c++)"miral::WindowSpecification::streams() const@MIRAL_0.1" 0.1.0
- (c++)"miral::WindowSpecification::streams()@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowSpecification::top_left() const@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowSpecification::top_left()@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowSpecification::type() const@MIRAL_0.1" 0.1.0
