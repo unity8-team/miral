@@ -57,7 +57,8 @@ public:
     mir::geometry::Width maxWidth;
     mir::geometry::Height maxHeight;
 
-    // hold copy of Surface shared pointer, as miral::Window has a weak pointer to the Surface
+    // hold copy of Surface shared pointer, as miral::Window has just a weak pointer to the Surface
+    // but MirSurface needs to share ownership of the Surface with Mir
     std::shared_ptr<mir::scene::Surface> surface;
 };
 
