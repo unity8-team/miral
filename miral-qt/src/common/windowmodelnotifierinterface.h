@@ -42,6 +42,7 @@ public:
       , minHeight(windowInfo.min_height())
       , maxWidth(windowInfo.max_width())
       , maxHeight(windowInfo.max_height())
+      , surface(window)
     {}
 
     miral::Window window;
@@ -55,6 +56,9 @@ public:
     mir::geometry::Height minHeight;
     mir::geometry::Width maxWidth;
     mir::geometry::Height maxHeight;
+
+    // hold copy of Surface shared pointer, as miral::Window has a weak pointer to the Surface
+    std::shared_ptr<mir::scene::Surface> surface;
 };
 
 
