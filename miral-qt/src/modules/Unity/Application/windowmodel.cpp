@@ -81,7 +81,10 @@ void WindowModel::onWindowAdded(const WindowInfo windowInfo, const int index)
 void WindowModel::onWindowRemoved(const int index)
 {
     beginRemoveRows(QModelIndex(), index, index);
-    m_windowModel.remove(index);
+    auto window = m_windowModel.takeAt(index);
+    if (window == m_focusedWindow) {
+        m_focusedWindow = nullptr;
+    }
     endRemoveRows();
     Q_EMIT countChanged();
 }
