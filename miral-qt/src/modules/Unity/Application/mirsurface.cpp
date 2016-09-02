@@ -212,9 +212,8 @@ MirSurface::MirSurface(WindowInfo windowInfo,
 {
     DEBUG_MSG << "()";
 
-    const auto &surface = static_cast<std::shared_ptr<mir::scene::Surface>>(windowInfo.window);
-    SurfaceObserver::registerObserverForSurface(m_surfaceObserver.get(), surface.get());
-    surface->add_observer(m_surfaceObserver);
+    SurfaceObserver::registerObserverForSurface(m_surfaceObserver.get(), windowInfo.surface.get());
+    m_windowInfo.surface->add_observer(m_surfaceObserver);
 
     //m_shellChrome = creationHints.shellChrome; TODO - where will this come from now?
 
@@ -259,8 +258,7 @@ MirSurface::~MirSurface()
     Q_ASSERT(m_views.isEmpty());
 
     QMutexLocker locker(&m_mutex);
-//    auto const &window = static_cast<std::shared_ptr<mir::scene::Surface>>(m_windowInfo.window);
-//    window->remove_observer(m_surfaceObserver); // FIXME - window null at this stage!
+    m_windowInfo.surface->remove_observer(m_surfaceObserver);
 
     delete m_closeTimer;
 
@@ -341,8 +339,7 @@ void MirSurface::dropPendingBuffer()
 
     const void* const userId = (void*)123;  // TODO: Multimonitor support
 
-    auto const &window = static_cast<std::shared_ptr<mir::scene::Surface>>(m_windowInfo.window);
-    int framesPending = window->buffers_ready_for_compositor(userId);
+    const int framesPending = m_windowInfo.surface->buffers_ready_for_compositor(userId);
     if (framesPending > 0) {
         m_textureUpdated = false;
 
@@ -403,11 +400,10 @@ bool MirSurface::updateTexture()
     }
 
     const void* const userId = (void*)123;
-    auto const &window = static_cast<std::shared_ptr<mir::scene::Surface>>(m_windowInfo.window);
-    auto renderables = window->generate_renderables(userId);
+    auto renderables = m_windowInfo.surface->generate_renderables(userId);
 
     if (renderables.size() > 0 &&
-            (window->buffers_ready_for_compositor(userId) > 0 || !texture->hasBuffer())
+            (m_windowInfo.surface->buffers_ready_for_compositor(userId) > 0 || !texture->hasBuffer())
         ) {
         // Avoid holding two buffers for the compositor at the same time. Thus free the current
         // before acquiring the next
@@ -423,7 +419,7 @@ bool MirSurface::updateTexture()
         m_textureUpdated = true;
     }
 
-    if (window->buffers_ready_for_compositor(userId) > 0) {
+    if (m_windowInfo.surface->buffers_ready_for_compositor(userId) > 0) {
         // restart the frame dropper to give MirSurfaceItems enough time to render the next frame.
         // queued since the timer lives in a different thread
         QMetaObject::invokeMethod(&m_frameDropperTimer, "start", Qt::QueuedConnection);
@@ -442,8 +438,7 @@ bool MirSurface::numBuffersReadyForCompositor()
 {
     QMutexLocker locker(&m_mutex);
     const void* const userId = (void*)123;
-    auto const &window = static_cast<std::shared_ptr<mir::scene::Surface>>(m_windowInfo.window);
-    return window->buffers_ready_for_compositor(userId);
+    return m_windowInfo.surface->buffers_ready_for_compositor(userId);
 }
 
 void MirSurface::setFocused(bool value)
@@ -508,8 +503,7 @@ void MirSurface::close()
     m_closeTimer->start();
 
     if (m_windowInfo.window) {
-        auto const &window = static_cast<std::shared_ptr<mir::scene::Surface>>(m_windowInfo.window);
-        window->request_client_surface_close();
+        m_windowInfo.surface->request_client_surface_close();
     }
 }
 
@@ -615,8 +609,7 @@ void MirSurface::setOrientationAngle(Mir::OrientationAngle angle)
     }
 
     if (m_windowInfo.window) {
-        auto const &window = static_cast<std::shared_ptr<mir::scene::Surface>>(m_windowInfo.window);
-        window->set_orientation(mirOrientation);
+        m_windowInfo.surface->set_orientation(mirOrientation);
     }
 
     Q_EMIT orientationAngleChanged(angle);
@@ -907,9 +900,7 @@ void MirSurface::applyKeymap()
         return;
     }
 
-    auto const &window = static_cast<std::shared_ptr<mir::scene::Surface>>(m_windowInfo.window);
-
-    window->set_keymap(MirInputDeviceId(), "", layout.toStdString(), variant.toStdString(), "");
+    m_windowInfo.surface->set_keymap(MirInputDeviceId(), "", layout.toStdString(), variant.toStdString(), "");
 }
 
 QCursor MirSurface::cursor() const
