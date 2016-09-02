@@ -178,9 +178,12 @@ void WindowManagementPolicy::deliver_touch_event(const MirTouchEvent *event,
 void WindowManagementPolicy::deliver_pointer_event(const MirPointerEvent *event,
                                                    const miral::Window &window)
 {
-    m_tools.invoke_under_lock([&window, this]() {
-        m_tools.select_active_window(window);
-    });
+    // Prevent mouse hover events causing window focus to change
+    if (mir_pointer_event_action(event) == mir_pointer_action_button_down) {
+        m_tools.invoke_under_lock([&window, this]() {
+            m_tools.select_active_window(window);
+        });
+    }
     auto e = reinterpret_cast<MirEvent const*>(event); // naughty
 
     if (auto surface = std::weak_ptr<mir::scene::Surface>(window).lock()) {
