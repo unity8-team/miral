@@ -362,7 +362,7 @@ MirPlacementGravity const all_gravities[] =
     mir_placement_gravity_north,
     mir_placement_gravity_northeast,
     mir_placement_gravity_west,
-    mir_placement_gravity_centre,
+    mir_placement_gravity_center,
     mir_placement_gravity_east,
     mir_placement_gravity_southwest,
     mir_placement_gravity_south,
@@ -387,7 +387,7 @@ auto position_of(MirPlacementGravity rect_gravity, Rectangle rectangle) -> Point
     case mir_placement_gravity_west:
         return rectangle.top_left + Displacement{0, 0.5 * displacement.dy};
 
-    case mir_placement_gravity_centre:
+    case mir_placement_gravity_center:
         return rectangle.top_left + 0.5 * displacement;
 
     case mir_placement_gravity_east:
