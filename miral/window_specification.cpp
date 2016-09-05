@@ -394,16 +394,6 @@ auto miral::WindowSpecification::size() const -> mir::optional_value<Size> const
     return self->size;
 }
 
-auto miral::WindowSpecification::pixel_format() const -> mir::optional_value<MirPixelFormat> const&
-{
-    return self->pixel_format;
-}
-
-auto miral::WindowSpecification::buffer_usage() const -> mir::optional_value<BufferUsage> const&
-{
-    return self->buffer_usage;
-}
-
 auto miral::WindowSpecification::name() const -> mir::optional_value<std::string> const&
 {
     return self->name;
@@ -534,11 +524,6 @@ auto miral::WindowSpecification::pixel_format() -> mir::optional_value<MirPixelF
     return self->pixel_format;
 }
 
-auto miral::WindowSpecification::buffer_usage() -> mir::optional_value<BufferUsage>&
-{
-    return self->buffer_usage;
-}
-
 auto miral::WindowSpecification::name() -> mir::optional_value<std::string>&
 {
     return self->name;
@@ -562,11 +547,6 @@ auto miral::WindowSpecification::state() -> mir::optional_value<MirSurfaceState>
 auto miral::WindowSpecification::preferred_orientation() -> mir::optional_value<MirOrientationMode>&
 {
     return self->preferred_orientation;
-}
-
-auto miral::WindowSpecification::content_id() -> mir::optional_value<BufferStreamId>&
-{
-    return self->content_id;
 }
 
 auto miral::WindowSpecification::aux_rect() -> mir::optional_value<Rectangle>&

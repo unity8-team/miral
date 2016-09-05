@@ -133,8 +133,6 @@ public:
 
     auto top_left() const -> mir::optional_value<Point> const&;
     auto size() const -> mir::optional_value<Size> const&;
-    auto pixel_format() const -> mir::optional_value<MirPixelFormat> const&;
-    auto buffer_usage() const -> mir::optional_value<BufferUsage> const&;
     auto name() const -> mir::optional_value<std::string> const&;
     auto output_id() const -> mir::optional_value<int> const&;
     auto type() const -> mir::optional_value<MirSurfaceType> const&;
@@ -162,13 +160,11 @@ public:
     auto top_left() -> mir::optional_value<Point>&;
     auto size() -> mir::optional_value<Size>&;
     auto pixel_format() -> mir::optional_value<MirPixelFormat>&;
-    auto buffer_usage() -> mir::optional_value<BufferUsage>&;
     auto name() -> mir::optional_value<std::string>&;
     auto output_id() -> mir::optional_value<int>&;
     auto type() -> mir::optional_value<MirSurfaceType>&;
     auto state() -> mir::optional_value<MirSurfaceState>&;
     auto preferred_orientation() -> mir::optional_value<MirOrientationMode>&;
-    auto content_id() -> mir::optional_value<BufferStreamId>&;
     auto aux_rect() -> mir::optional_value<Rectangle>&;
     auto placement_hints() -> mir::optional_value<MirPlacementHints>&;
     auto window_placement_gravity() -> mir::optional_value<MirPlacementGravity>&;
