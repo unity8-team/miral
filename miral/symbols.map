@@ -186,7 +186,6 @@ global:
     miral::WindowSpecification::shell_chrome*;
     miral::WindowSpecification::size*;
     miral::WindowSpecification::state*;
-    miral::WindowSpecification::streams*;
     miral::WindowSpecification::top_left*;
     miral::WindowSpecification::type*;
     miral::WindowSpecification::update*;

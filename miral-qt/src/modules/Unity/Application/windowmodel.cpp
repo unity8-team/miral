@@ -53,13 +53,13 @@ WindowModel::WindowModel(WindowModelNotifierInterface *notifier,
 
 void WindowModel::connectToWindowModelNotifier(WindowModelNotifierInterface *notifier)
 {
-    connect(notifier, &WindowModelNotifierInterface::windowAdded,       this, &WindowModel::onWindowAdded);
-    connect(notifier, &WindowModelNotifierInterface::windowRemoved,     this, &WindowModel::onWindowRemoved);
-    connect(notifier, &WindowModelNotifierInterface::windowMoved,       this, &WindowModel::onWindowMoved);
-    connect(notifier, &WindowModelNotifierInterface::windowResized,     this, &WindowModel::onWindowResized);
-    connect(notifier, &WindowModelNotifierInterface::windowFocused,     this, &WindowModel::onWindowFocused);
-    connect(notifier, &WindowModelNotifierInterface::windowInfoChanged, this, &WindowModel::onWindowInfoChanged);
-    connect(notifier, &WindowModelNotifierInterface::windowsRaised,     this, &WindowModel::onWindowsRaised);
+    connect(notifier, &WindowModelNotifierInterface::windowAdded,       this, &WindowModel::onWindowAdded,       Qt::QueuedConnection);
+    connect(notifier, &WindowModelNotifierInterface::windowRemoved,     this, &WindowModel::onWindowRemoved,     Qt::QueuedConnection);
+    connect(notifier, &WindowModelNotifierInterface::windowMoved,       this, &WindowModel::onWindowMoved,       Qt::QueuedConnection);
+    connect(notifier, &WindowModelNotifierInterface::windowResized,     this, &WindowModel::onWindowResized,     Qt::QueuedConnection);
+    connect(notifier, &WindowModelNotifierInterface::windowFocused,     this, &WindowModel::onWindowFocused,     Qt::QueuedConnection);
+    connect(notifier, &WindowModelNotifierInterface::windowInfoChanged, this, &WindowModel::onWindowInfoChanged, Qt::QueuedConnection);
+    connect(notifier, &WindowModelNotifierInterface::windowsRaised,     this, &WindowModel::onWindowsRaised,     Qt::QueuedConnection);
 }
 
 QHash<int, QByteArray> WindowModel::roleNames() const
@@ -81,7 +81,10 @@ void WindowModel::onWindowAdded(const WindowInfo windowInfo, const int index)
 void WindowModel::onWindowRemoved(const int index)
 {
     beginRemoveRows(QModelIndex(), index, index);
-    m_windowModel.remove(index);
+    auto window = m_windowModel.takeAt(index);
+    if (window == m_focusedWindow) {
+        m_focusedWindow = nullptr;
+    }
     endRemoveRows();
     Q_EMIT countChanged();
 }

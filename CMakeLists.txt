@@ -71,3 +71,9 @@ if (MIRAL_ENABLE_QT)
 endif()
 
 include (cmake/Doxygen.cmake)
+
+if(TARGET doc)
+    add_custom_target(symbols
+        ${CMAKE_SOURCE_DIR}/scripts/process_doxygen_xml.py ${CMAKE_BINARY_DIR}/doc/xml/*.xml > ${CMAKE_SOURCE_DIR}/miral/symbols.map
+        DEPENDS doc)
+endif()

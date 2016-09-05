@@ -54,7 +54,7 @@ struct miral::WindowSpecification::Self
     mir::optional_value<DeltaY> height_inc;
     mir::optional_value<AspectRatio> min_aspect;
     mir::optional_value<AspectRatio> max_aspect;
-    mir::optional_value<std::vector<StreamSpecification>> streams;
+    mir::optional_value<std::vector<mir::shell::StreamSpecification>> streams;
     mir::optional_value<std::weak_ptr<mir::scene::Surface>> parent;
     mir::optional_value<std::vector<Rectangle>> input_shape;
     mir::optional_value<InputReceptionMode> input_mode;
@@ -85,7 +85,7 @@ miral::WindowSpecification::Self::Self(mir::shell::SurfaceSpecification const& s
     height_inc(spec.height_inc),
     min_aspect(),
     max_aspect(),
-    streams(),
+    streams(spec.streams),
     parent(spec.parent),
     input_shape(spec.input_shape),
     input_mode(),
@@ -134,36 +134,6 @@ miral::WindowSpecification::Self::Self(mir::shell::SurfaceSpecification const& s
 
     if (spec.max_aspect.is_set())
         max_aspect = AspectRatio{spec.max_aspect.value().width, spec.max_aspect.value().height};
-
-    if (spec.streams.is_set())
-    {
-        auto const& source = spec.streams.value();
-        std::vector<StreamSpecification> dest;
-        dest.reserve(source.size());
-
-#if MIR_SERVER_VERSION < MIR_VERSION_NUMBER(0, 22, 0)
-        for (auto const& stream : source)
-        {
-            dest.push_back(
-                StreamSpecification{
-                    BufferStreamId{stream.stream_id.as_value()},
-                    stream.displacement,
-                    mir::optional_value<mir::geometry::Size>{}
-                });
-        }
-#else
-        for (auto const& stream : source)
-        {
-            dest.push_back(
-                StreamSpecification{
-                    BufferStreamId{stream.stream_id.as_value()},
-                    stream.displacement,
-                    stream.size
-                });
-        }
-#endif
-        streams = std::move(dest);
-    }
 }
 
 namespace
@@ -257,7 +227,11 @@ miral::WindowSpecification::Self::Self(mir::scene::SurfaceCreationParameters con
     height_inc(params.height_inc),
     min_aspect(),
     max_aspect(),
+#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 22, 0)
+    streams(params.streams),
+#else
     streams(),
+#endif
     parent(params.parent),
     input_shape(params.input_shape),
     input_mode(static_cast<InputReceptionMode>(params.input_mode)),
@@ -300,27 +274,6 @@ miral::WindowSpecification::Self::Self(mir::scene::SurfaceCreationParameters con
 
     if (params.max_aspect.is_set())
         max_aspect = AspectRatio{params.max_aspect.value().width, params.max_aspect.value().height};
-
-#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 22, 0)
-    if (params.streams.is_set())
-    {
-        auto const& source = params.streams.value();
-        std::vector<StreamSpecification> dest;
-        dest.reserve(source.size());
-
-        for (auto const& stream : source)
-        {
-            dest.push_back(
-                StreamSpecification{
-                    BufferStreamId{stream.stream_id.as_value()},
-                    stream.displacement,
-                    stream.size
-                });
-        }
-
-        streams = std::move(dest);
-    }
-#endif
 }
 
 void miral::WindowSpecification::Self::update(mir::scene::SurfaceCreationParameters& params) const
@@ -344,31 +297,14 @@ void miral::WindowSpecification::Self::update(mir::scene::SurfaceCreationParamet
     copy_if_set(params.height_inc, height_inc);
     copy_if_set(params.min_aspect, min_aspect);
     copy_if_set(params.max_aspect, max_aspect);
+#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 22, 0)
+    copy_if_set(params.streams, streams);
+#endif
     copy_if_set(params.parent, parent);
     copy_if_set(params.input_shape, input_shape);
     copy_if_set(params.input_mode, input_mode);
     copy_if_set(params.shell_chrome, shell_chrome);
 
-#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 22, 0)
-    if (streams.is_set())
-    {
-        auto const& source = streams.value();
-        std::vector<mir::shell::StreamSpecification> dest;
-        dest.reserve(source.size());
-
-        for (auto const& stream : source)
-        {
-            dest.push_back(
-                mir::shell::StreamSpecification{
-                    mir::frontend::BufferStreamId{stream.stream_id.as_value()},
-                    stream.displacement,
-                    stream.size
-                });
-        }
-
-        params.streams = std::move(dest);
-    }
-#endif
 #if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 25, 0)
     copy_if_set(params.placement_hints, placement_hints);
     copy_if_set(params.surface_placement_gravity, window_placement_gravity);
@@ -526,11 +462,6 @@ auto miral::WindowSpecification::max_aspect() const -> mir::optional_value<Aspec
     return self->max_aspect;
 }
 
-auto miral::WindowSpecification::streams() const -> mir::optional_value<std::vector<StreamSpecification>> const&
-{
-    return self->streams;
-}
-
 auto miral::WindowSpecification::parent() const -> mir::optional_value<std::weak_ptr<mir::scene::Surface>> const&
 {
     return self->parent;
@@ -664,11 +595,6 @@ auto miral::WindowSpecification::min_aspect() -> mir::optional_value<AspectRatio
 auto miral::WindowSpecification::max_aspect() -> mir::optional_value<AspectRatio>&
 {
     return self->max_aspect;
-}
-
-auto miral::WindowSpecification::streams() -> mir::optional_value<std::vector<StreamSpecification>>&
-{
-    return self->streams;
 }
 
 auto miral::WindowSpecification::parent() -> mir::optional_value<std::weak_ptr<mir::scene::Surface>>&

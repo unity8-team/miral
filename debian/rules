@@ -8,13 +8,7 @@ export DPKG_GENSYMBOLS_CHECK_LEVEL = 4
 	dh $@ --parallel --fail-missing
 
 COMMON_CONFIGURE_OPTIONS = \
-  -DCMAKE_INSTALL_LIBEXECDIR="lib/$(DEB_HOST_MULTIARCH)/miral"\
-
-ifeq ($(filter noopt,$(DEB_BUILD_OPTIONS)),noopt)
-	COMMON_CONFIGURE_OPTIONS += -DMIRAL_USE_LTO=OFF
-else
-	COMMON_CONFIGURE_OPTIONS += -DMIRAL_USE_LTO=ON
-endif
+  -DCMAKE_INSTALL_LIBEXECDIR="lib/$(DEB_HOST_MULTIARCH)/miral"
 
 override_dh_auto_configure:
 	dh_auto_configure -- $(COMMON_CONFIGURE_OPTIONS)

@@ -586,31 +586,6 @@ void miral::BasicWindowManager::modify_window(WindowInfo& window_info, WindowSpe
     if (modifications.name().is_set())
         std::shared_ptr<scene::Surface>(window)->rename(modifications.name().value());
 
-    if (modifications.streams().is_set())
-    {
-        auto const& config = modifications.streams().value();
-
-        std::vector<shell::StreamSpecification> dest;
-        dest.reserve(config.size());
-
-#if MIR_SERVER_VERSION < MIR_VERSION_NUMBER(0, 22, 0)
-        for (auto const& stream : config)
-            dest.push_back(
-                shell::StreamSpecification{frontend::BufferStreamId{stream.stream_id.as_value()}, stream.displacement});
-#else
-        for (auto const& stream : config)
-            {
-                dest.push_back(
-                    mir::shell::StreamSpecification{
-                        mir::frontend::BufferStreamId{stream.stream_id.as_value()},
-                        stream.displacement,
-                        stream.size
-                    });
-            }
-#endif
-        window.application()->configure_streams(*std::shared_ptr<scene::Surface>(window), dest);
-    }
-
     if (modifications.input_shape().is_set())
         std::shared_ptr<scene::Surface>(window)->set_input_region(modifications.input_shape().value());
 

@@ -7,9 +7,9 @@ earlier Ubuntu versions or other distributions.
 You’ll need a few development and utility packages installed, along with the
 Mir development packages:
 
-    $ sudo apt-get install cmake g++ make bzr python-pil
+    $ sudo apt-get install cmake g++ make bzr python-pil uuid-dev libglib2.0-dev
     $ sudo apt-get install libmirserver-dev libmirclient-dev mirtest-dev
-    $ sudo apt-get install mir-graphics-drivers-desktop
+    $ sudo apt-get install mir-graphics-drivers-desktop libgles2-mesa-dev
 
 (If you’re working on a phone or tablet use mir-graphics-drivers-android in
 place of mir-graphics-drivers-desktop.)
@@ -118,3 +118,16 @@ Running Qt applications
 To run Qt applications under Mir you may need to install qtubuntu-desktop:
 
     $ sudo apt-get install qtubuntu-desktop
+
+
+Building the tests
+------------------
+
+MirAL comes with a set of tests, if you intend to build these then add the
+following packages:
+
+    $ sudo apt-get install cmake-extras google-mock mirtest-dev mir-test-tools
+    $ sudo apt-get install libboost-filesystem-dev libboost-system-dev
+
+Note that this is not possible for Mir versions prior to 0.24 as there were
+bugs in mirtest-dev. At the time of writing Ubuntu 16.4 has Mir-0.21.
