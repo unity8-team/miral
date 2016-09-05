@@ -19,12 +19,13 @@
 #ifndef MIRAL_WINDOW_SPECIFICATION_H
 #define MIRAL_WINDOW_SPECIFICATION_H
 
-#include "miral/stream_specification.h"
-
 #include <mir_toolkit/common.h>
 #include <mir_toolkit/version.h>
-#include <mir/optional_value.h>
+
+#include <mir/geometry/displacement.h>
 #include <mir/geometry/rectangles.h>
+#include <mir/optional_value.h>
+#include <mir/int_wrapper.h>
 
 #include <memory>
 
@@ -100,6 +101,8 @@ namespace shell { struct SurfaceSpecification; }
 namespace miral
 {
 using namespace mir::geometry;
+namespace detail { struct SessionsBufferStreamIdTag; }
+typedef mir::IntWrapper<detail::SessionsBufferStreamIdTag> BufferStreamId;
 
 class WindowSpecification
 {
@@ -153,7 +156,7 @@ public:
     auto height_inc() const -> mir::optional_value<DeltaY> const&;
     auto min_aspect() const -> mir::optional_value<AspectRatio> const&;
     auto max_aspect() const -> mir::optional_value<AspectRatio> const&;
-    auto streams() const -> mir::optional_value<std::vector<StreamSpecification>> const&;
+
     auto parent() const -> mir::optional_value<std::weak_ptr<mir::scene::Surface>> const&;
     auto input_shape() const -> mir::optional_value<std::vector<Rectangle>> const&;
     auto input_mode() const -> mir::optional_value<InputReceptionMode> const&;
@@ -182,7 +185,6 @@ public:
     auto height_inc() -> mir::optional_value<DeltaY>&;
     auto min_aspect() -> mir::optional_value<AspectRatio>&;
     auto max_aspect() -> mir::optional_value<AspectRatio>&;
-    auto streams() -> mir::optional_value<std::vector<StreamSpecification>>&;
     auto parent() -> mir::optional_value<std::weak_ptr<mir::scene::Surface>>&;
     auto input_shape() -> mir::optional_value<std::vector<Rectangle>>&;
     auto input_mode() -> mir::optional_value<InputReceptionMode>&;
