@@ -109,9 +109,9 @@ void WindowModelNotifier::raiseWindows(const std::vector<miral::Window> &windows
         indices.push_back(pos);
     }
 
-    Q_FOREACH(auto index, indices) {
+    for (int i=indices.count()-1; i>=0; i--) {
         // QVector missing a move method in Qt5.4
-        auto window = m_windowStack.takeAt(index);
+        auto window = m_windowStack.takeAt(indices[i]);
         m_windowStack.push_back(window);
     }
 
