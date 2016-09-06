@@ -189,9 +189,6 @@ libmiral.so.1 libmiral1 #MINVER#
  (c++)"miral::WindowSpecification::aux_rect_placement_gravity()@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowSpecification::aux_rect_placement_offset() const@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowSpecification::aux_rect_placement_offset()@MIRAL_0.1" 0.1.0
- (c++)"miral::WindowSpecification::buffer_usage() const@MIRAL_0.1" 0.1.0
- (c++)"miral::WindowSpecification::buffer_usage()@MIRAL_0.1" 0.1.0
- (c++)"miral::WindowSpecification::content_id()@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowSpecification::height_inc() const@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowSpecification::height_inc()@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowSpecification::input_mode() const@MIRAL_0.1" 0.1.0
@@ -217,8 +214,6 @@ libmiral.so.1 libmiral1 #MINVER#
  (c++)"miral::WindowSpecification::output_id()@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowSpecification::parent() const@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowSpecification::parent()@MIRAL_0.1" 0.1.0
- (c++)"miral::WindowSpecification::pixel_format() const@MIRAL_0.1" 0.1.0
- (c++)"miral::WindowSpecification::pixel_format()@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowSpecification::placement_hints() const@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowSpecification::placement_hints()@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowSpecification::preferred_orientation() const@MIRAL_0.1" 0.1.0
