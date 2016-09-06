@@ -1154,7 +1154,7 @@ auto anchor_for(Rectangle const& aux_rect, MirPlacementGravity rect_gravity) -> 
     case mir_placement_gravity_west:
         return aux_rect.top_left + 0.5*as_displacement(aux_rect.size).dy;
 
-    case mir_placement_gravity_centre:
+    case mir_placement_gravity_center:
         return aux_rect.top_left + 0.5*as_displacement(aux_rect.size);
 
     case mir_placement_gravity_east:
@@ -1192,7 +1192,7 @@ auto offset_for(Size const& size, MirPlacementGravity rect_gravity) -> Displacem
     case mir_placement_gravity_west:
         return {0, -0.5 * displacement.dy};
 
-    case mir_placement_gravity_centre:
+    case mir_placement_gravity_center:
         return {-0.5 * displacement.dx, -0.5 * displacement.dy};
 
     case mir_placement_gravity_east:
@@ -1231,8 +1231,8 @@ auto miral::BasicWindowManager::place_relative(Point const& parent_top_left, Win
 
     std::vector<MirPlacementGravity> rect_gravities{parameters.aux_rect_placement_gravity().value()};
 
-     if (hints & mir_placement_hints_antipodes)
-         rect_gravities.push_back(antipodes(parameters.aux_rect_placement_gravity().value()));
+    if (hints & mir_placement_hints_antipodes)
+        rect_gravities.push_back(antipodes(parameters.aux_rect_placement_gravity().value()));
 
     mir::optional_value<Rectangle> default_result;
 
