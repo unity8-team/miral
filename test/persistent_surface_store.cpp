@@ -20,6 +20,8 @@
 #include <miral/toolkit/surface.h>
 #include <miral/toolkit/surface_spec.h>
 
+#include <miral/application_info.h>
+
 #include <mir/version.h>
 
 #include <gtest/gtest.h>
@@ -56,6 +58,31 @@ TEST_F(PersistentSurfaceId, server_can_identify_window_specified_by_client)
             ASSERT_THAT(window_info.name(), Eq(test_name));
         });
 }
+
+TEST_F(PersistentSurfaceId, server_returns_correct_id_for_window)
+{
+    char const* const test_name = __PRETTY_FUNCTION__;
+    using namespace miral::toolkit;
+
+    auto const connection = connect_client(test_name);
+    auto const spec = SurfaceSpec::for_normal_surface(connection, 50, 50, mir_pixel_format_argb_8888)
+        .set_name(test_name);
+
+    Surface const surface{spec.create_surface()};
+
+    miral::toolkit::PersistentId client_surface_id{surface};
+
+    tools.invoke_under_lock([&]
+        {
+            // Bit of a journey to get the miral::Window for the above surface
+            auto app = tools.find_application([&](miral::ApplicationInfo const& /*info*/){return true;});
+            auto app_info = tools.info_for(app);
+            auto window = app_info.windows()[0];
+            auto id = tools.id_for_window(window);
+
+            ASSERT_THAT(client_surface_id.c_str(), Eq(id));
+        });
+}
 #else
 TEST_F(PersistentSurfaceId, server_fails_gracefully_to_identify_window_specified_by_client)
 {
@@ -73,6 +100,30 @@ TEST_F(PersistentSurfaceId, server_fails_gracefully_to_identify_window_specified
     tools.invoke_under_lock([&]
         {
             EXPECT_THROW(tools.info_for_window_id(client_surface_id.c_str()), std::runtime_error);
+        });
+}
+
+TEST_F(PersistentSurfaceId, server_fails_gracefully_to_return_id_for_window)
+{
+    char const* const test_name = __PRETTY_FUNCTION__;
+    using namespace miral::toolkit;
+
+    auto const connection = connect_client(test_name);
+    auto const spec = SurfaceSpec::for_normal_surface(connection, 50, 50, mir_pixel_format_argb_8888)
+        .set_name(test_name);
+
+    Surface const surface{spec.create_surface()};
+
+    miral::toolkit::PersistentId client_surface_id{surface};
+
+    tools.invoke_under_lock([&]
+        {
+            // Bit of a journey to get the miral::Window for the above surface
+            auto app = tools.find_application([&](miral::ApplicationInfo const& /*info*/){return true;});
+            auto app_info = tools.info_for(app);
+            auto window = app_info.windows()[0];
+
+            EXPECT_THROW(tools.id_for_window(window), std::runtime_error);
         });
 }
 #endif
@@ -93,5 +144,14 @@ TEST_F(PersistentSurfaceId, server_fails_gracefully_to_identify_window_from_garb
     tools.invoke_under_lock([&]
         {
             EXPECT_THROW(tools.info_for_window_id("garbage"), std::exception);
+        });
+}
+
+TEST_F(PersistentSurfaceId, server_fails_gracefully_when_id_for_null_window_requested)
+{
+    tools.invoke_under_lock([&]
+        {
+            miral::Window window;
+            EXPECT_THROW(tools.id_for_window(window), std::runtime_error);
         });
 }
