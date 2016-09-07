@@ -66,7 +66,7 @@ public:
 
     miral::Window getMirALWindowFromModel(const WindowModel &model, int index)
     {
-        return getMirSurfaceFromModel(model, index)->windowInfo().window;
+        return getMirSurfaceFromModel(model, index)->window();
     }
 
     const std::shared_ptr<StubSession> stubSession{std::make_shared<StubSession>()};

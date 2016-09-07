@@ -54,6 +54,7 @@ struct qtmir::MirServerHooks::Self
     std::weak_ptr<mir::graphics::Display> m_mirDisplay;
     std::weak_ptr<mir::shell::DisplayConfigurationController> m_mirDisplayConfigurationController;
     std::weak_ptr<mir::scene::PromptSessionManager> m_mirPromptSessionManager;
+    std::weak_ptr<mir::shell::PersistentSurfaceStore> m_mirPersistentSurfaceStore;
 };
 
 qtmir::MirServerHooks::MirServerHooks() :
@@ -91,6 +92,7 @@ void qtmir::MirServerHooks::operator()(mir::Server& server)
             self->m_mirDisplay = server.the_display();
             self->m_mirDisplayConfigurationController = server.the_display_configuration_controller();
             self->m_mirPromptSessionManager = server.the_prompt_session_manager();
+            self->m_mirPersistentSurfaceStore = server.the_persistent_surface_store();
         });
 }
 
@@ -116,6 +118,14 @@ std::shared_ptr<mir::scene::PromptSessionManager> qtmir::MirServerHooks::theProm
         return result;
 
     throw std::logic_error("No prompt session manager available. Server not running?");
+}
+
+const std::shared_ptr<mir::shell::PersistentSurfaceStore> qtmir::MirServerHooks::thePersistentSurfaceStore() const
+{
+    if (auto result = self->m_mirPersistentSurfaceStore.lock())
+        return result;
+
+    throw std::logic_error("No persistent surface store available. Server not running?");
 }
 
 std::shared_ptr<mir::graphics::Display> qtmir::MirServerHooks::theMirDisplay() const

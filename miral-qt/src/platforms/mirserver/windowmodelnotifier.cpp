@@ -40,12 +40,13 @@ WindowModelNotifier::~WindowModelNotifier()
 
 }
 
-void WindowModelNotifier::addWindow(const miral::WindowInfo &windowInfo)
+void WindowModelNotifier::addWindow(const miral::WindowInfo &windowInfo, const std::string &persistentId)
 {
     auto stackPosition = m_windowStack.count();
     m_windowStack.push_back(windowInfo.window()); // ASSUMPTION: Mir should tell us where in stack
 
-    Q_EMIT windowAdded(windowInfo, stackPosition);
+    NewWindowInfo newWindowInfo{windowInfo, persistentId};
+    Q_EMIT windowAdded(newWindowInfo, stackPosition);
 }
 
 void WindowModelNotifier::removeWindow(const miral::WindowInfo &windowInfo)

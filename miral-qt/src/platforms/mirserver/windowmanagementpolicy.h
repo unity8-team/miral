@@ -26,6 +26,9 @@
 #include <QScopedPointer>
 #include <QSize>
 
+#include <memory.h>
+
+namespace mir { namespace shell { class PersistentSurfaceStore; }}
 using namespace mir::geometry;
 
 class ScreensModel;
@@ -36,7 +39,8 @@ public:
     WindowManagementPolicy(const miral::WindowManagerTools &tools,
                            qtmir::WindowModelNotifier &windowModel,
                            qtmir::WindowController &windowController,
-                           const QSharedPointer<ScreensModel> screensModel);
+                           const QSharedPointer<ScreensModel> screensModel,
+                           const std::shared_ptr<mir::shell::PersistentSurfaceStore> &persistentSurfaceStore);
 
     // From WindowManagementPolicy
     auto place_new_surface(const miral::ApplicationInfo &app_info,
@@ -85,6 +89,7 @@ private:
     miral::WindowManagerTools m_tools;
     qtmir::WindowModelNotifier &m_windowModel;
     const QScopedPointer<QtEventFeeder> m_eventFeeder;
+    const std::shared_ptr<mir::shell::PersistentSurfaceStore> m_persistentSurfaceStore;
 };
 
 #endif // WINDOWMANAGEMENTPOLICY_H

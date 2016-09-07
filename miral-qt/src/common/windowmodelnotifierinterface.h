@@ -31,8 +31,7 @@ class WindowInfo {
 public:
     WindowInfo() = default;
     WindowInfo(const miral::WindowInfo &windowInfo)
-      : window(windowInfo.window())
-      , name(windowInfo.name())
+      : name(windowInfo.name())
       , type(windowInfo.type())
       , state(windowInfo.state())
       , restoreRect(windowInfo.restore_rect())
@@ -42,10 +41,8 @@ public:
       , minHeight(windowInfo.min_height())
       , maxWidth(windowInfo.max_width())
       , maxHeight(windowInfo.max_height())
-      , surface(window)
     {}
 
-    miral::Window window;
     mir::optional_value<std::string> name;
     MirSurfaceType type;
     MirSurfaceState state;
@@ -56,6 +53,20 @@ public:
     mir::geometry::Height minHeight;
     mir::geometry::Width maxWidth;
     mir::geometry::Height maxHeight;
+};
+
+class NewWindowInfo : public WindowInfo {
+public:
+    NewWindowInfo() = default;
+    NewWindowInfo(const miral::WindowInfo &windowInfo, const std::string &persistentId = "")
+      : WindowInfo(windowInfo)
+      , window(windowInfo.window())
+      , persistentId(persistentId)
+      , surface(window)
+    {}
+
+    miral::Window window;
+    std::string persistentId;
 
     // hold copy of Surface shared pointer, as miral::Window has just a weak pointer to the Surface
     // but MirSurface needs to share ownership of the Surface with Mir
@@ -71,7 +82,7 @@ public:
     virtual ~WindowModelNotifierInterface() = default;
 
 Q_SIGNALS:
-    void windowAdded(const qtmir::WindowInfo, const int index);
+    void windowAdded(const qtmir::NewWindowInfo, const int index);
     void windowRemoved(const int index);
     void windowMoved(const QPoint topLeft, const int index);
     void windowResized(const QSize size, const int index);
