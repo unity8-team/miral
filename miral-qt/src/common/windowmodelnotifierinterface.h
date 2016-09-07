@@ -96,6 +96,7 @@ private:
 
 } // namespace qtmir
 
+Q_DECLARE_METATYPE(qtmir::NewWindowInfo)
 Q_DECLARE_METATYPE(qtmir::WindowInfo)
 
 #endif // WINDOWMODELNOTIFIERINTERFACE_H

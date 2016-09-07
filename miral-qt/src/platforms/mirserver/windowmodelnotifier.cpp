@@ -31,6 +31,7 @@ using namespace qtmir;
 
 WindowModelNotifier::WindowModelNotifier()
 {
+    qRegisterMetaType<qtmir::NewWindowInfo>();
     qRegisterMetaType<qtmir::WindowInfo>();
     qRegisterMetaType<QVector<int>>();
 }
