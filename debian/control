@@ -17,6 +17,8 @@ Build-Depends: cmake,
                libmirserver-dev,
                libmirclient-dev,
                mirtest-dev,
+               libglib2.0-dev,
+               libgles2-mesa-dev,
 Standards-Version: 3.9.8
 Homepage: https://launchpad.net/miral
 # If you aren't a member of ~mir-team but need to upload packaging changes,
