@@ -22,21 +22,16 @@
 #include "miral/window_specification.h"
 
 #include <mir/scene/surface.h>
-#include <mir/shell/persistent_surface_store.h>
 #include <QDebug>
-
-namespace msh = mir::shell;
 
 WindowManagementPolicy::WindowManagementPolicy(const miral::WindowManagerTools &tools,
                                                qtmir::WindowModelNotifier &windowModel,
                                                qtmir::WindowController &windowController,
-                                               const QSharedPointer<ScreensModel> screensModel,
-                                               const std::shared_ptr<msh::PersistentSurfaceStore> &persistentSurfaceStore)
+                                               const QSharedPointer<ScreensModel> screensModel)
     : CanonicalWindowManagerPolicy(tools)
     , m_tools(tools)
     , m_windowModel(windowModel)
     , m_eventFeeder(new QtEventFeeder(screensModel))
-    , m_persistentSurfaceStore(persistentSurfaceStore)
 {
     windowController.setPolicy(this);
 }
@@ -93,7 +88,7 @@ bool WindowManagementPolicy::handle_pointer_event(const MirPointerEvent *event)
 void WindowManagementPolicy::advise_new_window(const miral::WindowInfo &windowInfo)
 {
     // TODO: attach surface observer here
-    std::string persistentId = m_persistentSurfaceStore->id_for_surface(windowInfo.window()).serialize_to_string();
+    std::string persistentId = m_tools.id_for_window(windowInfo.window());
 
     m_windowModel.addWindow(windowInfo, persistentId);
 }
