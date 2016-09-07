@@ -110,9 +110,29 @@ void WindowModelNotifier::raiseWindows(const std::vector<miral::Window> &windows
         indices.push_back(pos);
     }
 
-    Q_FOREACH(auto index, indices) {
+    // Filter some NO-OP (raise list of windows which is already raised and in that order)
+    // A NO-OP is if
+    //    1. "indices" is an empty list
+    //    2. "indices" of the form (modelCount - 1, modelCount - 2,...)
+    {
+        bool noop = true;
+        int counter = m_windowStack.count() - 1;
+        Q_FOREACH(int index, indices) {
+            if (index != counter) {
+                noop = false;
+                break;
+            }
+            counter--;
+        }
+
+        if (noop) {
+            return;
+        }
+    }
+
+    for (int i=indices.count()-1; i>=0; i--) {
         // QVector missing a move method in Qt5.4
-        auto window = m_windowStack.takeAt(index);
+        auto window = m_windowStack.takeAt(indices[i]);
         m_windowStack.push_back(window);
     }
 

@@ -163,6 +163,7 @@ libmiral.so.1 libmiral1 #MINVER#
  (c++)"miral::WindowManagerTools::focus_next_application()@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowManagerTools::focus_next_within_application()@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowManagerTools::for_each_application(std::function<void (miral::ApplicationInfo&)> const&)@MIRAL_0.1" 0.1.0
+ (c++)"miral::WindowManagerTools::id_for_window[abi:cxx11](miral::Window const&) const@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowManagerTools::info_for(miral::Window const&) const@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowManagerTools::info_for(std::weak_ptr<mir::scene::Session> const&) const@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowManagerTools::info_for(std::weak_ptr<mir::scene::Surface> const&) const@MIRAL_0.1" 0.1.0

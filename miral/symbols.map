@@ -152,6 +152,7 @@ global:
     miral::WindowManagerTools::focus_next_application*;
     miral::WindowManagerTools::focus_next_within_application*;
     miral::WindowManagerTools::for_each_application*;
+    miral::WindowManagerTools::id_for_window*;
     miral::WindowManagerTools::info_for*;
     miral::WindowManagerTools::info_for_window_id*;
     miral::WindowManagerTools::invoke_under_lock*;

@@ -54,7 +54,7 @@ miral::WindowSpecification WindowManagementPolicy::place_new_surface(
 void WindowManagementPolicy::handle_window_ready(miral::WindowInfo &windowInfo)
 {
     qDebug("Window Ready");
-    m_tools.select_active_window(windowInfo.window());
+    CanonicalWindowManagerPolicy::handle_window_ready(windowInfo);
 }
 
 void WindowManagementPolicy::handle_modify_window(
@@ -62,13 +62,13 @@ void WindowManagementPolicy::handle_modify_window(
     const miral::WindowSpecification &modifications)
 {
     qDebug("Window Modified!");
-    m_tools.modify_window(windowInfo, modifications);
+    CanonicalWindowManagerPolicy::handle_modify_window(windowInfo, modifications);
 }
 
 void WindowManagementPolicy::handle_raise_window(miral::WindowInfo &windowInfo)
 {
     qDebug("Window Raise");
-    m_tools.select_active_window(windowInfo.window());
+    CanonicalWindowManagerPolicy::handle_raise_window(windowInfo);
 }
 
 /* Handle input events - here just inject them into Qt event loop for later processing */
@@ -142,7 +142,10 @@ void WindowManagementPolicy::advise_focus_lost(const miral::WindowInfo &windowIn
 
 void WindowManagementPolicy::advise_focus_gained(const miral::WindowInfo &windowInfo)
 {
+    // update Qt model ASAP, before applying Mir policy
     m_windowModel.focusWindow(windowInfo, true);
+
+    CanonicalWindowManagerPolicy::advise_focus_gained(windowInfo);
 }
 
 void WindowManagementPolicy::advise_begin()
