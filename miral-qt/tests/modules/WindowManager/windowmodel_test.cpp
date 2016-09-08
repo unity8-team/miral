@@ -69,6 +69,16 @@ public:
         return miral::WindowInfo{window, windowSpec};
     }
 
+    miral::WindowInfo createMirALWindowInfoForInputMethod()
+    {
+        const miral::Application app{stubSession};
+        const miral::Window window{app, stubSurface};
+
+        ms::SurfaceCreationParameters windowSpec;
+        windowSpec.of_type(mir_surface_type_inputmethod);
+        return miral::WindowInfo{window, windowSpec};
+    }
+
     MirSurface *getMirSurfaceFromModel(const WindowModel &model, int index)
     {
         flushEvents();
@@ -671,4 +681,60 @@ TEST_F(WindowModelTest, WindowResizeDoesNotTouchOtherMirSurfaces)
 
     // Ensure other window untouched
     EXPECT_EQ(fixedSize, surface->size());
+}
+
+/*
+ * Test: that the WindowModelNotifier.addWindow for an Input Method Window causes
+ * the Qt-side WindowModel to register the input method surface
+ */
+TEST_F(WindowModelTest, WhenAddInputMethodWindowNotifiedModelEmitsInputMethodChangedSignal)
+{
+    WindowModelNotifier notifier;
+    WindowModel model(&notifier, nullptr); // no need for controller in this testcase
+
+    auto mirWindowInfo = createMirALWindowInfoForInputMethod();
+
+    QSignalSpy spyCountChanged(&model, SIGNAL(inputMethodSurfaceChanged(MirSurfaceInterface*)));
+
+    notifier.addWindow(mirWindowInfo);
+    flushEvents();
+
+    EXPECT_EQ(1, spyCountChanged.count());
+}
+
+/*
+ * Test: that the WindowModelNotifier.addWindow for an Input Method Window causes
+ * the Qt-side WindowModel::inputMethodSurface property to be correctly set
+ */
+TEST_F(WindowModelTest, WhenAddInputMethodWindowNotifiedModelPropertyHasCorrectWindow)
+{
+    WindowModelNotifier notifier;
+    WindowModel model(&notifier, nullptr); // no need for controller in this testcase
+
+    auto mirWindowInfo = createMirALWindowInfoForInputMethod();
+
+    notifier.addWindow(mirWindowInfo);
+    flushEvents();
+
+    auto miralWindow = static_cast<MirSurface*>(model.inputMethodSurface())->window();
+    EXPECT_EQ(mirWindowInfo.window(), miralWindow);
+}
+
+/*
+ * Test: that the WindowModelNotifier.removeWindow for an Input Method Window causes
+ * the Qt-side WindowModel to reset the WindowModel::inputMethodSurface property to null
+ */
+TEST_F(WindowModelTest, WhenRemoveInputMethodWindowNotifiedModelPropertyReset)
+{
+    WindowModelNotifier notifier;
+    WindowModel model(&notifier, nullptr); // no need for controller in this testcase
+
+    auto mirWindowInfo = createMirALWindowInfoForInputMethod();
+    notifier.addWindow(mirWindowInfo);
+
+    // Test removing the window
+    notifier.removeWindow(mirWindowInfo);
+    flushEvents();
+
+    EXPECT_EQ(nullptr, model.inputMethodSurface());
 }
