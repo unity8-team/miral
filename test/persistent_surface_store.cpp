@@ -34,7 +34,7 @@ using namespace testing;
 
 struct PersistentSurfaceId : public miral::TestServer
 {
-    miral::Window get_first_window()
+    auto get_first_window() -> miral::Window
     {
         auto app = tools.find_application([&](miral::ApplicationInfo const& /*info*/){return true;});
         auto app_info = tools.info_for(app);
