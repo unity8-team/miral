@@ -32,7 +32,7 @@ public:
     WindowModelNotifier();
     virtual ~WindowModelNotifier();
 
-    void addWindow(const miral::WindowInfo &windowInfo);
+    void addWindow(const miral::WindowInfo &windowInfo, const std::string &persistentId = "");
     void removeWindow(const miral::WindowInfo &windowInfo);
 
     void moveWindow(const miral::WindowInfo &windowInfo, mir::geometry::Point topLeft);

@@ -21,7 +21,7 @@
 #include "miral/window_manager_tools.h"
 #include "miral/window_specification.h"
 
-#include "mir/scene/surface.h"
+#include <mir/scene/surface.h>
 #include <QDebug>
 
 WindowManagementPolicy::WindowManagementPolicy(const miral::WindowManagerTools &tools,
@@ -88,7 +88,9 @@ bool WindowManagementPolicy::handle_pointer_event(const MirPointerEvent *event)
 void WindowManagementPolicy::advise_new_window(const miral::WindowInfo &windowInfo)
 {
     // TODO: attach surface observer here
-    m_windowModel.addWindow(windowInfo);
+    std::string persistentId = m_tools.id_for_window(windowInfo.window());
+
+    m_windowModel.addWindow(windowInfo, persistentId);
 }
 
 void WindowManagementPolicy::advise_delete_window(const miral::WindowInfo &windowInfo)

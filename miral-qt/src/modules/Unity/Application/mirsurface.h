@@ -49,7 +49,7 @@ class MirSurface : public MirSurfaceInterface
     Q_OBJECT
 
 public:
-    MirSurface(WindowInfo windowInfo,
+    MirSurface(NewWindow windowInfo,
                WindowControllerInterface *controller);
     virtual ~MirSurface();
 
@@ -59,6 +59,8 @@ public:
     Mir::Type type() const override;
 
     QString name() const override;
+
+    QString persistentId() const override;
 
     QSize size() const override;
     void resize(int width, int height) override;
@@ -158,7 +160,7 @@ public:
     // useful for tests
     void setCloseTimer(AbstractTimer *timer);
     std::shared_ptr<SurfaceObserver> surfaceObserver() const;
-    WindowInfo windowInfo() const { return m_windowInfo; }
+    miral::Window window() const { return m_window; }
 
 public Q_SLOTS:
     void onCompositorSwappedBuffers() override;
@@ -182,9 +184,12 @@ private:
     void applyKeymap();
     void updateActiveFocus();
 
+    miral::Window m_window;
     WindowInfo m_windowInfo;
+    std::shared_ptr<mir::scene::Surface> m_surface; // keep copy of the Surface for lifecycle
     QPointer<SessionInterface> m_session;
     WindowControllerInterface *const m_controller;
+    QString m_persistentId;
     bool m_firstFrameDrawn;
 
     //FIXME -  have to save the state as Mir has no getter for it (bug:1357429)
