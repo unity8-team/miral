@@ -34,9 +34,18 @@ using namespace qtmir;
 
 namespace ms = mir::scene;
 namespace mg = mir::graphics;
-using StubSurface = mir::test::doubles::StubSurface;
 using StubSession = mir::test::doubles::StubSession;
 using namespace testing;
+
+struct SizedStubSurface : public mir::test::doubles::StubSurface
+{
+    mir::geometry::Size size() const override { return toMirSize(m_size); }
+
+    void setSize(QSize size) { m_size = size; }
+
+private:
+    QSize m_size;
+};
 
 
 class WindowModelTest : public ::testing::Test
@@ -51,10 +60,11 @@ public:
     miral::WindowInfo createMirALWindowInfo(QPoint position = {160, 320}, QSize size = {100, 200})
     {
         const miral::Application app{stubSession};
+        stubSurface->setSize(size);
         const miral::Window window{app, stubSurface};
 
         ms::SurfaceCreationParameters windowSpec;
-        windowSpec.of_size(toMirSize(size));
+//        windowSpec.of_size(toMirSize(size)); // useless, Window/Surface has the size actually used
         windowSpec.of_position(toMirPoint(position));
         return miral::WindowInfo{window, windowSpec};
     }
@@ -88,7 +98,7 @@ public:
     }
 
     const std::shared_ptr<StubSession> stubSession{std::make_shared<StubSession>()};
-    const std::shared_ptr<StubSurface> stubSurface{std::make_shared<StubSurface>()};
+    const std::shared_ptr<SizedStubSurface> stubSurface{std::make_shared<SizedStubSurface>()};
     QCoreApplication *qtApp;
 };
 
@@ -607,7 +617,7 @@ TEST_F(WindowModelTest, WindowResizeUpdatesMirSurface)
 
     auto surface = getMirSurfaceFromModel(model, 0);
 
-    // Move window, check new position set
+    // Resize window, check new size set
     notifier.resizeWindow(mirWindowInfo1, toMirSize(newSize));
     flushEvents();
 
@@ -631,7 +641,7 @@ TEST_F(WindowModelTest, WindowResizeUpdatesCorrectMirSurface)
 
     auto surface = getMirSurfaceFromModel(model, 0);
 
-    // Move window, check new position set
+    // Resize window, check new size set
     notifier.resizeWindow(mirWindowInfo1, toMirSize(newSize));
     flushEvents();
 
@@ -641,24 +651,24 @@ TEST_F(WindowModelTest, WindowResizeUpdatesCorrectMirSurface)
 /*
  * Test: with 2 windows, ensure window resize does not impact other MirSurfaces
  */
-TEST_F(WindowModelTest, DISABLED_WindowResizeDoesNotTouchOtherMirSurfaces)
+TEST_F(WindowModelTest, WindowResizeDoesNotTouchOtherMirSurfaces)
 {
     WindowModelNotifier notifier;
     WindowModel model(&notifier, nullptr); // no need for controller in this testcase
 
-    QSize fixedPosition(300, 400);
+    QSize fixedSize(300, 400);
 
     auto mirWindowInfo1 = createMirALWindowInfo(QPoint(), QSize(100, 200));
-    auto mirWindowInfo2 = createMirALWindowInfo(QPoint(), fixedPosition);
+    auto mirWindowInfo2 = createMirALWindowInfo(QPoint(), fixedSize);
     notifier.addWindow(mirWindowInfo1);
     notifier.addWindow(mirWindowInfo2);
 
     auto surface = getMirSurfaceFromModel(model, 1);
 
-    // Move window
+    // Resize window
     notifier.resizeWindow(mirWindowInfo1, toMirSize(QSize(150, 220)));
     flushEvents();
 
     // Ensure other window untouched
-    EXPECT_EQ(fixedPosition, surface->size());
+    EXPECT_EQ(fixedSize, surface->size());
 }
