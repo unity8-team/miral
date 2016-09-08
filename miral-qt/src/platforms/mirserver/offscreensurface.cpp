@@ -19,8 +19,6 @@
 //Qt
 #include <QOffscreenSurface>
 #include <QOpenGLFramebufferObject>
-#include <QSurfaceFormat>
-#include <QtPlatformSupport/private/qeglconvenience_p.h>
 
 OffscreenSurface::OffscreenSurface(QOffscreenSurface *offscreenSurface)
     : QPlatformOffscreenSurface(offscreenSurface)
