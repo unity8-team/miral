@@ -646,6 +646,17 @@ auto miral::BasicWindowManager::info_for_window_id(std::string const& id) const 
 #endif
 }
 
+auto miral::BasicWindowManager::id_for_window(Window const& window) const -> std::string
+{
+    if (!window)
+        BOOST_THROW_EXCEPTION(std::runtime_error{"Null Window has no Persistent ID"});
+
+#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 24, 0)
+    return persistent_surface_store->id_for_surface(window).serialize_to_string();
+#else
+    BOOST_THROW_EXCEPTION(std::runtime_error{"Persistent IDs unavailable with this Mir server version"});
+#endif
+}
 
 void miral::BasicWindowManager::place_and_size(WindowInfo& root, Point const& new_pos, Size const& new_size)
 {

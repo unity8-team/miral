@@ -105,6 +105,13 @@ public:
      */
     auto info_for_window_id(std::string const& id) const -> WindowInfo&;
 
+    /** retrieve the persistent surface id for a window
+     *
+     * @param id        the window
+     * @return          the persistent surface id
+     */
+    auto id_for_window(Window const& window) const -> std::string;
+
     /// Send close request to the window
     void ask_client_to_close(Window const& window);
 
