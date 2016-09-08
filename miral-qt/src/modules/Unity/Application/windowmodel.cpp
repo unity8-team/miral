@@ -69,7 +69,7 @@ QHash<int, QByteArray> WindowModel::roleNames() const
     return roleNames;
 }
 
-void WindowModel::onWindowAdded(const NewWindowInfo windowInfo, const int index)
+void WindowModel::onWindowAdded(const NewWindow windowInfo, const int index)
 {
     auto mirSurface = new MirSurface(windowInfo, m_windowController);
     beginInsertRows(QModelIndex(), index, index);
@@ -124,28 +124,13 @@ void WindowModel::onWindowsRaised(QVector<int> indices)
 {
     const int modelCount = m_windowModel.count();
 
-    // Filter some NO-OPs - Qt will crash on endMoveRows() if you try NO-OPs!!!
+    // Assumption: no NO-OPs are in this list - Qt will crash on endMoveRows() if you try NO-OPs!!!
     // A NO-OP is if
     //    1. "indices" is an empty list
-    //    2. "indices" of the form (modelCount - 1, modelCount - 2,...)
-    {
-        bool noop = true;
-        int counter = modelCount - 1;
-        Q_FOREACH(int index, indices) {
-            if (index != counter) {
-                noop = false;
-                break;
-            }
-            counter--;
-        }
+    //    2. "indices" of the form (modelCount - 1, modelCount - 2,...) which results in an unchanged list
 
-        if (noop) {
-            return;
-        }
-    }
-
-    // Ok, not a NO-OP. Precompute the list of indices of Windows/Surfaces to
-    // raise, including the offsets due to indices which have already been moved.
+    // Precompute the list of indices of Windows/Surfaces to raise, including the offsets due to
+    // indices which have already been moved.
     QVector<int> moveList;
 
     for (int i=indices.count()-1; i>=0; i--) {

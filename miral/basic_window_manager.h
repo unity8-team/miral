@@ -131,6 +131,8 @@ public:
 
     auto info_for_window_id(std::string const& id) const -> WindowInfo& override;
 
+    auto id_for_window(Window const& window) const -> std::string override;
+
     void invoke_under_lock(std::function<void()> const& callback) override;
 
 private:

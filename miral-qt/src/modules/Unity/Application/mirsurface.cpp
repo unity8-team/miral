@@ -195,14 +195,14 @@ Q_DECLARE_FLAGS(DirtyStates, DirtyState)
 
 } // namespace {
 
-MirSurface::MirSurface(NewWindowInfo windowInfo,
+MirSurface::MirSurface(NewWindow newWindowInfo,
         WindowControllerInterface* controller)
     : MirSurfaceInterface()
-    , m_windowInfo(windowInfo)
-    , m_window(windowInfo.window)
-    , m_surface(windowInfo.surface)
+    , m_window(newWindowInfo.window)
+    , m_windowInfo(newWindowInfo.windowInfo)
+    , m_surface(newWindowInfo.surface)
     , m_controller(controller)
-    , m_persistentId(QString::fromStdString(windowInfo.persistentId))
+    , m_persistentId(QString::fromStdString(newWindowInfo.persistentId))
     , m_firstFrameDrawn(false)
     , m_orientationAngle(Mir::Angle0)
     , m_textureUpdated(false)

@@ -53,7 +53,7 @@ Q_SIGNALS:
     void countChanged();
 
 private Q_SLOTS:
-    void onWindowAdded(const NewWindowInfo windowInfo, const int index);
+    void onWindowAdded(const NewWindow windowInfo, const int index);
     void onWindowRemoved(const int index);
     void onWindowMoved(const QPoint topLeft, const int index);
     void onWindowResized(const QSize size, const int index);

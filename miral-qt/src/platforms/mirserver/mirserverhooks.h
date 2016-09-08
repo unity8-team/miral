@@ -24,7 +24,6 @@
 
 namespace mir { class Server; }
 namespace mir { namespace scene { class PromptSessionManager; }}
-namespace mir { namespace shell { class PersistentSurfaceStore; }}
 namespace mir { namespace graphics { class Display; }}
 
 class PromptSessionListener;
@@ -44,7 +43,6 @@ public:
     SessionListener *sessionListener() const;
     PromptSessionListener *promptSessionListener() const;
     std::shared_ptr<mir::scene::PromptSessionManager> thePromptSessionManager() const;
-    const std::shared_ptr<mir::shell::PersistentSurfaceStore> thePersistentSurfaceStore() const;
     std::shared_ptr<mir::graphics::Display> theMirDisplay() const;
 
     QSharedPointer<ScreensController> createScreensController(QSharedPointer<ScreensModel> const &screensModel) const;

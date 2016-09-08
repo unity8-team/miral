@@ -22,21 +22,16 @@
 #include "miral/window_specification.h"
 
 #include <mir/scene/surface.h>
-#include <mir/shell/persistent_surface_store.h>
 #include <QDebug>
-
-namespace msh = mir::shell;
 
 WindowManagementPolicy::WindowManagementPolicy(const miral::WindowManagerTools &tools,
                                                qtmir::WindowModelNotifier &windowModel,
                                                qtmir::WindowController &windowController,
-                                               const QSharedPointer<ScreensModel> screensModel,
-                                               const std::shared_ptr<msh::PersistentSurfaceStore> &persistentSurfaceStore)
+                                               const QSharedPointer<ScreensModel> screensModel)
     : CanonicalWindowManagerPolicy(tools)
     , m_tools(tools)
     , m_windowModel(windowModel)
     , m_eventFeeder(new QtEventFeeder(screensModel))
-    , m_persistentSurfaceStore(persistentSurfaceStore)
 {
     windowController.setPolicy(this);
 }
@@ -54,7 +49,7 @@ miral::WindowSpecification WindowManagementPolicy::place_new_surface(
 void WindowManagementPolicy::handle_window_ready(miral::WindowInfo &windowInfo)
 {
     qDebug("Window Ready");
-    m_tools.select_active_window(windowInfo.window());
+    CanonicalWindowManagerPolicy::handle_window_ready(windowInfo);
 }
 
 void WindowManagementPolicy::handle_modify_window(
@@ -62,13 +57,13 @@ void WindowManagementPolicy::handle_modify_window(
     const miral::WindowSpecification &modifications)
 {
     qDebug("Window Modified!");
-    m_tools.modify_window(windowInfo, modifications);
+    CanonicalWindowManagerPolicy::handle_modify_window(windowInfo, modifications);
 }
 
 void WindowManagementPolicy::handle_raise_window(miral::WindowInfo &windowInfo)
 {
     qDebug("Window Raise");
-    m_tools.select_active_window(windowInfo.window());
+    CanonicalWindowManagerPolicy::handle_raise_window(windowInfo);
 }
 
 /* Handle input events - here just inject them into Qt event loop for later processing */
@@ -93,7 +88,7 @@ bool WindowManagementPolicy::handle_pointer_event(const MirPointerEvent *event)
 void WindowManagementPolicy::advise_new_window(const miral::WindowInfo &windowInfo)
 {
     // TODO: attach surface observer here
-    std::string persistentId = m_persistentSurfaceStore->id_for_surface(windowInfo.window()).serialize_to_string();
+    std::string persistentId = m_tools.id_for_window(windowInfo.window());
 
     m_windowModel.addWindow(windowInfo, persistentId);
 }
@@ -142,7 +137,10 @@ void WindowManagementPolicy::advise_focus_lost(const miral::WindowInfo &windowIn
 
 void WindowManagementPolicy::advise_focus_gained(const miral::WindowInfo &windowInfo)
 {
+    // update Qt model ASAP, before applying Mir policy
     m_windowModel.focusWindow(windowInfo, true);
+
+    CanonicalWindowManagerPolicy::advise_focus_gained(windowInfo);
 }
 
 void WindowManagementPolicy::advise_begin()

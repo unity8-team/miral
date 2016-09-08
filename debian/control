@@ -17,6 +17,12 @@ Build-Depends: cmake,
                libmirserver-dev,
                libmirclient-dev,
                mirtest-dev,
+               libglib2.0-dev,
+               libgles2-mesa-dev,
+# The following workaround missing dependencies in Mir packages
+               uuid-dev,
+               libboost-system-dev,
+               libboost-filesystem-dev,
 Standards-Version: 3.9.8
 Homepage: https://launchpad.net/miral
 # If you aren't a member of ~mir-team but need to upload packaging changes,
