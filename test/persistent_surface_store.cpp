@@ -32,7 +32,15 @@
 using namespace testing;
 
 
-using PersistentSurfaceId = miral::TestServer;
+struct PersistentSurfaceId : public miral::TestServer
+{
+    miral::Window get_first_window()
+    {
+        auto app = tools.find_application([&](miral::ApplicationInfo const& /*info*/){return true;});
+        auto app_info = tools.info_for(app);
+        return app_info.windows()[0];
+    }
+};
 
 #include <mir/scene/surface.h>
 
@@ -74,10 +82,7 @@ TEST_F(PersistentSurfaceId, server_returns_correct_id_for_window)
 
     tools.invoke_under_lock([&]
         {
-            // Bit of a journey to get the miral::Window for the above surface
-            auto app = tools.find_application([&](miral::ApplicationInfo const& /*info*/){return true;});
-            auto app_info = tools.info_for(app);
-            auto window = app_info.windows()[0];
+            auto window = get_first_window();
             auto id = tools.id_for_window(window);
 
             ASSERT_THAT(client_surface_id.c_str(), Eq(id));
@@ -118,11 +123,7 @@ TEST_F(PersistentSurfaceId, server_fails_gracefully_to_return_id_for_window)
 
     tools.invoke_under_lock([&]
         {
-            // Bit of a journey to get the miral::Window for the above surface
-            auto app = tools.find_application([&](miral::ApplicationInfo const& /*info*/){return true;});
-            auto app_info = tools.info_for(app);
-            auto window = app_info.windows()[0];
-
+            auto window = get_first_window();
             EXPECT_THROW(tools.id_for_window(window), std::runtime_error);
         });
 }
