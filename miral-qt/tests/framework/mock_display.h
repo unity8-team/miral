@@ -18,9 +18,11 @@
 #define MOCKDISPLAY_H
 
 #include <mir/graphics/display.h>
-#include <mir/graphics/gl_context.h>
 #include <mir/version.h>
 
+#if MIR_SERVER_VERSION < MIR_VERSION_NUMBER(0, 25, 0)
+#include <mir/graphics/gl_context.h>
+#endif
 #if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 20, 0)
 #include <mir/graphics/virtual_output.h>
 #endif
@@ -56,7 +58,9 @@ public:
     MOCK_METHOD0(pause, void());
     MOCK_METHOD0(resume, void());
     MOCK_METHOD1(create_hardware_cursor, std::shared_ptr<mir::graphics::Cursor>(std::shared_ptr<mir::graphics::CursorImage> const&));
+#if MIR_SERVER_VERSION < MIR_VERSION_NUMBER(0, 25, 0)
     MOCK_METHOD0(create_gl_context, std::unique_ptr<mir::graphics::GLContext>());
+#endif
 
 #if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 20, 0)
     MOCK_METHOD2(create_virtual_output, std::unique_ptr<mir::graphics::VirtualOutput> (int width, int height));
