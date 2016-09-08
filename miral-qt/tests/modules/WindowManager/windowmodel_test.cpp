@@ -61,6 +61,7 @@ public:
 
     MirSurface *getMirSurfaceFromModel(const WindowModel &model, int index)
     {
+        flushEvents();
         return model.data(model.index(index, 0), WindowModel::SurfaceRole).value<MirSurface*>();
     }
 
@@ -69,8 +70,26 @@ public:
         return getMirSurfaceFromModel(model, index)->window();
     }
 
+    void SetUp() override
+    {
+        int argc = 0;
+        char* argv[0];
+        qtApp = new QCoreApplication(argc, argv); // needed for event loop
+    }
+
+    void TearDown() override
+    {
+        delete qtApp;
+    }
+
+    void flushEvents()
+    {
+        qtApp->sendPostedEvents();
+    }
+
     const std::shared_ptr<StubSession> stubSession{std::make_shared<StubSession>()};
     const std::shared_ptr<StubSurface> stubSurface{std::make_shared<StubSurface>()};
+    QCoreApplication *qtApp;
 };
 
 /*
@@ -85,6 +104,7 @@ TEST_F(WindowModelTest, WhenAddWindowNotifiedModelCountIncrements)
     auto mirWindowInfo = createMirALWindowInfo();
 
     notifier.addWindow(mirWindowInfo);
+    flushEvents();
 
     EXPECT_EQ(1, model.count());
 }
@@ -103,6 +123,7 @@ TEST_F(WindowModelTest, WhenAddWindowNotifiedModelEmitsCountChangedSignal)
     QSignalSpy spyCountChanged(&model, SIGNAL(countChanged()));
 
     notifier.addWindow(mirWindowInfo);
+    flushEvents();
 
     EXPECT_EQ(1, spyCountChanged.count());
 }
@@ -119,6 +140,7 @@ TEST_F(WindowModelTest, WhenAddWindowNotifiedNewModelEntryHasCorrectWindow)
     auto mirWindowInfo = createMirALWindowInfo();
 
     notifier.addWindow(mirWindowInfo);
+    flushEvents();
 
     auto miralWindow = getMirALWindowFromModel(model, 0);
     EXPECT_EQ(mirWindowInfo.window(), miralWindow);
@@ -138,6 +160,7 @@ TEST_F(WindowModelTest, WhenRemoveWindowNotifiedModelCountDecrements)
 
     // Test removing the window
     notifier.removeWindow(mirWindowInfo);
+    flushEvents();
 
     EXPECT_EQ(0, model.count());
 }
@@ -153,11 +176,13 @@ TEST_F(WindowModelTest, WhenRemoveWindowNotifiedModelEmitsCountChangedSignal)
 
     auto mirWindowInfo = createMirALWindowInfo();
     notifier.addWindow(mirWindowInfo);
+    flushEvents();
 
     // Test removing the window
     QSignalSpy spyCountChanged(&model, SIGNAL(countChanged()));
 
     notifier.removeWindow(mirWindowInfo);
+    flushEvents();
 
     EXPECT_EQ(1, spyCountChanged.count());
 }
@@ -176,6 +201,7 @@ TEST_F(WindowModelTest, WhenAddingTwoWindowsModelHasCorrectOrder)
 
     notifier.addWindow(mirWindowInfo1);
     notifier.addWindow(mirWindowInfo2);
+    flushEvents();
 
     ASSERT_EQ(2, model.count());
     auto miralWindow1 = getMirALWindowFromModel(model, 0);
@@ -200,6 +226,7 @@ TEST_F(WindowModelTest, WhenAddingTwoWindowsAndRemoveSecondModelPreservesFirst)
 
     // Remove second window
     notifier.removeWindow(mirWindowInfo2);
+    flushEvents();
 
     ASSERT_EQ(1, model.count());
     auto miralWindow = getMirALWindowFromModel(model, 0);
@@ -222,6 +249,7 @@ TEST_F(WindowModelTest, WhenAddingTwoWindowsAndRemoveFirstModelPreservesSecond)
 
     // Remove first window
     notifier.removeWindow(mirWindowInfo1);
+    flushEvents();
 
     ASSERT_EQ(1, model.count());
     auto miralWindow = getMirALWindowFromModel(model, 0);
@@ -245,6 +273,7 @@ TEST_F(WindowModelTest, WhenAddingTwoWindowsRemoveFirstAddAnotherResultsInCorrec
     notifier.removeWindow(mirWindowInfo1);
 
     notifier.addWindow(mirWindowInfo3);
+    flushEvents();
 
     ASSERT_EQ(2, model.count());
     auto miralWindow2 = getMirALWindowFromModel(model, 0);
@@ -270,6 +299,7 @@ TEST_F(WindowModelTest, WhenAddingThreeWindowsRemoveSecondResultsInCorrectModel)
     notifier.addWindow(mirWindowInfo3);
 
     notifier.removeWindow(mirWindowInfo2);
+    flushEvents();
 
     ASSERT_EQ(2, model.count());
     auto miralWindow1 = getMirALWindowFromModel(model, 0);
@@ -291,6 +321,7 @@ TEST_F(WindowModelTest, RaisingOneWindowDoesNothing)
 
     // Raise first window
     notifier.raiseWindows({mirWindowInfo1.window()});
+    flushEvents();
 
     ASSERT_EQ(1, model.count());
     auto topWindow = getMirALWindowFromModel(model, 0);
@@ -312,6 +343,7 @@ TEST_F(WindowModelTest, RaisingTopWindowDoesNothing)
 
     // Raise second window (currently on top)
     notifier.raiseWindows({mirWindowInfo2.window()});
+    flushEvents();
 
     // Check second window still on top
     ASSERT_EQ(2, model.count());
@@ -334,6 +366,7 @@ TEST_F(WindowModelTest, RaisingBottomWindowBringsItToTheTop)
 
     // Raise first window (currently at bottom)
     notifier.raiseWindows({mirWindowInfo1.window()});
+    flushEvents();
 
     // Check first window now on top
     ASSERT_EQ(2, model.count());
@@ -368,6 +401,8 @@ TEST_F(WindowModelTest, Raising2BottomWindowsBringsThemToTheTop)
     // 2:   Window1
     // 1:   Window2
     // 0:   Window3
+    flushEvents();
+
     ASSERT_EQ(3, model.count());
     auto topWindow = getMirALWindowFromModel(model, 2);
     EXPECT_EQ(mirWindowInfo1.window(), topWindow);
@@ -400,6 +435,8 @@ TEST_F(WindowModelTest, Raising2WindowsInSwappedOrderReordersTheModel)
     // Model should now be like this:
     // 1:   Window1
     // 0:   Window2
+    flushEvents();
+
     ASSERT_EQ(2, model.count());
     auto topWindow = getMirALWindowFromModel(model, 1);
     EXPECT_EQ(mirWindowInfo1.window(), topWindow);
@@ -435,6 +472,8 @@ TEST_F(WindowModelTest, With3WindowsRaising2BottomWindowsInSwappedOrderReordersT
     // 2:   Window2
     // 1:   Window1
     // 0:   Window3
+    flushEvents();
+
     ASSERT_EQ(3, model.count());
     auto topWindow = getMirALWindowFromModel(model, 2);
     EXPECT_EQ(mirWindowInfo2.window(), topWindow);
@@ -456,6 +495,7 @@ TEST_F(WindowModelTest, DISABLED_MirSurfacePositionSetCorrectlyAtCreation)
 
     auto mirWindowInfo = createMirALWindowInfo(position);
     notifier.addWindow(mirWindowInfo);
+    flushEvents();
 
     auto surface = getMirSurfaceFromModel(model, 0);
     EXPECT_EQ(position, surface->position());
@@ -479,6 +519,7 @@ TEST_F(WindowModelTest, WindowMoveUpdatesMirSurface)
 
     // Move window, check new position set
     notifier.moveWindow(mirWindowInfo, toMirPoint(newPosition));
+    flushEvents();
 
     EXPECT_EQ(newPosition, surface->position());
 }
@@ -503,6 +544,7 @@ TEST_F(WindowModelTest, WindowMoveUpdatesCorrectMirSurface)
 
     // Move window, check new position set
     notifier.moveWindow(mirWindowInfo1, toMirPoint(newPosition));
+    flushEvents();
 
     EXPECT_EQ(newPosition, surface->position());
 }
@@ -526,6 +568,7 @@ TEST_F(WindowModelTest, DISABLED_WindowMoveDoesNotTouchOtherMirSurfaces)
 
     // Move window, check new position set
     notifier.moveWindow(mirWindowInfo1, toMirPoint(QPoint(350, 420)));
+    flushEvents();
 
     // Ensure other window untouched
     EXPECT_EQ(fixedPosition, surface->position());
@@ -543,6 +586,7 @@ TEST_F(WindowModelTest, DISABLED_MirSurfaceSizeSetCorrectlyAtCreation)
 
     auto mirWindowInfo1 = createMirALWindowInfo(QPoint(), size);
     notifier.addWindow(mirWindowInfo1);
+    flushEvents();
 
     auto surface = getMirSurfaceFromModel(model, 0);
     EXPECT_EQ(size, surface->size());
@@ -565,6 +609,7 @@ TEST_F(WindowModelTest, WindowResizeUpdatesMirSurface)
 
     // Move window, check new position set
     notifier.resizeWindow(mirWindowInfo1, toMirSize(newSize));
+    flushEvents();
 
     EXPECT_EQ(newSize, surface->size());
 }
@@ -588,6 +633,7 @@ TEST_F(WindowModelTest, WindowResizeUpdatesCorrectMirSurface)
 
     // Move window, check new position set
     notifier.resizeWindow(mirWindowInfo1, toMirSize(newSize));
+    flushEvents();
 
     EXPECT_EQ(newSize, surface->size());
 }
@@ -611,6 +657,7 @@ TEST_F(WindowModelTest, DISABLED_WindowResizeDoesNotTouchOtherMirSurfaces)
 
     // Move window
     notifier.resizeWindow(mirWindowInfo1, toMirSize(QSize(150, 220)));
+    flushEvents();
 
     // Ensure other window untouched
     EXPECT_EQ(fixedPosition, surface->size());
