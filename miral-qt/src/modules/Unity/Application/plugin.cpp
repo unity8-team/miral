@@ -21,7 +21,6 @@
 #include "application.h"
 #include "application_manager.h"
 #include "mirfocuscontroller.h"
-#include "mirsurfacemanager.h"
 #include "mirsurfaceinterface.h"
 #include "mirsurfaceitem.h"
 #include "mirsurfacelistmodel.h"
@@ -45,14 +44,6 @@ QObject* applicationManagerSingleton(QQmlEngine* engine, QJSEngine* scriptEngine
     qCDebug(QTMIR_APPLICATIONS) << "applicationManagerSingleton - engine=" << engine << "scriptEngine=" << scriptEngine;
 
     return qtmir::ApplicationManager::singleton();
-}
-
-QObject* surfaceManagerSingleton(QQmlEngine* engine, QJSEngine* scriptEngine) {
-    Q_UNUSED(engine);
-    Q_UNUSED(scriptEngine);
-    qCDebug(QTMIR_APPLICATIONS) << "surfaceManagerSingleton - engine=" << engine << "scriptEngine=" << scriptEngine;
-
-    return qtmir::MirSurfaceManager::singleton();
 }
 
 QObject* mirSingleton(QQmlEngine* /*engine*/, QJSEngine* /*scriptEngine*/) {
@@ -88,8 +79,6 @@ class UnityApplicationPlugin : public QQmlExtensionPlugin {
                     uri, 0, 1, "ApplicationInfoInterface", "Abstract interface. Cannot be created in QML");
         qmlRegisterUncreatableType<qtmir::Application>(
                     uri, 0, 1, "ApplicationInfo", "Application can't be instantiated");
-        qmlRegisterSingletonType<qtmir::MirSurfaceManager>(
-                    uri, 0, 1, "SurfaceManager", surfaceManagerSingleton);
         qmlRegisterSingletonType<MirFocusController>(uri, 0, 1, "MirFocusController", mirFocusControllerSingleton);
         qmlRegisterUncreatableType<unity::shell::application::MirSurfaceInterface>(
                     uri, 0, 1, "MirSurface", "MirSurface can't be instantiated from QML");
