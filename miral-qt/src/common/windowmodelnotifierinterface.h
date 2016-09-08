@@ -55,17 +55,18 @@ public:
     mir::geometry::Height maxHeight;
 };
 
-class NewWindowInfo : public WindowInfo {
+class NewWindowInfo {
 public:
     NewWindowInfo() = default;
     NewWindowInfo(const miral::WindowInfo &windowInfo, const std::string &persistentId = "")
-      : WindowInfo(windowInfo)
-      , window(windowInfo.window())
+      : window(windowInfo.window())
+      , windowInfo(windowInfo)
       , persistentId(persistentId)
-      , surface(window)
+      , surface(windowInfo.window())
     {}
 
     miral::Window window;
+    WindowInfo windowInfo;
     std::string persistentId;
 
     // hold copy of Surface shared pointer, as miral::Window has just a weak pointer to the Surface

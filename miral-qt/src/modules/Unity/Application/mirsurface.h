@@ -184,8 +184,8 @@ private:
     void applyKeymap();
     void updateActiveFocus();
 
-    WindowInfo m_windowInfo;
     miral::Window m_window;
+    WindowInfo m_windowInfo;
     std::shared_ptr<mir::scene::Surface> m_surface; // keep copy of the Surface for lifecycle
     QPointer<SessionInterface> m_session;
     WindowControllerInterface *const m_controller;
