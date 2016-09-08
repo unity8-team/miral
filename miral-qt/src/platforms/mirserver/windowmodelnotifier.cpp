@@ -31,7 +31,7 @@ using namespace qtmir;
 
 WindowModelNotifier::WindowModelNotifier()
 {
-    qRegisterMetaType<qtmir::NewWindowInfo>();
+    qRegisterMetaType<qtmir::NewWindow>();
     qRegisterMetaType<qtmir::WindowInfo>();
     qRegisterMetaType<QVector<int>>();
 }
@@ -46,7 +46,7 @@ void WindowModelNotifier::addWindow(const miral::WindowInfo &windowInfo, const s
     auto stackPosition = m_windowStack.count();
     m_windowStack.push_back(windowInfo.window()); // ASSUMPTION: Mir should tell us where in stack
 
-    NewWindowInfo newWindowInfo{windowInfo, persistentId};
+    NewWindow newWindowInfo{windowInfo, persistentId};
     Q_EMIT windowAdded(newWindowInfo, stackPosition);
 }
 

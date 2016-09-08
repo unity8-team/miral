@@ -69,7 +69,7 @@ QHash<int, QByteArray> WindowModel::roleNames() const
     return roleNames;
 }
 
-void WindowModel::onWindowAdded(const NewWindowInfo windowInfo, const int index)
+void WindowModel::onWindowAdded(const NewWindow windowInfo, const int index)
 {
     auto mirSurface = new MirSurface(windowInfo, m_windowController);
     beginInsertRows(QModelIndex(), index, index);

@@ -55,10 +55,10 @@ public:
     mir::geometry::Height maxHeight;
 };
 
-class NewWindowInfo {
+class NewWindow {
 public:
-    NewWindowInfo() = default;
-    NewWindowInfo(const miral::WindowInfo &windowInfo, const std::string &persistentId = "")
+    NewWindow() = default;
+    NewWindow(const miral::WindowInfo &windowInfo, const std::string &persistentId = "")
       : window(windowInfo.window())
       , windowInfo(windowInfo)
       , persistentId(persistentId)
@@ -83,7 +83,7 @@ public:
     virtual ~WindowModelNotifierInterface() = default;
 
 Q_SIGNALS:
-    void windowAdded(const qtmir::NewWindowInfo, const int index);
+    void windowAdded(const qtmir::NewWindow, const int index);
     void windowRemoved(const int index);
     void windowMoved(const QPoint topLeft, const int index);
     void windowResized(const QSize size, const int index);
@@ -97,7 +97,7 @@ private:
 
 } // namespace qtmir
 
-Q_DECLARE_METATYPE(qtmir::NewWindowInfo)
+Q_DECLARE_METATYPE(qtmir::NewWindow)
 Q_DECLARE_METATYPE(qtmir::WindowInfo)
 
 #endif // WINDOWMODELNOTIFIERINTERFACE_H

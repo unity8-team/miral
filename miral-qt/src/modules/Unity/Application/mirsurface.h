@@ -49,7 +49,7 @@ class MirSurface : public MirSurfaceInterface
     Q_OBJECT
 
 public:
-    MirSurface(NewWindowInfo windowInfo,
+    MirSurface(NewWindow windowInfo,
                WindowControllerInterface *controller);
     virtual ~MirSurface();
 

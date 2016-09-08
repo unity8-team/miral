@@ -195,7 +195,7 @@ Q_DECLARE_FLAGS(DirtyStates, DirtyState)
 
 } // namespace {
 
-MirSurface::MirSurface(NewWindowInfo newWindowInfo,
+MirSurface::MirSurface(NewWindow newWindowInfo,
         WindowControllerInterface* controller)
     : MirSurfaceInterface()
     , m_window(newWindowInfo.window)
