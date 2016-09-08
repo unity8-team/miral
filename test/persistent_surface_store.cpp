@@ -38,7 +38,7 @@ struct PersistentSurfaceId : public miral::TestServer
     {
         auto app = tools.find_application([&](miral::ApplicationInfo const& /*info*/){return true;});
         auto app_info = tools.info_for(app);
-        return app_info.windows()[0];
+        return app_info.windows().at(0);
     }
 };
 
