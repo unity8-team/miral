@@ -43,6 +43,12 @@ WindowModelNotifier::~WindowModelNotifier()
 
 void WindowModelNotifier::addWindow(const miral::WindowInfo &windowInfo, const std::string &persistentId)
 {
+    if (windowInfo.type() == mir_surface_type_inputmethod) {
+        NewWindow newWindowInfo{windowInfo};
+        Q_EMIT inputMethodWindowAdded(newWindowInfo);
+        return;
+    }
+
     auto stackPosition = m_windowStack.count();
     m_windowStack.push_back(windowInfo.window()); // ASSUMPTION: Mir should tell us where in stack
 
@@ -52,6 +58,11 @@ void WindowModelNotifier::addWindow(const miral::WindowInfo &windowInfo, const s
 
 void WindowModelNotifier::removeWindow(const miral::WindowInfo &windowInfo)
 {
+    if (windowInfo.type() == mir_surface_type_inputmethod) {
+        Q_EMIT inputMethodWindowRemoved();
+        return;
+    }
+
     const int pos = m_windowStack.indexOf(windowInfo.window());
     if (pos < 0) {
         qDebug("Unknown window removed");
