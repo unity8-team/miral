@@ -692,8 +692,7 @@ bool MirSurface::live() const
 
 bool MirSurface::visible() const
 {
-    //return m_windowInfo->query(mir_surface_attrib_visibility) == mir_surface_visibility_exposed;
-    return true; //FIXME
+    return m_surface->query(mir_surface_attrib_visibility) == mir_surface_visibility_exposed;
 }
 #include <mir_toolkit/event.h>
 void MirSurface::mousePressEvent(QMouseEvent *event)
@@ -825,9 +824,6 @@ void MirSurface::setViewVisibility(qintptr viewId, bool visible)
 
 void MirSurface::updateVisibility()
 {
-    // FIXME: https://bugs.launchpad.net/ubuntu/+source/unity8/+bug/1514556
-    return;
-
     bool newVisible = false;
     QHashIterator<qintptr, View> i(m_views);
     while (i.hasNext()) {
@@ -838,8 +834,8 @@ void MirSurface::updateVisibility()
     if (newVisible != visible()) {
         DEBUG_MSG << "(" << newVisible << ")";
 
-//        m_surface->configure(mir_surface_attrib_visibility, // FIXME(GERRY)
-//                             newVisible ? mir_surface_visibility_exposed : mir_surface_visibility_occluded);
+        m_surface->configure(mir_surface_attrib_visibility,
+                             newVisible ? mir_surface_visibility_exposed : mir_surface_visibility_occluded);
     }
 }
 
