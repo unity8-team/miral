@@ -19,7 +19,6 @@
 #include "debughelpers.h"
 #include "session.h"
 #include "mirsurfaceinterface.h"
-#include "mirsurfacemanager.h"
 #include "mirsurfaceitem.h"
 
 // mirserver

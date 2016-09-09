@@ -32,6 +32,8 @@ class WindowModel : public QAbstractListModel
 
     Q_PROPERTY(int count READ count NOTIFY countChanged)
 
+    Q_PROPERTY(MirSurfaceInterface* inputMethodSurface READ inputMethodSurface NOTIFY inputMethodSurfaceChanged)
+
 public:
     enum Roles {
         SurfaceRole = Qt::UserRole
@@ -49,8 +51,11 @@ public:
 
     int count() const { return rowCount(); }
 
+    MirSurfaceInterface* inputMethodSurface() const { return m_inputMethodSurface; }
+
 Q_SIGNALS:
     void countChanged();
+    void inputMethodSurfaceChanged(MirSurfaceInterface* inputMethodSurface);
 
 private Q_SLOTS:
     void onWindowAdded(const NewWindow windowInfo, const int index);
@@ -61,12 +66,16 @@ private Q_SLOTS:
     void onWindowInfoChanged(const WindowInfo windowInfo, const int index);
     void onWindowsRaised(const QVector<int> indices);
 
+    void onInputMethodWindowAdded(const NewWindow windowInfo);
+    void onInputMethodWindowRemoved();
+
 private:
     void connectToWindowModelNotifier(WindowModelNotifierInterface *notifier);
 
     QVector<MirSurfaceInterface *> m_windowModel;
     WindowControllerInterface *m_windowController;
-    MirSurfaceInterface* m_focusedWindow;
+    MirSurfaceInterface* m_focusedWindow{nullptr};
+    MirSurfaceInterface* m_inputMethodSurface{nullptr};
 };
 
 } // namespace qtmir

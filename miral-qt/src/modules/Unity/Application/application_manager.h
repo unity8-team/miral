@@ -51,7 +51,6 @@ namespace qtmir {
 
 class DBusFocusInfo;
 class DBusWindowStack;
-class MirSurfaceManager;
 class ProcInfo;
 class SharedWakelock;
 class SettingsInterface;
@@ -152,7 +151,6 @@ private:
 
     friend class Application;
     friend class DBusWindowStack;
-    friend class MirSurfaceManager;
     friend class SessionManager;
 };
 

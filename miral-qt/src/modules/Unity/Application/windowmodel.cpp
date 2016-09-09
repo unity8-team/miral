@@ -30,7 +30,6 @@
 using namespace qtmir;
 
 WindowModel::WindowModel()
-    : m_focusedWindow(nullptr)
 {
     auto nativeInterface = dynamic_cast<NativeInterface*>(QGuiApplication::platformNativeInterface());
 
@@ -60,6 +59,10 @@ void WindowModel::connectToWindowModelNotifier(WindowModelNotifierInterface *not
     connect(notifier, &WindowModelNotifierInterface::windowFocused,     this, &WindowModel::onWindowFocused,     Qt::QueuedConnection);
     connect(notifier, &WindowModelNotifierInterface::windowInfoChanged, this, &WindowModel::onWindowInfoChanged, Qt::QueuedConnection);
     connect(notifier, &WindowModelNotifierInterface::windowsRaised,     this, &WindowModel::onWindowsRaised,     Qt::QueuedConnection);
+    connect(notifier, &WindowModelNotifierInterface::inputMethodWindowAdded,
+            this, &WindowModel::onInputMethodWindowAdded,     Qt::QueuedConnection);
+    connect(notifier, &WindowModelNotifierInterface::inputMethodWindowRemoved,
+            this, &WindowModel::onInputMethodWindowRemoved,   Qt::QueuedConnection);
 }
 
 QHash<int, QByteArray> WindowModel::roleNames() const
@@ -118,6 +121,25 @@ void WindowModel::onWindowInfoChanged(const WindowInfo windowInfo, const int pos
 
     QModelIndex row = index(pos);
     Q_EMIT dataChanged(row, row, QVector<int>() << SurfaceRole);
+}
+
+void WindowModel::onInputMethodWindowAdded(const NewWindow windowInfo)
+{
+    if (m_inputMethodSurface) {
+        qDebug("Multiple Input Method Surfaces created, removing the old one!");
+        delete m_inputMethodSurface;
+    }
+    m_inputMethodSurface = new MirSurface(windowInfo, m_windowController);
+    Q_EMIT inputMethodSurfaceChanged(m_inputMethodSurface);
+}
+
+void WindowModel::onInputMethodWindowRemoved()
+{
+    if (m_inputMethodSurface) {
+        delete m_inputMethodSurface;
+        m_inputMethodSurface = nullptr;
+        Q_EMIT inputMethodSurfaceChanged(m_inputMethodSurface);
+    }
 }
 
 void WindowModel::onWindowsRaised(QVector<int> indices)
