@@ -25,7 +25,6 @@
 
 #include <Unity/Application/application.h>
 #include <Unity/Application/application_manager.h>
-#include <Unity/Application/mirsurfacemanager.h>
 #include <Unity/Application/sessionmanager.h>
 #include <Unity/Application/session_interface.h>
 #include <Unity/Application/sharedwakelock.h>
@@ -75,10 +74,8 @@ public:
     std::shared_ptr<StubPromptSessionManager> promptSessionManager;
     std::shared_ptr<StubPersistentSurfaceStore> persistentSurfaceStore;
 
-    mir::shell::Shell *mirShell{nullptr};
     ApplicationManager applicationManager;
     SessionManager sessionManager;
-    MirSurfaceManager surfaceManager;
 };
 } // namespace testing
 

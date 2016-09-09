@@ -78,7 +78,7 @@ public:
 
     virtual std::shared_ptr<mir::scene::Session> session() const = 0;
 
-    // For MirSurface and MirSurfaceManager use
+    // For MirSurface use
 
     virtual void registerSurface(MirSurfaceInterface* surface) = 0;
 
