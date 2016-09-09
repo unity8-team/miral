@@ -55,9 +55,17 @@ FocusScope {
 Resize window: Ctrl+Right click"
     }
 
+    Rectangle {
+        id: mousePointer
+        color: "black"
+        width: 6
+        height: 10
+    }
+
     MouseArea {
         anchors.fill: parent
         acceptedButtons: Qt.LeftButton | Qt.RightButton
+        hoverEnabled: true
         property variant window: null
         property int initialWindowXPosition
         property int initialWindowYPosition
@@ -98,6 +106,8 @@ Resize window: Ctrl+Right click"
         }
 
         onPositionChanged: {
+            mousePointer.x = mouse.x
+            mousePointer.y = mouse.y
             if (!window) {
                 mouse.accepted = false
                 return
