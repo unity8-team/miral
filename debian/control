@@ -23,6 +23,7 @@ Build-Depends: cmake,
                uuid-dev,
                libboost-system-dev,
                libboost-filesystem-dev,
+               mir-test-tools,
 Standards-Version: 3.9.8
 Homepage: https://launchpad.net/miral
 # If you aren't a member of ~mir-team but need to upload packaging changes,
