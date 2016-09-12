@@ -39,7 +39,6 @@ set(QMLMIRPLUGIN_SRC
     dbusfocusinfo.cpp
     plugin.cpp
     dbuswindowstack.cpp
-    mirsurfacemanager.cpp
     mirfocuscontroller.cpp
     mirsurface.cpp
     mirsurfaceinterface.h

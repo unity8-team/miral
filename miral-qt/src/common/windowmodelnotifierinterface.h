@@ -91,6 +91,10 @@ Q_SIGNALS:
     void windowInfoChanged(const qtmir::WindowInfo, const int index);
     void windowsRaised(const QVector<int> indices);
 
+    // Assuming only 1 input method surface for now
+    void inputMethodWindowAdded(const qtmir::NewWindow);
+    void inputMethodWindowRemoved();
+
 private:
     Q_DISABLE_COPY(WindowModelNotifierInterface)
 };

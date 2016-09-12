@@ -31,7 +31,6 @@
 
 namespace qtmir {
 
-class MirSurfaceManager;
 class QSGMirSurfaceNode;
 class MirTextureProvider;
 
