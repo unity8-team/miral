@@ -169,7 +169,6 @@ libmiral.so.1 libmiral1 #MINVER#
  (c++)"miral::WindowManagerTools::info_for(std::weak_ptr<mir::scene::Surface> const&) const@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowManagerTools::info_for_window_id(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) const@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowManagerTools::invoke_under_lock(std::function<void ()> const&)@MIRAL_0.1" 0.1.0
- (c++)"miral::WindowManagerTools::kill_active_application(int)@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowManagerTools::modify_window(miral::WindowInfo&, miral::WindowSpecification const&)@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowManagerTools::operator=(miral::WindowManagerTools const&)@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowManagerTools::raise_tree(miral::Window const&)@MIRAL_0.1" 0.1.0
