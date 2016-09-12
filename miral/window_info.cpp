@@ -77,6 +77,10 @@ miral::WindowInfo::Self::Self(Window window, WindowSpecification const& params) 
         output_id = params.output_id().value();
 }
 
+miral::WindowInfo::WindowInfo()
+{
+}
+
 miral::WindowInfo::WindowInfo(
     Window const& window,
     WindowSpecification const& params) :

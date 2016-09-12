@@ -65,7 +65,7 @@ public:
     std::shared_ptr<SessionAuthorizer> theApplicationAuthorizer() const
         { return m_sessionAuthorizer.the_custom_application_authorizer(); }
 
-    qtmir::WindowModelNotifierInterface *windowModelNotifier() const
+    qtmir::WindowModelNotifier *windowModelNotifier() const
         { return &m_windowModelNotifier; }
 
     qtmir::WindowControllerInterface *windowController() const

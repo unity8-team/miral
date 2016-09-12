@@ -31,6 +31,7 @@ struct WindowInfo
 {
     using AspectRatio = WindowSpecification::AspectRatio;
 
+    WindowInfo();
     WindowInfo(Window const& window, WindowSpecification const& params);
     ~WindowInfo();
     WindowInfo(WindowInfo const& that);

@@ -32,7 +32,7 @@
 #include "mirbuffersgtexture.h"
 #include "session.h"
 #include "windowcontrollerinterface.h"
-#include "windowmodelnotifierinterface.h"
+#include "windowmodelnotifier.h"
 
 // mir
 #include <mir_toolkit/common.h>
@@ -155,12 +155,12 @@ public:
     // Own API
     void setPosition(const QPoint newPosition);
     void setSize(const QSize newSize);
-    void updateWindowInfo(const WindowInfo &windowInfo);
+    void updateWindowInfo(const miral::WindowInfo &windowInfo);
 
     // useful for tests
     void setCloseTimer(AbstractTimer *timer);
     std::shared_ptr<SurfaceObserver> surfaceObserver() const;
-    miral::Window window() const { return m_window; }
+    miral::Window window() const { return m_windowInfo.window(); }
 
 public Q_SLOTS:
     void onCompositorSwappedBuffers() override;
@@ -184,8 +184,7 @@ private:
     void applyKeymap();
     void updateActiveFocus();
 
-    miral::Window m_window;
-    WindowInfo m_windowInfo;
+    miral::WindowInfo m_windowInfo;
     std::shared_ptr<mir::scene::Surface> m_surface; // keep copy of the Surface for lifecycle
     QPointer<SessionInterface> m_session;
     WindowControllerInterface *const m_controller;

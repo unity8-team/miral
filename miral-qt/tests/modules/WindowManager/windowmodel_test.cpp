@@ -57,7 +57,7 @@ public:
         QLoggingCategory::setFilterRules(QStringLiteral("qtmir.surfaces=false"));
     }
 
-    miral::WindowInfo createMirALWindowInfo(QPoint position = {160, 320}, QSize size = {100, 200})
+    NewWindow createNewWindow(QPoint position = {160, 320}, QSize size = {100, 200})
     {
         const miral::Application app{stubSession};
         stubSurface->setSize(size);
@@ -66,17 +66,19 @@ public:
         ms::SurfaceCreationParameters windowSpec;
 //        windowSpec.of_size(toMirSize(size)); // useless, Window/Surface has the size actually used
         windowSpec.of_position(toMirPoint(position));
-        return miral::WindowInfo{window, windowSpec};
+        miral::WindowInfo windowInfo{window, windowSpec};
+        return NewWindow{windowInfo, ""};
     }
 
-    miral::WindowInfo createMirALWindowInfoForInputMethod()
+    NewWindow createNewWindowForInputMethod()
     {
         const miral::Application app{stubSession};
         const miral::Window window{app, stubSurface};
 
         ms::SurfaceCreationParameters windowSpec;
         windowSpec.of_type(mir_surface_type_inputmethod);
-        return miral::WindowInfo{window, windowSpec};
+        miral::WindowInfo windowInfo{window, windowSpec};
+        return NewWindow{windowInfo, ""};
     }
 
     MirSurface *getMirSurfaceFromModel(const WindowModel &model, int index)
@@ -113,7 +115,7 @@ public:
 };
 
 /*
- * Test: that the WindowModelNotifier.addWindow causes the Qt-side WindowModel to
+ * Test: that the WindowModelNotifier.windowAdded causes the Qt-side WindowModel to
  * increment model count
  */
 TEST_F(WindowModelTest, WhenAddWindowNotifiedModelCountIncrements)
@@ -121,16 +123,16 @@ TEST_F(WindowModelTest, WhenAddWindowNotifiedModelCountIncrements)
     WindowModelNotifier notifier;
     WindowModel model(&notifier, nullptr); // no need for controller in this testcase
 
-    auto mirWindowInfo = createMirALWindowInfo();
+    auto newWindow = createNewWindow();
 
-    notifier.addWindow(mirWindowInfo);
+    notifier.windowAdded(newWindow);
     flushEvents();
 
     EXPECT_EQ(1, model.count());
 }
 
 /*
- * Test: that the WindowModelNotifier.addWindow causes the Qt-side WindowModel to
+ * Test: that the WindowModelNotifier.windowAdded causes the Qt-side WindowModel to
  * emit the countChanged signal.
  */
 TEST_F(WindowModelTest, WhenAddWindowNotifiedModelEmitsCountChangedSignal)
@@ -138,18 +140,18 @@ TEST_F(WindowModelTest, WhenAddWindowNotifiedModelEmitsCountChangedSignal)
     WindowModelNotifier notifier;
     WindowModel model(&notifier, nullptr); // no need for controller in this testcase
 
-    auto mirWindowInfo = createMirALWindowInfo();
+    auto newWindow = createNewWindow();
 
     QSignalSpy spyCountChanged(&model, SIGNAL(countChanged()));
 
-    notifier.addWindow(mirWindowInfo);
+    notifier.windowAdded(newWindow);
     flushEvents();
 
     EXPECT_EQ(1, spyCountChanged.count());
 }
 
 /*
- * Test: that the WindowModelNotifier.addWindow causes the Qt-side WindowModel to
+ * Test: that the WindowModelNotifier.windowAdded causes the Qt-side WindowModel to
  * gain an entry which has the correct miral::Window
  */
 TEST_F(WindowModelTest, WhenAddWindowNotifiedNewModelEntryHasCorrectWindow)
@@ -157,17 +159,17 @@ TEST_F(WindowModelTest, WhenAddWindowNotifiedNewModelEntryHasCorrectWindow)
     WindowModelNotifier notifier;
     WindowModel model(&notifier, nullptr); // no need for controller in this testcase
 
-    auto mirWindowInfo = createMirALWindowInfo();
+    auto newWindow = createNewWindow();
 
-    notifier.addWindow(mirWindowInfo);
+    notifier.windowAdded(newWindow);
     flushEvents();
 
     auto miralWindow = getMirALWindowFromModel(model, 0);
-    EXPECT_EQ(mirWindowInfo.window(), miralWindow);
+    EXPECT_EQ(newWindow.windowInfo.window(), miralWindow);
 }
 
 /*
- * Test: that the WindowModelNotifier.removeWindow causes the Qt-side WindowModel to
+ * Test: that the WindowModelNotifier.windowRemoved causes the Qt-side WindowModel to
  * remove the Window from the model, and emit the countChanged signal.
  */
 TEST_F(WindowModelTest, WhenRemoveWindowNotifiedModelCountDecrements)
@@ -175,18 +177,18 @@ TEST_F(WindowModelTest, WhenRemoveWindowNotifiedModelCountDecrements)
     WindowModelNotifier notifier;
     WindowModel model(&notifier, nullptr); // no need for controller in this testcase
 
-    auto mirWindowInfo = createMirALWindowInfo();
-    notifier.addWindow(mirWindowInfo);
+    auto newWindow = createNewWindow();
+    notifier.windowAdded(newWindow);
 
     // Test removing the window
-    notifier.removeWindow(mirWindowInfo);
+    notifier.windowRemoved(newWindow.windowInfo);
     flushEvents();
 
     EXPECT_EQ(0, model.count());
 }
 
 /*
- * Test: that the WindowModelNotifier.removeWindow causes the Qt-side WindowModel to
+ * Test: that the WindowModelNotifier.windowRemoved causes the Qt-side WindowModel to
  * emit the countChanged signal.
  */
 TEST_F(WindowModelTest, WhenRemoveWindowNotifiedModelEmitsCountChangedSignal)
@@ -194,21 +196,21 @@ TEST_F(WindowModelTest, WhenRemoveWindowNotifiedModelEmitsCountChangedSignal)
     WindowModelNotifier notifier;
     WindowModel model(&notifier, nullptr); // no need for controller in this testcase
 
-    auto mirWindowInfo = createMirALWindowInfo();
-    notifier.addWindow(mirWindowInfo);
+    auto newWindow = createNewWindow();
+    notifier.windowAdded(newWindow);
     flushEvents();
 
     // Test removing the window
     QSignalSpy spyCountChanged(&model, SIGNAL(countChanged()));
 
-    notifier.removeWindow(mirWindowInfo);
+    notifier.windowRemoved(newWindow.windowInfo);
     flushEvents();
 
     EXPECT_EQ(1, spyCountChanged.count());
 }
 
 /*
- * Test: that calling WindowModelNotifier.addWindow causes Qt-side WindowModel to
+ * Test: that calling WindowModelNotifier.windowAdded causes Qt-side WindowModel to
  * have 2 windows in the correct order.
  */
 TEST_F(WindowModelTest, WhenAddingTwoWindowsModelHasCorrectOrder)
@@ -216,18 +218,18 @@ TEST_F(WindowModelTest, WhenAddingTwoWindowsModelHasCorrectOrder)
     WindowModelNotifier notifier;
     WindowModel model(&notifier, nullptr); // no need for controller in this testcase
 
-    auto mirWindowInfo1 = createMirALWindowInfo();
-    auto mirWindowInfo2 = createMirALWindowInfo();
+    auto newWindow1 = createNewWindow();
+    auto newWindow2 = createNewWindow();
 
-    notifier.addWindow(mirWindowInfo1);
-    notifier.addWindow(mirWindowInfo2);
+    notifier.windowAdded(newWindow1);
+    notifier.windowAdded(newWindow2);
     flushEvents();
 
     ASSERT_EQ(2, model.count());
     auto miralWindow1 = getMirALWindowFromModel(model, 0);
-    EXPECT_EQ(mirWindowInfo1.window(), miralWindow1);
+    EXPECT_EQ(newWindow1.windowInfo.window(), miralWindow1);
     auto miralWindow2 = getMirALWindowFromModel(model, 1);
-    EXPECT_EQ(mirWindowInfo2.window(), miralWindow2);
+    EXPECT_EQ(newWindow2.windowInfo.window(), miralWindow2);
 }
 
 /*
@@ -238,19 +240,19 @@ TEST_F(WindowModelTest, WhenAddingTwoWindowsAndRemoveSecondModelPreservesFirst)
     WindowModelNotifier notifier;
     WindowModel model(&notifier, nullptr); // no need for controller in this testcase
 
-    auto mirWindowInfo1 = createMirALWindowInfo();
-    auto mirWindowInfo2 = createMirALWindowInfo();
+    auto newWindow1 = createNewWindow();
+    auto newWindow2 = createNewWindow();
 
-    notifier.addWindow(mirWindowInfo1);
-    notifier.addWindow(mirWindowInfo2);
+    notifier.windowAdded(newWindow1);
+    notifier.windowAdded(newWindow2);
 
     // Remove second window
-    notifier.removeWindow(mirWindowInfo2);
+    notifier.windowRemoved(newWindow2.windowInfo);
     flushEvents();
 
     ASSERT_EQ(1, model.count());
     auto miralWindow = getMirALWindowFromModel(model, 0);
-    EXPECT_EQ(mirWindowInfo1.window(), miralWindow);
+    EXPECT_EQ(newWindow1.windowInfo.window(), miralWindow);
 }
 
 /*
@@ -261,19 +263,19 @@ TEST_F(WindowModelTest, WhenAddingTwoWindowsAndRemoveFirstModelPreservesSecond)
     WindowModelNotifier notifier;
     WindowModel model(&notifier, nullptr); // no need for controller in this testcase
 
-    auto mirWindowInfo1 = createMirALWindowInfo();
-    auto mirWindowInfo2 = createMirALWindowInfo();
+    auto newWindow1 = createNewWindow();
+    auto newWindow2 = createNewWindow();
 
-    notifier.addWindow(mirWindowInfo1);
-    notifier.addWindow(mirWindowInfo2);
+    notifier.windowAdded(newWindow1);
+    notifier.windowAdded(newWindow2);
 
     // Remove first window
-    notifier.removeWindow(mirWindowInfo1);
+    notifier.windowRemoved(newWindow1.windowInfo);
     flushEvents();
 
     ASSERT_EQ(1, model.count());
     auto miralWindow = getMirALWindowFromModel(model, 0);
-    EXPECT_EQ(mirWindowInfo2.window(), miralWindow);
+    EXPECT_EQ(newWindow2.windowInfo.window(), miralWindow);
 }
 
 /*
@@ -284,22 +286,22 @@ TEST_F(WindowModelTest, WhenAddingTwoWindowsRemoveFirstAddAnotherResultsInCorrec
     WindowModelNotifier notifier;
     WindowModel model(&notifier, nullptr); // no need for controller in this testcase
 
-    auto mirWindowInfo1 = createMirALWindowInfo();
-    auto mirWindowInfo2 = createMirALWindowInfo();
-    auto mirWindowInfo3 = createMirALWindowInfo();
+    auto newWindow1 = createNewWindow();
+    auto newWindow2 = createNewWindow();
+    auto newWindow3 = createNewWindow();
 
-    notifier.addWindow(mirWindowInfo1);
-    notifier.addWindow(mirWindowInfo2);
-    notifier.removeWindow(mirWindowInfo1);
+    notifier.windowAdded(newWindow1);
+    notifier.windowAdded(newWindow2);
+    notifier.windowRemoved(newWindow1.windowInfo);
 
-    notifier.addWindow(mirWindowInfo3);
+    notifier.windowAdded(newWindow3);
     flushEvents();
 
     ASSERT_EQ(2, model.count());
     auto miralWindow2 = getMirALWindowFromModel(model, 0);
-    EXPECT_EQ(mirWindowInfo2.window(), miralWindow2);
+    EXPECT_EQ(newWindow2.windowInfo.window(), miralWindow2);
     auto miralWindow3 = getMirALWindowFromModel(model, 1);
-    EXPECT_EQ(mirWindowInfo3.window(), miralWindow3);
+    EXPECT_EQ(newWindow3.windowInfo.window(), miralWindow3);
 }
 
 /*
@@ -310,22 +312,22 @@ TEST_F(WindowModelTest, WhenAddingThreeWindowsRemoveSecondResultsInCorrectModel)
     WindowModelNotifier notifier;
     WindowModel model(&notifier, nullptr); // no need for controller in this testcase
 
-    auto mirWindowInfo1 = createMirALWindowInfo();
-    auto mirWindowInfo2 = createMirALWindowInfo();
-    auto mirWindowInfo3 = createMirALWindowInfo();
+    auto newWindow1 = createNewWindow();
+    auto newWindow2 = createNewWindow();
+    auto newWindow3 = createNewWindow();
 
-    notifier.addWindow(mirWindowInfo1);
-    notifier.addWindow(mirWindowInfo2);
-    notifier.addWindow(mirWindowInfo3);
+    notifier.windowAdded(newWindow1);
+    notifier.windowAdded(newWindow2);
+    notifier.windowAdded(newWindow3);
 
-    notifier.removeWindow(mirWindowInfo2);
+    notifier.windowRemoved(newWindow2.windowInfo);
     flushEvents();
 
     ASSERT_EQ(2, model.count());
     auto miralWindow1 = getMirALWindowFromModel(model, 0);
-    EXPECT_EQ(mirWindowInfo1.window(), miralWindow1);
+    EXPECT_EQ(newWindow1.windowInfo.window(), miralWindow1);
     auto miralWindow3 = getMirALWindowFromModel(model, 1);
-    EXPECT_EQ(mirWindowInfo3.window(), miralWindow3);
+    EXPECT_EQ(newWindow3.windowInfo.window(), miralWindow3);
 }
 
 /*
@@ -336,16 +338,16 @@ TEST_F(WindowModelTest, RaisingOneWindowDoesNothing)
     WindowModelNotifier notifier;
     WindowModel model(&notifier, nullptr); // no need for controller in this testcase
 
-    auto mirWindowInfo1 = createMirALWindowInfo();
-    notifier.addWindow(mirWindowInfo1);
+    auto newWindow1 = createNewWindow();
+    notifier.windowAdded(newWindow1);
 
     // Raise first window
-    notifier.raiseWindows({mirWindowInfo1.window()});
+    notifier.windowsRaised({newWindow1.windowInfo.window()});
     flushEvents();
 
     ASSERT_EQ(1, model.count());
     auto topWindow = getMirALWindowFromModel(model, 0);
-    EXPECT_EQ(mirWindowInfo1.window(), topWindow);
+    EXPECT_EQ(newWindow1.windowInfo.window(), topWindow);
 }
 
 /*
@@ -356,19 +358,19 @@ TEST_F(WindowModelTest, RaisingTopWindowDoesNothing)
     WindowModelNotifier notifier;
     WindowModel model(&notifier, nullptr); // no need for controller in this testcase
 
-    auto mirWindowInfo1 = createMirALWindowInfo();
-    auto mirWindowInfo2 = createMirALWindowInfo();
-    notifier.addWindow(mirWindowInfo1);
-    notifier.addWindow(mirWindowInfo2);
+    auto newWindow1 = createNewWindow();
+    auto newWindow2 = createNewWindow();
+    notifier.windowAdded(newWindow1);
+    notifier.windowAdded(newWindow2);
 
     // Raise second window (currently on top)
-    notifier.raiseWindows({mirWindowInfo2.window()});
+    notifier.windowsRaised({newWindow2.windowInfo.window()});
     flushEvents();
 
     // Check second window still on top
     ASSERT_EQ(2, model.count());
     auto topWindow = getMirALWindowFromModel(model, 1);
-    EXPECT_EQ(mirWindowInfo2.window(), topWindow);
+    EXPECT_EQ(newWindow2.windowInfo.window(), topWindow);
 }
 
 /*
@@ -379,19 +381,19 @@ TEST_F(WindowModelTest, RaisingBottomWindowBringsItToTheTop)
     WindowModelNotifier notifier;
     WindowModel model(&notifier, nullptr); // no need for controller in this testcase
 
-    auto mirWindowInfo1 = createMirALWindowInfo();
-    auto mirWindowInfo2 = createMirALWindowInfo();
-    notifier.addWindow(mirWindowInfo1);
-    notifier.addWindow(mirWindowInfo2);
+    auto newWindow1 = createNewWindow();
+    auto newWindow2 = createNewWindow();
+    notifier.windowAdded(newWindow1);
+    notifier.windowAdded(newWindow2);
 
     // Raise first window (currently at bottom)
-    notifier.raiseWindows({mirWindowInfo1.window()});
+    notifier.windowsRaised({newWindow1.windowInfo.window()});
     flushEvents();
 
     // Check first window now on top
     ASSERT_EQ(2, model.count());
     auto topWindow = getMirALWindowFromModel(model, 1);
-    EXPECT_EQ(mirWindowInfo1.window(), topWindow);
+    EXPECT_EQ(newWindow1.windowInfo.window(), topWindow);
 }
 
 /*
@@ -402,12 +404,12 @@ TEST_F(WindowModelTest, Raising2BottomWindowsBringsThemToTheTop)
     WindowModelNotifier notifier;
     WindowModel model(&notifier, nullptr); // no need for controller in this testcase
 
-    auto mirWindowInfo1 = createMirALWindowInfo();
-    auto mirWindowInfo2 = createMirALWindowInfo();
-    auto mirWindowInfo3 = createMirALWindowInfo();
-    notifier.addWindow(mirWindowInfo1);
-    notifier.addWindow(mirWindowInfo2);
-    notifier.addWindow(mirWindowInfo3);
+    auto newWindow1 = createNewWindow();
+    auto newWindow2 = createNewWindow();
+    auto newWindow3 = createNewWindow();
+    notifier.windowAdded(newWindow1);
+    notifier.windowAdded(newWindow2);
+    notifier.windowAdded(newWindow3);
 
     // Current model state
     // 2:   Window3
@@ -415,7 +417,7 @@ TEST_F(WindowModelTest, Raising2BottomWindowsBringsThemToTheTop)
     // 0:   Window1
 
     // Raise windows 1 & 2 (currently at bottom)
-    notifier.raiseWindows({mirWindowInfo1.window(), mirWindowInfo2.window()});
+    notifier.windowsRaised({newWindow1.windowInfo.window(), newWindow2.windowInfo.window()});
 
     // Model should now be like this:
     // 2:   Window1
@@ -425,11 +427,11 @@ TEST_F(WindowModelTest, Raising2BottomWindowsBringsThemToTheTop)
 
     ASSERT_EQ(3, model.count());
     auto topWindow = getMirALWindowFromModel(model, 2);
-    EXPECT_EQ(mirWindowInfo1.window(), topWindow);
+    EXPECT_EQ(newWindow1.windowInfo.window(), topWindow);
     auto middleWindow = getMirALWindowFromModel(model, 1);
-    EXPECT_EQ(mirWindowInfo2.window(), middleWindow);
+    EXPECT_EQ(newWindow2.windowInfo.window(), middleWindow);
     auto bottomWindow = getMirALWindowFromModel(model, 0);
-    EXPECT_EQ(mirWindowInfo3.window(), bottomWindow);
+    EXPECT_EQ(newWindow3.windowInfo.window(), bottomWindow);
 }
 
 /*
@@ -440,17 +442,17 @@ TEST_F(WindowModelTest, Raising2WindowsInSwappedOrderReordersTheModel)
     WindowModelNotifier notifier;
     WindowModel model(&notifier, nullptr); // no need for controller in this testcase
 
-    auto mirWindowInfo1 = createMirALWindowInfo();
-    auto mirWindowInfo2 = createMirALWindowInfo();
-    notifier.addWindow(mirWindowInfo1);
-    notifier.addWindow(mirWindowInfo2);
+    auto newWindow1 = createNewWindow();
+    auto newWindow2 = createNewWindow();
+    notifier.windowAdded(newWindow1);
+    notifier.windowAdded(newWindow2);
 
     // Current model state
     // 1:   Window2
     // 0:   Window1
 
     // Raise windows 1 & 2 (in opposite order)
-    notifier.raiseWindows({mirWindowInfo1.window(), mirWindowInfo2.window()});
+    notifier.windowsRaised({newWindow1.windowInfo.window(), newWindow2.windowInfo.window()});
 
     // Model should now be like this:
     // 1:   Window1
@@ -459,9 +461,9 @@ TEST_F(WindowModelTest, Raising2WindowsInSwappedOrderReordersTheModel)
 
     ASSERT_EQ(2, model.count());
     auto topWindow = getMirALWindowFromModel(model, 1);
-    EXPECT_EQ(mirWindowInfo1.window(), topWindow);
+    EXPECT_EQ(newWindow1.windowInfo.window(), topWindow);
     auto bottomWindow = getMirALWindowFromModel(model, 0);
-    EXPECT_EQ(mirWindowInfo2.window(), bottomWindow);
+    EXPECT_EQ(newWindow2.windowInfo.window(), bottomWindow);
 }
 
 /*
@@ -473,12 +475,12 @@ TEST_F(WindowModelTest, With3WindowsRaising2BottomWindowsInSwappedOrderReordersT
     WindowModelNotifier notifier;
     WindowModel model(&notifier, nullptr); // no need for controller in this testcase
 
-    auto mirWindowInfo1 = createMirALWindowInfo();
-    auto mirWindowInfo2 = createMirALWindowInfo();
-    auto mirWindowInfo3 = createMirALWindowInfo();
-    notifier.addWindow(mirWindowInfo1);
-    notifier.addWindow(mirWindowInfo2);
-    notifier.addWindow(mirWindowInfo3);
+    auto newWindow1 = createNewWindow();
+    auto newWindow2 = createNewWindow();
+    auto newWindow3 = createNewWindow();
+    notifier.windowAdded(newWindow1);
+    notifier.windowAdded(newWindow2);
+    notifier.windowAdded(newWindow3);
 
     // Current model state
     // 2:   Window3
@@ -486,7 +488,7 @@ TEST_F(WindowModelTest, With3WindowsRaising2BottomWindowsInSwappedOrderReordersT
     // 0:   Window1
 
     // Raise windows 2 & 1 (i.e. bottom two, but in opposite order)
-    notifier.raiseWindows({mirWindowInfo2.window(), mirWindowInfo1.window()});
+    notifier.windowsRaised({newWindow2.windowInfo.window(), newWindow1.windowInfo.window()});
 
     // Model should now be like this:
     // 2:   Window2
@@ -496,11 +498,11 @@ TEST_F(WindowModelTest, With3WindowsRaising2BottomWindowsInSwappedOrderReordersT
 
     ASSERT_EQ(3, model.count());
     auto topWindow = getMirALWindowFromModel(model, 2);
-    EXPECT_EQ(mirWindowInfo2.window(), topWindow);
+    EXPECT_EQ(newWindow2.windowInfo.window(), topWindow);
     auto middleWindow = getMirALWindowFromModel(model, 1);
-    EXPECT_EQ(mirWindowInfo1.window(), middleWindow);
+    EXPECT_EQ(newWindow1.windowInfo.window(), middleWindow);
     auto bottomWindow = getMirALWindowFromModel(model, 0);
-    EXPECT_EQ(mirWindowInfo3.window(), bottomWindow);
+    EXPECT_EQ(newWindow3.windowInfo.window(), bottomWindow);
 }
 
 /*
@@ -513,8 +515,8 @@ TEST_F(WindowModelTest, DISABLED_MirSurfacePositionSetCorrectlyAtCreation)
 
     QPoint position(100, 200);
 
-    auto mirWindowInfo = createMirALWindowInfo(position);
-    notifier.addWindow(mirWindowInfo);
+    auto newWindow = createNewWindow(position);
+    notifier.windowAdded(newWindow);
     flushEvents();
 
     auto surface = getMirSurfaceFromModel(model, 0);
@@ -532,13 +534,13 @@ TEST_F(WindowModelTest, WindowMoveUpdatesMirSurface)
     QPoint oldPosition(100, 200),
            newPosition(150, 220);
 
-    auto mirWindowInfo = createMirALWindowInfo(oldPosition);
-    notifier.addWindow(mirWindowInfo);
+    auto newWindow = createNewWindow(oldPosition);
+    notifier.windowAdded(newWindow);
 
     auto surface = getMirSurfaceFromModel(model, 0);
 
     // Move window, check new position set
-    notifier.moveWindow(mirWindowInfo, toMirPoint(newPosition));
+    notifier.windowMoved(newWindow.windowInfo, newPosition);
     flushEvents();
 
     EXPECT_EQ(newPosition, surface->position());
@@ -555,15 +557,15 @@ TEST_F(WindowModelTest, WindowMoveUpdatesCorrectMirSurface)
     QPoint oldPosition(100, 200),
            newPosition(150, 220);
 
-    auto mirWindowInfo1 = createMirALWindowInfo(oldPosition);
-    auto mirWindowInfo2 = createMirALWindowInfo(QPoint(300, 400));
-    notifier.addWindow(mirWindowInfo1);
-    notifier.addWindow(mirWindowInfo2);
+    auto newWindow1 = createNewWindow(oldPosition);
+    auto newWindow2 = createNewWindow(QPoint(300, 400));
+    notifier.windowAdded(newWindow1);
+    notifier.windowAdded(newWindow2);
 
-    auto surface = getMirSurfaceFromModel(model, 0); // will be MirSurface for mirWindowInfo1
+    auto surface = getMirSurfaceFromModel(model, 0); // will be MirSurface for newWindow1
 
     // Move window, check new position set
-    notifier.moveWindow(mirWindowInfo1, toMirPoint(newPosition));
+    notifier.windowMoved(newWindow1.windowInfo, newPosition);
     flushEvents();
 
     EXPECT_EQ(newPosition, surface->position());
@@ -579,15 +581,15 @@ TEST_F(WindowModelTest, DISABLED_WindowMoveDoesNotTouchOtherMirSurfaces)
 
     QPoint fixedPosition(300, 400);
 
-    auto mirWindowInfo1 = createMirALWindowInfo(QPoint(100, 200));
-    auto mirWindowInfo2 = createMirALWindowInfo(fixedPosition);
-    notifier.addWindow(mirWindowInfo1);
-    notifier.addWindow(mirWindowInfo2);
+    auto newWindow1 = createNewWindow(QPoint(100, 200));
+    auto newWindow2 = createNewWindow(fixedPosition);
+    notifier.windowAdded(newWindow1);
+    notifier.windowAdded(newWindow2);
 
-    auto surface = getMirSurfaceFromModel(model, 1); // will be MirSurface for mirWindowInfo2
+    auto surface = getMirSurfaceFromModel(model, 1); // will be MirSurface for newWindow2
 
     // Move window, check new position set
-    notifier.moveWindow(mirWindowInfo1, toMirPoint(QPoint(350, 420)));
+    notifier.windowMoved(newWindow1.windowInfo, QPoint(350, 420));
     flushEvents();
 
     // Ensure other window untouched
@@ -604,8 +606,8 @@ TEST_F(WindowModelTest, DISABLED_MirSurfaceSizeSetCorrectlyAtCreation)
 
     QSize size(300, 200);
 
-    auto mirWindowInfo1 = createMirALWindowInfo(QPoint(), size);
-    notifier.addWindow(mirWindowInfo1);
+    auto newWindow1 = createNewWindow(QPoint(), size);
+    notifier.windowAdded(newWindow1);
     flushEvents();
 
     auto surface = getMirSurfaceFromModel(model, 0);
@@ -622,13 +624,13 @@ TEST_F(WindowModelTest, WindowResizeUpdatesMirSurface)
 
     QSize newSize(150, 220);
 
-    auto mirWindowInfo1 = createMirALWindowInfo(QPoint(), QSize(300, 200));
-    notifier.addWindow(mirWindowInfo1);
+    auto newWindow1 = createNewWindow(QPoint(), QSize(300, 200));
+    notifier.windowAdded(newWindow1);
 
     auto surface = getMirSurfaceFromModel(model, 0);
 
     // Resize window, check new size set
-    notifier.resizeWindow(mirWindowInfo1, toMirSize(newSize));
+    notifier.windowResized(newWindow1.windowInfo, newSize);
     flushEvents();
 
     EXPECT_EQ(newSize, surface->size());
@@ -644,15 +646,15 @@ TEST_F(WindowModelTest, WindowResizeUpdatesCorrectMirSurface)
 
     QSize newSize(150, 220);
 
-    auto mirWindowInfo1 = createMirALWindowInfo(QPoint(), QSize(100, 200));
-    auto mirWindowInfo2 = createMirALWindowInfo(QPoint(), QSize(300, 400));
-    notifier.addWindow(mirWindowInfo1);
-    notifier.addWindow(mirWindowInfo2);
+    auto newWindow1 = createNewWindow(QPoint(), QSize(100, 200));
+    auto newWindow2 = createNewWindow(QPoint(), QSize(300, 400));
+    notifier.windowAdded(newWindow1);
+    notifier.windowAdded(newWindow2);
 
     auto surface = getMirSurfaceFromModel(model, 0);
 
     // Resize window, check new size set
-    notifier.resizeWindow(mirWindowInfo1, toMirSize(newSize));
+    notifier.windowResized(newWindow1.windowInfo, newSize);
     flushEvents();
 
     EXPECT_EQ(newSize, surface->size());
@@ -668,15 +670,15 @@ TEST_F(WindowModelTest, WindowResizeDoesNotTouchOtherMirSurfaces)
 
     QSize fixedSize(300, 400);
 
-    auto mirWindowInfo1 = createMirALWindowInfo(QPoint(), QSize(100, 200));
-    auto mirWindowInfo2 = createMirALWindowInfo(QPoint(), fixedSize);
-    notifier.addWindow(mirWindowInfo1);
-    notifier.addWindow(mirWindowInfo2);
+    auto newWindow1 = createNewWindow(QPoint(), QSize(100, 200));
+    auto newWindow2 = createNewWindow(QPoint(), fixedSize);
+    notifier.windowAdded(newWindow1);
+    notifier.windowAdded(newWindow2);
 
     auto surface = getMirSurfaceFromModel(model, 1);
 
     // Resize window
-    notifier.resizeWindow(mirWindowInfo1, toMirSize(QSize(150, 220)));
+    notifier.windowResized(newWindow1.windowInfo, QSize(150, 220));
     flushEvents();
 
     // Ensure other window untouched
@@ -684,7 +686,7 @@ TEST_F(WindowModelTest, WindowResizeDoesNotTouchOtherMirSurfaces)
 }
 
 /*
- * Test: that the WindowModelNotifier.addWindow for an Input Method Window causes
+ * Test: that the WindowModelNotifier.windowAdded for an Input Method Window causes
  * the Qt-side WindowModel to register the input method surface
  */
 TEST_F(WindowModelTest, WhenAddInputMethodWindowNotifiedModelEmitsInputMethodChangedSignal)
@@ -692,18 +694,18 @@ TEST_F(WindowModelTest, WhenAddInputMethodWindowNotifiedModelEmitsInputMethodCha
     WindowModelNotifier notifier;
     WindowModel model(&notifier, nullptr); // no need for controller in this testcase
 
-    auto mirWindowInfo = createMirALWindowInfoForInputMethod();
+    auto newWindow = createNewWindowForInputMethod();
 
     QSignalSpy spyCountChanged(&model, SIGNAL(inputMethodSurfaceChanged(MirSurfaceInterface*)));
 
-    notifier.addWindow(mirWindowInfo);
+    notifier.windowAdded(newWindow);
     flushEvents();
 
     EXPECT_EQ(1, spyCountChanged.count());
 }
 
 /*
- * Test: that the WindowModelNotifier.addWindow for an Input Method Window causes
+ * Test: that the WindowModelNotifier.windowAdded for an Input Method Window causes
  * the Qt-side WindowModel::inputMethodSurface property to be correctly set
  */
 TEST_F(WindowModelTest, WhenAddInputMethodWindowNotifiedModelPropertyHasCorrectWindow)
@@ -711,17 +713,17 @@ TEST_F(WindowModelTest, WhenAddInputMethodWindowNotifiedModelPropertyHasCorrectW
     WindowModelNotifier notifier;
     WindowModel model(&notifier, nullptr); // no need for controller in this testcase
 
-    auto mirWindowInfo = createMirALWindowInfoForInputMethod();
+    auto newWindow = createNewWindowForInputMethod();
 
-    notifier.addWindow(mirWindowInfo);
+    notifier.windowAdded(newWindow);
     flushEvents();
 
     auto miralWindow = static_cast<MirSurface*>(model.inputMethodSurface())->window();
-    EXPECT_EQ(mirWindowInfo.window(), miralWindow);
+    EXPECT_EQ(newWindow.windowInfo.window(), miralWindow);
 }
 
 /*
- * Test: that the WindowModelNotifier.removeWindow for an Input Method Window causes
+ * Test: that the WindowModelNotifier.windowRemoved for an Input Method Window causes
  * the Qt-side WindowModel to reset the WindowModel::inputMethodSurface property to null
  */
 TEST_F(WindowModelTest, WhenRemoveInputMethodWindowNotifiedModelPropertyReset)
@@ -729,11 +731,11 @@ TEST_F(WindowModelTest, WhenRemoveInputMethodWindowNotifiedModelPropertyReset)
     WindowModelNotifier notifier;
     WindowModel model(&notifier, nullptr); // no need for controller in this testcase
 
-    auto mirWindowInfo = createMirALWindowInfoForInputMethod();
-    notifier.addWindow(mirWindowInfo);
+    auto newWindow = createNewWindowForInputMethod();
+    notifier.windowAdded(newWindow);
 
     // Test removing the window
-    notifier.removeWindow(mirWindowInfo);
+    notifier.windowRemoved(newWindow.windowInfo);
     flushEvents();
 
     EXPECT_EQ(nullptr, model.inputMethodSurface());
