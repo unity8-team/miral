@@ -209,7 +209,11 @@ void WindowManagementPolicy::resize(const miral::Window &window, const Size size
     miral::WindowSpecification modifications;
     modifications.size() = size;
     m_tools.invoke_under_lock([&window, &modifications, this]() {
-        m_tools.modify_window(m_tools.info_for(window), modifications);
+        try {
+            m_tools.modify_window(m_tools.info_for(window), modifications);
+        } catch (std::out_of_range) {
+            // usually shell trying to operate on a window which already closed, just ignore
+        }
     });
 }
 
@@ -218,7 +222,11 @@ void WindowManagementPolicy::move(const miral::Window &window, const Point topLe
     miral::WindowSpecification modifications;
     modifications.top_left() = topLeft;
     m_tools.invoke_under_lock([&window, &modifications, this]() {
-        m_tools.modify_window(m_tools.info_for(window), modifications);
+        try {
+            m_tools.modify_window(m_tools.info_for(window), modifications);
+        } catch (std::out_of_range) {
+            // usually shell trying to operate on a window which already closed, just ignore
+        }
     });
 }
 
