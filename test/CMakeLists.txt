@@ -33,6 +33,7 @@ add_executable(miral-test
     persistent_surface_store.cpp
     runner.cpp
     window_placement.cpp
+    window_placement_client_api.cpp
     test_server.cpp         test_server.h
 )
 

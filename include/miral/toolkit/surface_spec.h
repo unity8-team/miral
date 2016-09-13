@@ -39,6 +39,18 @@ public:
         return SurfaceSpec{mir_connection_create_spec_for_normal_surface(connection, width, height, format)};
     }
 
+    static auto for_for_menu(MirConnection* connection,
+                             int width,
+                             int height,
+                             MirPixelFormat format,
+                             MirSurface* parent,
+                             MirRectangle* rect,
+                             MirEdgeAttachment edge) -> SurfaceSpec
+    {
+        return SurfaceSpec{mir_connection_create_spec_for_menu(connection, width, height, format, parent, rect, edge)};
+    }
+
+
     static auto for_changes(MirConnection* connection) -> SurfaceSpec
     {
         return SurfaceSpec{mir_connection_create_spec_for_changes(connection)};
@@ -66,6 +78,12 @@ public:
     auto set_name(char const* name) -> SurfaceSpec&
     {
         mir_surface_spec_set_name(*this, name);
+        return *this;
+    }
+
+    auto set_event_handler(mir_surface_event_callback callback, void* context) -> SurfaceSpec&
+    {
+        mir_surface_spec_set_event_handler(*this, callback, context);
         return *this;
     }
 
