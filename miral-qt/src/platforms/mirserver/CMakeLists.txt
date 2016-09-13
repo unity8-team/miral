@@ -40,6 +40,8 @@ include_directories(
     ${Qt5Quick_PRIVATE_INCLUDE_DIRS}
 
     ${APPLICATION_API_INCLUDE_DIRS}
+
+    ${CONTENT_HUB_INCLUDE_DIRS}
 )
 
 # We have to remove -pedantic for tracepoints.c
@@ -61,6 +63,7 @@ set(MIRSERVER_QPA_PLUGIN_SRC
     qmirserver_p.cpp
     sessionauthorizer.cpp
     sessionlistener.cpp
+    shelluuid.cpp
     surfaceobserver.cpp
     promptsessionlistener.cpp
     mirserverstatuslistener.cpp
@@ -113,6 +116,8 @@ target_link_libraries(
     ${GIO_LDFLAGS}
     ${FONTCONFIG_LDFLAGS}
     ${XKBCOMMON_LIBRARIES}
+
+    ${CONTENT_HUB_LIBRARIES}
 
     Qt5::Core
     Qt5::DBus
