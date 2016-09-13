@@ -22,12 +22,16 @@
 #include <miral/set_window_managment_policy.h>
 
 #include <mir_test_framework/executable_path.h>
-#include "mir_test_framework/stub_server_platform_factory.h"
+#include <mir_test_framework/stub_server_platform_factory.h>
 
 #include <mir/fd.h>
 #include <mir/main_loop.h>
 #include <mir/server.h>
 #include <mir/version.h>
+
+#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 25, 0)
+#include <mir_test_framework/headless_display_buffer_compositor_factory.h>
+#endif
 
 #include <boost/throw_exception.hpp>
 
@@ -72,6 +76,13 @@ void miral::TestServer::SetUp()
                                      started.notify_one();
                                 });
                         });
+
+#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 25, 0)
+                    server.override_the_display_buffer_compositor_factory([]
+                        {
+                            return std::make_shared<mtf::HeadlessDisplayBufferCompositorFactory>();
+                        });
+#endif
                 };
 
             try
