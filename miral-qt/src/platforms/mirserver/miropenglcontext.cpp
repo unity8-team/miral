@@ -29,11 +29,12 @@
 
 // Mir
 #include <mir/graphics/display.h>
-#include <mir/graphics/gl_context.h>
 #include <mir/version.h>
 #if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 25, 0)
 #include <mir/renderer/gl/context_source.h>
 #include <mir/renderer/gl/context.h>
+#else
+#include <mir/graphics/gl_context.h>
 #endif
 
 
