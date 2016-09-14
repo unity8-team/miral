@@ -92,6 +92,7 @@ libmiral.so.1 libmiral1 #MINVER#
  (c++)"miral::StartupInternalClient::~StartupInternalClient()@MIRAL_0.1" 0.1.0
  (c++)"miral::StartupInternalClient::StartupInternalClient(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::function<void (miral::toolkit::Connection)>, std::function<void (std::weak_ptr<mir::scene::Session>)>)@MIRAL_0.1" 0.1.0
  (c++)"miral::Window::application() const@MIRAL_0.1" 0.1.0
+ (c++)"miral::WindowInfo::WindowInfo()@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowInfo::add_child(miral::Window const&)@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowInfo::can_be_active() const@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowInfo::can_morph_to(MirSurfaceType) const@MIRAL_0.1" 0.1.0
