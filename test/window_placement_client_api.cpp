@@ -73,41 +73,42 @@ struct WindowPlacementClientAPI : miral::TestServer
 
 namespace
 {
-struct PlacementCheck
+struct CheckPlacement
 {
-    PlacementCheck(MirRectangle const& placement) : expected_rect{placement} {}
+    CheckPlacement(int left, int top, unsigned int width, unsigned int height) :
+        expected{left, top, width, height} {}
 
     void check(MirSurfacePlacementEvent const* placement_event)
     {
-        EXPECT_THAT(mir_surface_placement_get_relative_position(placement_event).top, Eq(expected_rect.top));
-        EXPECT_THAT(mir_surface_placement_get_relative_position(placement_event).left, Eq(expected_rect.left));
-        EXPECT_THAT(mir_surface_placement_get_relative_position(placement_event).height, Eq(expected_rect.height));
-        EXPECT_THAT(mir_surface_placement_get_relative_position(placement_event).width, Eq(expected_rect.width));
+        EXPECT_THAT(mir_surface_placement_get_relative_position(placement_event).top, Eq(expected.top));
+        EXPECT_THAT(mir_surface_placement_get_relative_position(placement_event).left, Eq(expected.left));
+        EXPECT_THAT(mir_surface_placement_get_relative_position(placement_event).height, Eq(expected.height));
+        EXPECT_THAT(mir_surface_placement_get_relative_position(placement_event).width, Eq(expected.width));
 
         received.raise();
     }
 
-    ~PlacementCheck()
+    static void callback(MirSurface* /*surface*/, MirEvent const* event, void* context)
+    {
+        if (mir_event_get_type(event) == mir_event_type_surface_placement)
+        {
+            auto const placement_event = mir_event_get_surface_placement_event(event);
+            static_cast<CheckPlacement*>(context)->check(placement_event);
+        }
+    }
+
+    ~CheckPlacement()
     {
         EXPECT_TRUE(received.wait_for(400ms));
     }
 
 private:
-    MirRectangle const expected_rect;
+    MirRectangle const expected;
     mt::Signal received;
 };
-
-void surface_placement_event_callback(MirSurface* /*surface*/, MirEvent const* event, void* context)
-{
-    if (mir_event_get_type(event) == mir_event_type_surface_placement)
-    {
-        auto const placement_event = mir_event_get_surface_placement_event(event);
-        static_cast<PlacementCheck*>(context)->check(placement_event);
-    }
-}
 }
 
-TEST_F(WindowPlacementClientAPI, given_placement_away_from_edges_when_notified_result_is_as_requested)
+TEST_F(WindowPlacementClientAPI, given_menu_placement_away_from_edges_when_notified_result_is_as_requested)
 {
     char const* const test_name = __PRETTY_FUNCTION__;
 
@@ -116,10 +117,10 @@ TEST_F(WindowPlacementClientAPI, given_placement_away_from_edges_when_notified_r
     int const dx = 30;
     int const dy = 40;
 
-    PlacementCheck expected_placement{MirRectangle{aux_rect.left+(int)aux_rect.width, aux_rect.top, dx, dy}};
+    CheckPlacement expected{aux_rect.left+(int)aux_rect.width, aux_rect.top, dx, dy};
 
     auto spec = SurfaceSpec::for_for_menu(connection, dx, dy, mir_pixel_format_argb_8888, parent, &aux_rect, mir_edge_attachment_any)
-        .set_event_handler(surface_placement_event_callback, &expected_placement)
+        .set_event_handler(&CheckPlacement::callback, &expected)
         .set_name(test_name);
 
     spec.create_surface();
