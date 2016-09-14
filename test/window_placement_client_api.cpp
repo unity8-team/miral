@@ -51,7 +51,7 @@ struct WindowPlacementClientAPI : miral::TestServer
         auto spec = SurfaceSpec::for_normal_surface(connection, 400, 400, mir_pixel_format_argb_8888)
             .set_name(test_name);
 
-        parent = Surface{spec.create_surface()};
+        parent = spec.create_surface();
     }
 
     void TearDown() override
@@ -108,22 +108,37 @@ private:
 };
 }
 
-TEST_F(WindowPlacementClientAPI, given_menu_placement_away_from_edges_when_notified_result_is_as_requested)
+// It would be nice to verify creation and movement placement notifications in separate tests,
+// However, to avoid a racy test, we need to detect both anyway. This seems like a good trade-off.
+TEST_F(WindowPlacementClientAPI, given_menu_placements_away_from_edges_when_notified_result_is_as_requested)
 {
     char const* const test_name = __PRETTY_FUNCTION__;
-
-    MirRectangle aux_rect{10, 20, 3, 4};
-
     int const dx = 30;
     int const dy = 40;
 
-    CheckPlacement expected{aux_rect.left+(int)aux_rect.width, aux_rect.top, dx, dy};
+    // initial placement
+    {
+        MirRectangle aux_rect{10, 20, 3, 4};
+        CheckPlacement expected{aux_rect.left+(int)aux_rect.width, aux_rect.top, dx, dy};
 
-    auto spec = SurfaceSpec::for_for_menu(connection, dx, dy, mir_pixel_format_argb_8888, parent, &aux_rect, mir_edge_attachment_any)
-        .set_event_handler(&CheckPlacement::callback, &expected)
-        .set_name(test_name);
+        auto const spec = SurfaceSpec::
+            for_for_menu(connection, dx, dy, mir_pixel_format_argb_8888, parent, &aux_rect, mir_edge_attachment_any)
+            .set_event_handler(&CheckPlacement::callback, &expected)
+            .set_name(test_name);
 
-    spec.create_surface();
+        child = spec.create_surface();
+    }
+
+    // subsequent movement
+    {
+        MirRectangle aux_rect{50, 60, 5, 7};
+        CheckPlacement expected{aux_rect.left-dx, aux_rect.top, dx, dy};
+
+        auto const spec = SurfaceSpec::for_changes(connection)
+            .set_event_handler(&CheckPlacement::callback, &expected)
+            .set_placement(&aux_rect, mir_placement_gravity_northwest, mir_placement_gravity_northeast, mir_placement_hints_flip_x, 0, 0);
+
+        spec.apply_to(child);
+    }
 }
 #endif
-
