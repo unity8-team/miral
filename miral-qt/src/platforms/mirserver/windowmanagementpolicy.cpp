@@ -21,8 +21,12 @@
 #include "miral/window_manager_tools.h"
 #include "miral/window_specification.h"
 
+#include "mirqtconversion.h"
+
 #include <mir/scene/surface.h>
 #include <QDebug>
+
+using namespace qtmir;
 
 WindowManagementPolicy::WindowManagementPolicy(const miral::WindowManagerTools &tools,
                                                qtmir::WindowModelNotifier &windowModel,
@@ -33,6 +37,8 @@ WindowManagementPolicy::WindowManagementPolicy(const miral::WindowManagerTools &
     , m_windowModel(windowModel)
     , m_eventFeeder(new QtEventFeeder(screensModel))
 {
+    qRegisterMetaType<qtmir::NewWindow>();
+    qRegisterMetaType<std::vector<miral::Window>>();
     windowController.setPolicy(this);
 }
 
@@ -90,17 +96,17 @@ void WindowManagementPolicy::advise_new_window(const miral::WindowInfo &windowIn
     // TODO: attach surface observer here
     std::string persistentId = m_tools.id_for_window(windowInfo.window());
 
-    m_windowModel.addWindow(windowInfo, persistentId);
+    Q_EMIT m_windowModel.windowAdded(NewWindow{windowInfo, persistentId});
 }
 
 void WindowManagementPolicy::advise_delete_window(const miral::WindowInfo &windowInfo)
 {
-    m_windowModel.removeWindow(windowInfo);
+    Q_EMIT m_windowModel.windowRemoved(windowInfo);
 }
 
 void WindowManagementPolicy::advise_raise(const std::vector<miral::Window> &windows)
 {
-    m_windowModel.raiseWindows(windows);
+    Q_EMIT m_windowModel.windowsRaised(windows);
 }
 
 void WindowManagementPolicy::advise_new_app(miral::ApplicationInfo &/*application*/)
@@ -121,24 +127,24 @@ void WindowManagementPolicy::advise_state_change(const miral::WindowInfo &/*wind
 void WindowManagementPolicy::advise_move_to(const miral::WindowInfo &windowInfo, Point topLeft)
 {
     qDebug("Window Moved to (%d, %d)", topLeft.x.as_int(), topLeft.y.as_int());
-    m_windowModel.moveWindow(windowInfo, topLeft);
+    Q_EMIT m_windowModel.windowMoved(windowInfo, toQPoint(topLeft));
 }
 
 void WindowManagementPolicy::advise_resize(const miral::WindowInfo &windowInfo, const Size &newSize)
 {
     qDebug("Window Resized to %dx%d", newSize.width.as_int(), newSize.height.as_int());
-    m_windowModel.resizeWindow(windowInfo, newSize);
+    Q_EMIT m_windowModel.windowResized(windowInfo, toQSize(newSize));
 }
 
 void WindowManagementPolicy::advise_focus_lost(const miral::WindowInfo &windowInfo)
 {
-    m_windowModel.focusWindow(windowInfo, false);
+    Q_EMIT m_windowModel.windowFocusChanged(windowInfo, false);
 }
 
 void WindowManagementPolicy::advise_focus_gained(const miral::WindowInfo &windowInfo)
 {
     // update Qt model ASAP, before applying Mir policy
-    m_windowModel.focusWindow(windowInfo, true);
+    Q_EMIT m_windowModel.windowFocusChanged(windowInfo, true);
 
     CanonicalWindowManagerPolicy::advise_focus_gained(windowInfo);
 }

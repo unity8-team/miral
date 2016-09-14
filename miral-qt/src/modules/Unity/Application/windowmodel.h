@@ -19,8 +19,8 @@
 
 #include <QAbstractListModel>
 
-#include "mirsurfaceinterface.h"
-#include "windowmodelnotifierinterface.h"
+#include "mirsurface.h"
+#include "windowmodelnotifier.h"
 
 namespace qtmir {
 
@@ -40,7 +40,7 @@ public:
     };
 
     WindowModel();
-    explicit WindowModel(WindowModelNotifierInterface *notifier,
+    explicit WindowModel(WindowModelNotifier *notifier,
                          WindowControllerInterface *controller); // For testing
 
     // QAbstractItemModel methods
@@ -51,31 +51,31 @@ public:
 
     int count() const { return rowCount(); }
 
-    MirSurfaceInterface* inputMethodSurface() const { return m_inputMethodSurface; }
+    MirSurface* inputMethodSurface() const { return m_inputMethodSurface; }
 
 Q_SIGNALS:
     void countChanged();
     void inputMethodSurfaceChanged(MirSurfaceInterface* inputMethodSurface);
 
 private Q_SLOTS:
-    void onWindowAdded(const NewWindow windowInfo, const int index);
-    void onWindowRemoved(const int index);
-    void onWindowMoved(const QPoint topLeft, const int index);
-    void onWindowResized(const QSize size, const int index);
-    void onWindowFocused(const int index);
-    void onWindowInfoChanged(const WindowInfo windowInfo, const int index);
-    void onWindowsRaised(const QVector<int> indices);
-
-    void onInputMethodWindowAdded(const NewWindow windowInfo);
-    void onInputMethodWindowRemoved();
+    void onWindowAdded(const qtmir::NewWindow &windowInfo);
+    void onWindowRemoved(const miral::WindowInfo &window);
+    void onWindowMoved(const miral::WindowInfo &window, const QPoint topLeft);
+    void onWindowResized(const miral::WindowInfo &window, const QSize size);
+    void onWindowFocusChanged(const miral::WindowInfo &window, bool focused);
+    void onWindowsRaised(const std::vector<miral::Window> &windows);
 
 private:
-    void connectToWindowModelNotifier(WindowModelNotifierInterface *notifier);
+    void connectToWindowModelNotifier(WindowModelNotifier *notifier);
 
-    QVector<MirSurfaceInterface *> m_windowModel;
+    void addInputMethodWindow(const NewWindow &windowInfo);
+    void removeInputMethodWindow();
+    MirSurface* find(const miral::WindowInfo &needle) const;
+    int findIndexOf(const miral::Window &needle) const;
+
+    QVector<MirSurface*> m_windowModel;
     WindowControllerInterface *m_windowController;
-    MirSurfaceInterface* m_focusedWindow{nullptr};
-    MirSurfaceInterface* m_inputMethodSurface{nullptr};
+    MirSurface* m_inputMethodSurface{nullptr};
 };
 
 } // namespace qtmir
