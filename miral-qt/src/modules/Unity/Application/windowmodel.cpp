@@ -117,15 +117,6 @@ void WindowModel::onWindowFocusChanged(const miral::WindowInfo &windowInfo, bool
     }
 }
 
-//void WindowModel::onWindowInfoChanged(const WindowInfo windowInfo, const int pos)
-//{
-//    auto mirSurface = static_cast<MirSurface *>(m_windowModel.value(pos));
-//    mirSurface->updateWindowInfo(windowInfo);
-
-//    QModelIndex row = index(pos);
-//    Q_EMIT dataChanged(row, row, QVector<int>() << SurfaceRole);
-//}
-
 void WindowModel::addInputMethodWindow(const NewWindow &windowInfo)
 {
     if (m_inputMethodSurface) {
