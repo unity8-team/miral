@@ -211,7 +211,7 @@ void WindowManagementPolicy::resize(const miral::Window &window, const Size size
     m_tools.invoke_under_lock([&window, &modifications, this]() {
         try {
             m_tools.modify_window(m_tools.info_for(window), modifications);
-        } catch (std::out_of_range) {
+        } catch (const std::out_of_range&) {
             // usually shell trying to operate on a window which already closed, just ignore
         }
     });
@@ -224,7 +224,7 @@ void WindowManagementPolicy::move(const miral::Window &window, const Point topLe
     m_tools.invoke_under_lock([&window, &modifications, this]() {
         try {
             m_tools.modify_window(m_tools.info_for(window), modifications);
-        } catch (std::out_of_range) {
+        } catch (const std::out_of_range&) {
             // usually shell trying to operate on a window which already closed, just ignore
         }
     });
