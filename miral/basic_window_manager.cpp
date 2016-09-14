@@ -184,11 +184,11 @@ void miral::BasicWindowManager::remove_surface(
             Window new_focus;
 
             mru_active_windows.enumerate([&](Window& window)
-                                             {
-                                             // select_active_window() calls set_focus_to() which updates mru_active_windows and changes window
-                                             auto const w = window;
-                                             return !(new_focus = select_active_window(w));
-                                             });
+                {
+                    // select_active_window() calls set_focus_to() which updates mru_active_windows and changes window
+                    auto const w = window;
+                    return !(new_focus = select_active_window(w));
+                });
 
             if (new_focus) return;
         }
