@@ -237,7 +237,6 @@ global:
     typeinfo?for?miral::SetTerminator;
     typeinfo?for?miral::SetWindowManagmentPolicy;
     typeinfo?for?miral::StartupInternalClient;
-    typeinfo?for?miral::StreamSpecification;
     typeinfo?for?miral::Window;
     typeinfo?for?miral::WindowInfo;
     typeinfo?for?miral::WindowManagementPolicy;
@@ -267,7 +266,6 @@ global:
     vtable?for?miral::SetTerminator;
     vtable?for?miral::SetWindowManagmentPolicy;
     vtable?for?miral::StartupInternalClient;
-    vtable?for?miral::StreamSpecification;
     vtable?for?miral::Window;
     vtable?for?miral::WindowInfo;
     vtable?for?miral::WindowManagementPolicy;
