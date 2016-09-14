@@ -16,12 +16,14 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
+#include <mir/version.h>
+
+#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 25, 0)
 #include <mir_toolkit/events/surface_placement.h>
+#endif
 
 #include <miral/toolkit/surface_spec.h>
 #include <miral/toolkit/surface.h>
-
-#include <mir/version.h>
 
 #include <mir/test/signal.h>
 #include "test_server.h"
