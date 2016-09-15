@@ -54,6 +54,7 @@ Q_SIGNALS: // **Must used Queued Connection or else events will be out of order*
     void windowRemoved(const miral::WindowInfo &window);
     void windowMoved(const miral::WindowInfo &window, const QPoint topLeft);
     void windowResized(const miral::WindowInfo &window, const QSize size);
+    void windowStateChanged(const miral::WindowInfo &window, MirSurfaceState state);
     void windowFocusChanged(const miral::WindowInfo &window, bool focused);
     void windowsRaised(const std::vector<miral::Window> &windows); // results in deep copy when passed over Queued connection:(
 
@@ -66,5 +67,6 @@ private:
 Q_DECLARE_METATYPE(qtmir::NewWindow)
 Q_DECLARE_METATYPE(miral::WindowInfo)
 Q_DECLARE_METATYPE(std::vector<miral::Window>)
+Q_DECLARE_METATYPE(MirSurfaceState)
 
 #endif // WINDOWMODELNOTIFIER_H

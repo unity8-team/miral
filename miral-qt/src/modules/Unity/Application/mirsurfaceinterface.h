@@ -51,6 +51,8 @@ public:
     virtual QPoint position() const = 0;
     virtual void requestPosition(const QPoint newPosition) = 0;
 
+    virtual void requestState(Mir::State qmlState) = 0; // move to unity-api
+
     virtual void setLive(bool value) = 0;
 
     virtual bool isFirstFrameDrawn() const = 0;

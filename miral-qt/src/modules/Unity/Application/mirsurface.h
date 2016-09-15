@@ -70,7 +70,8 @@ public:
     Q_INVOKABLE void requestPosition(const QPoint newPosition) override;
 
     Mir::State state() const override;
-    void setState(Mir::State qmlState) override;
+    void setState(Mir::State qmlState) override; // To remove from unity-api
+    void requestState(Mir::State qmlState) override;
 
     bool live() const override;
 
@@ -156,6 +157,7 @@ public:
     void setPosition(const QPoint newPosition);
     void setSize(const QSize newSize);
     void updateWindowInfo(const miral::WindowInfo &windowInfo);
+    void updateState(MirSurfaceState state);
 
     // useful for tests
     void setCloseTimer(AbstractTimer *timer);

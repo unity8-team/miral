@@ -59,6 +59,7 @@ public:
     void resize(const QSize &size) override;
     Mir::State state() const override;
     void setState(Mir::State qmlState) override;
+    void requestState(Mir::State qmlState) override;
     bool live() const override;
     bool visible() const override;
     Mir::OrientationAngle orientationAngle() const override;
