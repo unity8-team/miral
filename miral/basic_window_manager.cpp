@@ -593,10 +593,7 @@ void miral::BasicWindowManager::modify_window(WindowInfo& window_info, WindowSpe
 
     if (modifications.size().is_set())
     {
-        Size new_size = modifications.size().value();
-
-        window_info.constrain_resize(new_pos, new_size);
-        place_and_size(window_info, new_pos, new_size);
+        place_and_size(window_info, new_pos, modifications.size().value());
     }
     else if (modifications.min_width().is_set() || modifications.min_height().is_set() ||
              modifications.max_width().is_set() || modifications.max_height().is_set() ||

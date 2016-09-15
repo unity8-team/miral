@@ -101,6 +101,23 @@ bool TitlebarWindowManagerPolicy::handle_pointer_event(MirPointerEvent const* ev
             }
         }
     }
+    
+    if (resizing && !is_resize_event)
+    {
+        if (auto window = tools.active_window())
+        {
+            auto& window_info = tools.info_for(window);
+
+            auto new_size = window.size();
+            auto new_pos  = window.top_left();
+            window_info.constrain_resize(new_pos, new_size);
+
+            WindowSpecification modifications;
+            modifications.top_left() = new_pos;
+            modifications.size() = new_size;
+            tools.modify_window(window_info, modifications);
+        }
+    }
 
     resizing = is_resize_event;
     old_cursor = cursor;
@@ -469,7 +486,6 @@ bool TitlebarWindowManagerPolicy::resize(Window const& window, Point cursor, Poi
 
     Size new_size{new_width, new_height};
     Point new_pos = top_left + left_resize*delta.dx + top_resize*delta.dy;
-    window_info.constrain_resize(new_pos, new_size);
 
     WindowSpecification modifications;
     modifications.top_left() = new_pos;
