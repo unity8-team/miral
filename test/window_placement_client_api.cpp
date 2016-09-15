@@ -124,7 +124,7 @@ TEST_F(WindowPlacementClientAPI, given_menu_placements_away_from_edges_when_noti
         CheckPlacement expected{aux_rect.left+(int)aux_rect.width, aux_rect.top, dx, dy};
 
         auto const spec = SurfaceSpec::
-            for_for_menu(connection, dx, dy, mir_pixel_format_argb_8888, parent, &aux_rect, mir_edge_attachment_any)
+            for_menu(connection, dx, dy, mir_pixel_format_argb_8888, parent, &aux_rect, mir_edge_attachment_any)
             .set_event_handler(&CheckPlacement::callback, &expected)
             .set_name(test_name);
 
