@@ -56,7 +56,7 @@ inline mir::geometry::Rectangle toMirRectangle(const QRect rect)
     };
 }
 
-inline Mir::State toState(MirSurfaceState state)
+inline Mir::State toQtState(MirSurfaceState state)
 {
     switch (state) {
     case mir_surface_state_unknown:         return Mir::UnknownState;

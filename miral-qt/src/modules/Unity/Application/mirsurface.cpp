@@ -545,7 +545,7 @@ QSize MirSurface::size() const
 
 Mir::State MirSurface::state() const
 {
-    return toState(m_windowInfo.state());
+    return toQtState(m_windowInfo.state());
 }
 
 Mir::OrientationAngle MirSurface::orientationAngle() const
