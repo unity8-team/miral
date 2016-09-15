@@ -6,6 +6,12 @@ if (MIRAL_COMPILE_WITH_W_NO_IGNORED_QUALIFIERS)
 endif()
 
 include_directories(
+    ${MIRAL_QT_SOURCE_DIR}/src/platforms/mirserver
+    ${MIRAL_QT_SOURCE_DIR}/src/common
+)
+
+include_directories(
+    SYSTEM
     ${GLIB_INCLUDE_DIRS}
     ${GIO_INCLUDE_DIRS}
     ${GIO_UNIX_INCLUDE_DIRS}
@@ -14,8 +20,6 @@ include_directories(
     ${PROCESS_CPP_INCLUDE_DIRS}
     ${UBUNTU_PLATFORM_API_INCLUDE_DIRS}
     ${UBUNTU_APP_LAUNCH_INCLUDE_DIRS}
-    ${MIRAL_QT_SOURCE_DIR}/src/platforms/mirserver
-    ${MIRAL_QT_SOURCE_DIR}/src/common
     ${GSETTINGS_QT_INCLUDE_DIRS}
     ${CGMANAGER_INCLUDE_DIRS}
 
