@@ -484,6 +484,23 @@ bool TitlebarWindowManagerPolicy::resize(Window const& window, Point cursor, Poi
             delta.dy = DeltaY{0};
     }
 
+    auto const max_width  = window_info.max_width();
+    auto const max_height = window_info.max_height();
+
+    if (new_width > max_width)
+    {
+        new_width = max_width;
+        if (delta.dx < DeltaX{0})
+            delta.dx = DeltaX{0};
+    }
+
+    if (new_height > max_height)
+    {
+        new_height = max_height;
+        if (delta.dy < DeltaY{0})
+            delta.dy = DeltaY{0};
+    }
+
     Size new_size{new_width, new_height};
     Point new_pos = top_left + left_resize*delta.dx + top_resize*delta.dy;
 
