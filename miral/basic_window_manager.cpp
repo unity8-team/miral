@@ -895,7 +895,28 @@ void miral::BasicWindowManager::drag_active_window(mir::geometry::Displacement m
 
     auto& window_info = info_for(window);
 
-    // placeholder - constrain onscreen
+    // When a surface is moved interactively
+    // -------------------------------------
+    // Regular, floating regular, dialog, and satellite surfaces should be user-movable.
+    // Popups, glosses, and tips should not be.
+    // Freestyle surfaces may or may not be, as specified by the app.
+    //                              Mir and Unity: Surfaces, input, and displays (v0.3)
+    switch (window_info.type())
+    {
+    case mir_surface_type_normal:   // regular
+    case mir_surface_type_utility:  // floating regular
+    case mir_surface_type_dialog:   // dialog
+    case mir_surface_type_satellite:// satellite
+    case mir_surface_type_freestyle:// freestyle
+        break;
+
+    case mir_surface_type_gloss:
+    case mir_surface_type_menu:
+    case mir_surface_type_inputmethod:
+    case mir_surface_type_tip:
+    case mir_surface_types:
+        return;
+    }
 
     switch (window_info.state())
     {
