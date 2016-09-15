@@ -42,7 +42,6 @@ set(QMLMIRPLUGIN_SRC
     ../../../common/debughelpers.cpp
     dbusfocusinfo.cpp
     plugin.cpp
-    dbuswindowstack.cpp
     mirfocuscontroller.cpp
     mirsurface.cpp
     mirsurfaceinterface.h
