@@ -3,12 +3,15 @@ set(
   application_manager_test.cpp
   ${MIRAL_QT_SOURCE_DIR}/src/common/debughelpers.cpp
 )
-
 include_directories(
-  ${APPLICATION_API_INCLUDE_DIRS}
   ${MIRAL_QT_SOURCE_DIR}/src/platforms/mirserver
   ${MIRAL_QT_SOURCE_DIR}/src/modules
   ${MIRAL_QT_SOURCE_DIR}/tests/framework
+)
+
+include_directories(
+  SYSTEM
+  ${APPLICATION_API_INCLUDE_DIRS}
   ${MIRSERVER_INCLUDE_DIRS}
 )
 

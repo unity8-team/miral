@@ -12,6 +12,10 @@ include_directories(
   ${MIRAL_QT_SOURCE_DIR}/src/platforms/mirserver
   ${MIRAL_QT_SOURCE_DIR}/tests/framework
   ${CMAKE_SOURCE_DIR}/include/miral   #FIXME
+)
+
+include_directories(
+  SYSTEM
   ${MIRTEST_INCLUDE_DIRS}
   ${MIRSERVER_INCLUDE_DIRS}
   ${Qt5Quick_PRIVATE_INCLUDE_DIRS}

@@ -1,8 +1,12 @@
 include_directories(
-    ${APPLICATION_API_INCLUDE_DIRS}
     ${MIRAL_QT_SOURCE_DIR}/src/common
     ${MIRAL_QT_SOURCE_DIR}/src/platforms/mirserver
     ${MIRAL_QT_SOURCE_DIR}/src/modules
+)
+
+include_directories(
+    SYSTEM
+    ${APPLICATION_API_INCLUDE_DIRS}
     ${MIRSERVER_INCLUDE_DIRS}
     ${MIRRENDERERGLDEV_INCLUDE_DIRS}
 
