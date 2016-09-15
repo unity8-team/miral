@@ -213,6 +213,9 @@ void WindowManagementPolicy::resize(const miral::Window &window, const Size size
             m_tools.modify_window(m_tools.info_for(window), modifications);
         } catch (const std::out_of_range&) {
             // usually shell trying to operate on a window which already closed, just ignore
+            // TODO: MirSurface extends the miral::Window lifetime by holding a shared pointer to
+            // the mir::scene::Surface, meaning it cannot detect when the window has been closed
+            // and thus avoid calling this method.
         }
     });
 }
@@ -226,6 +229,7 @@ void WindowManagementPolicy::move(const miral::Window &window, const Point topLe
             m_tools.modify_window(m_tools.info_for(window), modifications);
         } catch (const std::out_of_range&) {
             // usually shell trying to operate on a window which already closed, just ignore
+            // TODO: see above comment in resize, same issue
         }
     });
 }
