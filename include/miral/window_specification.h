@@ -196,7 +196,6 @@ public:
 
     auto top_left() -> mir::optional_value<Point>&;
     auto size() -> mir::optional_value<Size>&;
-    auto pixel_format() -> mir::optional_value<MirPixelFormat>&;
     auto name() -> mir::optional_value<std::string>&;
     auto output_id() -> mir::optional_value<int>&;
     auto type() -> mir::optional_value<MirSurfaceType>&;

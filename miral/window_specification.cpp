@@ -482,11 +482,6 @@ auto miral::WindowSpecification::size() -> mir::optional_value<Size>&
     return self->size;
 }
 
-auto miral::WindowSpecification::pixel_format() -> mir::optional_value<MirPixelFormat>&
-{
-    return self->pixel_format;
-}
-
 auto miral::WindowSpecification::name() -> mir::optional_value<std::string>&
 {
     return self->name;
