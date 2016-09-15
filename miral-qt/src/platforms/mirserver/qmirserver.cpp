@@ -39,7 +39,7 @@ QMirServer::~QMirServer()
     stop();
 }
 
-bool QMirServer::start()
+void QMirServer::start()
 {
     Q_D(QMirServer);
 
@@ -47,11 +47,9 @@ bool QMirServer::start()
 
     if (!d->serverThread->waitForMirStartup())
     {
-        qCritical() << "ERROR: QMirServer - Mir failed to start";
-        return false;
+        qFatal("ERROR: QMirServer - Mir failed to start"); // will core dump
     }
     Q_EMIT started();
-    return true;
 }
 
 void QMirServer::stop()
