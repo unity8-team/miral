@@ -27,7 +27,6 @@ namespace mir { namespace scene { class PromptSessionManager; }}
 namespace mir { namespace graphics { class Display; }}
 
 class PromptSessionListener;
-class SessionListener;
 class ScreensController;
 class ScreensModel;
 
@@ -40,7 +39,6 @@ public:
 
     void operator()(mir::Server& server);
 
-    SessionListener *sessionListener() const;
     PromptSessionListener *promptSessionListener() const;
     std::shared_ptr<mir::scene::PromptSessionManager> thePromptSessionManager() const;
     std::shared_ptr<mir::graphics::Display> theMirDisplay() const;

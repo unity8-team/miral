@@ -142,7 +142,8 @@ Application *QtMirTest::startApplication(pid_t procId, const QString &appId)
     EXPECT_EQ(authed, true);
 
     auto appSession = std::make_shared<mir::scene::MockSession>(appId.toStdString(), procId);
-    sessionManager.onSessionStarting(appSession);
+    miral::ApplicationInfo appInfo(appSession);
+    sessionManager.onSessionStarting(appInfo);
 
     Mock::VerifyAndClearExpectations(taskController);
     return application;

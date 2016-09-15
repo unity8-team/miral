@@ -31,10 +31,12 @@ using namespace qtmir;
 WindowManagementPolicy::WindowManagementPolicy(const miral::WindowManagerTools &tools,
                                                qtmir::WindowModelNotifier &windowModel,
                                                qtmir::WindowController &windowController,
+                                               qtmir::AppNotifier &appNotifier,
                                                const QSharedPointer<ScreensModel> screensModel)
     : CanonicalWindowManagerPolicy(tools)
     , m_tools(tools)
     , m_windowModel(windowModel)
+    , m_appNotifier(appNotifier)
     , m_eventFeeder(new QtEventFeeder(screensModel))
 {
     qRegisterMetaType<qtmir::NewWindow>();
@@ -56,6 +58,9 @@ void WindowManagementPolicy::handle_window_ready(miral::WindowInfo &windowInfo)
 {
     qDebug("Window Ready");
     CanonicalWindowManagerPolicy::handle_window_ready(windowInfo);
+
+    auto appInfo = m_tools.info_for(windowInfo.window().application());
+    Q_EMIT m_appNotifier.appCreatedWindow(appInfo);
 }
 
 void WindowManagementPolicy::handle_modify_window(
@@ -109,14 +114,14 @@ void WindowManagementPolicy::advise_raise(const std::vector<miral::Window> &wind
     Q_EMIT m_windowModel.windowsRaised(windows);
 }
 
-void WindowManagementPolicy::advise_new_app(miral::ApplicationInfo &/*application*/)
+void WindowManagementPolicy::advise_new_app(miral::ApplicationInfo &application)
 {
-    qDebug("New App");
+    Q_EMIT m_appNotifier.appAdded(application);
 }
 
-void WindowManagementPolicy::advise_delete_app(const miral::ApplicationInfo &/*application*/)
+void WindowManagementPolicy::advise_delete_app(const miral::ApplicationInfo &application)
 {
-    qDebug("Delete App");
+    Q_EMIT m_appNotifier.appRemoved(application);
 }
 
 void WindowManagementPolicy::advise_state_change(const miral::WindowInfo &/*windowInfo*/, MirSurfaceState /*state*/)

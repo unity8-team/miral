@@ -55,7 +55,9 @@ TEST_F(SessionManagerTests, sessionTracksPromptSession)
     using namespace testing;
 
     std::shared_ptr<ms::Session> mirAppSession = std::make_shared<MockSession>("mirAppSession", __LINE__);
-    sessionManager.onSessionStarting(mirAppSession);
+    miral::Application app(mirAppSession);
+    miral::ApplicationInfo appInfo(app);
+    sessionManager.onSessionStarting(appInfo);
     SessionInterface* qtmirAppSession = sessionManager.findSession(mirAppSession.get());
     EXPECT_TRUE(qtmirAppSession != nullptr);
 
@@ -79,7 +81,9 @@ TEST_F(SessionManagerTests, TestPromptSession)
     using namespace testing;
 
     std::shared_ptr<ms::Session> mirAppSession = std::make_shared<MockSession>("mirAppSession", __LINE__);
-    sessionManager.onSessionStarting(mirAppSession);
+    miral::Application app(mirAppSession);
+    miral::ApplicationInfo appInfo(app);
+    sessionManager.onSessionStarting(appInfo);
     SessionInterface* qtmirAppSession = sessionManager.findSession(mirAppSession.get());
     EXPECT_TRUE(qtmirAppSession != nullptr);
 
@@ -90,7 +94,9 @@ TEST_F(SessionManagerTests, TestPromptSession)
 
     // prompt provider session
     std::shared_ptr<ms::Session> mirProviderSession = std::make_shared<MockSession>("mirProviderSession", __LINE__);
-    sessionManager.onSessionStarting(mirProviderSession);
+    miral::Application providerApp(mirProviderSession);
+    miral::ApplicationInfo providerAppInfo(providerApp);
+    sessionManager.onSessionStarting(providerAppInfo);
     SessionInterface* qtmirProviderSession = sessionManager.findSession(mirProviderSession.get());
 
     EXPECT_CALL(*promptSessionManager, for_each_provider_in(mirPromptSession,_)).WillRepeatedly(WithArgs<1>(Invoke(

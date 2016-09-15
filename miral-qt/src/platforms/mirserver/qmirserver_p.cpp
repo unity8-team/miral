@@ -54,11 +54,6 @@ bool MirServerThread::waitForMirStartup()
     return mir_running;
 }
 
-SessionListener *QMirServerPrivate::sessionListener() const
-{
-    return m_mirServerHooks.sessionListener();
-}
-
 QPlatformOpenGLContext *QMirServerPrivate::createPlatformOpenGLContext(QOpenGLContext *context) const
 {
     return m_openGLContextFactory.createPlatformOpenGLContext(context->format(), *m_mirServerHooks.theMirDisplay());
@@ -136,7 +131,8 @@ void QMirServerPrivate::run(const std::function<void()> &startCallback)
             m_sessionAuthorizer,
             m_openGLContextFactory,
             m_mirServerHooks,
-            miral::set_window_managment_policy<WindowManagementPolicy>(m_windowModelNotifier, m_windowController, screensModel),
+            miral::set_window_managment_policy<WindowManagementPolicy>(m_windowModelNotifier, m_windowController,
+                    m_appNotifier, screensModel),
             qtmir::setDisplayConfigurationPolicy,
             setCommandLineHandler,
             addInitCallback,

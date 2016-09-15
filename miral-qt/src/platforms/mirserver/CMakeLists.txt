@@ -65,7 +65,6 @@ set(MIRSERVER_QPA_PLUGIN_SRC
     qmirserver.cpp
     qmirserver_p.cpp
     sessionauthorizer.cpp
-    sessionlistener.cpp
     shelluuid.cpp
     surfaceobserver.cpp
     promptsessionlistener.cpp
@@ -92,6 +91,7 @@ set(MIRSERVER_QPA_PLUGIN_SRC
 # We need to run moc on these headers
     ${APPLICATION_API_INCLUDEDIR}/unity/shell/application/Mir.h
     ${APPLICATION_API_INCLUDEDIR}/unity/shell/application/MirMousePointerInterface.h
+    ${MIRAL_QT_SOURCE_DIR}/src/common/appnotifier.h
     ${MIRAL_QT_SOURCE_DIR}/src/common/windowcontrollerinterface.h
     ${MIRAL_QT_SOURCE_DIR}/src/common/windowmodelnotifier.h
 )
