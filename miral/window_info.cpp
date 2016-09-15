@@ -35,6 +35,7 @@ auto optional_value_or_default(mir::optional_value<Value> const& optional_value,
 struct miral::WindowInfo::Self
 {
     Self(Window window, WindowSpecification const& params);
+    Self();
 
     Window window;
     mir::optional_value<std::string> name;
@@ -75,6 +76,18 @@ miral::WindowInfo::Self::Self(Window window, WindowSpecification const& params) 
 {
     if (params.output_id().is_set())
         output_id = params.output_id().value();
+}
+
+miral::WindowInfo::Self::Self() :
+    type{mir_surface_type_normal},
+    state{mir_surface_state_unknown},
+    preferred_orientation{mir_orientation_mode_any}
+{
+}
+
+miral::WindowInfo::WindowInfo() :
+    self{std::make_unique<Self>()}
+{
 }
 
 miral::WindowInfo::WindowInfo(

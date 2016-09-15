@@ -26,7 +26,7 @@ struct MirEvent {}; // otherwise won't compile otherwise due to incomplete type
 #include <QSignalSpy>
 
 // src/common
-#include "windowmodelnotifierinterface.h"
+#include "windowmodelnotifier.h"
 
 // the test subject
 #include <Unity/Application/mirsurface.h>
@@ -86,7 +86,6 @@ TEST_F(MirSurfaceTest, UpdateTextureBeforeDraw)
     miral::Window mockWindow(stubSession, mockSurface);
     ms::SurfaceCreationParameters spec;
     miral::WindowInfo mockWindowInfo(mockWindow, spec);
-    QScopedPointer<WindowInfo> windowInfo(new WindowInfo(mockWindowInfo));
 
     EXPECT_CALL(*mockSurface.get(),buffers_ready_for_compositor(_))
         .WillRepeatedly(Return(1));

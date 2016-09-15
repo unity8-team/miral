@@ -39,30 +39,25 @@ WindowModel::WindowModel()
 
     m_windowController = static_cast<WindowControllerInterface*>(nativeInterface->nativeResourceForIntegration("WindowController"));
 
-    auto windowModel = static_cast<WindowModelNotifierInterface*>(nativeInterface->nativeResourceForIntegration("WindowModelNotifier"));
+    auto windowModel = static_cast<WindowModelNotifier*>(nativeInterface->nativeResourceForIntegration("WindowModelNotifier"));
     connectToWindowModelNotifier(windowModel);
 }
 
-WindowModel::WindowModel(WindowModelNotifierInterface *notifier,
+WindowModel::WindowModel(WindowModelNotifier *notifier,
                          WindowControllerInterface *controller)
     : m_windowController(controller)
 {
     connectToWindowModelNotifier(notifier);
 }
 
-void WindowModel::connectToWindowModelNotifier(WindowModelNotifierInterface *notifier)
+void WindowModel::connectToWindowModelNotifier(WindowModelNotifier *notifier)
 {
-    connect(notifier, &WindowModelNotifierInterface::windowAdded,       this, &WindowModel::onWindowAdded,       Qt::QueuedConnection);
-    connect(notifier, &WindowModelNotifierInterface::windowRemoved,     this, &WindowModel::onWindowRemoved,     Qt::QueuedConnection);
-    connect(notifier, &WindowModelNotifierInterface::windowMoved,       this, &WindowModel::onWindowMoved,       Qt::QueuedConnection);
-    connect(notifier, &WindowModelNotifierInterface::windowResized,     this, &WindowModel::onWindowResized,     Qt::QueuedConnection);
-    connect(notifier, &WindowModelNotifierInterface::windowFocused,     this, &WindowModel::onWindowFocused,     Qt::QueuedConnection);
-    connect(notifier, &WindowModelNotifierInterface::windowInfoChanged, this, &WindowModel::onWindowInfoChanged, Qt::QueuedConnection);
-    connect(notifier, &WindowModelNotifierInterface::windowsRaised,     this, &WindowModel::onWindowsRaised,     Qt::QueuedConnection);
-    connect(notifier, &WindowModelNotifierInterface::inputMethodWindowAdded,
-            this, &WindowModel::onInputMethodWindowAdded,     Qt::QueuedConnection);
-    connect(notifier, &WindowModelNotifierInterface::inputMethodWindowRemoved,
-            this, &WindowModel::onInputMethodWindowRemoved,   Qt::QueuedConnection);
+    connect(notifier, &WindowModelNotifier::windowAdded,        this, &WindowModel::onWindowAdded,        Qt::QueuedConnection);
+    connect(notifier, &WindowModelNotifier::windowRemoved,      this, &WindowModel::onWindowRemoved,      Qt::QueuedConnection);
+    connect(notifier, &WindowModelNotifier::windowMoved,        this, &WindowModel::onWindowMoved,        Qt::QueuedConnection);
+    connect(notifier, &WindowModelNotifier::windowResized,      this, &WindowModel::onWindowResized,      Qt::QueuedConnection);
+    connect(notifier, &WindowModelNotifier::windowFocusChanged, this, &WindowModel::onWindowFocusChanged, Qt::QueuedConnection);
+    connect(notifier, &WindowModelNotifier::windowsRaised,      this, &WindowModel::onWindowsRaised,      Qt::QueuedConnection);
 }
 
 QHash<int, QByteArray> WindowModel::roleNames() const
@@ -72,58 +67,57 @@ QHash<int, QByteArray> WindowModel::roleNames() const
     return roleNames;
 }
 
-void WindowModel::onWindowAdded(const NewWindow windowInfo, const int index)
+void WindowModel::onWindowAdded(const NewWindow &window)
 {
-    auto mirSurface = new MirSurface(windowInfo, m_windowController);
+    if (window.windowInfo.type() == mir_surface_type_inputmethod) {
+        addInputMethodWindow(window);
+        return;
+    }
+
+    const int index = m_windowModel.count();
     beginInsertRows(QModelIndex(), index, index);
-    m_windowModel.insert(index, mirSurface);
+    m_windowModel.append(new MirSurface(window, m_windowController));
     endInsertRows();
     Q_EMIT countChanged();
 }
 
-void WindowModel::onWindowRemoved(const int index)
+void WindowModel::onWindowRemoved(const miral::WindowInfo &windowInfo)
 {
-    beginRemoveRows(QModelIndex(), index, index);
-    auto window = m_windowModel.takeAt(index);
-    if (window == m_focusedWindow) {
-        m_focusedWindow = nullptr;
+    if (windowInfo.type() == mir_surface_type_inputmethod) {
+        removeInputMethodWindow();
+        return;
     }
+
+    const int index = findIndexOf(windowInfo.window());
+
+    beginRemoveRows(QModelIndex(), index, index);
+    m_windowModel.takeAt(index);
     endRemoveRows();
     Q_EMIT countChanged();
 }
 
-void WindowModel::onWindowMoved(const QPoint topLeft, const int index)
+void WindowModel::onWindowMoved(const miral::WindowInfo &windowInfo, const QPoint topLeft)
 {
-    auto mirSurface = static_cast<MirSurface *>(m_windowModel.value(index));
-    mirSurface->setPosition(topLeft);
-}
-
-void WindowModel::onWindowResized(const QSize size, const int index)
-{
-    auto mirSurface = static_cast<MirSurface *>(m_windowModel.value(index));
-    mirSurface->setSize(size);
-}
-
-void WindowModel::onWindowFocused(const int index)
-{
-    auto mirSurface = static_cast<MirSurface *>(m_windowModel.value(index));
-    if (m_focusedWindow && m_focusedWindow != mirSurface) {
-        m_focusedWindow->setFocused(false);
+    if (auto mirSurface = find(windowInfo)) {
+        mirSurface->setPosition(topLeft);
     }
-    mirSurface->setFocused(true);
-    m_focusedWindow = mirSurface;
 }
 
-void WindowModel::onWindowInfoChanged(const WindowInfo windowInfo, const int pos)
+void WindowModel::onWindowResized(const miral::WindowInfo &windowInfo, const QSize size)
 {
-    auto mirSurface = static_cast<MirSurface *>(m_windowModel.value(pos));
-    mirSurface->updateWindowInfo(windowInfo);
-
-    QModelIndex row = index(pos);
-    Q_EMIT dataChanged(row, row, QVector<int>() << SurfaceRole);
+    if (auto mirSurface = find(windowInfo)) {
+        mirSurface->setSize(size);
+    }
 }
 
-void WindowModel::onInputMethodWindowAdded(const NewWindow windowInfo)
+void WindowModel::onWindowFocusChanged(const miral::WindowInfo &windowInfo, bool focused)
+{
+    if (auto mirSurface = find(windowInfo)) {
+        mirSurface->setFocused(focused);
+    }
+}
+
+void WindowModel::addInputMethodWindow(const NewWindow &windowInfo)
 {
     if (m_inputMethodSurface) {
         qDebug("Multiple Input Method Surfaces created, removing the old one!");
@@ -133,7 +127,7 @@ void WindowModel::onInputMethodWindowAdded(const NewWindow windowInfo)
     Q_EMIT inputMethodSurfaceChanged(m_inputMethodSurface);
 }
 
-void WindowModel::onInputMethodWindowRemoved()
+void WindowModel::removeInputMethodWindow()
 {
     if (m_inputMethodSurface) {
         delete m_inputMethodSurface;
@@ -142,10 +136,17 @@ void WindowModel::onInputMethodWindowRemoved()
     }
 }
 
-void WindowModel::onWindowsRaised(QVector<int> indices)
+void WindowModel::onWindowsRaised(const std::vector<miral::Window> &windows)
 {
     const int modelCount = m_windowModel.count();
 
+    QVector<int> indices;
+    for (const auto window: windows) {
+        int index = findIndexOf(window);
+        if (index >= 0) {
+            indices.append(index);
+        }
+    }
     // Assumption: no NO-OPs are in this list - Qt will crash on endMoveRows() if you try NO-OPs!!!
     // A NO-OP is if
     //    1. "indices" is an empty list
@@ -181,7 +182,7 @@ void WindowModel::onWindowsRaised(QVector<int> indices)
         beginMoveRows(parent, move, move, parent, modelCount);
 
         // QVector missing a move method in Qt5.4
-        const auto window = m_windowModel.takeAt(move);
+        const auto &window = m_windowModel.takeAt(move);
         m_windowModel.push_back(window);
 
         endMoveRows();
@@ -199,10 +200,30 @@ QVariant WindowModel::data(const QModelIndex &index, int role) const
         return QVariant();
 
     if (role == SurfaceRole) {
-        MirSurfaceInterface *surface = m_windowModel.at(index.row());
-        return QVariant::fromValue(static_cast<MirSurfaceInterface*>(surface));
+        auto &surface = m_windowModel.at(index.row());
+        return QVariant::fromValue(surface);
     } else {
         return QVariant();
     }
 }
 
+MirSurface *WindowModel::find(const miral::WindowInfo &needle) const
+{
+    auto window = needle.window();
+    Q_FOREACH(const auto mirSurface, m_windowModel) {
+        if (mirSurface->window() == window) {
+            return mirSurface;
+        }
+    }
+    return nullptr;
+}
+
+int WindowModel::findIndexOf(const miral::Window &needle) const
+{
+    for (int i=0; i<m_windowModel.count(); i++) {
+        if (m_windowModel[i]->window() == needle) {
+            return i;
+        }
+    }
+    return -1;
+}

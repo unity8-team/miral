@@ -1,5 +1,6 @@
 import QtQuick 2.4
 import Unity.Application 0.1
+import Mir.Pointer 0.1
 
 FocusScope {
     id: root
@@ -37,6 +38,8 @@ FocusScope {
                         font.pixelSize: 10
                     }
                 }
+
+                Rectangle { anchors.fill: parent; z: -1; color: "black"; opacity: 0.3 }
             }
         }
     }
@@ -60,12 +63,14 @@ Resize window: Ctrl+Right click"
         color: "black"
         width: 6
         height: 10
+        x: PointerPosition.x
+        y: PointerPosition.y
     }
 
     MouseArea {
         anchors.fill: parent
         acceptedButtons: Qt.LeftButton | Qt.RightButton
-        hoverEnabled: true
+        hoverEnabled: false
         property variant window: null
         property int initialWindowXPosition
         property int initialWindowYPosition
@@ -106,8 +111,6 @@ Resize window: Ctrl+Right click"
         }
 
         onPositionChanged: {
-            mousePointer.x = mouse.x
-            mousePointer.y = mouse.y
             if (!window) {
                 mouse.accepted = false
                 return

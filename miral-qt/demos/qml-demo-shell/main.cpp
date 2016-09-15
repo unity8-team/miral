@@ -15,18 +15,15 @@
  */
 
 // Qt
-#include <QCommandLineParser>
 #include <QtQuick/QQuickView>
 #include <QtGui/QGuiApplication>
 #include <QtQml/QQmlEngine>
 #include <QtQml/QQmlContext>
-#include <QLibrary>
 #include <QDebug>
-#include <csignal>
 #include <libintl.h>
 #include "../paths.h"
 
-#include <private/qobject_p.h>
+#include "pointerposition.h"
 
 // REMOVEME - Should be able to use qmlscene, but in order to use the mir benchmarking we need
 // to parse command line switches. Wait until MIR_SOCKET supported by the benchmark framework.
@@ -46,6 +43,9 @@ int main(int argc, const char *argv[])
     view->setColor("lightgray");
     view->setTitle("Demo Shell");
     
+    qmlRegisterSingletonType<PointerPosition>("Mir.Pointer", 0, 1, "PointerPosition",
+        [](QQmlEngine*, QJSEngine*) -> QObject* { return PointerPosition::instance(); });
+
     QUrl source(::qmlDirectory() + "qml-demo-shell/windowModel.qml");
 
     view->setSource(source);
