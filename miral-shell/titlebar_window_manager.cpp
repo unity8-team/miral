@@ -127,6 +127,7 @@ void TitlebarWindowManagerPolicy::end_resize()
     }
 
     resizing = false;
+    pinching = false;
 }
 
 bool TitlebarWindowManagerPolicy::handle_touch_event(MirTouchEvent const* event)
@@ -215,12 +216,11 @@ bool TitlebarWindowManagerPolicy::handle_touch_event(MirTouchEvent const* event)
 
                 auto& window_info = tools.info_for(window);
 
-                window_info.constrain_resize(new_pos, new_size);
-
                 WindowSpecification modifications;
                 modifications.top_left() = new_pos;
                 modifications.size() = new_size;
                 tools.modify_window(window_info, modifications);
+                pinching = true;
             }
             consumes_event = true;
         }
@@ -229,6 +229,11 @@ bool TitlebarWindowManagerPolicy::handle_touch_event(MirTouchEvent const* event)
     {
         if (auto const& window = tools.window_at(cursor))
             tools.select_active_window(window);
+    }
+
+    if (!consumes_event && pinching)
+    {
+        end_resize();
     }
 
     old_cursor = cursor;

@@ -85,6 +85,7 @@ private:
     int old_touch_pinch_left = 0;
     int old_touch_pinch_width = 0;
     int old_touch_pinch_height = 0;
+    bool pinching = false;
 
     SpinnerSplash const spinner;
 
