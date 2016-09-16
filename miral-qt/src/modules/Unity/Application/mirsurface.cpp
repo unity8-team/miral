@@ -530,14 +530,6 @@ void MirSurface::requestPosition(const QPoint newPosition)
     m_controller->move(m_windowInfo.window(), newPosition);
 }
 
-void MirSurface::setSize(const QSize newSize)
-{
-    if (m_size != newSize) {
-        m_size = newSize;
-        Q_EMIT sizeChanged(newSize);
-    }
-}
-
 QSize MirSurface::size() const
 {
     return m_size;
