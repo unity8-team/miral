@@ -37,6 +37,8 @@ public:
 
     operator MirSurface*() const { return self.get(); }
 
+    void reset() { self.reset(); }
+
 private:
     static void deleter(MirSurface* surface) { mir_surface_release_sync(surface); }
     std::shared_ptr<MirSurface> self;

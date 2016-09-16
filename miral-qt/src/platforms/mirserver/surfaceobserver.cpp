@@ -136,6 +136,12 @@ void SurfaceObserver::cursor_image_removed()
     Q_EMIT cursorChanged(QCursor());
 }
 
+#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 25, 0)
+void SurfaceObserver::placed_relative(mir::geometry::Rectangle const& /*placement*/)
+{
+}
+#endif
+
 void SurfaceObserver::attrib_changed(MirSurfaceAttrib attribute, int value)
 {
     if (m_listener) {

@@ -25,6 +25,7 @@
 #include <QRect>
 #include <QSize>
 #include <mir/scene/surface_observer.h>
+#include <mir/version.h>
 
 namespace mir {
     namespace scene {
@@ -63,6 +64,10 @@ public:
                         std::string const& variant, std::string const& options) override;
     void renamed(char const * name) override;
     void cursor_image_removed() override;
+
+#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 25, 0)
+    void placed_relative(mir::geometry::Rectangle const& placement) override;
+#endif
 
     void notifySurfaceModifications(const mir::shell::SurfaceSpecification&);
 

@@ -104,7 +104,9 @@ auto miral::BasicWindowManager::add_surface(
 
     session_info.add_window(window);
 
-    if (auto const parent = window_info.parent())
+    auto const parent = window_info.parent();
+
+    if (parent)
         info_for(parent).add_child(window);
 
     if (window_info.state() == mir_surface_state_fullscreen)
@@ -121,6 +123,15 @@ auto miral::BasicWindowManager::add_surface(
             session,
             scene_surface));
     }
+
+#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 25, 0)
+    if (parent && spec.aux_rect().is_set() && spec.placement_hints().is_set())
+    {
+        Rectangle relative_placement{window.top_left() - (parent.top_left()-Point{}), window.size()};
+        auto const mir_surface = std::shared_ptr<scene::Surface>(window);
+        mir_surface->placed_relative(relative_placement);
+    }
+#endif
 
     return surface_id;
 }
@@ -173,11 +184,11 @@ void miral::BasicWindowManager::remove_surface(
             Window new_focus;
 
             mru_active_windows.enumerate([&](Window& window)
-            {
-                // select_active_window() calls set_focus_to() which updates mru_active_windows and changes window
-                auto const w = window;
-                return !(new_focus = select_active_window(w));
-            });
+                {
+                    // select_active_window() calls set_focus_to() which updates mru_active_windows and changes window
+                    auto const w = window;
+                    return !(new_focus = select_active_window(w));
+                });
 
             if (new_focus) return;
         }
@@ -612,16 +623,20 @@ void miral::BasicWindowManager::modify_window(WindowInfo& window_info, WindowSpe
         place_and_size(window_info, new_pos, window.size());
     }
 
-    if (window_info.parent() && modifications.placement_hints().is_set())
+    if (modifications.placement_hints().is_set())
     {
-        auto parent = window_info.parent();
-
-        if (parent)
+        if (auto parent = window_info.parent())
         {
             auto new_pos = place_relative(parent.top_left(), modifications, window.size());
 
             if (new_pos.is_set())
                 place_and_size(window_info, new_pos.value().top_left, new_pos.value().size);
+
+#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 25, 0)
+            Rectangle relative_placement{window.top_left() - (parent.top_left()-Point{}), window.size()};
+            auto const mir_surface = std::shared_ptr<scene::Surface>(window);
+            mir_surface->placed_relative(relative_placement);
+#endif
         }
     }
 

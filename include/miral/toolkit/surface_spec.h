@@ -19,8 +19,11 @@
 #ifndef MIRAL_TOOLKIT_SURFACE_SPEC_H
 #define MIRAL_TOOLKIT_SURFACE_SPEC_H
 
+#include <miral/toolkit/surface.h>
+
 #include <mir_toolkit/mir_surface.h>
 #include <mir_toolkit/mir_connection.h>
+#include <mir_toolkit/version.h>
 
 #include <memory>
 
@@ -37,6 +40,17 @@ public:
     static auto for_normal_surface(MirConnection* connection, int width, int height, MirPixelFormat format) -> SurfaceSpec
     {
         return SurfaceSpec{mir_connection_create_spec_for_normal_surface(connection, width, height, format)};
+    }
+
+    static auto for_menu(MirConnection* connection,
+                         int width,
+                         int height,
+                         MirPixelFormat format,
+                         MirSurface* parent,
+                         MirRectangle* rect,
+                         MirEdgeAttachment edge) -> SurfaceSpec
+    {
+        return SurfaceSpec{mir_connection_create_spec_for_menu(connection, width, height, format, parent, rect, edge)};
     }
 
     static auto for_changes(MirConnection* connection) -> SurfaceSpec
@@ -69,18 +83,37 @@ public:
         return *this;
     }
 
+    auto set_event_handler(mir_surface_event_callback callback, void* context) -> SurfaceSpec&
+    {
+        mir_surface_spec_set_event_handler(*this, callback, context);
+        return *this;
+    }
+
+#if MIR_CLIENT_VERSION >= MIR_VERSION_NUMBER(3, 4, 0)
+    auto set_placement(const MirRectangle* rect,
+                       MirPlacementGravity rect_gravity,
+                       MirPlacementGravity surface_gravity,
+                       MirPlacementHints   placement_hints,
+                       int                 offset_dx,
+                       int                 offset_dy) -> SurfaceSpec&
+    {
+        mir_surface_spec_set_placement(*this, rect, rect_gravity, surface_gravity, placement_hints, offset_dx, offset_dy);
+        return *this;
+    }
+#endif
+
     template<typename Context>
     void create_surface(void (*callback)(MirSurface*, Context*), Context* context) const
     {
         mir_surface_create(*this, reinterpret_cast<mir_surface_callback>(callback), context);
     }
 
-    auto create_surface() const -> MirSurface*
+    auto create_surface() const -> Surface
     {
-        return mir_surface_create_sync(*this);
+        return Surface{mir_surface_create_sync(*this)};
     }
 
-    void apply_to(MirSurface* surface)
+    void apply_to(MirSurface* surface) const
     {
         mir_surface_apply_spec(surface, *this);
     }
