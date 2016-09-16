@@ -26,6 +26,7 @@
 #include <mutex>
 
 // local
+#include "appnotifier.h"
 #include "openglcontextfactory.h"
 #include "screensmodel.h"
 #include "windowcontroller.h"
@@ -58,7 +59,6 @@ public:
     void run(const std::function<void()> &startCallback);
     void stop();
 
-    SessionListener *sessionListener() const;
     PromptSessionListener *promptSessionListener() const;
     std::shared_ptr<mir::scene::PromptSessionManager> promptSessionManager() const;
 
@@ -67,6 +67,9 @@ public:
 
     qtmir::WindowModelNotifier *windowModelNotifier() const
         { return &m_windowModelNotifier; }
+
+    qtmir::AppNotifier *appNotifier() const
+        { return &m_appNotifier; }
 
     qtmir::WindowControllerInterface *windowController() const
         { return &m_windowController; }
@@ -78,6 +81,7 @@ private:
 
     miral::MirRunner runner;
 
+    mutable qtmir::AppNotifier m_appNotifier;
     mutable qtmir::WindowModelNotifier m_windowModelNotifier;
     mutable qtmir::WindowController m_windowController;
     int &argc;

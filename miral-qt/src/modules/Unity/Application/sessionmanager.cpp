@@ -23,14 +23,15 @@
 #include "sessionmanager.h"
 
 // QPA mirserver
-#include "nativeinterface.h"
-#include "sessionlistener.h"
+#include "appnotifier.h"
 #include "logging.h"
+#include "nativeinterface.h"
 #include "promptsessionlistener.h"
 
 // mir
 #include <mir/scene/prompt_session.h>
 #include <mir/scene/prompt_session_manager.h>
+#include <mir/scene/session.h>
 #include <mir/report_exception.h>
 
 namespace ms = mir::scene;
@@ -40,11 +41,11 @@ namespace qtmir {
 SessionManager *SessionManager::the_session_manager = nullptr;
 
 
-void connectToSessionListener(SessionManager *manager, SessionListener *listener)
+void connectToAppNotifier(SessionManager *manager, AppNotifier *appNotifier)
 {
-    QObject::connect(listener, &SessionListener::sessionStarting,
+    QObject::connect(appNotifier, &AppNotifier::appAdded,
                      manager, &SessionManager::onSessionStarting);
-    QObject::connect(listener, &SessionListener::sessionStopping,
+    QObject::connect(appNotifier, &AppNotifier::appRemoved,
                      manager, &SessionManager::onSessionStopping);
 }
 
@@ -73,12 +74,12 @@ try
             return nullptr;
         }
 
-        SessionListener *sessionListener = static_cast<SessionListener*>(nativeInterface->nativeResourceForIntegration("SessionListener"));
+        auto appNotifier = static_cast<AppNotifier*>(nativeInterface->nativeResourceForIntegration("AppNotifier"));
         PromptSessionListener *promptSessionListener = static_cast<PromptSessionListener*>(nativeInterface->nativeResourceForIntegration("PromptSessionListener"));
 
         the_session_manager = new SessionManager(nativeInterface->thePromptSessionManager(), ApplicationManager::singleton());
 
-        connectToSessionListener(the_session_manager, sessionListener);
+        connectToAppNotifier(the_session_manager, appNotifier);
         connectToPromptSessionListener(the_session_manager, promptSessionListener);
     }
     return the_session_manager;
@@ -120,8 +121,9 @@ SessionInterface *SessionManager::findSession(const mir::scene::Session* session
     return nullptr;
 }
 
-void SessionManager::onSessionStarting(std::shared_ptr<mir::scene::Session> const& session)
+void SessionManager::onSessionStarting(const miral::ApplicationInfo &appInfo)
 {
+    const auto &session = appInfo.application();
     qCDebug(QTMIR_SESSIONS) << "SessionManager::onSessionStarting - sessionName=" <<  session->name().c_str();
 
     Session* qmlSession = new Session(session, m_promptSessionManager);
@@ -140,8 +142,9 @@ void SessionManager::onSessionStarting(std::shared_ptr<mir::scene::Session> cons
     Q_EMIT sessionStarting(qmlSession);
 }
 
-void SessionManager::onSessionStopping(std::shared_ptr<mir::scene::Session> const& session)
+void SessionManager::onSessionStopping(const miral::ApplicationInfo &appInfo)
 {
+    const auto &session = appInfo.application();
     qCDebug(QTMIR_SESSIONS) << "SessionManager::onSessionStopping - sessionName=" << session->name().c_str();
 
     SessionInterface* qmlSession = findSession(session.get());

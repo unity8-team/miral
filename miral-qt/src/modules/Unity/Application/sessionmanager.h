@@ -27,6 +27,9 @@
 // Mir
 #include <mir_toolkit/common.h>
 
+// miral
+#include <miral/application_info.h>
+
 // local
 #include "session.h"
 #include "sessionmodel.h"
@@ -64,8 +67,8 @@ Q_SIGNALS:
     void sessionStopping(SessionInterface* session);
 
 public Q_SLOTS:
-    void onSessionStarting(std::shared_ptr<mir::scene::Session> const& session);
-    void onSessionStopping(std::shared_ptr<mir::scene::Session> const& session);
+    void onSessionStarting(const miral::ApplicationInfo &appInfo);
+    void onSessionStopping(const miral::ApplicationInfo &appInfo);
 
     void onPromptSessionStarting(const std::shared_ptr<mir::scene::PromptSession>& promptSession);
     void onPromptSessionStopping(const std::shared_ptr<mir::scene::PromptSession>& promptSession);

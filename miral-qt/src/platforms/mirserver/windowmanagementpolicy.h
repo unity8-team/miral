@@ -19,6 +19,7 @@
 
 #include "miral/canonical_window_manager.h"
 
+#include "appnotifier.h"
 #include "qteventfeeder.h"
 #include "windowcontroller.h"
 #include "windowmodelnotifier.h"
@@ -36,6 +37,7 @@ public:
     WindowManagementPolicy(const miral::WindowManagerTools &tools,
                            qtmir::WindowModelNotifier &windowModel,
                            qtmir::WindowController &windowController,
+                           qtmir::AppNotifier &appNotifier,
                            const QSharedPointer<ScreensModel> screensModel);
 
     // From WindowManagementPolicy
@@ -84,6 +86,7 @@ Q_SIGNALS:
 private:
     miral::WindowManagerTools m_tools;
     qtmir::WindowModelNotifier &m_windowModel;
+    qtmir::AppNotifier &m_appNotifier;
     const QScopedPointer<QtEventFeeder> m_eventFeeder;
 };
 

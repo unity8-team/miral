@@ -91,8 +91,8 @@ void *QMirServer::nativeResourceForIntegration(const QByteArray &resource) const
 
     if (resource == "SessionAuthorizer")
         result = d->theApplicationAuthorizer().get();
-    else if (resource == "SessionListener")
-        result = d->sessionListener();
+    else if (resource == "AppNotifier")
+        result = d->appNotifier();
     else if (resource == "PromptSessionListener")
         result = d->promptSessionListener();
     else if (resource == "WindowController")

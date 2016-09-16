@@ -22,7 +22,6 @@
 #include "mirserverstatuslistener.h"
 #include "promptsessionlistener.h"
 #include "screenscontroller.h"
-#include "sessionlistener.h"
 
 // mir
 #include <mir/server.h>
@@ -49,7 +48,6 @@ private:
 
 struct qtmir::MirServerHooks::Self
 {
-    std::weak_ptr<SessionListener> m_sessionListener;
     std::weak_ptr<PromptSessionListener> m_promptSessionListener;
     std::weak_ptr<mir::graphics::Display> m_mirDisplay;
     std::weak_ptr<mir::shell::DisplayConfigurationController> m_mirDisplayConfigurationController;
@@ -72,13 +70,6 @@ void qtmir::MirServerHooks::operator()(mir::Server& server)
     server.wrap_cursor([&](std::shared_ptr<mg::Cursor> const& wrapped)
         { return std::make_shared<HiddenCursorWrapper>(wrapped); });
 
-    server.override_the_session_listener([this]
-        {
-            auto const result = std::make_shared<SessionListener>();
-            self->m_sessionListener = result;
-            return result;
-        });
-
     server.override_the_prompt_session_listener([this]
         {
             auto const result = std::make_shared<PromptSessionListener>();
@@ -92,14 +83,6 @@ void qtmir::MirServerHooks::operator()(mir::Server& server)
             self->m_mirDisplayConfigurationController = server.the_display_configuration_controller();
             self->m_mirPromptSessionManager = server.the_prompt_session_manager();
         });
-}
-
-SessionListener *qtmir::MirServerHooks::sessionListener() const
-{
-    if (auto result = self->m_sessionListener.lock())
-        return result.get();
-
-    throw std::logic_error("No session listener available. Server not running?");
 }
 
 PromptSessionListener *qtmir::MirServerHooks::promptSessionListener() const
