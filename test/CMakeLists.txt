@@ -34,6 +34,7 @@ add_executable(miral-test
     runner.cpp
     window_placement.cpp
     test_server.cpp         test_server.h
+    test_window_manager_tools.h
 )
 
 target_link_libraries(miral-test
