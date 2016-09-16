@@ -89,6 +89,8 @@ private:
     SpinnerSplash const spinner;
 
     std::unique_ptr<TitlebarProvider> const titlebar_provider;
+
+    void end_resize();
 };
 
 #endif //MIRAL_SHELL_TITLEBAR_WINDOW_MANAGER_H
