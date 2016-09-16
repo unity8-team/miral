@@ -79,14 +79,8 @@ struct DragActiveWindow : TestWindowManagerTools, WithParamInterface<MirSurfaceT
 };
 }
 
-// When a surface is moved interactively
-// -------------------------------------
-// Regular, floating regular, dialog, and satellite surfaces should be user-movable.
-// Popups, glosses, and tips should not be.
-// Freestyle surfaces may or may not be, as specified by the app.
-//                              Mir and Unity: Surfaces, input, and displays (v0.3)
-
 using ForMoveableTypes = DragActiveWindow;
+using ForUnmoveableTypes = DragActiveWindow;
 
 TEST_P(ForMoveableTypes, moves)
 {
@@ -104,6 +98,27 @@ TEST_P(ForMoveableTypes, moves)
                 << "Type: " << GetParam();
 }
 
+TEST_P(ForUnmoveableTypes, doesnt_move)
+{
+    create_window_of_type(GetParam());
+
+    Displacement const movement{10, 10};
+    auto const expected_position = window.top_left();
+
+    EXPECT_CALL(*window_manager_policy, advise_move_to(_, _)).Times(0);
+
+    window_manager_tools.drag_active_window(movement);
+
+    EXPECT_THAT(window.top_left(), Eq(expected_position))
+                << "Type: " << GetParam();
+}
+
+// When a surface is moved interactively
+// -------------------------------------
+// Regular, floating regular, dialog, and satellite surfaces should be user-movable.
+// Popups, glosses, and tips should not be.
+// Freestyle surfaces may or may not be, as specified by the app.
+//                              Mir and Unity: Surfaces, input, and displays (v0.3)
 INSTANTIATE_TEST_CASE_P(DragActiveWindow, ForMoveableTypes, ::testing::Values(
     mir_surface_type_normal,
     mir_surface_type_utility,
@@ -119,22 +134,6 @@ INSTANTIATE_TEST_CASE_P(DragActiveWindow, ForMoveableTypes, ::testing::Values(
 //    mir_surface_types
 ));
 
-using ForUnmoveableTypes = DragActiveWindow;
-
-TEST_P(ForUnmoveableTypes, doesnt_move)
-{
-    create_window_of_type(GetParam());
-
-    Displacement const movement{10, 10};
-    auto const expected_position = window.top_left();
-
-    EXPECT_CALL(*window_manager_policy, advise_move_to(_, _)).Times(0);
-
-    window_manager_tools.drag_active_window(movement);
-
-    EXPECT_THAT(window.top_left(), Eq(expected_position))
-                << "Type: " << GetParam();
-}
 
 INSTANTIATE_TEST_CASE_P(DragActiveWindow, ForUnmoveableTypes, ::testing::Values(
 //    mir_surface_type_normal,
