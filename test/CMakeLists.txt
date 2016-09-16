@@ -35,7 +35,7 @@ add_executable(miral-test
     window_placement.cpp
     test_server.cpp         test_server.h
     test_window_manager_tools.h
-)
+        drag_active_window.cpp)
 
 target_link_libraries(miral-test
     ${MIRTEST_LDFLAGS}
