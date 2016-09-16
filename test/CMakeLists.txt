@@ -33,9 +33,10 @@ add_executable(miral-test
     persistent_surface_store.cpp
     runner.cpp
     window_placement.cpp
+    drag_active_window.cpp
     test_server.cpp         test_server.h
     test_window_manager_tools.h
-        drag_active_window.cpp)
+)
 
 target_link_libraries(miral-test
     ${MIRTEST_LDFLAGS}
