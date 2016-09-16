@@ -155,7 +155,6 @@ public:
     ////
     // Own API
     void setPosition(const QPoint newPosition);
-    void setSize(const QSize newSize);
     void updateWindowInfo(const miral::WindowInfo &windowInfo);
     void updateState(MirSurfaceState state);
 
