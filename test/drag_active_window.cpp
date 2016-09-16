@@ -17,23 +17,27 @@
  */
 
 #include "test_window_manager_tools.h"
+#include <mir/event_printer.h>
 
 using namespace miral;
 using namespace testing;
 namespace mt = mir::test;
+using mir::operator<<;
 
 namespace
 {
 X const display_left{0};
 Y const display_top{0};
-Width  const display_width{640};
+Width const display_width{640};
 Height const display_height{480};
 
-Rectangle const display_area{{display_left, display_top}, {display_width, display_height}};
+Rectangle const display_area{{display_left,  display_top},
+                             {display_width, display_height}};
 
 auto const null_window = Window{};
 
-auto create_surface(std::shared_ptr<mir::scene::Session> const& session, mir::scene::SurfaceCreationParameters const& params)
+auto
+create_surface(std::shared_ptr<mir::scene::Session> const& session, mir::scene::SurfaceCreationParameters const& params)
 -> mir::frontend::SurfaceId
 {
     // This type is Mir-internal, I hope we don't need to create it here
@@ -42,25 +46,30 @@ auto create_surface(std::shared_ptr<mir::scene::Session> const& session, mir::sc
     return session->create_surface(params, sink);
 }
 
-struct DragActiveWindow : TestWindowManagerTools
+struct DragActiveWindow : TestWindowManagerTools, WithParamInterface<MirSurfaceType>
 {
     Size const initial_parent_size{600, 400};
 
     Window window;
 
-    WindowSpecification modification;
-
     void SetUp() override
     {
         basic_window_manager.add_display(display_area);
-
-        mir::scene::SurfaceCreationParameters creation_parameters;
         basic_window_manager.add_session(session);
+    }
+
+    void create_window_of_type(MirSurfaceType type)
+    {
+        mir::scene::SurfaceCreationParameters creation_parameters;
+        creation_parameters.type = type;
+        creation_parameters.size = initial_parent_size;
 
         EXPECT_CALL(*window_manager_policy, advise_new_window(_))
-            .WillOnce(Invoke([this](WindowInfo const& window_info) { window = window_info.window(); }));
+            .WillOnce(
+                Invoke(
+                    [this](WindowInfo const& window_info)
+                        { window = window_info.window(); }));
 
-        creation_parameters.size = initial_parent_size;
         basic_window_manager.add_surface(session, creation_parameters, &create_surface);
         basic_window_manager.select_active_window(window);
 
@@ -70,14 +79,74 @@ struct DragActiveWindow : TestWindowManagerTools
 };
 }
 
-TEST_F(DragActiveWindow, moves_normal_surface)
+// When a surface is moved interactively
+// -------------------------------------
+// Regular, floating regular, dialog, and satellite surfaces should be user-movable.
+// Popups, glosses, and tips should not be.
+// Freestyle surfaces may or may not be, as specified by the app.
+//                              Mir and Unity: Surfaces, input, and displays (v0.3)
+
+using ForMoveableTypes = DragActiveWindow;
+
+TEST_P(ForMoveableTypes, moves)
 {
+    create_window_of_type(GetParam());
+
     Displacement const movement{10, 10};
     auto const initial_position = window.top_left();
     auto const expected_position = initial_position + movement;
-    
+
     EXPECT_CALL(*window_manager_policy, advise_move_to(_, expected_position));
 
     window_manager_tools.drag_active_window(movement);
-    EXPECT_THAT(window.top_left(), Eq(expected_position));
+
+    EXPECT_THAT(window.top_left(), Eq(expected_position))
+                << "Type: " << GetParam();
 }
+
+INSTANTIATE_TEST_CASE_P(DragActiveWindow, ForMoveableTypes, ::testing::Values(
+    mir_surface_type_normal,
+    mir_surface_type_utility,
+    mir_surface_type_dialog,
+//    mir_surface_type_overlay,
+//    mir_surface_type_gloss,
+    mir_surface_type_freestyle,
+//    mir_surface_type_popover,
+//    mir_surface_type_menu,
+//    mir_surface_type_inputmethod,
+    mir_surface_type_satellite
+//    mir_surface_type_tip,
+//    mir_surface_types
+));
+
+using ForUnmoveableTypes = DragActiveWindow;
+
+TEST_P(ForUnmoveableTypes, doesnt_move)
+{
+    create_window_of_type(GetParam());
+
+    Displacement const movement{10, 10};
+    auto const expected_position = window.top_left();
+
+    EXPECT_CALL(*window_manager_policy, advise_move_to(_, _)).Times(0);
+
+    window_manager_tools.drag_active_window(movement);
+
+    EXPECT_THAT(window.top_left(), Eq(expected_position))
+                << "Type: " << GetParam();
+}
+
+INSTANTIATE_TEST_CASE_P(DragActiveWindow, ForUnmoveableTypes, ::testing::Values(
+//    mir_surface_type_normal,
+//    mir_surface_type_utility,
+//    mir_surface_type_dialog,
+    mir_surface_type_overlay,
+    mir_surface_type_gloss,
+//    mir_surface_type_freestyle,
+    mir_surface_type_popover,
+    mir_surface_type_menu,
+    mir_surface_type_inputmethod,
+//    mir_surface_type_satellite,
+    mir_surface_type_tip
+//    mir_surface_types
+));
