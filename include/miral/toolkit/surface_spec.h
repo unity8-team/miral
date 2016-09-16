@@ -70,6 +70,27 @@ public:
         return *this;
     }
 
+    auto set_min_size(int min_width, int min_height) -> SurfaceSpec&
+    {
+        mir_surface_spec_set_min_width(*this, min_width);
+        mir_surface_spec_set_min_height(*this, min_height);
+        return *this;
+    }
+
+    auto set_max_size(int max_width, int max_height) -> SurfaceSpec&
+    {
+        mir_surface_spec_set_max_width(*this, max_width);
+        mir_surface_spec_set_max_height(*this, max_height);
+        return *this;
+    }
+
+    auto set_size_inc(int width_inc, int height_inc) -> SurfaceSpec&
+    {
+        mir_surface_spec_set_width_increment(*this, width_inc);
+        mir_surface_spec_set_height_increment(*this, height_inc);
+        return *this;
+    }
+
     auto set_size(int width, int height) -> SurfaceSpec&
     {
         mir_surface_spec_set_width(*this, width);
