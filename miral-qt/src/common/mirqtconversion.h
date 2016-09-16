@@ -9,6 +9,10 @@
 #include <mir/geometry/point.h>
 #include <mir/geometry/rectangle.h>
 
+#include <mir_toolkit/common.h>
+
+#include <unity/shell/application/Mir.h>
+
 namespace qtmir {
 
 /*
@@ -26,7 +30,7 @@ inline mir::geometry::Size toMirSize(const QSize size)
     return mg::Size{ mg::Width{ size.width()}, mg::Height{ size.height()} };
 }
 
-inline QPoint toQPoint(mir::geometry::Point point)
+inline QPoint toQPoint(const mir::geometry::Point point)
 {
     return QPoint(point.x.as_int(), point.y.as_int());
 }
@@ -50,6 +54,37 @@ inline mir::geometry::Rectangle toMirRectangle(const QRect rect)
         mg::Point{ mg::X{ rect.x()}, mg::Y{ rect.y()} },
         mg::Size{ mg::Width{ rect.width()}, mg::Height{ rect.height()} }
     };
+}
+
+inline Mir::State toQtState(MirSurfaceState state)
+{
+    switch (state) {
+    case mir_surface_state_unknown:         return Mir::UnknownState;
+    case mir_surface_state_restored:        return Mir::RestoredState;
+    case mir_surface_state_minimized:       return Mir::MinimizedState;
+    case mir_surface_state_maximized:       return Mir::MaximizedState;
+    case mir_surface_state_vertmaximized:   return Mir::VertMaximizedState;
+    case mir_surface_state_fullscreen:      return Mir::FullscreenState;
+    case mir_surface_state_horizmaximized:  return Mir::HorizMaximizedState;
+    case mir_surface_state_hidden:          return Mir::HiddenState;
+    case mir_surface_states:                Q_UNREACHABLE();
+    }
+    Q_UNREACHABLE();
+}
+
+inline MirSurfaceState toMirState(Mir::State state)
+{
+    switch (state) {
+    case Mir::UnknownState:         return mir_surface_state_unknown;
+    case Mir::RestoredState:        return mir_surface_state_restored;
+    case Mir::MinimizedState:       return mir_surface_state_minimized;
+    case Mir::MaximizedState:       return mir_surface_state_maximized;
+    case Mir::VertMaximizedState:   return mir_surface_state_vertmaximized;
+    case Mir::FullscreenState:      return mir_surface_state_fullscreen;
+    case Mir::HorizMaximizedState:  return mir_surface_state_horizmaximized;
+    case Mir::HiddenState:          return mir_surface_state_hidden;
+    }
+    Q_UNREACHABLE();
 }
 
 } // namespace qtmir

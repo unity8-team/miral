@@ -81,6 +81,17 @@ public:
         return NewWindow{windowInfo, ""};
     }
 
+    NewWindow createNewWindowWithState(Mir::State state)
+    {
+        const miral::Application app{stubSession};
+        const miral::Window window{app, stubSurface};
+
+        ms::SurfaceCreationParameters windowSpec;
+        windowSpec.with_state(qtmir::toMirState(state));
+        miral::WindowInfo windowInfo{window, windowSpec};
+        return NewWindow{windowInfo, ""};
+    }
+
     MirSurface *getMirSurfaceFromModel(const WindowModel &model, int index)
     {
         flushEvents();
@@ -740,3 +751,85 @@ TEST_F(WindowModelTest, WhenRemoveInputMethodWindowNotifiedModelPropertyReset)
 
     EXPECT_EQ(nullptr, model.inputMethodSurface());
 }
+
+
+class WindowModelTestTypes : public WindowModelTest, public ::testing::WithParamInterface<Mir::State>
+{
+public:
+    NewWindow createNewWindowWithState(Mir::State state)
+    {
+        const miral::Application app{stubSession};
+        const miral::Window window{app, stubSurface};
+
+        ms::SurfaceCreationParameters windowSpec;
+        windowSpec.with_state(qtmir::toMirState(state));
+        miral::WindowInfo windowInfo{window, windowSpec};
+        return NewWindow{windowInfo, ""};
+    }
+};
+
+/*
+ * Test: that creating a Window with a particular state creates a MirSurface with the correct state.
+ */
+TEST_P(WindowModelTestTypes, WhenWindowCreatedMirSurfaceStateCorrect)
+{
+    auto const& param = GetParam();
+
+    WindowModelNotifier notifier;
+    WindowModel model(&notifier, nullptr); // no need for controller in this testcase
+
+    auto newWindow = createNewWindowWithState(param);
+    notifier.windowAdded(newWindow);
+
+    auto surface = getMirSurfaceFromModel(model, 0);
+    EXPECT_EQ(param, surface->state());
+}
+
+/*
+ * Test: that WindowModelNotifier.windowStateChanged causes the Qt-side WindowModel to
+ * update the MirSurface state correctly.
+ */
+TEST_P(WindowModelTestTypes, WhenWindowStateChangedMirSurfaceStateUpdated)
+{
+    auto const& param = GetParam();
+
+    WindowModelNotifier notifier;
+    WindowModel model(&notifier, nullptr); // no need for controller in this testcase
+
+    auto newWindow = createNewWindowWithState(Mir::UnknownState);
+    notifier.windowAdded(newWindow);
+
+    // change the state
+    notifier.windowStateChanged(newWindow.windowInfo, toMirState(param));
+
+    auto surface = getMirSurfaceFromModel(model, 0);
+    EXPECT_EQ(param, surface->state());
+}
+
+/*
+ * Test: that WindowModelNotifier.windowStateChanged causes the Qt-side MirSurface to
+ * emit the stateChanged signal
+ */
+TEST_P(WindowModelTestTypes, WhenWindowStateChangedMirSurfaceEmitsStateChangedSignal)
+{
+    auto const& param = GetParam();
+
+    WindowModelNotifier notifier;
+    WindowModel model(&notifier, nullptr); // no need for controller in this testcase
+
+    auto newWindow = createNewWindowWithState(Mir::UnknownState);
+    notifier.windowAdded(newWindow);
+
+    // Test removing the window
+    QSignalSpy spyCountChanged(&model, SIGNAL(countChanged()));
+
+    // change the state
+    notifier.windowStateChanged(newWindow.windowInfo, toMirState(param));
+    flushEvents();
+
+    EXPECT_EQ(1, spyCountChanged.count());
+}
+
+const Mir::State allKnownStates[] = {Mir::RestoredState, Mir::MinimizedState, Mir::MaximizedState, Mir::VertMaximizedState,
+                                     Mir::FullscreenState, Mir::HorizMaximizedState, Mir::HiddenState};
+INSTANTIATE_TEST_CASE_P(WindowTypes, WindowModelTestTypes, ::testing::ValuesIn(allKnownStates));

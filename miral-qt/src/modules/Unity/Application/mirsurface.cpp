@@ -287,14 +287,6 @@ void MirSurface::onAttributeChanged(const MirSurfaceAttrib attribute, const int 
         DEBUG_MSG << " type = " << mirSurfaceTypeToStr(state());
         Q_EMIT typeChanged(type());
         break;
-    case mir_surface_attrib_state:
-        DEBUG_MSG << " state = " << mirSurfaceStateToStr(state());
-        Q_EMIT stateChanged(state());
-        break;
-    case mir_surface_attrib_visibility:
-        DEBUG_MSG << " visible = " << visible();
-        Q_EMIT visibleChanged(visible());
-        break;
     default:
         break;
     }
@@ -553,26 +545,7 @@ QSize MirSurface::size() const
 
 Mir::State MirSurface::state() const
 {
-    switch (m_windowInfo.state()) {
-    case mir_surface_state_unknown:
-        return Mir::UnknownState;
-    case mir_surface_state_restored:
-        return Mir::RestoredState;
-    case mir_surface_state_minimized:
-        return Mir::MinimizedState;
-    case mir_surface_state_maximized:
-        return Mir::MaximizedState;
-    case mir_surface_state_vertmaximized:
-        return Mir::VertMaximizedState;
-    case mir_surface_state_fullscreen:
-        return Mir::FullscreenState;
-    case mir_surface_state_horizmaximized:
-        return Mir::HorizMaximizedState;
-    case mir_surface_state_hidden:
-        return Mir::HiddenState;
-    default:
-        return Mir::UnknownState;
-    }
+    return toQtState(m_windowInfo.state());
 }
 
 Mir::OrientationAngle MirSurface::orientationAngle() const
@@ -630,44 +603,13 @@ QString MirSurface::persistentId() const
 
 void MirSurface::setState(Mir::State qmlState)
 {
-    MirSurfaceState mirState;
+    qDebug("MirSurface::setState to be deprecated!");
+    requestState(qmlState);
+}
 
-    switch (qmlState) {
-    default:
-    case Mir::UnknownState:
-        mirState = mir_surface_state_unknown;
-        break;
-
-    case Mir::RestoredState:
-        mirState = mir_surface_state_restored;
-        break;
-
-    case Mir::MinimizedState:
-        mirState = mir_surface_state_minimized;
-        break;
-
-    case Mir::MaximizedState:
-        mirState = mir_surface_state_maximized;
-        break;
-
-    case Mir::VertMaximizedState:
-        mirState = mir_surface_state_vertmaximized;
-        break;
-
-    case Mir::FullscreenState:
-        mirState = mir_surface_state_fullscreen;
-        break;
-
-    case Mir::HorizMaximizedState:
-        mirState = mir_surface_state_horizmaximized;
-        break;
-
-    case Mir::HiddenState:
-        mirState = mir_surface_state_hidden;
-        break;
-    }
-
-    m_controller->setState(m_windowInfo.window(), mirState);
+void MirSurface::requestState(Mir::State state)
+{
+    m_controller->setState(m_windowInfo.window(), toMirState(state));
 }
 
 void MirSurface::setLive(bool value)
@@ -984,6 +926,24 @@ void MirSurface::updateWindowInfo(const miral::WindowInfo &windowInfo)
     }
     if (dirt | DirtyState::State) {
         Q_EMIT stateChanged(state());
+    }
+}
+
+void MirSurface::updateState(MirSurfaceState newState)
+{
+    if (newState == m_windowInfo.state()) {
+        return;
+    }
+
+    const bool oldVisibility = m_windowInfo.is_visible();
+
+    m_windowInfo.state(newState);
+    Q_EMIT stateChanged(state());
+
+    const bool newVisibility = m_windowInfo.is_visible();
+
+    if (oldVisibility != newVisibility) {
+        Q_EMIT visibleChanged(newVisibility);
     }
 }
 

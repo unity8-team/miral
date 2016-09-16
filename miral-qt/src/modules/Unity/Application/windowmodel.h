@@ -61,6 +61,7 @@ private Q_SLOTS:
     void onWindowAdded(const qtmir::NewWindow &windowInfo);
     void onWindowRemoved(const miral::WindowInfo &window);
     void onWindowMoved(const miral::WindowInfo &window, const QPoint topLeft);
+    void onWindowStateChanged(const miral::WindowInfo &windowInfo, MirSurfaceState state);
     void onWindowResized(const miral::WindowInfo &window, const QSize size);
     void onWindowFocusChanged(const miral::WindowInfo &window, bool focused);
     void onWindowsRaised(const std::vector<miral::Window> &windows);

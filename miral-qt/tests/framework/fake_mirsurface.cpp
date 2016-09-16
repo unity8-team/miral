@@ -83,6 +83,11 @@ Mir::State FakeMirSurface::state() const { return m_state; }
 
 void FakeMirSurface::setState(Mir::State qmlState)
 {
+    requestState(qmlState);
+}
+
+void FakeMirSurface::requestState(Mir::State qmlState)
+{
     if (qmlState != m_state) {
         m_state = qmlState;
         Q_EMIT stateChanged(m_state);
