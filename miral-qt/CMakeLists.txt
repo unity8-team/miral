@@ -97,8 +97,6 @@ pkg_check_modules(CONTENT_HUB libcontent-hub>=0.2 REQUIRED)
 include_directories(SYSTEM ${APPLICATION_API_INCLUDE_DIRS})
 
 
-add_definitions(-DMIR_REQUIRE_DEPRECATED_EVENT_OPT_IN=1)
-
 # Use the fast string builder
 add_definitions(-DQT_USE_QSTRINGBUILDER)
 
