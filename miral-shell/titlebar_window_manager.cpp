@@ -205,16 +205,17 @@ bool TitlebarWindowManagerPolicy::handle_touch_event(MirTouchEvent const* event)
                 auto const delta_width = DeltaX{touch_pinch_width - old_touch_pinch_width};
                 auto const delta_height = DeltaY{touch_pinch_height - old_touch_pinch_height};
 
-                auto const delta_x = DeltaX{touch_pinch_left - old_touch_pinch_left};
-                auto const delta_y = DeltaY{touch_pinch_top - old_touch_pinch_top};
-
-                auto const new_width = std::max(old_size.width + delta_width, Width{5});
-                auto const new_height = std::max(old_size.height + delta_height, Height{5});
-
-                auto new_pos = window.top_left() + delta_x + delta_y;
-                Size new_size{new_width, new_height};
+                auto new_width = std::max(old_size.width + delta_width, Width{5});
+                auto new_height = std::max(old_size.height + delta_height, Height{5});
+                Displacement delta{
+                    DeltaX{touch_pinch_left - old_touch_pinch_left},
+                    DeltaY{touch_pinch_top  - old_touch_pinch_top}};
 
                 auto& window_info = tools.info_for(window);
+                keep_size_within_limits(window_info, delta, new_width, new_height);
+
+                auto new_pos = window.top_left() + delta;
+                Size new_size{new_width, new_height};
 
                 WindowSpecification modifications;
                 modifications.top_left() = new_pos;
@@ -232,9 +233,7 @@ bool TitlebarWindowManagerPolicy::handle_touch_event(MirTouchEvent const* event)
     }
 
     if (!consumes_event && pinching)
-    {
         end_resize();
-    }
 
     old_cursor = cursor;
     old_touch_pinch_top = touch_pinch_top;
@@ -480,6 +479,22 @@ bool TitlebarWindowManagerPolicy::resize(Window const& window, Point cursor, Poi
     auto new_width = old_pos.size.width + x_sign * delta.dx;
     auto new_height = old_pos.size.height + y_sign * delta.dy;
 
+    keep_size_within_limits(window_info, delta, new_width, new_height);
+
+    Size new_size{new_width, new_height};
+    Point new_pos = top_left + left_resize*delta.dx + top_resize*delta.dy;
+
+    WindowSpecification modifications;
+    modifications.top_left() = new_pos;
+    modifications.size() = new_size;
+    tools.modify_window(tools.info_for(window), modifications);
+
+    return true;
+}
+
+void TitlebarWindowManagerPolicy::keep_size_within_limits(
+    WindowInfo const& window_info, Displacement& delta, Width& new_width, Height& new_height) const
+{
     auto const min_width  = std::max(window_info.min_width(), Width{5});
     auto const min_height = std::max(window_info.min_height(), Height{5});
 
@@ -513,16 +528,6 @@ bool TitlebarWindowManagerPolicy::resize(Window const& window, Point cursor, Poi
         if (delta.dy < DeltaY{0})
             delta.dy = DeltaY{0};
     }
-
-    Size new_size{new_width, new_height};
-    Point new_pos = top_left + left_resize*delta.dx + top_resize*delta.dy;
-
-    WindowSpecification modifications;
-    modifications.top_left() = new_pos;
-    modifications.size() = new_size;
-    tools.modify_window(tools.info_for(window), modifications);
-
-    return true;
 }
 
 WindowSpecification TitlebarWindowManagerPolicy::place_new_surface(
