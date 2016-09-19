@@ -4,6 +4,9 @@ DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 
 export DPKG_GENSYMBOLS_CHECK_LEVEL = 4
 
+# GLPixelBuffer doesn't support big endian architectures
+testskip_architectures := s390x powerpc
+
 %:
 	dh $@ --parallel --fail-missing
 
@@ -16,3 +19,8 @@ override_dh_auto_configure:
 # Only build the docs when we need them
 override_dh_auto_build-indep:
 	dh_auto_build -- doc
+
+override_dh_auto_test:
+ifneq ($(DEB_HOST_ARCH),$(findstring $(DEB_HOST_ARCH), $(testskip_architectures)))
+	dh_auto_test $@
+endif
