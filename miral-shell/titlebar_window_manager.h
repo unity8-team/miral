@@ -85,10 +85,19 @@ private:
     int old_touch_pinch_left = 0;
     int old_touch_pinch_width = 0;
     int old_touch_pinch_height = 0;
+    bool pinching = false;
 
     SpinnerSplash const spinner;
 
     std::unique_ptr<TitlebarProvider> const titlebar_provider;
+
+    void end_resize();
+
+    void keep_size_within_limits(
+        miral::WindowInfo const& window_info,
+        Displacement& delta,
+        Width& new_width,
+        Height& new_height) const;
 };
 
 #endif //MIRAL_SHELL_TITLEBAR_WINDOW_MANAGER_H
