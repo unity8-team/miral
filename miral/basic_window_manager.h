@@ -161,7 +161,7 @@ private:
     auto can_activate_window_for_session(miral::Application const& session) -> bool;
 
     auto place_new_surface(ApplicationInfo const& app_info, WindowSpecification parameters) -> WindowSpecification;
-    auto place_relative(Point const& parent_top_left, miral::WindowSpecification const& parameters, Size size)
+    auto place_relative(mir::geometry::Rectangle const& parent, miral::WindowSpecification const& parameters, Size size)
         -> mir::optional_value<Rectangle>;
 
     void move_tree(miral::WindowInfo& root, mir::geometry::Displacement movement);

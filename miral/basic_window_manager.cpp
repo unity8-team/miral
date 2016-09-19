@@ -627,7 +627,7 @@ void miral::BasicWindowManager::modify_window(WindowInfo& window_info, WindowSpe
     {
         if (auto parent = window_info.parent())
         {
-            auto new_pos = place_relative(parent.top_left(), modifications, window.size());
+            auto new_pos = place_relative({parent.top_left(), parent.size()}, modifications, window.size());
 
             if (new_pos.is_set())
                 place_and_size(window_info, new_pos.value().top_left, new_pos.value().size);
@@ -1021,37 +1021,41 @@ auto miral::BasicWindowManager::place_new_surface(ApplicationInfo const& app_inf
         }
     }
 
-    if (has_parent && parameters.aux_rect().is_set() && parameters.placement_hints().is_set())
+    if (has_parent)
     {
-        auto const position = place_relative(
-            info_for(parameters.parent().value()).window().top_left(),
-            parameters,
-            parameters.size().value());
+        auto const parent = info_for(parameters.parent().value()).window();
 
-        if (position.is_set())
+        if (parameters.aux_rect().is_set() && parameters.placement_hints().is_set())
         {
-            parameters.top_left() = position.value().top_left;
-            parameters.size() = position.value().size;
+            auto const position = place_relative(
+                {parent.top_left(), parent.size()},
+                parameters,
+                parameters.size().value());
+
+            if (position.is_set())
+            {
+                parameters.top_left() = position.value().top_left;
+                parameters.size() = position.value().size;
+                positioned = true;
+            }
+        }
+        else
+        {
+            //  o Otherwise, if the dialog is not the same as any previous dialog for the
+            //    same parent window, and/or it does not have user-customized position:
+            //      o It should be optically centered relative to its parent, unless this
+            //        would overlap or cover the title bar of the parent.
+            //      o Otherwise, it should be cascaded vertically (but not horizontally)
+            //        relative to its parent, unless, this would cause at least part of
+            //        it to extend into shell space.
+            auto const parent_top_left = parent.top_left();
+            auto const centred = parent_top_left
+                                 + 0.5*(as_displacement(parent.size()) - as_displacement(parameters.size().value()))
+                                 - DeltaY{(parent.size().height.as_int()-height)/6};
+
+            parameters.top_left() = centred;
             positioned = true;
         }
-    }
-    else if (has_parent)
-    {
-        auto parent = info_for(parameters.parent().value()).window();
-        //  o Otherwise, if the dialog is not the same as any previous dialog for the
-        //    same parent window, and/or it does not have user-customized position:
-        //      o It should be optically centered relative to its parent, unless this
-        //        would overlap or cover the title bar of the parent.
-        //      o Otherwise, it should be cascaded vertically (but not horizontally)
-        //        relative to its parent, unless, this would cause at least part of
-        //        it to extend into shell space.
-        auto const parent_top_left = parent.top_left();
-        auto const centred = parent_top_left
-                             + 0.5*(as_displacement(parent.size()) - as_displacement(parameters.size().value()))
-                             - DeltaY{(parent.size().height.as_int()-height)/6};
-
-        parameters.top_left() = centred;
-        positioned = true;
     }
 
     if (!positioned)
@@ -1260,7 +1264,7 @@ auto offset_for(Size const& size, MirPlacementGravity rect_gravity) -> Displacem
 }
 }
 
-auto miral::BasicWindowManager::place_relative(Point const& parent_top_left, WindowSpecification const& parameters, Size size)
+auto miral::BasicWindowManager::place_relative(mir::geometry::Rectangle const& parent, WindowSpecification const& parameters, Size size)
 -> mir::optional_value<Rectangle>
 {
     auto const hints = parameters.placement_hints().value();
@@ -1274,7 +1278,7 @@ auto miral::BasicWindowManager::place_relative(Point const& parent_top_left, Win
                   parameters.aux_rect_placement_offset().value() : Displacement{};
 
     Rectangle aux_rect = parameters.aux_rect().value();
-    aux_rect.top_left = aux_rect.top_left + (parent_top_left-Point{});
+    aux_rect.top_left = aux_rect.top_left + (parent.top_left-Point{});
 
     std::vector<MirPlacementGravity> rect_gravities{parameters.aux_rect_placement_gravity().value()};
 
