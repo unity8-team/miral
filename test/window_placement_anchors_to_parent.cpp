@@ -180,3 +180,25 @@ TEST_F(WindowPlacementAnchorsToParent, given_offset_above_parent_client_is_ancho
     ASSERT_THAT(child.top_left(), Eq(expected_position));
     ASSERT_THAT(child.size(), Eq(initial_child_size));
 }
+
+TEST_F(WindowPlacementAnchorsToParent, given_rect_and_offset_below_left_parent_client_is_anchored_to_parent)
+{
+    auto const rect_size = 10;
+    Rectangle const below_left{{-rect_size, parent_height}, {rect_size, rect_size}};
+
+    modification = placement(
+        below_left,
+        mir_placement_gravity_southwest,
+        mir_placement_gravity_northeast,
+        mir_placement_hints_resize_any);
+
+    modification.aux_rect_placement_offset() = Displacement{-rect_size, rect_size};
+
+    auto const expected_position = parent_position + DeltaY{parent_height} - as_displacement(initial_child_size).dx;
+
+    EXPECT_CALL(*window_manager_policy, advise_move_to(_, expected_position));
+    EXPECT_CALL(*window_manager_policy, advise_resize(_, _)).Times(0);
+    basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
+    ASSERT_THAT(child.top_left(), Eq(expected_position));
+    ASSERT_THAT(child.size(), Eq(initial_child_size));
+}
