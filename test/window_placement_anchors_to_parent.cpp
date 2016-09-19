@@ -96,8 +96,8 @@ struct WindowPlacementAnchorsToParent : TestWindowManagerTools
 //      the minimum amount?)
 //                                      - alan_g
 //
-// What we've implemented is to first constrain the placement anchor to the parent, then
-// constrain the result of offsetting to the parent.
+// What we have implemented is to constrain the result of offsetting to the parent. That
+// seems to provide reasonable behaviour. Are there test cases that require something more?
 
 TEST_F(WindowPlacementAnchorsToParent, given_rect_anchor_right_of_parent_client_is_anchored_to_parent)
 {
