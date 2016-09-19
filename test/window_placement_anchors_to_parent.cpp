@@ -94,6 +94,10 @@ struct WindowPlacementAnchorsToParent : TestWindowManagerTools
 //   2. Mir will constrain the the offset placement anchor to the parent surface.
 //      Again I don't think we agreed how. (Slide it horizontally and/or vertically
 //      the minimum amount?)
+//                                      - alan_g
+//
+// What we've implemented is to first constrain the placement anchor to the parent, then
+// constrain the result of offsetting to the parent.
 
 TEST_F(WindowPlacementAnchorsToParent, given_rect_anchor_right_of_parent_client_is_anchored_to_parent)
 {
