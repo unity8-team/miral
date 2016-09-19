@@ -32,8 +32,7 @@ auto placement(
     Rectangle const& aux_rect,
     MirPlacementGravity aux_rect_placement_gravity,
     MirPlacementGravity window_placement_gravity,
-    MirPlacementHints placement_hints,
-    Displacement offset = Displacement{0, 0}) -> WindowSpecification
+    MirPlacementHints placement_hints) -> WindowSpecification
 {
     WindowSpecification modification;
 
@@ -41,7 +40,6 @@ auto placement(
     modification.aux_rect_placement_gravity() = aux_rect_placement_gravity;
     modification.window_placement_gravity() = window_placement_gravity;
     modification.placement_hints() = placement_hints;
-    modification.aux_rect_placement_offset() = offset;
 
     return modification;
 }
@@ -127,6 +125,51 @@ TEST_F(WindowPlacementAnchorsToParent, given_rect_anchor_above_parent_client_is_
         mir_placement_gravity_northeast,
         mir_placement_gravity_southeast,
         mir_placement_hints_slide_x);
+
+    auto const expected_position = parent_position + DeltaX{parent_width/2 + rect_size}
+                                   - as_displacement(initial_child_size);
+
+    EXPECT_CALL(*window_manager_policy, advise_move_to(_, expected_position));
+    EXPECT_CALL(*window_manager_policy, advise_resize(_, _)).Times(0);
+    basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
+    ASSERT_THAT(child.top_left(), Eq(expected_position));
+    ASSERT_THAT(child.size(), Eq(initial_child_size));
+}
+
+TEST_F(WindowPlacementAnchorsToParent, given_offset_right_of_parent_client_is_anchored_to_parent)
+{
+    auto const rect_size = 10;
+    Rectangle const mid_right{{parent_width-rect_size, parent_height/2}, {rect_size, rect_size}};
+
+    modification = placement(
+        mid_right,
+        mir_placement_gravity_northeast,
+        mir_placement_gravity_northwest,
+        MirPlacementHints(mir_placement_hints_slide_y|mir_placement_hints_resize_x));
+
+    modification.aux_rect_placement_offset() = Displacement{rect_size, 0};
+
+    auto const expected_position = parent_position + Displacement{parent_width, parent_height/2};
+
+    EXPECT_CALL(*window_manager_policy, advise_move_to(_, expected_position));
+    EXPECT_CALL(*window_manager_policy, advise_resize(_, _)).Times(0);
+    basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
+    ASSERT_THAT(child.top_left(), Eq(expected_position));
+    ASSERT_THAT(child.size(), Eq(initial_child_size));
+}
+
+TEST_F(WindowPlacementAnchorsToParent, given_offset_above_parent_client_is_anchored_to_parent)
+{
+    auto const rect_size = 10;
+    Rectangle const mid_top{{parent_width/2, 0}, {rect_size, rect_size}};
+
+    modification = placement(
+        mid_top,
+        mir_placement_gravity_northeast,
+        mir_placement_gravity_southeast,
+        mir_placement_hints_slide_x);
+
+    modification.aux_rect_placement_offset() = Displacement{0, -rect_size};
 
     auto const expected_position = parent_position + DeltaX{parent_width/2 + rect_size}
                                    - as_displacement(initial_child_size);
