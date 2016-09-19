@@ -1189,6 +1189,23 @@ auto antipodes(MirPlacementGravity rect_gravity) -> MirPlacementGravity
     }
 }
 
+auto constrain_to(mir::geometry::Rectangle const& rect, Point point) -> Point
+{
+    if (point.x < rect.top_left.x)
+        point.x = rect.top_left.x;
+
+    if (point.y < rect.top_left.y)
+        point.y = rect.top_left.y;
+
+    if (point.x > rect.bottom_right().x)
+        point.x = rect.bottom_right().x;
+
+    if (point.y > rect.bottom_right().y)
+        point.y = rect.bottom_right().y;
+
+    return point;
+}
+
 auto anchor_for(Rectangle const& aux_rect, MirPlacementGravity rect_gravity) -> Point
 {
     switch (rect_gravity)
@@ -1290,7 +1307,7 @@ auto miral::BasicWindowManager::place_relative(mir::geometry::Rectangle const& p
     for (auto const& rect_gravity : rect_gravities)
     {
         {
-            auto result = anchor_for(aux_rect, rect_gravity) + offset_for(size, win_gravity) + offset;
+            auto result = constrain_to(parent, anchor_for(aux_rect, rect_gravity)) + offset_for(size, win_gravity) + offset;
 
             if (active_display_area.contains(Rectangle{result, size}))
                 return Rectangle{result, size};
@@ -1301,7 +1318,7 @@ auto miral::BasicWindowManager::place_relative(mir::geometry::Rectangle const& p
 
         if (hints & mir_placement_hints_flip_x)
         {
-            auto result = anchor_for(aux_rect, flip_x(rect_gravity)) +
+            auto result = constrain_to(parent, anchor_for(aux_rect, flip_x(rect_gravity))) +
                 offset_for(size, flip_x(win_gravity)) + flip_x(offset);
 
             if (active_display_area.contains(Rectangle{result, size}))
@@ -1310,7 +1327,7 @@ auto miral::BasicWindowManager::place_relative(mir::geometry::Rectangle const& p
 
         if (hints & mir_placement_hints_flip_y)
         {
-            auto result = anchor_for(aux_rect, flip_y(rect_gravity)) +
+            auto result = constrain_to(parent, anchor_for(aux_rect, flip_y(rect_gravity))) +
                 offset_for(size, flip_y(win_gravity)) + flip_y(offset);
 
             if (active_display_area.contains(Rectangle{result, size}))
@@ -1319,7 +1336,7 @@ auto miral::BasicWindowManager::place_relative(mir::geometry::Rectangle const& p
 
         if (hints & mir_placement_hints_flip_x && hints & mir_placement_hints_flip_y)
         {
-            auto result = anchor_for(aux_rect, flip_x(flip_y(rect_gravity))) +
+            auto result = constrain_to(parent, anchor_for(aux_rect, flip_x(flip_y(rect_gravity)))) +
                 offset_for(size, flip_x(flip_y(win_gravity))) + flip_x(flip_y(offset));
 
             if (active_display_area.contains(Rectangle{result, size}))
@@ -1329,7 +1346,7 @@ auto miral::BasicWindowManager::place_relative(mir::geometry::Rectangle const& p
 
     for (auto const& rect_gravity : rect_gravities)
     {
-        auto result = anchor_for(aux_rect, rect_gravity) + offset_for(size, win_gravity) + offset;
+        auto result = constrain_to(parent, anchor_for(aux_rect, rect_gravity)) + offset_for(size, win_gravity) + offset;
 
         if (hints & mir_placement_hints_slide_x)
         {
@@ -1359,7 +1376,7 @@ auto miral::BasicWindowManager::place_relative(mir::geometry::Rectangle const& p
 
     for (auto const& rect_gravity : rect_gravities)
     {
-        auto result = anchor_for(aux_rect, rect_gravity) + offset_for(size, win_gravity) + offset;
+        auto result = constrain_to(parent, anchor_for(aux_rect, rect_gravity)) + offset_for(size, win_gravity) + offset;
 
         if (hints & mir_placement_hints_resize_x)
         {
