@@ -33,15 +33,6 @@ Rectangle const display_area{{display_left, display_top}, {display_width, displa
 
 auto const null_window = Window{};
 
-auto create_surface(std::shared_ptr<mir::scene::Session> const& session, mir::scene::SurfaceCreationParameters const& params)
--> mir::frontend::SurfaceId
-{
-    // This type is Mir-internal, I hope we don't need to create it here
-    std::shared_ptr<mir::frontend::EventSink> const sink;
-
-    return session->create_surface(params, sink);
-}
-
 mir::shell::SurfaceSpecification edge_attachment(Rectangle const& aux_rect, MirEdgeAttachment attachment)
 {
     mir::shell::SurfaceSpecification result;

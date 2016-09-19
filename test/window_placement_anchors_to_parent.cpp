@@ -1,0 +1,118 @@
+/*
+ * Copyright © 2016 Canonical Ltd.
+ *
+ * This program is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License version 3,
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Authored by: Alan Griffiths <alan@octopull.co.uk>
+ */
+
+#include "test_window_manager_tools.h"
+
+using namespace miral;
+using namespace testing;
+namespace mt = mir::test;
+
+namespace
+{
+auto const display_area = Rectangle{{0, 0}, {800, 600}};
+auto const parent_width = 400;
+auto const parent_height = 300;
+
+auto placement(
+    Rectangle const& aux_rect,
+    MirPlacementGravity aux_rect_placement_gravity,
+    MirPlacementGravity window_placement_gravity,
+    MirPlacementHints placement_hints,
+    Displacement offset = Displacement{0, 0}) -> WindowSpecification
+{
+    WindowSpecification modification;
+
+    modification.aux_rect() = aux_rect;
+    modification.aux_rect_placement_gravity() = aux_rect_placement_gravity;
+    modification.window_placement_gravity() = window_placement_gravity;
+    modification.placement_hints() = placement_hints;
+    modification.aux_rect_placement_offset() = offset;
+
+    return modification;
+}
+
+struct WindowPlacementAnchorsToParent : TestWindowManagerTools
+{
+    Size const parent_size{parent_width, parent_height};
+    Size const initial_child_size{100, 50};
+
+    Window parent;
+    Window child;
+
+    Point parent_position;
+    WindowSpecification modification;
+
+    void SetUp() override
+    {
+        TestWindowManagerTools::SetUp();
+
+        basic_window_manager.add_display(display_area);
+
+        mir::scene::SurfaceCreationParameters creation_parameters;
+        basic_window_manager.add_session(session);
+
+        EXPECT_CALL(*window_manager_policy, advise_new_window(_))
+            .WillOnce(Invoke([this](WindowInfo const& window_info){ parent = window_info.window(); }))
+            .WillOnce(Invoke([this](WindowInfo const& window_info){ child = window_info.window(); }));
+
+        creation_parameters.size = parent_size;
+        basic_window_manager.add_surface(session, creation_parameters, &create_surface);
+
+        creation_parameters.type = mir_surface_type_tip;
+        creation_parameters.parent = parent;
+        creation_parameters.size = initial_child_size;
+        basic_window_manager.add_surface(session, creation_parameters, &create_surface);
+
+        // Clear the expectations used to capture parent & child
+        Mock::VerifyAndClearExpectations(window_manager_policy);
+
+        parent_position = parent.top_left();
+    }
+};
+}
+
+// there was an IRC conversation to sort this out between myself William and Thomas.
+// I think the resulting consensus was:
+//
+//   1. Mir will constrain the placement anchor of the aux_rect to the parent
+//      surface. I don't think we agreed exactly how (e.g. do we "clip" the
+//      rect? What happens if there is *no* intersection?)
+//
+//   2. Mir will constrain the the offset placement anchor to the parent surface.
+//      Again I don't think we agreed how. (Slide it horizontally and/or vertically
+//      the minimum amount?)
+
+TEST_F(WindowPlacementAnchorsToParent, given_rect_anchor_to_right_of_parent_client_is_anchored_to_parent)
+{
+    auto const rect_size = 10;
+    Rectangle const overlapping_right{{parent_width-rect_size/2, parent_height/2}, {rect_size, rect_size}};
+
+    modification = placement(
+        overlapping_right,
+        mir_placement_gravity_northeast,
+        mir_placement_gravity_northwest,
+        MirPlacementHints(mir_placement_hints_slide_y|mir_placement_hints_resize_x));
+
+    auto const expected_position = parent_position + Displacement{parent_width, parent_height/2};
+
+    EXPECT_CALL(*window_manager_policy, advise_move_to(_, expected_position));
+    EXPECT_CALL(*window_manager_policy, advise_resize(_, _)).Times(0);
+    basic_window_manager.modify_window(basic_window_manager.info_for(child), modification);
+    ASSERT_THAT(child.top_left(), Eq(expected_position));
+    ASSERT_THAT(child.size(), Eq(initial_child_size));
+}

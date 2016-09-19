@@ -143,6 +143,15 @@ struct TestWindowManagerTools : testing::Test
                 return std::move(policy);
             }
     };
+
+    static auto create_surface(
+        std::shared_ptr<mir::scene::Session> const& session,
+        mir::scene::SurfaceCreationParameters const& params) -> mir::frontend::SurfaceId
+    {
+        // This type is Mir-internal, I hope we don't need to create it here
+        std::shared_ptr<mir::frontend::EventSink> const sink;
+        return session->create_surface(params, sink);
+    }
 };
 
 #endif //MIRAL_TEST_WINDOW_MANAGER_TOOLS_H
