@@ -131,7 +131,7 @@ void FakeMirSurface::setLive(bool value)
     }
 }
 
-void FakeMirSurface::setViewVisibility(qintptr viewId, bool visible) {
+void FakeMirSurface::setViewExposure(qintptr viewId, bool visible) {
     if (!m_views.contains(viewId)) return;
 
     m_views[viewId] = visible;

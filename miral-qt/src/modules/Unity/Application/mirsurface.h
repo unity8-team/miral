@@ -108,7 +108,7 @@ public:
 
     void registerView(qintptr viewId) override;
     void unregisterView(qintptr viewId) override;
-    void setViewVisibility(qintptr viewId, bool visible) override;
+    void setViewExposure(qintptr viewId, bool exposed) override;
 
     // methods called from the rendering (scene graph) thread:
     QSharedPointer<QSGTexture> texture() override;
@@ -181,7 +181,7 @@ private Q_SLOTS:
 private:
     void syncSurfaceSizeWithItemSize();
     bool clientIsRunning() const;
-    void updateVisibility();
+    void updateExposure();
     void applyKeymap();
     void updateActiveFocus();
 
@@ -206,7 +206,7 @@ private:
 
     bool m_live;
     struct View {
-        bool visible;
+        bool exposed;
     };
     QHash<qintptr, View> m_views;
 

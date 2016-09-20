@@ -26,6 +26,7 @@ FocusScope {
                 width: surface.size.width
                 height: surface.size.height
                 focus: surface.focused
+                visible: surface.visible
 
                 Rectangle {
                     anchors { top: parent.bottom; right: parent.right }

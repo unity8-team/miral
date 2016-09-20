@@ -64,7 +64,7 @@ public:
 
     virtual void registerView(qintptr viewId) = 0;
     virtual void unregisterView(qintptr viewId) = 0;
-    virtual void setViewVisibility(qintptr viewId, bool visible) = 0;
+    virtual void setViewExposure(qintptr viewId, bool exposed) = 0;
 
     // methods called from the rendering (scene graph) thread:
     virtual QSharedPointer<QSGTexture> texture() = 0;
