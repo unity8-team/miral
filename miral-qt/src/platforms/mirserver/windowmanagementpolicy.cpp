@@ -124,9 +124,9 @@ void WindowManagementPolicy::advise_delete_app(const miral::ApplicationInfo &app
     Q_EMIT m_appNotifier.appRemoved(application);
 }
 
-void WindowManagementPolicy::advise_state_change(const miral::WindowInfo &/*windowInfo*/, MirSurfaceState /*state*/)
+void WindowManagementPolicy::advise_state_change(const miral::WindowInfo &windowInfo, MirSurfaceState state)
 {
-    qDebug("Window State Change");
+    Q_EMIT m_windowModel.windowStateChanged(windowInfo, state);
 }
 
 void WindowManagementPolicy::advise_move_to(const miral::WindowInfo &windowInfo, Point topLeft)
