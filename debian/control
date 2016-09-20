@@ -50,7 +50,7 @@ Multi-Arch: same
 Pre-Depends: ${misc:Pre-Depends}
 Depends: libmiral1 (= ${binary:Version}),
          ${misc:Depends},
-Description: Display server for Ubuntu - ABI preserving abstraction layer
+Description: Developer files for the Mir ABI-stable abstraction layer
  MirAL provides an ABI-stable abstraction layer for Mir based shells,
  insulating them from mirserver ABI breaks.
  .
