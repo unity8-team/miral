@@ -45,11 +45,16 @@ FocusScope {
     }
 
     Button {
-        anchors { right: parent.right; bottom: parent.bottom }
+        anchors { right: parent.right; top: parent.top }
         height: 30
         width: 80
         text: "Quit"
         onClicked: Qt.quit()
+    }
+
+    WindowModelDebugView {
+        anchors { right: parent.right; bottom: parent.bottom }
+        model: windowModel
     }
 
     Text {
