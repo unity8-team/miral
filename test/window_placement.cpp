@@ -33,15 +33,6 @@ Rectangle const display_area{{display_left, display_top}, {display_width, displa
 
 auto const null_window = Window{};
 
-auto create_surface(std::shared_ptr<mir::scene::Session> const& session, mir::scene::SurfaceCreationParameters const& params)
--> mir::frontend::SurfaceId
-{
-    // This type is Mir-internal, I hope we don't need to create it here
-    std::shared_ptr<mir::frontend::EventSink> const sink;
-
-    return session->create_surface(params, sink);
-}
-
 mir::shell::SurfaceSpecification edge_attachment(Rectangle const& aux_rect, MirEdgeAttachment attachment)
 {
     mir::shell::SurfaceSpecification result;
@@ -55,13 +46,13 @@ struct WindowPlacement : TestWindowManagerTools
     Size const initial_parent_size{600, 400};
     Size const initial_child_size{300, 300};
     Rectangle const rectangle_away_from_rhs{{20, 20}, {20, 20}};
-    Rectangle const rectangle_near_rhs{{600, 20}, {10, 20}};
+    Rectangle const rectangle_near_rhs{{590, 20}, {10, 20}};
     Rectangle const rectangle_away_from_bottom{{20, 20}, {20, 20}};
-    Rectangle const rectangle_near_bottom{{20, 400}, {20, 20}};
+    Rectangle const rectangle_near_bottom{{20, 380}, {20, 20}};
     Rectangle const rectangle_near_both_sides{{0, 20}, {600, 20}};
-    Rectangle const rectangle_near_both_sides_and_bottom{{0, 400}, {600, 20}};
-    Rectangle const rectangle_near_all_sides{{0, 20}, {600, 400}};
-    Rectangle const rectangle_near_both_bottom_right{{400, 400}, {200, 20}};
+    Rectangle const rectangle_near_both_sides_and_bottom{{0, 380}, {600, 20}};
+    Rectangle const rectangle_near_all_sides{{0, 20}, {600, 380}};
+    Rectangle const rectangle_near_both_bottom_right{{400, 380}, {200, 20}};
 
     Window parent;
     Window child;

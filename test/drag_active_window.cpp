@@ -36,16 +36,6 @@ Rectangle const display_area{{display_left,  display_top},
 
 auto const null_window = Window{};
 
-auto
-create_surface(std::shared_ptr<mir::scene::Session> const& session, mir::scene::SurfaceCreationParameters const& params)
--> mir::frontend::SurfaceId
-{
-    // This type is Mir-internal, I hope we don't need to create it here
-    std::shared_ptr<mir::frontend::EventSink> const sink;
-
-    return session->create_surface(params, sink);
-}
-
 struct DragActiveWindow : TestWindowManagerTools, WithParamInterface<MirSurfaceType>
 {
     Size const initial_parent_size{600, 400};
