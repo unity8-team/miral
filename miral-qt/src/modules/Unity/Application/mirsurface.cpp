@@ -623,7 +623,7 @@ bool MirSurface::live() const
 
 bool MirSurface::visible() const
 {
-    return m_surface->query(mir_surface_attrib_visibility) == mir_surface_visibility_exposed;
+    return m_windowInfo.is_visible();
 }
 #include <mir_toolkit/event.h>
 void MirSurface::mousePressEvent(QMouseEvent *event)
@@ -741,32 +741,34 @@ void MirSurface::unregisterView(qintptr viewId)
             deleteLater();
         }
     }
-    updateVisibility();
+    updateExposure();
     setViewActiveFocus(viewId, false);
 }
 
-void MirSurface::setViewVisibility(qintptr viewId, bool visible)
+void MirSurface::setViewExposure(qintptr viewId, bool exposed)
 {
     if (!m_views.contains(viewId)) return;
 
-    m_views[viewId].visible = visible;
-    updateVisibility();
+    m_views[viewId].exposed = exposed;
+    updateExposure();
 }
 
-void MirSurface::updateVisibility()
+void MirSurface::updateExposure()
 {
-    bool newVisible = false;
+    bool newExposed = false;
     QHashIterator<qintptr, View> i(m_views);
     while (i.hasNext()) {
         i.next();
-        newVisible |= i.value().visible;
+        newExposed |= i.value().exposed;
     }
 
-    if (newVisible != visible()) {
-        DEBUG_MSG << "(" << newVisible << ")";
+    const bool oldExposed = (m_surface->query(mir_surface_attrib_visibility) == mir_surface_visibility_exposed);
+
+    if (newExposed != oldExposed) {
+        DEBUG_MSG << "(" << newExposed << ")";
 
         m_surface->configure(mir_surface_attrib_visibility,
-                             newVisible ? mir_surface_visibility_exposed : mir_surface_visibility_occluded);
+                             newExposed ? mir_surface_visibility_exposed : mir_surface_visibility_occluded);
     }
 }
 

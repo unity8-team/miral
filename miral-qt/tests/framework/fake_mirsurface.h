@@ -100,7 +100,7 @@ public:
     void stopFrameDropper() override;
     void startFrameDropper() override;
     void setLive(bool value) override;
-    void setViewVisibility(qintptr viewId, bool visible) override;
+    void setViewExposure(qintptr viewId, bool visible) override;
     bool isBeingDisplayed() const override;
     void registerView(qintptr viewId) override;
     void unregisterView(qintptr viewId) override;
