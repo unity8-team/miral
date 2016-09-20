@@ -138,7 +138,7 @@ void WindowModel::removeInputMethodWindow()
 
 void WindowModel::onWindowsRaised(const std::vector<miral::Window> &windows)
 {
-    // Reminder: last item in the "windows" list should be end up at the top of the model
+    // Reminder: last item in the "windows" list should end up at the top of the model
     const int modelCount = m_windowModel.count();
     const int raiseCount = windows.size();
 
