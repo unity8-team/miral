@@ -21,9 +21,15 @@
 #include "window_management_trace.h"
 
 #include <mir/server.h>
+#include <mir/options/option.h>
 #include <mir/version.h>
 
 namespace msh = mir::shell;
+
+namespace
+{
+char const* const trace_option = "window-management-trace";
+}
 
 miral::SetWindowManagmentPolicy::SetWindowManagmentPolicy(WindowManagementPolicyBuilder const& builder) :
     builder{builder}
@@ -34,6 +40,8 @@ miral::SetWindowManagmentPolicy::~SetWindowManagmentPolicy() = default;
 
 void miral::SetWindowManagmentPolicy::operator()(mir::Server& server) const
 {
+    server.add_configuration_option(trace_option, "log trace message", mir::OptionType::null);
+
     server.override_the_window_manager_builder([this, &server](msh::FocusController* focus_controller)
         -> std::shared_ptr<msh::WindowManager>
         {
@@ -45,13 +53,16 @@ void miral::SetWindowManagmentPolicy::operator()(mir::Server& server) const
             std::shared_ptr<mir::shell::PersistentSurfaceStore> const persistent_surface_store;
 #endif
 
-//            return std::make_shared<BasicWindowManager>(focus_controller, display_layout, persistent_surface_store, builder);
-
-            auto trace_builder = [this](WindowManagerTools const& tools) -> std::unique_ptr<miral::WindowManagementPolicy>
+            if (server.get_options()->is_set(trace_option))
             {
-                return std::make_unique<WindowManagementTrace>(tools, builder);
-            };
+                auto trace_builder = [this](WindowManagerTools const& tools) -> std::unique_ptr<miral::WindowManagementPolicy>
+                    {
+                    return std::make_unique<WindowManagementTrace>(tools, builder);
+                    };
 
-            return std::make_shared<BasicWindowManager>(focus_controller, display_layout, persistent_surface_store, trace_builder);
+                return std::make_shared<BasicWindowManager>(focus_controller, display_layout, persistent_surface_store, trace_builder);
+            }
+
+            return std::make_shared<BasicWindowManager>(focus_controller, display_layout, persistent_surface_store, builder);
         });
 }
