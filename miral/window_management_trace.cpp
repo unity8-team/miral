@@ -32,136 +32,161 @@ miral::WindowManagementTrace::WindowManagementTrace(
 
 auto miral::WindowManagementTrace::count_applications() const -> unsigned int
 {
-    return 0;
+    puts(__func__);
+    return wrapped.count_applications();
 }
 
-void miral::WindowManagementTrace::for_each_application(std::function<void(miral::ApplicationInfo&)> const& /*functor*/)
+void miral::WindowManagementTrace::for_each_application(std::function<void(miral::ApplicationInfo&)> const& functor)
 {
-
+    puts(__func__);
+    wrapped.for_each_application(functor);
 }
 
-auto miral::WindowManagementTrace::find_application(std::function<bool(ApplicationInfo const& info)> const& /*predicate*/)
+auto miral::WindowManagementTrace::find_application(std::function<bool(ApplicationInfo const& info)> const& predicate)
 -> Application
 {
-    return {};
+    puts(__func__);
+    return wrapped.find_application(predicate);
 }
 
-auto miral::WindowManagementTrace::info_for(std::weak_ptr<mir::scene::Session> const& /*session*/) const -> ApplicationInfo&
+auto miral::WindowManagementTrace::info_for(std::weak_ptr<mir::scene::Session> const& session) const -> ApplicationInfo&
 {
-    throw "TODO";
+    puts(__func__);
+    return wrapped.info_for(session);
 }
 
-auto miral::WindowManagementTrace::info_for(std::weak_ptr<mir::scene::Surface> const& /*surface*/) const -> WindowInfo&
+auto miral::WindowManagementTrace::info_for(std::weak_ptr<mir::scene::Surface> const& surface) const -> WindowInfo&
 {
-    throw "TODO";
+    puts(__func__);
+    return wrapped.info_for(surface);
 }
 
-auto miral::WindowManagementTrace::info_for(Window const& /*window*/) const -> WindowInfo&
+auto miral::WindowManagementTrace::info_for(Window const& window) const -> WindowInfo&
 {
-    throw "TODO";
+    puts(__func__);
+    return wrapped.info_for(window);
 }
 
-void miral::WindowManagementTrace::ask_client_to_close(miral::Window const& /*window*/)
+void miral::WindowManagementTrace::ask_client_to_close(miral::Window const& window)
 {
-
+    puts(__func__);
+    wrapped.ask_client_to_close(window);
 }
 
 auto miral::WindowManagementTrace::active_window() const -> Window
 {
-    return {};
+    puts(__func__);
+    return wrapped.active_window();
 }
 
-auto miral::WindowManagementTrace::select_active_window(Window const& /*hint*/) -> Window
+auto miral::WindowManagementTrace::select_active_window(Window const& hint) -> Window
 {
-    return {};
+    puts(__func__);
+    return wrapped.select_active_window(hint);
 }
 
-auto miral::WindowManagementTrace::window_at(mir::geometry::Point /*cursor*/) const -> Window
+auto miral::WindowManagementTrace::window_at(mir::geometry::Point cursor) const -> Window
 {
-    return {};
+    puts(__func__);
+    return wrapped.window_at(cursor);
 }
 
 auto miral::WindowManagementTrace::active_display() -> mir::geometry::Rectangle const
 {
-    return {};
+    puts(__func__);
+    return wrapped.active_display();
 }
 
-auto miral::WindowManagementTrace::info_for_window_id(std::string const& /*id*/) const -> WindowInfo&
+auto miral::WindowManagementTrace::info_for_window_id(std::string const& id) const -> WindowInfo&
 {
-    throw "TODO";
+    puts(__func__);
+    return wrapped.info_for_window_id(id);
 }
 
-auto miral::WindowManagementTrace::id_for_window(Window const& /*window*/) const -> std::string
+auto miral::WindowManagementTrace::id_for_window(Window const& window) const -> std::string
 {
-    return {};
+    puts(__func__);
+    return wrapped.id_for_window(window);
 }
 
-void miral::WindowManagementTrace::drag_active_window(mir::geometry::Displacement /*movement*/)
+void miral::WindowManagementTrace::drag_active_window(mir::geometry::Displacement movement)
 {
-
+    puts(__func__);
+    wrapped.drag_active_window(movement);
 }
 
 void miral::WindowManagementTrace::focus_next_application()
 {
-
+    puts(__func__);
+    wrapped.focus_next_within_application();
 }
 
 void miral::WindowManagementTrace::focus_next_within_application()
 {
-
+    puts(__func__);
+    wrapped.focus_next_within_application();
 }
 
-void miral::WindowManagementTrace::raise_tree(miral::Window const& /*root*/)
+void miral::WindowManagementTrace::raise_tree(miral::Window const& root)
 {
-
+    puts(__func__);
+    wrapped.raise_tree(root);
 }
 
 void miral::WindowManagementTrace::modify_window(
-    miral::WindowInfo& /*window_info*/, miral::WindowSpecification const& /*modifications*/)
+    miral::WindowInfo& window_info, miral::WindowSpecification const& modifications)
 {
-
+    puts(__func__);
+    wrapped.modify_window(window_info, modifications);
 }
 
-void miral::WindowManagementTrace::invoke_under_lock(std::function<void()> const& /*callback*/)
+void miral::WindowManagementTrace::invoke_under_lock(std::function<void()> const& callback)
 {
-
+    puts(__func__);
+    wrapped.invoke_under_lock(callback);
 }
 
 auto miral::WindowManagementTrace::place_new_surface(
-    ApplicationInfo const& /*app_info*/,
+    ApplicationInfo const& app_info,
     WindowSpecification const& requested_specification) -> WindowSpecification
 {
-    return requested_specification;
+    puts(__func__);
+    return policy->place_new_surface(app_info, requested_specification);
 }
 
-void miral::WindowManagementTrace::handle_window_ready(miral::WindowInfo& /*window_info*/)
+void miral::WindowManagementTrace::handle_window_ready(miral::WindowInfo& window_info)
 {
-
+    puts(__func__);
+    policy->handle_window_ready(window_info);
 }
 
 void miral::WindowManagementTrace::handle_modify_window(
-    miral::WindowInfo& /*window_info*/, miral::WindowSpecification const& /*modifications*/)
+    miral::WindowInfo& window_info, miral::WindowSpecification const& modifications)
 {
-
+    puts(__func__);
+    policy->handle_modify_window(window_info, modifications);
 }
 
-void miral::WindowManagementTrace::handle_raise_window(miral::WindowInfo& /*window_info*/)
+void miral::WindowManagementTrace::handle_raise_window(miral::WindowInfo& window_info)
 {
-
+    puts(__func__);
+    policy->handle_raise_window(window_info);
 }
 
-bool miral::WindowManagementTrace::handle_keyboard_event(MirKeyboardEvent const* /*event*/)
+bool miral::WindowManagementTrace::handle_keyboard_event(MirKeyboardEvent const* event)
 {
-    return false;
+    puts(__func__);
+    return policy->handle_keyboard_event(event);
 }
 
-bool miral::WindowManagementTrace::handle_touch_event(MirTouchEvent const* /*event*/)
+bool miral::WindowManagementTrace::handle_touch_event(MirTouchEvent const* event)
 {
-    return false;
+    puts(__func__);
+    return policy->handle_touch_event(event);
 }
 
-bool miral::WindowManagementTrace::handle_pointer_event(MirPointerEvent const* /*event*/)
+bool miral::WindowManagementTrace::handle_pointer_event(MirPointerEvent const* event)
 {
-    return false;
+    puts(__func__);
+    return policy->handle_pointer_event(event);
 }
-
