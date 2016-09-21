@@ -33,7 +33,7 @@ namespace
 {
 std::string const null_ptr{"(null)"};
 
-inline auto name_of(miral::Window const& window) -> std::string
+inline auto dump_of(miral::Window const& window) -> std::string
 {
     if (std::shared_ptr<mir::scene::Surface> surface = window)
         return surface->name();
@@ -41,12 +41,31 @@ inline auto name_of(miral::Window const& window) -> std::string
         return null_ptr;
 }
 
-inline auto name_of(miral::Application const& application) -> std::string
+inline auto dump_of(miral::Application const& application) -> std::string
 {
     if (application)
         return application->name();
     else
         return null_ptr;
+}
+
+inline auto dump_of(miral::ApplicationInfo const& app_info) -> std::string
+{
+    std::stringstream out;
+    out << dump_of(app_info.application());
+    return out.str();
+}
+
+inline auto dump_of(miral::WindowInfo const& info) -> std::string
+{
+    std::stringstream out;
+    out << dump_of(info.window());
+    return out.str();
+}
+
+inline auto dump_of(miral::WindowSpecification const& /*specification*/) -> std::string
+{
+    return "mods";
 }
 }
 
@@ -61,7 +80,7 @@ miral::WindowManagementTrace::WindowManagementTrace(
 auto miral::WindowManagementTrace::count_applications() const -> unsigned int
 {
     auto const result = wrapped.count_applications();
-    mir::log_info("%s: %d", __func__, result);
+    mir::log_info("%s -> %d", __func__, result);
     return result;
 }
 
@@ -75,7 +94,7 @@ auto miral::WindowManagementTrace::find_application(std::function<bool(Applicati
 -> Application
 {
     auto result = wrapped.find_application(predicate);
-    mir::log_info("%s: %s", __func__, name_of(result).c_str());
+    mir::log_info("%s -> %s", __func__, dump_of(result).c_str());
     return result;
 }
 
@@ -83,41 +102,41 @@ auto miral::WindowManagementTrace::info_for(std::weak_ptr<mir::scene::Session> c
 {
 
     auto& result = wrapped.info_for(session);
-    mir::log_info("%s: %s", __func__, result.application()->name().c_str());
+    mir::log_info("%s -> %s", __func__, result.application()->name().c_str());
     return result;
 }
 
 auto miral::WindowManagementTrace::info_for(std::weak_ptr<mir::scene::Surface> const& surface) const -> WindowInfo&
 {
     auto& result = wrapped.info_for(surface);
-    mir::log_info("%s: %s", __func__, result.name().c_str());
+    mir::log_info("%s -> %s", __func__, result.name().c_str());
     return result;
 }
 
 auto miral::WindowManagementTrace::info_for(Window const& window) const -> WindowInfo&
 {
     auto& result = wrapped.info_for(window);
-    mir::log_info("%s: %s", __func__, result.name().c_str());
+    mir::log_info("%s -> %s", __func__, result.name().c_str());
     return result;
 }
 
 void miral::WindowManagementTrace::ask_client_to_close(miral::Window const& window)
 {
-    mir::log_info("%s: %s", __func__, name_of(window).c_str());
+    mir::log_info("%s -> %s", __func__, dump_of(window).c_str());
     wrapped.ask_client_to_close(window);
 }
 
 auto miral::WindowManagementTrace::active_window() const -> Window
 {
     auto result = wrapped.active_window();
-    mir::log_info("%s: %s", __func__, name_of(result).c_str());
+    mir::log_info("%s -> %s", __func__, dump_of(result).c_str());
     return result;
 }
 
 auto miral::WindowManagementTrace::select_active_window(Window const& hint) -> Window
 {
     auto result = wrapped.select_active_window(hint);
-    mir::log_info("%s hint=%s: %s", __func__, name_of(hint).c_str(), name_of(result).c_str());
+    mir::log_info("%s hint=%s -> %s", __func__, dump_of(hint).c_str(), dump_of(result).c_str());
     return result;
 }
 
@@ -125,32 +144,39 @@ auto miral::WindowManagementTrace::window_at(mir::geometry::Point cursor) const 
 {
     auto result = wrapped.window_at(cursor);
     std::stringstream out;
-    out << cursor << ": " << name_of(result);
+    out << cursor << " -> " << dump_of(result);
     mir::log_info("%s cursor=%s", __func__, out.str().c_str());
     return result;
 }
 
 auto miral::WindowManagementTrace::active_display() -> mir::geometry::Rectangle const
 {
-    mir::log_info("%s", __func__);
-    return wrapped.active_display();
+    auto result = wrapped.active_display();
+    std::stringstream out;
+    out << result;
+    mir::log_info("%s -> ", __func__, out.str().c_str());
+    return result;
 }
 
 auto miral::WindowManagementTrace::info_for_window_id(std::string const& id) const -> WindowInfo&
 {
-    mir::log_info("%s", __func__);
-    return wrapped.info_for_window_id(id);
+    auto& result = wrapped.info_for_window_id(id);
+    mir::log_info("%s id=%s -> %s", __func__, id.c_str(), dump_of(result).c_str());
+    return result;
 }
 
 auto miral::WindowManagementTrace::id_for_window(Window const& window) const -> std::string
 {
-    mir::log_info("%s", __func__);
-    return wrapped.id_for_window(window);
+    auto result = wrapped.id_for_window(window);
+    mir::log_info("%s window=%s -> %s", __func__, dump_of(window).c_str(), result.c_str());
+    return result;
 }
 
 void miral::WindowManagementTrace::drag_active_window(mir::geometry::Displacement movement)
 {
-    mir::log_info("%s", __func__);
+    std::stringstream out;
+    out << movement;
+    mir::log_info("%s movement=%s", __func__, out.str().c_str());
     wrapped.drag_active_window(movement);
 }
 
@@ -168,14 +194,16 @@ void miral::WindowManagementTrace::focus_next_within_application()
 
 void miral::WindowManagementTrace::raise_tree(miral::Window const& root)
 {
-    mir::log_info("%s", __func__);
+    mir::log_info("%s root=%s", __func__, dump_of(root).c_str());
     wrapped.raise_tree(root);
 }
 
 void miral::WindowManagementTrace::modify_window(
     miral::WindowInfo& window_info, miral::WindowSpecification const& modifications)
 {
-    mir::log_info("%s", __func__);
+    mir::log_info("%s window_info=%s, modifications=%s", 
+                  __func__, dump_of(window_info).c_str(), dump_of(modifications).c_str());
+    
     wrapped.modify_window(window_info, modifications);
 }
 
@@ -189,26 +217,31 @@ auto miral::WindowManagementTrace::place_new_surface(
     ApplicationInfo const& app_info,
     WindowSpecification const& requested_specification) -> WindowSpecification
 {
-    mir::log_info("%s", __func__);
-    return policy->place_new_surface(app_info, requested_specification);
+    auto const result = policy->place_new_surface(app_info, requested_specification);
+    mir::log_info("%s app_info=%s, requested_specification=%s -> %s",
+              __func__, dump_of(app_info).c_str(), dump_of(requested_specification).c_str(), dump_of(result).c_str());
+
+    return result;
 }
 
 void miral::WindowManagementTrace::handle_window_ready(miral::WindowInfo& window_info)
 {
-    mir::log_info("%s", __func__);
+    mir::log_info("%s window_info=%s", __func__, dump_of(window_info).c_str());
     policy->handle_window_ready(window_info);
 }
 
 void miral::WindowManagementTrace::handle_modify_window(
     miral::WindowInfo& window_info, miral::WindowSpecification const& modifications)
 {
-    mir::log_info("%s", __func__);
+    mir::log_info("%s window_info=%s, modifications=%s",
+                  __func__, dump_of(window_info).c_str(), dump_of(modifications).c_str());
+
     policy->handle_modify_window(window_info, modifications);
 }
 
 void miral::WindowManagementTrace::handle_raise_window(miral::WindowInfo& window_info)
 {
-    mir::log_info("%s", __func__);
+    mir::log_info("%s window_info=%s", __func__, dump_of(window_info).c_str());
     policy->handle_raise_window(window_info);
 }
 
@@ -244,55 +277,55 @@ void miral::WindowManagementTrace::advise_end()
 
 void miral::WindowManagementTrace::advise_new_app(miral::ApplicationInfo& application)
 {
-    mir::log_info("%s", __func__);
+    mir::log_info("%s application=%s", __func__, dump_of(application).c_str());
     policy->advise_new_app(application);
 }
 
 void miral::WindowManagementTrace::advise_delete_app(miral::ApplicationInfo const& application)
 {
-    mir::log_info("%s", __func__);
+    mir::log_info("%s application=%s", __func__, dump_of(application).c_str());
     policy->advise_delete_app(application);
 }
 
 void miral::WindowManagementTrace::advise_new_window(miral::WindowInfo const& window_info)
 {
-    mir::log_info("%s", __func__);
+    mir::log_info("%s window_info=%s", __func__, dump_of(window_info).c_str());
     policy->advise_new_window(window_info);
 }
 
-void miral::WindowManagementTrace::advise_focus_lost(miral::WindowInfo const& info)
+void miral::WindowManagementTrace::advise_focus_lost(miral::WindowInfo const& window_info)
 {
-    mir::log_info("%s", __func__);
-    policy->advise_focus_lost(info);
+    mir::log_info("%s window_info=%s", __func__, dump_of(window_info).c_str());
+    policy->advise_focus_lost(window_info);
 }
 
-void miral::WindowManagementTrace::advise_focus_gained(miral::WindowInfo const& info)
+void miral::WindowManagementTrace::advise_focus_gained(miral::WindowInfo const& window_info)
 {
-    mir::log_info("%s", __func__);
-    policy->advise_focus_gained(info);
+    mir::log_info("%s window_info=%s", __func__, dump_of(window_info).c_str());
+    policy->advise_focus_gained(window_info);
 }
 
 void miral::WindowManagementTrace::advise_state_change(miral::WindowInfo const& window_info, MirSurfaceState state)
 {
-    mir::log_info("%s", __func__);
+    mir::log_info("%s window_info=%s", __func__, dump_of(window_info).c_str());
     policy->advise_state_change(window_info, state);
 }
 
 void miral::WindowManagementTrace::advise_move_to(miral::WindowInfo const& window_info, mir::geometry::Point top_left)
 {
-    mir::log_info("%s", __func__);
+    mir::log_info("%s window_info=%s", __func__, dump_of(window_info).c_str());
     policy->advise_move_to(window_info, top_left);
 }
 
 void miral::WindowManagementTrace::advise_resize(miral::WindowInfo const& window_info, mir::geometry::Size const& new_size)
 {
-    mir::log_info("%s", __func__);
+    mir::log_info("%s window_info=%s", __func__, dump_of(window_info).c_str());
     policy->advise_resize(window_info, new_size);
 }
 
 void miral::WindowManagementTrace::advise_delete_window(miral::WindowInfo const& window_info)
 {
-    mir::log_info("%s", __func__);
+    mir::log_info("%s window_info=%s", __func__, dump_of(window_info).c_str());
     policy->advise_delete_window(window_info);
 }
 
