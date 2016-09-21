@@ -19,7 +19,16 @@
 #include "window_management_trace.h"
 
 #include "miral/window.h"
+#include "miral/window_manager_tools.h"
 #include "miral/window_specification.h"
+
+miral::WindowManagementTrace::WindowManagementTrace(
+    WindowManagerTools const& wrapped,
+    WindowManagementPolicyBuilder const& builder) :
+    wrapped{wrapped},
+    policy(builder(WindowManagerTools{this}))
+{
+}
 
 auto miral::WindowManagementTrace::count_applications() const -> unsigned int
 {
@@ -156,4 +165,3 @@ bool miral::WindowManagementTrace::handle_pointer_event(MirPointerEvent const* /
     return false;
 }
 
-static miral::WindowManagementTrace test_instance;

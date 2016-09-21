@@ -20,15 +20,19 @@
 #define MIRAL_WINDOW_MANAGEMENT_TRACE_H
 
 #include "window_manager_tools_implementation.h"
+
+#include "miral/window_manager_tools.h"
+#include "miral/window_management_options.h"
 #include "miral/window_management_policy.h"
 
 namespace miral
 {
-class WindowManagementTrace : public WindowManagerToolsImplementation, WindowManagementPolicy
+class WindowManagementTrace : public WindowManagementPolicy, WindowManagerToolsImplementation
 {
 public:
-//    WindowManagementTrace : public WindowManagerToolsImplementation
+    WindowManagementTrace(WindowManagerTools const& wrapped, WindowManagementPolicyBuilder const& builder);
 
+private:
     virtual auto count_applications() const -> unsigned int override;
 
     virtual void for_each_application(std::function<void(ApplicationInfo&)> const& functor) override;
@@ -63,11 +67,9 @@ public:
 
     virtual void invoke_under_lock(std::function<void()> const& callback) override;
 
-private:
     virtual auto place_new_surface(
         ApplicationInfo const& app_info,
         WindowSpecification const& requested_specification) -> WindowSpecification override;
-
     virtual void handle_window_ready(WindowInfo& window_info) override;
 
     virtual void handle_modify_window(WindowInfo& window_info, WindowSpecification const& modifications) override;
@@ -79,6 +81,9 @@ private:
     virtual bool handle_touch_event(MirTouchEvent const* event) override;
 
     virtual bool handle_pointer_event(MirPointerEvent const* event) override;
+
+    WindowManagerTools wrapped;
+    std::unique_ptr<miral::WindowManagementPolicy> const policy;
 };
 }
 
