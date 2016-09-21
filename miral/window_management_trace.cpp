@@ -118,7 +118,7 @@ void miral::WindowManagementTrace::drag_active_window(mir::geometry::Displacemen
 void miral::WindowManagementTrace::focus_next_application()
 {
     puts(__func__);
-    wrapped.focus_next_within_application();
+    wrapped.focus_next_application();
 }
 
 void miral::WindowManagementTrace::focus_next_within_application()
@@ -189,4 +189,76 @@ bool miral::WindowManagementTrace::handle_pointer_event(MirPointerEvent const* e
 {
     puts(__func__);
     return policy->handle_pointer_event(event);
+}
+
+void miral::WindowManagementTrace::advise_begin()
+{
+    puts(__func__);
+    policy->advise_begin();
+}
+
+void miral::WindowManagementTrace::advise_end()
+{
+    puts(__func__);
+    policy->advise_end();
+}
+
+void miral::WindowManagementTrace::advise_new_app(miral::ApplicationInfo& application)
+{
+    puts(__func__);
+    policy->advise_new_app(application);
+}
+
+void miral::WindowManagementTrace::advise_delete_app(miral::ApplicationInfo const& application)
+{
+    puts(__func__);
+    policy->advise_delete_app(application);
+}
+
+void miral::WindowManagementTrace::advise_new_window(miral::WindowInfo const& window_info)
+{
+    puts(__func__);
+    policy->advise_new_window(window_info);
+}
+
+void miral::WindowManagementTrace::advise_focus_lost(miral::WindowInfo const& info)
+{
+    puts(__func__);
+    policy->advise_focus_lost(info);
+}
+
+void miral::WindowManagementTrace::advise_focus_gained(miral::WindowInfo const& info)
+{
+    puts(__func__);
+    policy->advise_focus_gained(info);
+}
+
+void miral::WindowManagementTrace::advise_state_change(miral::WindowInfo const& window_info, MirSurfaceState state)
+{
+    puts(__func__);
+    policy->advise_state_change(window_info, state);
+}
+
+void miral::WindowManagementTrace::advise_move_to(miral::WindowInfo const& window_info, mir::geometry::Point top_left)
+{
+    puts(__func__);
+    policy->advise_move_to(window_info, top_left);
+}
+
+void miral::WindowManagementTrace::advise_resize(miral::WindowInfo const& window_info, mir::geometry::Size const& new_size)
+{
+    puts(__func__);
+    policy->advise_resize(window_info, new_size);
+}
+
+void miral::WindowManagementTrace::advise_delete_window(miral::WindowInfo const& window_info)
+{
+    puts(__func__);
+    policy->advise_delete_window(window_info);
+}
+
+void miral::WindowManagementTrace::advise_raise(std::vector<miral::Window> const& windows)
+{
+    puts(__func__);
+    policy->advise_raise(windows);
 }
