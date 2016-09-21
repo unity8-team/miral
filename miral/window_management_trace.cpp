@@ -23,11 +23,14 @@
 
 #include <mir/scene/session.h>
 #include <mir/scene/surface.h>
+#include <mir/event_printer.h>
 
 #include <sstream>
 
 #define MIR_LOG_COMPONENT "miral::Window Management"
 #include <mir/log.h>
+
+using mir::operator<<;
 
 namespace 
 {
@@ -63,9 +66,28 @@ inline auto dump_of(miral::WindowInfo const& info) -> std::string
     return out.str();
 }
 
-inline auto dump_of(miral::WindowSpecification const& /*specification*/) -> std::string
+inline auto dump_of(miral::WindowSpecification const& specification) -> std::string
 {
-    return "mods";
+    std::stringstream out;
+
+    bool first_field = true;
+
+    out << '{';
+    if (specification.name().is_set())
+    {
+        out << "name=" << specification.name().value();
+        first_field = false;
+    }
+
+    if (specification.type().is_set())
+    {
+        if (!first_field) out << ", ";
+        out << "type=" << specification.type().value();
+        first_field = false;
+    }
+    out << '}';
+
+    return out.str();
 }
 }
 
