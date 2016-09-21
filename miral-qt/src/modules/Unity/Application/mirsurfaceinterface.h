@@ -42,6 +42,7 @@ class MirSurfaceInterface : public unity::shell::application::MirSurfaceInterfac
     /**
      * @brief Position of the current surface buffer, in pixels.
      */
+    // TODO: Move to unity::shell::application::MirSurfaceInterface
     Q_PROPERTY(QPoint position READ position NOTIFY positionChanged)
 
 public:

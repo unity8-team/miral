@@ -41,6 +41,7 @@ WindowManagementPolicy::WindowManagementPolicy(const miral::WindowManagerTools &
 {
     qRegisterMetaType<qtmir::NewWindow>();
     qRegisterMetaType<std::vector<miral::Window>>();
+    qRegisterMetaType<miral::ApplicationInfo>();
     windowController.setPolicy(this);
 }
 

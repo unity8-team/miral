@@ -28,9 +28,9 @@
 #include <QSharedPointer>
 #include <QWeakPointer>
 #include <QSet>
+#include <QTimer>
 
 #include "mirbuffersgtexture.h"
-#include "session.h"
 #include "windowcontrollerinterface.h"
 #include "windowmodelnotifier.h"
 
@@ -43,6 +43,7 @@ class SurfaceObserver;
 namespace qtmir {
 
 class AbstractTimer;
+class SessionInterface;
 
 class MirSurface : public MirSurfaceInterface
 {
@@ -50,7 +51,8 @@ class MirSurface : public MirSurfaceInterface
 
 public:
     MirSurface(NewWindow windowInfo,
-               WindowControllerInterface *controller);
+               WindowControllerInterface *controller,
+               SessionInterface *session = nullptr);
     virtual ~MirSurface();
 
     ////

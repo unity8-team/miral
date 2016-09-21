@@ -14,26 +14,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef APPNOTIFIER_H
-#define APPNOTIFIER_H
+#ifndef QTMIR_APPLICATION_MANAGER_INTERFACE_H
+#define QTMIR_APPLICATION_MANAGER_INTERFACE_H
 
-#include <QObject>
-#include "miral/application_info.h"
+// Unity API
+#include <unity/shell/application/ApplicationManagerInterface.h>
 
 namespace qtmir {
 
-class AppNotifier : public QObject
+class ApplicationManagerInterface : public unity::shell::application::ApplicationManagerInterface
 {
-    Q_OBJECT
+public:
+    ApplicationManagerInterface(QObject *parent) : unity::shell::application::ApplicationManagerInterface(parent) {}
 
-Q_SIGNALS:
-    void appAdded(const miral::ApplicationInfo &app);
-    void appRemoved(const miral::ApplicationInfo &app);
-    void appCreatedWindow(const miral::ApplicationInfo &app);
+    virtual Application* findApplicationWithSession(const std::shared_ptr<mir::scene::Session> &session) = 0;
 };
 
 } // namespace qtmir
 
-Q_DECLARE_METATYPE(miral::ApplicationInfo)
-
-#endif // APPNOTIFIER_H
+#endif // QTMIR_APPLICATION_MANAGER_INTERFACE_H
