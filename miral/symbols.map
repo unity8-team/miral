@@ -182,6 +182,7 @@ global:
     miral::WindowSpecification::placement_hints*;
     miral::WindowSpecification::preferred_orientation*;
     miral::WindowSpecification::shell_chrome*;
+    miral::WindowSpecification::confine_pointer*;
     miral::WindowSpecification::size*;
     miral::WindowSpecification::state*;
     miral::WindowSpecification::top_left*;

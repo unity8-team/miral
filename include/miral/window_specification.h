@@ -193,6 +193,7 @@ public:
     auto input_shape() const -> mir::optional_value<std::vector<Rectangle>> const&;
     auto input_mode() const -> mir::optional_value<InputReceptionMode> const&;
     auto shell_chrome() const -> mir::optional_value<MirShellChrome> const&;
+    auto confine_pointer() const -> mir::optional_value<MirPointerConfinementState> const&;
 
     auto top_left() -> mir::optional_value<Point>&;
     auto size() -> mir::optional_value<Size>&;
@@ -218,6 +219,7 @@ public:
     auto input_shape() -> mir::optional_value<std::vector<Rectangle>>&;
     auto input_mode() -> mir::optional_value<InputReceptionMode>&;
     auto shell_chrome() -> mir::optional_value<MirShellChrome>&;
+    auto confine_pointer() -> mir::optional_value<MirPointerConfinementState>&;
 
 private:
     struct Self;
