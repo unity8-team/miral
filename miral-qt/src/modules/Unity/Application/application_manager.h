@@ -24,11 +24,9 @@
 #include <QObject>
 #include <QStringList>
 
-// Unity API
-#include <unity/shell/application/ApplicationManagerInterface.h>
-
 // local
 #include "application.h"
+#include "applicationmanagerinterface.h"
 #include "taskcontroller.h"
 
 namespace mir {
@@ -55,7 +53,7 @@ class ProcInfo;
 class SharedWakelock;
 class SettingsInterface;
 
-class ApplicationManager : public unity::shell::application::ApplicationManagerInterface
+class ApplicationManager : public ApplicationManagerInterface
 {
     Q_OBJECT
 
@@ -79,13 +77,16 @@ public:
             QObject *parent = 0);
     virtual ~ApplicationManager();
 
-    // ApplicationManagerInterface
+    // unity::shell::application::ApplicationManagerInterface
     QString focusedApplicationId() const override;
     Q_INVOKABLE qtmir::Application* get(int index) const override;
     Q_INVOKABLE qtmir::Application* findApplication(const QString &appId) const override;
     Q_INVOKABLE bool requestFocusApplication(const QString &appId) override;
     Q_INVOKABLE qtmir::Application* startApplication(const QString &appId, const QStringList &arguments = QStringList()) override;
     Q_INVOKABLE bool stopApplication(const QString &appId) override;
+
+    // qtmir::ApplicationManagerInterface
+    Application* findApplicationWithSession(const std::shared_ptr<mir::scene::Session> &session) override;
 
     // QAbstractListModel
     int rowCount(const QModelIndex & parent = QModelIndex()) const override;
@@ -122,7 +123,6 @@ private:
     void setFocused(Application *application);
     void add(Application *application);
     void remove(Application* application);
-    Application* findApplicationWithSession(const std::shared_ptr<mir::scene::Session> &session);
     Application* findApplicationWithSession(const mir::scene::Session *session);
     QModelIndex findIndex(Application* application);
     void resumeApplication(Application *application);

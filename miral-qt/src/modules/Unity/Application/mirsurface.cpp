@@ -16,6 +16,7 @@
 
 #include "mirsurface.h"
 #include "mirsurfacelistmodel.h"
+#include "session_interface.h"
 #include "timer.h"
 #include "timestamp.h"
 
@@ -196,10 +197,12 @@ Q_DECLARE_FLAGS(DirtyStates, DirtyState)
 } // namespace {
 
 MirSurface::MirSurface(NewWindow newWindowInfo,
-        WindowControllerInterface* controller)
+        WindowControllerInterface* controller,
+        SessionInterface *session)
     : MirSurfaceInterface()
     , m_windowInfo(newWindowInfo.windowInfo)
     , m_surface(newWindowInfo.surface)
+    , m_session(session)
     , m_controller(controller)
     , m_persistentId(QString::fromStdString(newWindowInfo.persistentId))
     , m_firstFrameDrawn(false)
@@ -711,9 +714,9 @@ void MirSurface::touchEvent(Qt::KeyboardModifiers mods,
 bool MirSurface::clientIsRunning() const
 {
     return (m_session &&
-            (m_session->state() == Session::State::Running
-             || m_session->state() == Session::State::Starting
-             || m_session->state() == Session::State::Suspending))
+            (m_session->state() == SessionInterface::State::Running
+             || m_session->state() == SessionInterface::State::Starting
+             || m_session->state() == SessionInterface::State::Suspending))
         || !m_session;
 }
 
