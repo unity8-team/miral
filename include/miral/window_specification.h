@@ -29,6 +29,8 @@
 
 #include <memory>
 
+#include "miral/detail/mir_features.h"
+
 // TODO this wants to move to Mir's toolkit API
 #if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 4, 0)
 
@@ -193,7 +195,9 @@ public:
     auto input_shape() const -> mir::optional_value<std::vector<Rectangle>> const&;
     auto input_mode() const -> mir::optional_value<InputReceptionMode> const&;
     auto shell_chrome() const -> mir::optional_value<MirShellChrome> const&;
+#if MIRAL_MIR_POINTER_CONFINEMENT
     auto confine_pointer() const -> mir::optional_value<MirPointerConfinementState> const&;
+#endif
 
     auto top_left() -> mir::optional_value<Point>&;
     auto size() -> mir::optional_value<Size>&;
@@ -219,7 +223,9 @@ public:
     auto input_shape() -> mir::optional_value<std::vector<Rectangle>>&;
     auto input_mode() -> mir::optional_value<InputReceptionMode>&;
     auto shell_chrome() -> mir::optional_value<MirShellChrome>&;
+#if MIRAL_MIR_POINTER_CONFINEMENT
     auto confine_pointer() -> mir::optional_value<MirPointerConfinementState>&;
+#endif
 
 private:
     struct Self;
