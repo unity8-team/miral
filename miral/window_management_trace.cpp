@@ -44,7 +44,7 @@ struct BracedItemStream
     std::ostream& out;
 
     template<typename Type>
-    BracedItemStream const& append(Type const& item) const
+    auto append(Type const& item) const -> BracedItemStream const&
     {
         if (!first_field) out << ", ";
         out << item;
@@ -53,7 +53,7 @@ struct BracedItemStream
     }
 
     template<typename Type>
-    BracedItemStream const& append(char const* name, Type const& item) const
+    auto append(char const* name, Type const& item) const -> BracedItemStream const&
     {
         if (!first_field) out << ", ";
         out << name << '=' << item;
@@ -61,6 +61,12 @@ struct BracedItemStream
         return *this;
     }
 };
+
+auto operator<< (std::ostream& out, miral::WindowSpecification::AspectRatio const& ratio) -> std::ostream&
+{
+    BracedItemStream{out}.append(ratio.width).append(ratio.height);
+    return out;
+}
 
 auto dump_of(miral::Window const& window) -> std::string
 {
@@ -78,10 +84,37 @@ auto dump_of(miral::Application const& application) -> std::string
         return null_ptr;
 }
 
+auto dump_of(std::vector<miral::Window> const& windows) -> std::string;
+
 auto dump_of(miral::WindowInfo const& info) -> std::string
 {
     std::stringstream out;
-    out << dump_of(info.window());
+    {
+        BracedItemStream bout{out};
+
+#define APPEND(field) bout.append(#field, info.field());
+        APPEND(name);
+        APPEND(type);
+        APPEND(state);
+        APPEND(restore_rect);
+        APPEND(parent);
+        bout.append("children", dump_of(info.children()));
+        APPEND(min_width);
+        APPEND(min_height);
+        APPEND(max_width);
+        APPEND(max_height);
+        APPEND(width_inc);
+        APPEND(height_inc);
+        APPEND(min_aspect);
+        APPEND(max_aspect);
+        APPEND(preferred_orientation);
+
+#define APPEND_IF_SET(field) if (info.has_##field()) bout.append(#field, info.field());
+        APPEND_IF_SET(output_id);
+#undef  APPEND_IF_SET
+#undef  APPEND
+    }
+
     return out.str();
 }
 
@@ -111,9 +144,11 @@ auto dump_of(miral::WindowSpecification const& specification) -> std::string
         APPEND_IF_SET(max_height);
         APPEND_IF_SET(width_inc);
         APPEND_IF_SET(height_inc);
-//        APPEND_IF_SET(min_aspect);
-//        APPEND_IF_SET(max_aspect);
-//        APPEND_IF_SET(parent);
+        APPEND_IF_SET(min_aspect);
+        APPEND_IF_SET(max_aspect);
+        if (specification.parent().is_set())
+            if (auto const& parent = specification.parent().value().lock())
+                bout.append("parent", parent->name());
 //        APPEND_IF_SET(input_shape);
 //        APPEND_IF_SET(input_mode);
         APPEND_IF_SET(shell_chrome);
