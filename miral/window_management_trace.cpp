@@ -36,7 +36,33 @@ namespace
 {
 std::string const null_ptr{"(null)"};
 
-inline auto dump_of(miral::Window const& window) -> std::string
+struct BracedItemStream
+{
+    BracedItemStream(std::ostream& out) : out{out} { out << '{'; }
+    ~BracedItemStream() { out << '}'; }
+    bool mutable first_field = true;
+    std::ostream& out;
+
+    template<typename Type>
+    BracedItemStream const& append(Type const& item) const
+    {
+        if (!first_field) out << ", ";
+        out << item;
+        first_field = false;
+        return *this;
+    }
+
+    template<typename Type>
+    BracedItemStream const& append(char const* name, Type const& item) const
+    {
+        if (!first_field) out << ", ";
+        out << name << '=' << item;
+        first_field = false;
+        return *this;
+    }
+};
+
+auto dump_of(miral::Window const& window) -> std::string
 {
     if (std::shared_ptr<mir::scene::Surface> surface = window)
         return surface->name();
@@ -44,7 +70,7 @@ inline auto dump_of(miral::Window const& window) -> std::string
         return null_ptr;
 }
 
-inline auto dump_of(miral::Application const& application) -> std::string
+auto dump_of(miral::Application const& application) -> std::string
 {
     if (application)
         return application->name();
@@ -52,40 +78,51 @@ inline auto dump_of(miral::Application const& application) -> std::string
         return null_ptr;
 }
 
-inline auto dump_of(miral::ApplicationInfo const& app_info) -> std::string
-{
-    std::stringstream out;
-    out << dump_of(app_info.application());
-    return out.str();
-}
-
-inline auto dump_of(miral::WindowInfo const& info) -> std::string
+auto dump_of(miral::WindowInfo const& info) -> std::string
 {
     std::stringstream out;
     out << dump_of(info.window());
     return out.str();
 }
 
-inline auto dump_of(miral::WindowSpecification const& specification) -> std::string
+auto dump_of(miral::WindowSpecification const& specification) -> std::string
 {
     std::stringstream out;
 
-    bool first_field = true;
-
-    out << '{';
-    if (specification.name().is_set())
     {
-        out << "name=" << specification.name().value();
-        first_field = false;
+        BracedItemStream bout{out};
+
+        if (specification.name().is_set())
+            bout.append("name", specification.name().value());
+
+        if (specification.type().is_set())
+            bout.append("type", specification.type().value());
     }
 
-    if (specification.type().is_set())
+    return out.str();
+}
+
+auto dump_of(std::vector<miral::Window> const& windows) -> std::string
+{
+    std::stringstream out;
+
     {
-        if (!first_field) out << ", ";
-        out << "type=" << specification.type().value();
-        first_field = false;
+        BracedItemStream bout{out};
+
+        for (auto const& window: windows)
+            bout.append(dump_of(window));
     }
-    out << '}';
+
+    return out.str();
+}
+
+auto dump_of(miral::ApplicationInfo const& app_info) -> std::string
+{
+    std::stringstream out;
+
+    BracedItemStream{out}
+        .append("application", dump_of(app_info.application()))
+        .append("windows", dump_of(app_info.windows()));
 
     return out.str();
 }
@@ -353,6 +390,6 @@ void miral::WindowManagementTrace::advise_delete_window(miral::WindowInfo const&
 
 void miral::WindowManagementTrace::advise_raise(std::vector<miral::Window> const& windows)
 {
-    mir::log_info("%s", __func__);
+    mir::log_info("%s window_info=%s", __func__, dump_of(windows).c_str());
     policy->advise_raise(windows);
 }
