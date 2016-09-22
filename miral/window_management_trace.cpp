@@ -92,11 +92,34 @@ auto dump_of(miral::WindowSpecification const& specification) -> std::string
     {
         BracedItemStream bout{out};
 
-        if (specification.name().is_set())
-            bout.append("name", specification.name().value());
-
-        if (specification.type().is_set())
-            bout.append("type", specification.type().value());
+#define APPEND_IF_SET(field) if (specification.field().is_set()) bout.append(#field, specification.field().value());
+        APPEND_IF_SET(name);
+        APPEND_IF_SET(type);
+        APPEND_IF_SET(top_left);
+        APPEND_IF_SET(size);
+        APPEND_IF_SET(output_id);
+        APPEND_IF_SET(state);
+        APPEND_IF_SET(preferred_orientation);
+        APPEND_IF_SET(aux_rect);
+        APPEND_IF_SET(placement_hints);
+        APPEND_IF_SET(window_placement_gravity);
+        APPEND_IF_SET(aux_rect_placement_gravity);
+        APPEND_IF_SET(aux_rect_placement_offset);
+        APPEND_IF_SET(min_width);
+        APPEND_IF_SET(min_height);
+        APPEND_IF_SET(max_width);
+        APPEND_IF_SET(max_height);
+        APPEND_IF_SET(width_inc);
+        APPEND_IF_SET(height_inc);
+//        APPEND_IF_SET(min_aspect);
+//        APPEND_IF_SET(max_aspect);
+//        APPEND_IF_SET(parent);
+//        APPEND_IF_SET(input_shape);
+//        APPEND_IF_SET(input_mode);
+        APPEND_IF_SET(shell_chrome);
+        APPEND_IF_SET(top_left);
+        APPEND_IF_SET(size);
+#undef  APPEND_IF_SET
     }
 
     return out.str();
