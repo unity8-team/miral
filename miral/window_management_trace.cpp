@@ -36,7 +36,39 @@ namespace
 {
 std::string const null_ptr{"(null)"};
 
-inline auto dump_of(miral::Window const& window) -> std::string
+struct BracedItemStream
+{
+    BracedItemStream(std::ostream& out) : out{out} { out << '{'; }
+    ~BracedItemStream() { out << '}'; }
+    bool mutable first_field = true;
+    std::ostream& out;
+
+    template<typename Type>
+    auto append(Type const& item) const -> BracedItemStream const&
+    {
+        if (!first_field) out << ", ";
+        out << item;
+        first_field = false;
+        return *this;
+    }
+
+    template<typename Type>
+    auto append(char const* name, Type const& item) const -> BracedItemStream const&
+    {
+        if (!first_field) out << ", ";
+        out << name << '=' << item;
+        first_field = false;
+        return *this;
+    }
+};
+
+auto operator<< (std::ostream& out, miral::WindowSpecification::AspectRatio const& ratio) -> std::ostream&
+{
+    BracedItemStream{out}.append(ratio.width).append(ratio.height);
+    return out;
+}
+
+auto dump_of(miral::Window const& window) -> std::string
 {
     if (std::shared_ptr<mir::scene::Surface> surface = window)
         return surface->name();
@@ -44,7 +76,7 @@ inline auto dump_of(miral::Window const& window) -> std::string
         return null_ptr;
 }
 
-inline auto dump_of(miral::Application const& application) -> std::string
+auto dump_of(miral::Application const& application) -> std::string
 {
     if (application)
         return application->name();
@@ -52,40 +84,103 @@ inline auto dump_of(miral::Application const& application) -> std::string
         return null_ptr;
 }
 
-inline auto dump_of(miral::ApplicationInfo const& app_info) -> std::string
+auto dump_of(std::vector<miral::Window> const& windows) -> std::string;
+
+auto dump_of(miral::WindowInfo const& info) -> std::string
 {
     std::stringstream out;
-    out << dump_of(app_info.application());
+    {
+        BracedItemStream bout{out};
+
+#define APPEND(field) bout.append(#field, info.field());
+        APPEND(name);
+        APPEND(type);
+        APPEND(state);
+        APPEND(restore_rect);
+        APPEND(parent);
+        bout.append("children", dump_of(info.children()));
+        APPEND(min_width);
+        APPEND(min_height);
+        APPEND(max_width);
+        APPEND(max_height);
+        APPEND(width_inc);
+        APPEND(height_inc);
+        APPEND(min_aspect);
+        APPEND(max_aspect);
+        APPEND(preferred_orientation);
+
+#define APPEND_IF_SET(field) if (info.has_##field()) bout.append(#field, info.field());
+        APPEND_IF_SET(output_id);
+#undef  APPEND_IF_SET
+#undef  APPEND
+    }
+
     return out.str();
 }
 
-inline auto dump_of(miral::WindowInfo const& info) -> std::string
+auto dump_of(miral::WindowSpecification const& specification) -> std::string
 {
     std::stringstream out;
-    out << dump_of(info.window());
+
+    {
+        BracedItemStream bout{out};
+
+#define APPEND_IF_SET(field) if (specification.field().is_set()) bout.append(#field, specification.field().value());
+        APPEND_IF_SET(name);
+        APPEND_IF_SET(type);
+        APPEND_IF_SET(top_left);
+        APPEND_IF_SET(size);
+        APPEND_IF_SET(output_id);
+        APPEND_IF_SET(state);
+        APPEND_IF_SET(preferred_orientation);
+        APPEND_IF_SET(aux_rect);
+        APPEND_IF_SET(placement_hints);
+        APPEND_IF_SET(window_placement_gravity);
+        APPEND_IF_SET(aux_rect_placement_gravity);
+        APPEND_IF_SET(aux_rect_placement_offset);
+        APPEND_IF_SET(min_width);
+        APPEND_IF_SET(min_height);
+        APPEND_IF_SET(max_width);
+        APPEND_IF_SET(max_height);
+        APPEND_IF_SET(width_inc);
+        APPEND_IF_SET(height_inc);
+        APPEND_IF_SET(min_aspect);
+        APPEND_IF_SET(max_aspect);
+        if (specification.parent().is_set())
+            if (auto const& parent = specification.parent().value().lock())
+                bout.append("parent", parent->name());
+//        APPEND_IF_SET(input_shape);
+//        APPEND_IF_SET(input_mode);
+        APPEND_IF_SET(shell_chrome);
+        APPEND_IF_SET(top_left);
+        APPEND_IF_SET(size);
+#undef  APPEND_IF_SET
+    }
+
     return out.str();
 }
 
-inline auto dump_of(miral::WindowSpecification const& specification) -> std::string
+auto dump_of(std::vector<miral::Window> const& windows) -> std::string
 {
     std::stringstream out;
 
-    bool first_field = true;
-
-    out << '{';
-    if (specification.name().is_set())
     {
-        out << "name=" << specification.name().value();
-        first_field = false;
+        BracedItemStream bout{out};
+
+        for (auto const& window: windows)
+            bout.append(dump_of(window));
     }
 
-    if (specification.type().is_set())
-    {
-        if (!first_field) out << ", ";
-        out << "type=" << specification.type().value();
-        first_field = false;
-    }
-    out << '}';
+    return out.str();
+}
+
+auto dump_of(miral::ApplicationInfo const& app_info) -> std::string
+{
+    std::stringstream out;
+
+    BracedItemStream{out}
+        .append("application", dump_of(app_info.application()))
+        .append("windows", dump_of(app_info.windows()));
 
     return out.str();
 }
@@ -353,6 +448,6 @@ void miral::WindowManagementTrace::advise_delete_window(miral::WindowInfo const&
 
 void miral::WindowManagementTrace::advise_raise(std::vector<miral::Window> const& windows)
 {
-    mir::log_info("%s", __func__);
+    mir::log_info("%s window_info=%s", __func__, dump_of(windows).c_str());
     policy->advise_raise(windows);
 }
