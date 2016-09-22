@@ -19,6 +19,7 @@
 #include "miral/window_management_options.h"
 
 #include "basic_window_manager.h"
+#include "window_management_trace.h"
 
 #include <mir/abnormal_exit.h>
 #include <mir/server.h>
@@ -33,6 +34,7 @@ namespace
 {
 char const* const wm_option = "window-manager";
 char const* const wm_system_compositor = "system-compositor";
+char const* const trace_option = "window-management-trace";
 }
 
 void miral::WindowManagerOptions::operator()(mir::Server& server) const
@@ -45,6 +47,7 @@ void miral::WindowManagerOptions::operator()(mir::Server& server) const
     description += "system-compositor}]";
 
     server.add_configuration_option(wm_option, description, policies.begin()->name);
+    server.add_configuration_option(trace_option, "log trace message", mir::OptionType::null);
 
     server.override_the_window_manager_builder([this, &server](msh::FocusController* focus_controller)
         -> std::shared_ptr<msh::WindowManager>
@@ -60,8 +63,22 @@ void miral::WindowManagerOptions::operator()(mir::Server& server) const
             std::shared_ptr<mir::shell::PersistentSurfaceStore> const persistent_surface_store;
 #endif
             for (auto const& option : policies)
+            {
                 if (selection == option.name)
+                {
+                    if (server.get_options()->is_set(trace_option))
+                    {
+                        auto trace_builder = [&option](WindowManagerTools const& tools) -> std::unique_ptr<miral::WindowManagementPolicy>
+                            {
+                                return std::make_unique<WindowManagementTrace>(tools, option.build);
+                            };
+
+                        return std::make_shared<BasicWindowManager>(focus_controller, display_layout, persistent_surface_store, trace_builder);
+                    }
+
                     return std::make_shared<BasicWindowManager>(focus_controller, display_layout, persistent_surface_store, option.build);
+                }
+            }
 
             if (selection == wm_system_compositor)
             {
