@@ -484,7 +484,7 @@ bool miral::WindowManagementTrace::handle_keyboard_event(MirKeyboardEvent const*
 {
     log_input = [event, this]
         {
-            mir::log_info("%s keyboard_event=%s", __func__, dump_of(event).c_str());
+            mir::log_info("handle_keyboard_event event=%s", dump_of(event).c_str());
             log_input = []{};
         };
 
@@ -495,7 +495,7 @@ bool miral::WindowManagementTrace::handle_touch_event(MirTouchEvent const* event
 {
     log_input = [event, this]
         {
-            mir::log_info("%s touch_event=%s", __func__, dump_of(event).c_str());
+            mir::log_info("handle_touch_event event=%s", dump_of(event).c_str());
             log_input = []{};
         };
 
@@ -506,7 +506,7 @@ bool miral::WindowManagementTrace::handle_pointer_event(MirPointerEvent const* e
 {
     log_input = [event, this]
         {
-            mir::log_info("%s pointer_event=%s", __func__, dump_of(event).c_str());
+            mir::log_info("handle_pointer_event event=%s", dump_of(event).c_str());
             log_input = []{};
         };
 
