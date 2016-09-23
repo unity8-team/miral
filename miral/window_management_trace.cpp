@@ -192,12 +192,17 @@ auto dump_of(MirKeyboardEvent const* event) -> std::string
 
     auto device_id = mir_input_event_get_device_id(mir_keyboard_event_input_event(event));
 
-    BracedItemStream{out}
-        .append("from", device_id)
-        .append("action", mir_keyboard_event_action(event))
-        .append("code", mir_keyboard_event_key_code(event))
-        .append("scan", mir_keyboard_event_scan_code(event))
-        .append(std::hex).append("modifiers", mir_keyboard_event_modifiers(event));
+    {
+        BracedItemStream bout{out};
+
+        bout.append("from", device_id)
+            .append("action", mir_keyboard_event_action(event))
+            .append("code", mir_keyboard_event_key_code(event))
+            .append("scan", mir_keyboard_event_scan_code(event));
+
+        out.setf(std::ios_base::hex, std::ios_base::basefield);
+        bout.append(std::hex).append("modifiers", mir_keyboard_event_modifiers(event));
+    }
 
     return out.str();
 }
@@ -227,6 +232,7 @@ auto dump_of(MirTouchEvent const* event) -> std::string
                 .append("size", mir_touch_event_axis_value(event, index, mir_touch_axis_size));
         }
 
+        out.setf(std::ios_base::hex, std::ios_base::basefield);
         bout.append("modifiers", mir_touch_event_modifiers(event));
     }
 
@@ -245,17 +251,22 @@ auto dump_of(MirPointerEvent const* event) -> std::string
                          mir_pointer_button_back, mir_pointer_button_forward})
         button_state |= mir_pointer_event_button_state(event, a) ? a : 0;
 
-    BracedItemStream{out}
-        .append("from", device_id)
-        .append("action", mir_pointer_event_action(event))
-        .append("button_state", button_state)
-        .append("x", mir_pointer_event_axis_value(event, mir_pointer_axis_x))
-        .append("y", mir_pointer_event_axis_value(event, mir_pointer_axis_y))
-        .append("dx", mir_pointer_event_axis_value(event, mir_pointer_axis_relative_x))
-        .append("dy", mir_pointer_event_axis_value(event, mir_pointer_axis_relative_y))
-        .append("vscroll", mir_pointer_event_axis_value(event, mir_pointer_axis_vscroll))
-        .append("hscroll", mir_pointer_event_axis_value(event, mir_pointer_axis_hscroll))
-        .append("modifiers", mir_pointer_event_modifiers(event));
+    {
+        BracedItemStream bout{out};
+
+        bout.append("from", device_id)
+            .append("action", mir_pointer_event_action(event))
+            .append("button_state", button_state)
+            .append("x", mir_pointer_event_axis_value(event, mir_pointer_axis_x))
+            .append("y", mir_pointer_event_axis_value(event, mir_pointer_axis_y))
+            .append("dx", mir_pointer_event_axis_value(event, mir_pointer_axis_relative_x))
+            .append("dy", mir_pointer_event_axis_value(event, mir_pointer_axis_relative_y))
+            .append("vscroll", mir_pointer_event_axis_value(event, mir_pointer_axis_vscroll))
+            .append("hscroll", mir_pointer_event_axis_value(event, mir_pointer_axis_hscroll));
+
+        out.setf(std::ios_base::hex, std::ios_base::basefield);
+        bout.append("modifiers", mir_pointer_event_modifiers(event));
+    }
 
     return out.str();
 }
