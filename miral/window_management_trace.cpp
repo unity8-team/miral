@@ -108,6 +108,7 @@ auto dump_of(miral::WindowInfo const& info) -> std::string
         APPEND(min_aspect);
         APPEND(max_aspect);
         APPEND(preferred_orientation);
+        APPEND(confine_pointer);
 
 #define APPEND_IF_SET(field) if (info.has_##field()) bout.append(#field, info.field());
         APPEND_IF_SET(output_id);
@@ -153,7 +154,7 @@ auto dump_of(miral::WindowSpecification const& specification) -> std::string
 //        APPEND_IF_SET(input_mode);
         APPEND_IF_SET(shell_chrome);
         APPEND_IF_SET(top_left);
-        APPEND_IF_SET(size);
+        APPEND_IF_SET(confine_pointer);
 #undef  APPEND_IF_SET
     }
 

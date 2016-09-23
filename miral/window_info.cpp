@@ -49,6 +49,7 @@ struct miral::WindowInfo::Self
     mir::geometry::Width max_width;
     mir::geometry::Height max_height;
     MirOrientationMode preferred_orientation;
+    MirPointerConfinementState confine_pointer;
 
     mir::geometry::DeltaX width_inc;
     mir::geometry::DeltaY height_inc;
@@ -69,6 +70,7 @@ miral::WindowInfo::Self::Self(Window window, WindowSpecification const& params) 
     max_width{optional_value_or_default(params.max_width(), Width{std::numeric_limits<int>::max()})},
     max_height{optional_value_or_default(params.max_height(), Height{std::numeric_limits<int>::max()})},
     preferred_orientation{optional_value_or_default(params.preferred_orientation(), mir_orientation_mode_any)},
+    confine_pointer(optional_value_or_default(params.confine_pointer(), mir_pointer_unconfined)),
     width_inc{optional_value_or_default(params.width_inc(), DeltaX{1})},
     height_inc{optional_value_or_default(params.height_inc(), DeltaY{1})},
     min_aspect(optional_value_or_default(params.min_aspect(), AspectRatio{0U, std::numeric_limits<unsigned>::max()})),
@@ -537,6 +539,15 @@ void miral::WindowInfo::preferred_orientation(MirOrientationMode preferred_orien
     self->preferred_orientation = preferred_orientation;
 }
 
+auto miral::WindowInfo::confine_pointer() const -> MirPointerConfinementState
+{
+    return self->confine_pointer;
+}
+
+void miral::WindowInfo::confine_pointer(MirPointerConfinementState confinement)
+{
+    self->confine_pointer = confinement;
+}
 
 bool miral::WindowInfo::has_name() const
 {
