@@ -70,8 +70,8 @@ bool TitlebarWindowManagerPolicy::handle_pointer_event(MirPointerEvent const* ev
         {
             if (auto const target = tools.window_at(old_cursor))
             {
-                tools.select_active_window(target);
-                tools.drag_active_window(cursor - old_cursor);
+                if (tools.select_active_window(target) == target)
+                    tools.drag_active_window(cursor - old_cursor);
             }
             consumes_event = true;
         }
@@ -94,8 +94,8 @@ bool TitlebarWindowManagerPolicy::handle_pointer_event(MirPointerEvent const* ev
                 if (possible_titlebar.application() == titlebar_provider->session())
                 {
                     auto const& info = tools.info_for(possible_titlebar);
-                    tools.select_active_window(info.parent());
-                    tools.drag_active_window(cursor - old_cursor);
+                    if (tools.select_active_window(info.parent()) == info.parent())
+                        tools.drag_active_window(cursor - old_cursor);
                     consumes_event = true;
                 }
             }
