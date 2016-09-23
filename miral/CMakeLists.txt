@@ -71,6 +71,17 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/miral.pc.in
     @ONLY
 )
 
+if (MIRSERVER_VERSION VERSION_LESS 0.24)
+    set(MIR_POINTER_CONFINEMENT 0)
+else()
+    set(MIR_POINTER_CONFINEMENT 1)
+endif()
+
+configure_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/mir_features.h.in
+  ${PROJECT_SOURCE_DIR}/include/miral/detail/mir_features.h
+)
+
 install(TARGETS     miral                           LIBRARY DESTINATION "${CMAKE_INSTALL_FULL_LIBDIR}")
 install(DIRECTORY   ${CMAKE_SOURCE_DIR}/include/            DESTINATION "${INCLUDEDIR}")
 install(FILES       ${CMAKE_CURRENT_BINARY_DIR}/miral.pc    DESTINATION "${CMAKE_INSTALL_FULL_LIBDIR}/pkgconfig")
