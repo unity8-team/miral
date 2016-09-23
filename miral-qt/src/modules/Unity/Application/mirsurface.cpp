@@ -44,6 +44,9 @@
 #include <QQmlEngine>
 #include <QScreen>
 
+// std
+#include <limits>
+
 using namespace qtmir;
 
 #define DEBUG_MSG qCDebug(QTMIR_SURFACES).nospace() << "MirSurface[" << (void*)this << "," << appId() << "]::" << __func__
@@ -123,6 +126,9 @@ MirSurface::MirSurface(NewWindow newWindowInfo,
     QQmlEngine::setObjectOwnership(this, QQmlEngine::CppOwnership);
 
     setCloseTimer(new Timer);
+
+    m_requestedPosition.rx() = std::numeric_limits<int>::min();
+    m_requestedPosition.ry() = std::numeric_limits<int>::min();
 }
 
 MirSurface::~MirSurface()
@@ -395,11 +401,6 @@ void MirSurface::setPosition(const QPoint newPosition)
         m_position = newPosition;
         Q_EMIT positionChanged(newPosition);
     }
-}
-
-void MirSurface::requestPosition(const QPoint newPosition)
-{
-    m_controller->move(m_windowInfo.window(), newPosition);
 }
 
 QSize MirSurface::size() const
@@ -914,5 +915,19 @@ void MirSurface::setInputBounds(const QRect &rect)
         DEBUG_MSG << "(" << rect << ")";
         m_inputBounds = rect;
         Q_EMIT inputBoundsChanged(m_inputBounds);
+    }
+}
+
+QPoint MirSurface::requestedPosition() const
+{
+    return m_requestedPosition;
+}
+
+void MirSurface::setRequestedPosition(const QPoint &point)
+{
+    if (point != m_requestedPosition) {
+        m_requestedPosition = point;
+        Q_EMIT requestedPositionChanged(m_requestedPosition);
+        m_controller->move(m_windowInfo.window(), m_requestedPosition);
     }
 }

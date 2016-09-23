@@ -45,12 +45,14 @@ class MirSurfaceInterface : public unity::shell::application::MirSurfaceInterfac
     // TODO: Move to unity::shell::application::MirSurfaceInterface
     Q_PROPERTY(QPoint position READ position NOTIFY positionChanged)
 
+    // TODO: Move to unity::shell::application::MirSurfaceInterface
+    Q_PROPERTY(QPoint requestedPosition READ requestedPosition WRITE setRequestedPosition NOTIFY requestedPositionChanged)
+
 public:
     MirSurfaceInterface(QObject *parent = nullptr) : unity::shell::application::MirSurfaceInterface(parent) {}
     virtual ~MirSurfaceInterface() {}
 
     virtual QPoint position() const = 0;
-    virtual void requestPosition(const QPoint newPosition) = 0;
 
     virtual void requestState(Mir::State qmlState) = 0; // move to unity-api
 
@@ -118,6 +120,10 @@ public:
 
     virtual bool inputAreaContains(const QPoint &) const = 0;
 
+    // TODO: Move to unity::shell::application::MirSurfaceInterface
+    virtual QPoint requestedPosition() const = 0;
+    virtual void setRequestedPosition(const QPoint &) = 0;
+
 public Q_SLOTS:
     virtual void onCompositorSwappedBuffers() = 0;
 
@@ -132,6 +138,9 @@ Q_SIGNALS:
     void isBeingDisplayedChanged();
     void frameDropped();
     void positionChanged(QPoint position);
+
+    // TODO: Move to unity::shell::application::MirSurfaceInterface
+    void requestedPositionChanged(QPoint position);
 };
 
 } // namespace qtmir

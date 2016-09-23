@@ -69,7 +69,9 @@ public:
     Q_INVOKABLE void resize(const QSize &size) override { resize(size.width(), size.height()); }
 
     QPoint position() const override;
-    Q_INVOKABLE void requestPosition(const QPoint newPosition) override;
+
+    QPoint requestedPosition() const override;
+    void setRequestedPosition(const QPoint &) override;
 
     Mir::State state() const override;
     void setState(Mir::State qmlState) override; // To remove from unity-api
@@ -218,6 +220,7 @@ private:
     std::shared_ptr<SurfaceObserver> m_surfaceObserver;
 
     QPoint m_position;
+    QPoint m_requestedPosition;
     QSize m_size;
     QString m_keymap;
 

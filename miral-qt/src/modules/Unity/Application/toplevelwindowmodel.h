@@ -82,6 +82,24 @@ public:
 
 public Q_SLOTS:
     /**
+     * @brief Returns the surface at the given index
+     *
+     * It will be a nullptr if the application is still starting up and thus hasn't yet created
+     * and drawn into a surface.
+     */
+    unity::shell::application::MirSurfaceInterface *surfaceAt(int index) const;
+
+    /**
+     * @brief Returns the application at the given index
+     */
+    unity::shell::application::ApplicationInfoInterface *applicationAt(int index) const;
+
+    /**
+     * @brief Returns the unique id of the element at the given index
+     */
+    int idAt(int index) const;
+
+    /**
      * @brief Returns the index where the row with the given id is located
      *
      * Returns -1 if there's no row with the given id.
