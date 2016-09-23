@@ -645,7 +645,7 @@ void miral::BasicWindowManager::modify_window(WindowInfo& window_info, WindowSpe
 
 #if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 24, 0)
     if (modifications.confine_pointer().is_set())
-        std::shared_ptr<scene::Surface>(window)->confine_pointer(modifications.confine_pointer().value());
+        std::shared_ptr<scene::Surface>(window)->set_confine_pointer_state(modifications.confine_pointer().value());
 #endif
 }
 
