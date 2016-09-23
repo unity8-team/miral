@@ -113,6 +113,7 @@ private:
     WindowManagerTools wrapped;
     std::unique_ptr<miral::WindowManagementPolicy> const policy;
     std::atomic<unsigned> mutable trace_count;
+    std::function<void()> log_input;
 };
 }
 
