@@ -288,4 +288,4 @@ global:
     miral::WindowInfo::confine_pointer*;
     miral::WindowSpecification::confine_pointer*;
   };
-};
+} MIRAL_0.1;

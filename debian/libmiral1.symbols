@@ -1,5 +1,6 @@
 libmiral.so.1 libmiral1 #MINVER#
- MIRAL_0.2@MIRAL_0.2 0.1.0
+ MIRAL_0.1@MIRAL_0.1 0.1.0+16.10.20160919-0ubuntu1
+ MIRAL_0.2@MIRAL_0.2 0.2.0
  (c++)"miral::ActiveOutputsListener::advise_output_begin()@MIRAL_0.1" 0.1.0
  (c++)"miral::ActiveOutputsListener::advise_output_create(miral::Output const&)@MIRAL_0.1" 0.1.0
  (c++)"miral::ActiveOutputsListener::advise_output_delete(miral::Output const&)@MIRAL_0.1" 0.1.0
