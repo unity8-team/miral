@@ -74,7 +74,10 @@ struct StubPersistentSurfaceStore : mir::shell::PersistentSurfaceStore
 
 struct StubSurface : mir::test::doubles::StubSurface
 {
-    StubSurface(mir::geometry::Point top_left, mir::geometry::Size size) : top_left_{top_left}, size_{size} {}
+    StubSurface(std::string name, mir::geometry::Point top_left, mir::geometry::Size size) :
+        name_{name}, top_left_{top_left}, size_{size} {}
+
+    std::string name() const override { return name_; };
 
     mir::geometry::Point top_left() const override { return top_left_; }
     void move_to(mir::geometry::Point const& top_left) override { top_left_ = top_left; }
@@ -82,6 +85,7 @@ struct StubSurface : mir::test::doubles::StubSurface
     mir::geometry::Size size() const override { return  size_; }
     void resize(mir::geometry::Size const& size) override { size_ = size; }
 
+    std::string name_;
     mir::geometry::Point top_left_;
     mir::geometry::Size size_;
 };
@@ -93,7 +97,7 @@ struct StubStubSession : mir::test::doubles::StubSession
         std::shared_ptr<mir::frontend::EventSink> const& /*sink*/) override
     {
         auto id = mir::frontend::SurfaceId{next_surface_id.fetch_add(1)};
-        auto surface = std::make_shared<StubSurface>(params.top_left, params.size);
+        auto surface = std::make_shared<StubSurface>(params.name, params.top_left, params.size);
         surfaces[id] = surface;
         return id;
     }
