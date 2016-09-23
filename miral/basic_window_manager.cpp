@@ -543,6 +543,7 @@ void miral::BasicWindowManager::modify_window(WindowInfo& window_info, WindowSpe
     COPY_IF_SET(max_aspect);
     COPY_IF_SET(output_id);
     COPY_IF_SET(preferred_orientation);
+    COPY_IF_SET(confine_pointer);
 
 #undef COPY_IF_SET
 
