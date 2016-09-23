@@ -25,6 +25,8 @@
 #include "miral/window_management_options.h"
 #include "miral/window_management_policy.h"
 
+#include <atomic>
+
 namespace miral
 {
 class WindowManagementTrace : public WindowManagementPolicy, WindowManagerToolsImplementation
@@ -110,6 +112,8 @@ public:
 private:
     WindowManagerTools wrapped;
     std::unique_ptr<miral::WindowManagementPolicy> const policy;
+    std::atomic<unsigned> mutable trace_count;
+    std::function<void()> log_input;
 };
 }
 
