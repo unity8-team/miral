@@ -281,3 +281,11 @@ global:
   };
 local: *;
 };
+
+MIRAL_0.2 {
+global:
+  extern "C++" {
+    miral::WindowInfo::confine_pointer*;
+    miral::WindowSpecification::confine_pointer*;
+  };
+} MIRAL_0.1;
