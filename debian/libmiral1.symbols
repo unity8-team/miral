@@ -190,6 +190,8 @@ libmiral.so.1 libmiral1 #MINVER#
  (c++)"miral::WindowSpecification::aux_rect_placement_gravity()@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowSpecification::aux_rect_placement_offset() const@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowSpecification::aux_rect_placement_offset()@MIRAL_0.1" 0.1.0
+ (c++)"miral::WindowSpecification::confine_pointer const@MIRAL_0.2" 0.1.0
+ (c++)"miral::WindowSpecification::confine_pointer@MIRAL_0.2" 0.1.0
  (c++)"miral::WindowSpecification::height_inc() const@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowSpecification::height_inc()@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowSpecification::input_mode() const@MIRAL_0.1" 0.1.0

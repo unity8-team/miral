@@ -45,7 +45,7 @@ add_library(miral SHARED
                                         ${CMAKE_SOURCE_DIR}/include/miral/toolkit/persistent_id.h
                                         ${CMAKE_SOURCE_DIR}/include/miral/toolkit/connection.h
                                         ${CMAKE_SOURCE_DIR}/include/miral/toolkit/surface.h
-)
+        ../include/miral/detail/mir_forward_compatibility.h)
 
 target_link_libraries(miral
     PUBLIC
