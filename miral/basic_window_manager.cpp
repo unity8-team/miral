@@ -877,6 +877,15 @@ auto miral::BasicWindowManager::select_active_window(Window const& hint) -> mira
 
     auto const& info_for_hint = info_for(hint);
 
+    for (auto const& child : info_for_hint.children())
+    {
+        if (std::shared_ptr<mir::scene::Surface> surface = child)
+        {
+            if (surface->type() == mir_surface_type_dialog)
+                return (select_active_window(child));
+        }
+    }
+
     if (info_for_hint.can_be_active())
     {
         mru_active_windows.push(hint);
