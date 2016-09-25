@@ -1,5 +1,5 @@
 libmiral.so.1 libmiral1 #MINVER#
- MIRAL_0.1@MIRAL_0.1 0.1.0+16.10.20160919-0ubuntu1
+ MIRAL_0.1@MIRAL_0.1 0.1.0
  MIRAL_0.2@MIRAL_0.2 0.2.0
  (c++)"miral::ActiveOutputsListener::advise_output_begin()@MIRAL_0.1" 0.1.0
  (c++)"miral::ActiveOutputsListener::advise_output_create(miral::Output const&)@MIRAL_0.1" 0.1.0
@@ -193,8 +193,8 @@ libmiral.so.1 libmiral1 #MINVER#
  (c++)"miral::WindowSpecification::aux_rect_placement_gravity()@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowSpecification::aux_rect_placement_offset() const@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowSpecification::aux_rect_placement_offset()@MIRAL_0.1" 0.1.0
- (c++)"miral::WindowSpecification::confine_pointer const@MIRAL_0.2" 0.2.0
- (c++)"miral::WindowSpecification::confine_pointer@MIRAL_0.2" 0.2.0
+ (c++)"miral::WindowSpecification::confine_pointer() const@MIRAL_0.2" 0.2.0
+ (c++)"miral::WindowSpecification::confine_pointer()@MIRAL_0.2" 0.2.0
  (c++)"miral::WindowSpecification::height_inc() const@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowSpecification::height_inc()@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowSpecification::input_mode() const@MIRAL_0.1" 0.1.0
