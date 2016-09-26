@@ -102,6 +102,7 @@ MirSurface::MirSurface(NewWindow newWindowInfo,
         setShellChrome(static_cast<Mir::ShellChrome>(shell_chrome));
     });
     connect(m_surfaceObserver.get(), &SurfaceObserver::inputBoundsChanged, this, &MirSurface::setInputBounds);
+    connect(m_surfaceObserver.get(), &SurfaceObserver::confinesMousePointerChanged, this, &MirSurface::confinesMousePointerChanged);
     m_surfaceObserver->setListener(this);
 
     //connect(session, &QObject::destroyed, this, &MirSurface::onSessionDestroyed); // TODO try using Shared pointer for lifecycle
@@ -860,6 +861,11 @@ bool MirSurface::focused() const
 QRect MirSurface::inputBounds() const
 {
     return m_inputBounds;
+}
+
+bool MirSurface::confinesMousePointer() const
+{
+    return m_surface->confine_pointer_state() == mir_pointer_confined_to_surface;
 }
 
 void MirSurface::requestFocus()
