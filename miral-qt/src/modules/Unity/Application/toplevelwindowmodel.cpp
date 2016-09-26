@@ -512,3 +512,30 @@ int TopLevelWindowModel::indexForId(int id) const
     }
     return -1;
 }
+
+unityapi::MirSurfaceInterface *TopLevelWindowModel::surfaceAt(int index) const
+{
+    if (index >=0 && index < m_windowModel.count()) {
+        return m_windowModel[index].surface;
+    } else {
+        return nullptr;
+    }
+}
+
+unityapi::ApplicationInfoInterface *TopLevelWindowModel::applicationAt(int index) const
+{
+    if (index >=0 && index < m_windowModel.count()) {
+        return m_windowModel[index].application;
+    } else {
+        return nullptr;
+    }
+}
+
+int TopLevelWindowModel::idAt(int index) const
+{
+    if (index >=0 && index < m_windowModel.count()) {
+        return m_windowModel[index].id;
+    } else {
+        return 0;
+    }
+}

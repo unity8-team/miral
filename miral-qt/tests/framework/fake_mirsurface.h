@@ -94,7 +94,8 @@ public:
     // qtmir.MirSurfaceInterface
 
     QPoint position() const override;
-    void requestPosition(const QPoint newPosition) override;
+    QPoint requestedPosition() const override;
+    void setRequestedPosition(const QPoint &) override;
 
     bool isFirstFrameDrawn() const override;
     void stopFrameDropper() override;

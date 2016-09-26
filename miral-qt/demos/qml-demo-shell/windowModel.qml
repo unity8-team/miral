@@ -87,8 +87,8 @@ Resize window: Ctrl+Right click"
         property var action
 
         function moveWindowBy(window, delta) {
-            window.surface.requestPosition(Qt.point(initialWindowXPosition + delta.x,
-                                                    initialWindowYPosition + delta.y))
+            window.surface.requestedPosition = Qt.point(initialWindowXPosition + delta.x,
+                                                        initialWindowYPosition + delta.y);
         }
         function resizeWindowBy(window, delta) {
             window.surface.resize(Qt.size(initialWindowWidth + delta.x,
