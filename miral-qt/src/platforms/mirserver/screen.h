@@ -111,7 +111,7 @@ private:
     ScreenWindow *m_screenWindow;
     QDBusInterface *m_unityScreen;
 
-    qtmir::Cursor m_cursor;
+    qtmir::Cursor *m_cursor{nullptr};
 
     friend class ScreensModel;
     friend class ScreenWindow;

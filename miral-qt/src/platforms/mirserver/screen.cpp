@@ -189,6 +189,8 @@ Screen::~Screen()
     if (m_screenWindow) {
         m_screenWindow->window()->destroy(); // ends up destroying m_ScreenWindow
     }
+
+    delete m_cursor;
 }
 
 bool Screen::orientationSensorEnabled()
@@ -338,7 +340,10 @@ void Screen::onOrientationReadingChanged()
 
 QPlatformCursor *Screen::cursor() const
 {
-    const QPlatformCursor *platformCursor = &m_cursor;
+    if (!m_cursor) {
+        const_cast<Screen*>(this)->m_cursor = new qtmir::Cursor;
+    }
+    const QPlatformCursor *platformCursor = m_cursor;
     return const_cast<QPlatformCursor *>(platformCursor);
 }
 
