@@ -78,6 +78,14 @@ bool TitlebarWindowManagerPolicy::handle_pointer_event(MirPointerEvent const* ev
 
         if (mir_pointer_event_button_state(event, mir_pointer_button_tertiary))
         {
+            {   // Workaround for lp:1627697
+                auto now = std::chrono::steady_clock::now();
+                if (resizing && now < last_resize+std::chrono::milliseconds(20))
+                    return true;
+
+                last_resize = now;
+            }
+
             if (!resizing)
                 tools.select_active_window(tools.window_at(old_cursor));
             is_resize_event = resize(tools.active_window(), cursor, old_cursor);
@@ -216,6 +224,14 @@ bool TitlebarWindowManagerPolicy::handle_touch_event(MirTouchEvent const* event)
 
                 auto new_pos = window.top_left() + delta;
                 Size new_size{new_width, new_height};
+
+                {   // Workaround for lp:1627697
+                    auto now = std::chrono::steady_clock::now();
+                    if (pinching && now < last_resize+std::chrono::milliseconds(20))
+                        return true;
+
+                    last_resize = now;
+                }
 
                 WindowSpecification modifications;
                 modifications.top_left() = new_pos;
