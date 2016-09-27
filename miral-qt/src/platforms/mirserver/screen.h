@@ -19,6 +19,7 @@
 
 // Qt
 #include <QObject>
+#include <QScopedPointer>
 #include <QTimer>
 #include <QtDBus/QDBusInterface>
 #include <qpa/qplatformscreen.h>
@@ -111,7 +112,7 @@ private:
     ScreenWindow *m_screenWindow;
     QDBusInterface *m_unityScreen;
 
-    qtmir::Cursor *m_cursor{nullptr};
+    QScopedPointer<qtmir::Cursor> m_cursor;
 
     friend class ScreensModel;
     friend class ScreenWindow;
