@@ -34,4 +34,6 @@ Q_SIGNALS:
 
 } // namespace qtmir
 
+Q_DECLARE_METATYPE(miral::ApplicationInfo)
+
 #endif // APPNOTIFIER_H

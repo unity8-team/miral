@@ -543,6 +543,7 @@ void miral::BasicWindowManager::modify_window(WindowInfo& window_info, WindowSpe
     COPY_IF_SET(max_aspect);
     COPY_IF_SET(output_id);
     COPY_IF_SET(preferred_orientation);
+    COPY_IF_SET(confine_pointer);
 
 #undef COPY_IF_SET
 
@@ -624,7 +625,7 @@ void miral::BasicWindowManager::modify_window(WindowInfo& window_info, WindowSpe
     {
         if (auto parent = window_info.parent())
         {
-            auto new_pos = place_relative(parent.top_left(), modifications, window.size());
+            auto new_pos = place_relative({parent.top_left(), parent.size()}, modifications, window.size());
 
             if (new_pos.is_set())
                 place_and_size(window_info, new_pos.value().top_left, new_pos.value().size);
@@ -641,6 +642,11 @@ void miral::BasicWindowManager::modify_window(WindowInfo& window_info, WindowSpe
     {
         set_state(window_info, modifications.state().value());
     }
+
+#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 24, 0)
+    if (modifications.confine_pointer().is_set())
+        std::shared_ptr<scene::Surface>(window)->set_confine_pointer_state(modifications.confine_pointer().value());
+#endif
 }
 
 auto miral::BasicWindowManager::info_for_window_id(std::string const& id) const -> WindowInfo&
@@ -877,6 +883,15 @@ auto miral::BasicWindowManager::select_active_window(Window const& hint) -> mira
 
     auto const& info_for_hint = info_for(hint);
 
+    for (auto const& child : info_for_hint.children())
+    {
+        if (std::shared_ptr<mir::scene::Surface> surface = child)
+        {
+            if (surface->type() == mir_surface_type_dialog)
+                return (select_active_window(child));
+        }
+    }
+
     if (info_for_hint.can_be_active())
     {
         mru_active_windows.push(hint);
@@ -1018,37 +1033,41 @@ auto miral::BasicWindowManager::place_new_surface(ApplicationInfo const& app_inf
         }
     }
 
-    if (has_parent && parameters.aux_rect().is_set() && parameters.placement_hints().is_set())
+    if (has_parent)
     {
-        auto const position = place_relative(
-            info_for(parameters.parent().value()).window().top_left(),
-            parameters,
-            parameters.size().value());
+        auto const parent = info_for(parameters.parent().value()).window();
 
-        if (position.is_set())
+        if (parameters.aux_rect().is_set() && parameters.placement_hints().is_set())
         {
-            parameters.top_left() = position.value().top_left;
-            parameters.size() = position.value().size;
+            auto const position = place_relative(
+                {parent.top_left(), parent.size()},
+                parameters,
+                parameters.size().value());
+
+            if (position.is_set())
+            {
+                parameters.top_left() = position.value().top_left;
+                parameters.size() = position.value().size;
+                positioned = true;
+            }
+        }
+        else
+        {
+            //  o Otherwise, if the dialog is not the same as any previous dialog for the
+            //    same parent window, and/or it does not have user-customized position:
+            //      o It should be optically centered relative to its parent, unless this
+            //        would overlap or cover the title bar of the parent.
+            //      o Otherwise, it should be cascaded vertically (but not horizontally)
+            //        relative to its parent, unless, this would cause at least part of
+            //        it to extend into shell space.
+            auto const parent_top_left = parent.top_left();
+            auto const centred = parent_top_left
+                                 + 0.5*(as_displacement(parent.size()) - as_displacement(parameters.size().value()))
+                                 - DeltaY{(parent.size().height.as_int()-height)/6};
+
+            parameters.top_left() = centred;
             positioned = true;
         }
-    }
-    else if (has_parent)
-    {
-        auto parent = info_for(parameters.parent().value()).window();
-        //  o Otherwise, if the dialog is not the same as any previous dialog for the
-        //    same parent window, and/or it does not have user-customized position:
-        //      o It should be optically centered relative to its parent, unless this
-        //        would overlap or cover the title bar of the parent.
-        //      o Otherwise, it should be cascaded vertically (but not horizontally)
-        //        relative to its parent, unless, this would cause at least part of
-        //        it to extend into shell space.
-        auto const parent_top_left = parent.top_left();
-        auto const centred = parent_top_left
-                             + 0.5*(as_displacement(parent.size()) - as_displacement(parameters.size().value()))
-                             - DeltaY{(parent.size().height.as_int()-height)/6};
-
-        parameters.top_left() = centred;
-        positioned = true;
     }
 
     if (!positioned)
@@ -1182,6 +1201,23 @@ auto antipodes(MirPlacementGravity rect_gravity) -> MirPlacementGravity
     }
 }
 
+auto constrain_to(mir::geometry::Rectangle const& rect, Point point) -> Point
+{
+    if (point.x < rect.top_left.x)
+        point.x = rect.top_left.x;
+
+    if (point.y < rect.top_left.y)
+        point.y = rect.top_left.y;
+
+    if (point.x > rect.bottom_right().x)
+        point.x = rect.bottom_right().x;
+
+    if (point.y > rect.bottom_right().y)
+        point.y = rect.bottom_right().y;
+
+    return point;
+}
+
 auto anchor_for(Rectangle const& aux_rect, MirPlacementGravity rect_gravity) -> Point
 {
     switch (rect_gravity)
@@ -1257,7 +1293,7 @@ auto offset_for(Size const& size, MirPlacementGravity rect_gravity) -> Displacem
 }
 }
 
-auto miral::BasicWindowManager::place_relative(Point const& parent_top_left, WindowSpecification const& parameters, Size size)
+auto miral::BasicWindowManager::place_relative(mir::geometry::Rectangle const& parent, WindowSpecification const& parameters, Size size)
 -> mir::optional_value<Rectangle>
 {
     auto const hints = parameters.placement_hints().value();
@@ -1271,7 +1307,7 @@ auto miral::BasicWindowManager::place_relative(Point const& parent_top_left, Win
                   parameters.aux_rect_placement_offset().value() : Displacement{};
 
     Rectangle aux_rect = parameters.aux_rect().value();
-    aux_rect.top_left = aux_rect.top_left + (parent_top_left-Point{});
+    aux_rect.top_left = aux_rect.top_left + (parent.top_left-Point{});
 
     std::vector<MirPlacementGravity> rect_gravities{parameters.aux_rect_placement_gravity().value()};
 
@@ -1283,7 +1319,8 @@ auto miral::BasicWindowManager::place_relative(Point const& parent_top_left, Win
     for (auto const& rect_gravity : rect_gravities)
     {
         {
-            auto result = anchor_for(aux_rect, rect_gravity) + offset_for(size, win_gravity) + offset;
+            auto result = constrain_to(parent, anchor_for(aux_rect, rect_gravity) + offset) +
+                offset_for(size, win_gravity);
 
             if (active_display_area.contains(Rectangle{result, size}))
                 return Rectangle{result, size};
@@ -1294,8 +1331,8 @@ auto miral::BasicWindowManager::place_relative(Point const& parent_top_left, Win
 
         if (hints & mir_placement_hints_flip_x)
         {
-            auto result = anchor_for(aux_rect, flip_x(rect_gravity)) +
-                offset_for(size, flip_x(win_gravity)) + flip_x(offset);
+            auto result = constrain_to(parent, anchor_for(aux_rect, flip_x(rect_gravity)) + flip_x(offset)) +
+                offset_for(size, flip_x(win_gravity));
 
             if (active_display_area.contains(Rectangle{result, size}))
                 return Rectangle{result, size};
@@ -1303,8 +1340,8 @@ auto miral::BasicWindowManager::place_relative(Point const& parent_top_left, Win
 
         if (hints & mir_placement_hints_flip_y)
         {
-            auto result = anchor_for(aux_rect, flip_y(rect_gravity)) +
-                offset_for(size, flip_y(win_gravity)) + flip_y(offset);
+            auto result = constrain_to(parent, anchor_for(aux_rect, flip_y(rect_gravity)) + flip_y(offset)) +
+                offset_for(size, flip_y(win_gravity));
 
             if (active_display_area.contains(Rectangle{result, size}))
                 return Rectangle{result, size};
@@ -1312,8 +1349,8 @@ auto miral::BasicWindowManager::place_relative(Point const& parent_top_left, Win
 
         if (hints & mir_placement_hints_flip_x && hints & mir_placement_hints_flip_y)
         {
-            auto result = anchor_for(aux_rect, flip_x(flip_y(rect_gravity))) +
-                offset_for(size, flip_x(flip_y(win_gravity))) + flip_x(flip_y(offset));
+            auto result = constrain_to(parent, anchor_for(aux_rect, flip_x(flip_y(rect_gravity))) + flip_x(flip_y(offset))) +
+                offset_for(size, flip_x(flip_y(win_gravity)));
 
             if (active_display_area.contains(Rectangle{result, size}))
                 return Rectangle{result, size};
@@ -1322,7 +1359,8 @@ auto miral::BasicWindowManager::place_relative(Point const& parent_top_left, Win
 
     for (auto const& rect_gravity : rect_gravities)
     {
-        auto result = anchor_for(aux_rect, rect_gravity) + offset_for(size, win_gravity) + offset;
+        auto result = constrain_to(parent, anchor_for(aux_rect, rect_gravity) + offset) +
+            offset_for(size, win_gravity);
 
         if (hints & mir_placement_hints_slide_x)
         {
@@ -1352,7 +1390,8 @@ auto miral::BasicWindowManager::place_relative(Point const& parent_top_left, Win
 
     for (auto const& rect_gravity : rect_gravities)
     {
-        auto result = anchor_for(aux_rect, rect_gravity) + offset_for(size, win_gravity) + offset;
+        auto result = constrain_to(parent, anchor_for(aux_rect, rect_gravity) + offset) +
+            offset_for(size, win_gravity);
 
         if (hints & mir_placement_hints_resize_x)
         {

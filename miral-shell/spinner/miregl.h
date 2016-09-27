@@ -50,6 +50,8 @@ public:
         swap_buffers();
     }
 
+    MirSurface* mir_surface() { return surface; }
+
 private:
     void egl_make_current();
 

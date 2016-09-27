@@ -104,7 +104,7 @@ MirSurfaceItem::MirSurfaceItem(QQuickItem *parent)
     connect(&m_updateMirSurfaceSizeTimer, &QTimer::timeout, this, &MirSurfaceItem::updateMirSurfaceSize);
 
     connect(this, &QQuickItem::activeFocusChanged, this, &MirSurfaceItem::updateMirSurfaceActiveFocus);
-    connect(this, &QQuickItem::visibleChanged, this, &MirSurfaceItem::updateMirSurfaceVisibility);
+    connect(this, &QQuickItem::visibleChanged, this, &MirSurfaceItem::updateMirSurfaceExposure);
     connect(this, &QQuickItem::windowChanged, this, &MirSurfaceItem::onWindowChanged);
 }
 
@@ -511,13 +511,13 @@ void MirSurfaceItem::updateMirSurfaceSize()
     m_surface->resize(width, height);
 }
 
-void MirSurfaceItem::updateMirSurfaceVisibility()
+void MirSurfaceItem::updateMirSurfaceExposure()
 {
     if (!m_surface || !m_surface->live()) {
         return;
     }
 
-    m_surface->setViewVisibility((qintptr)this, isVisible());
+    m_surface->setViewExposure((qintptr)this, isVisible());
 }
 
 void MirSurfaceItem::updateMirSurfaceActiveFocus()
@@ -620,7 +620,7 @@ void MirSurfaceItem::setSurface(unity::shell::application::MirSurfaceInterface *
 
         updateMirSurfaceSize();
         setImplicitSize(m_surface->size().width(), m_surface->size().height());
-        updateMirSurfaceVisibility();
+        updateMirSurfaceExposure();
 
         // Qt::ArrowCursor is the default when no cursor has been explicitly set, so no point forwarding it.
         if (m_surface->cursor().shape() != Qt::ArrowCursor) {

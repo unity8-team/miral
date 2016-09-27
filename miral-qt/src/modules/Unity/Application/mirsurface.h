@@ -28,9 +28,9 @@
 #include <QSharedPointer>
 #include <QWeakPointer>
 #include <QSet>
+#include <QTimer>
 
 #include "mirbuffersgtexture.h"
-#include "session.h"
 #include "windowcontrollerinterface.h"
 #include "windowmodelnotifier.h"
 
@@ -43,6 +43,7 @@ class SurfaceObserver;
 namespace qtmir {
 
 class AbstractTimer;
+class SessionInterface;
 
 class MirSurface : public MirSurfaceInterface
 {
@@ -50,7 +51,8 @@ class MirSurface : public MirSurfaceInterface
 
 public:
     MirSurface(NewWindow windowInfo,
-               WindowControllerInterface *controller);
+               WindowControllerInterface *controller,
+               SessionInterface *session = nullptr);
     virtual ~MirSurface();
 
     ////
@@ -67,7 +69,9 @@ public:
     Q_INVOKABLE void resize(const QSize &size) override { resize(size.width(), size.height()); }
 
     QPoint position() const override;
-    Q_INVOKABLE void requestPosition(const QPoint newPosition) override;
+
+    QPoint requestedPosition() const override;
+    void setRequestedPosition(const QPoint &) override;
 
     Mir::State state() const override;
     void setState(Mir::State qmlState) override; // To remove from unity-api
@@ -90,6 +94,8 @@ public:
     bool focused() const override;
     QRect inputBounds() const override;
 
+    bool confinesMousePointer() const override;
+
     Q_INVOKABLE void requestFocus() override;
     Q_INVOKABLE void close() override;
     Q_INVOKABLE void raise() override;
@@ -108,7 +114,7 @@ public:
 
     void registerView(qintptr viewId) override;
     void unregisterView(qintptr viewId) override;
-    void setViewVisibility(qintptr viewId, bool visible) override;
+    void setViewExposure(qintptr viewId, bool exposed) override;
 
     // methods called from the rendering (scene graph) thread:
     QSharedPointer<QSGTexture> texture() override;
@@ -155,7 +161,6 @@ public:
     ////
     // Own API
     void setPosition(const QPoint newPosition);
-    void setSize(const QSize newSize);
     void updateWindowInfo(const miral::WindowInfo &windowInfo);
     void updateState(MirSurfaceState state);
 
@@ -182,7 +187,7 @@ private Q_SLOTS:
 private:
     void syncSurfaceSizeWithItemSize();
     bool clientIsRunning() const;
-    void updateVisibility();
+    void updateExposure();
     void applyKeymap();
     void updateActiveFocus();
 
@@ -207,7 +212,7 @@ private:
 
     bool m_live;
     struct View {
-        bool visible;
+        bool exposed;
     };
     QHash<qintptr, View> m_views;
 
@@ -217,6 +222,7 @@ private:
     std::shared_ptr<SurfaceObserver> m_surfaceObserver;
 
     QPoint m_position;
+    QPoint m_requestedPosition;
     QSize m_size;
     QString m_keymap;
 

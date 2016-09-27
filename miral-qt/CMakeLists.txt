@@ -90,14 +90,12 @@ pkg_check_modules(LTTNG lttng-ust)
 pkg_check_modules(GSETTINGS_QT REQUIRED gsettings-qt)
 pkg_check_modules(QTDBUSTEST libqtdbustest-1 REQUIRED)
 pkg_check_modules(QTDBUSMOCK libqtdbusmock-1 REQUIRED)
-pkg_check_modules(APPLICATION_API REQUIRED unity-shell-application=21)
+pkg_check_modules(APPLICATION_API REQUIRED unity-shell-application=22)
 pkg_check_modules(CGMANAGER libcgmanager REQUIRED)
 pkg_check_modules(CONTENT_HUB libcontent-hub>=0.2 REQUIRED)
 
 include_directories(SYSTEM ${APPLICATION_API_INCLUDE_DIRS})
 
-
-add_definitions(-DMIR_REQUIRE_DEPRECATED_EVENT_OPT_IN=1)
 
 # Use the fast string builder
 add_definitions(-DQT_USE_QSTRINGBUILDER)

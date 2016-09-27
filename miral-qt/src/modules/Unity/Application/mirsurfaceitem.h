@@ -115,7 +115,7 @@ private Q_SLOTS:
     void updateMirSurfaceSize();
 
     void updateMirSurfaceActiveFocus();
-    void updateMirSurfaceVisibility();
+    void updateMirSurfaceExposure();
 
     void onActualSurfaceSizeChanged(QSize size);
     void onCompositorSwappedBuffers();

@@ -26,6 +26,7 @@ FocusScope {
                 width: surface.size.width
                 height: surface.size.height
                 focus: surface.focused
+                visible: surface.visible
 
                 Rectangle {
                     anchors { top: parent.bottom; right: parent.right }
@@ -45,11 +46,16 @@ FocusScope {
     }
 
     Button {
-        anchors { right: parent.right; bottom: parent.bottom }
+        anchors { right: parent.right; top: parent.top }
         height: 30
         width: 80
         text: "Quit"
         onClicked: Qt.quit()
+    }
+
+    WindowModelDebugView {
+        anchors { right: parent.right; bottom: parent.bottom }
+        model: windowModel
     }
 
     Text {
@@ -81,8 +87,8 @@ Resize window: Ctrl+Right click"
         property var action
 
         function moveWindowBy(window, delta) {
-            window.surface.requestPosition(Qt.point(initialWindowXPosition + delta.x,
-                                                    initialWindowYPosition + delta.y))
+            window.surface.requestedPosition = Qt.point(initialWindowXPosition + delta.x,
+                                                        initialWindowYPosition + delta.y);
         }
         function resizeWindowBy(window, delta) {
             window.surface.resize(Qt.size(initialWindowWidth + delta.x,

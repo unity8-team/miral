@@ -32,7 +32,9 @@ add_executable(miral-test
     active_outputs.cpp
     persistent_surface_store.cpp
     runner.cpp
+    select_active_window.cpp
     window_placement.cpp
+    window_placement_anchors_to_parent.cpp
     window_placement_client_api.cpp
     drag_active_window.cpp
     test_server.cpp         test_server.h

@@ -17,6 +17,7 @@ include_directories(include SYSTEM ${MIRSERVER_INCLUDE_DIRS})
 add_library(miral-internal STATIC
     basic_window_manager.cpp            basic_window_manager.h window_manager_tools_implementation.h
     mru_window_list.cpp                 mru_window_list.h
+    window_management_trace.cpp         window_management_trace.h
 )
 
 add_library(miral SHARED
@@ -44,7 +45,7 @@ add_library(miral SHARED
                                         ${CMAKE_SOURCE_DIR}/include/miral/toolkit/persistent_id.h
                                         ${CMAKE_SOURCE_DIR}/include/miral/toolkit/connection.h
                                         ${CMAKE_SOURCE_DIR}/include/miral/toolkit/surface.h
-)
+        ../include/miral/detail/mir_forward_compatibility.h)
 
 target_link_libraries(miral
     PUBLIC
@@ -68,6 +69,17 @@ set(INCLUDEDIR "${CMAKE_INSTALL_PREFIX}/include/miral")
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/miral.pc.in
     ${CMAKE_CURRENT_BINARY_DIR}/miral.pc
     @ONLY
+)
+
+if (MIRSERVER_VERSION VERSION_LESS 0.24)
+    set(MIR_POINTER_CONFINEMENT 0)
+else()
+    set(MIR_POINTER_CONFINEMENT 1)
+endif()
+
+configure_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/mir_features.h.in
+  ${PROJECT_SOURCE_DIR}/include/miral/detail/mir_features.h
 )
 
 install(TARGETS     miral                           LIBRARY DESTINATION "${CMAKE_INSTALL_FULL_LIBDIR}")

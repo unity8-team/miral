@@ -49,6 +49,7 @@ struct miral::WindowInfo::Self
     mir::geometry::Width max_width;
     mir::geometry::Height max_height;
     MirOrientationMode preferred_orientation;
+    MirPointerConfinementState confine_pointer;
 
     mir::geometry::DeltaX width_inc;
     mir::geometry::DeltaY height_inc;
@@ -69,6 +70,7 @@ miral::WindowInfo::Self::Self(Window window, WindowSpecification const& params) 
     max_width{optional_value_or_default(params.max_width(), Width{std::numeric_limits<int>::max()})},
     max_height{optional_value_or_default(params.max_height(), Height{std::numeric_limits<int>::max()})},
     preferred_orientation{optional_value_or_default(params.preferred_orientation(), mir_orientation_mode_any)},
+    confine_pointer(optional_value_or_default(params.confine_pointer(), mir_pointer_unconfined)),
     width_inc{optional_value_or_default(params.width_inc(), DeltaX{1})},
     height_inc{optional_value_or_default(params.height_inc(), DeltaY{1})},
     min_aspect(optional_value_or_default(params.min_aspect(), AspectRatio{0U, std::numeric_limits<unsigned>::max()})),
@@ -224,6 +226,32 @@ void miral::WindowInfo::constrain_resize(Point& requested_pos, Size& requested_s
     Point new_pos = requested_pos;
     Size new_size = requested_size;
 
+    if (min_width() > new_size.width)
+        new_size.width = min_width();
+
+    if (min_height() > new_size.height)
+        new_size.height = min_height();
+
+    if (max_width() < new_size.width)
+        new_size.width = max_width();
+
+    if (max_height() < new_size.height)
+        new_size.height = max_height();
+
+    {
+        auto const width = new_size.width.as_int() - min_width().as_int();
+        auto inc = width_inc().as_int();
+        if (width % inc)
+            new_size.width = min_width() + DeltaX{inc*(((2L*width + inc)/2)/inc)};
+    }
+
+    {
+        auto const height = new_size.height.as_int() - min_height().as_int();
+        auto inc = height_inc().as_int();
+        if (height % inc)
+            new_size.height = min_height() + DeltaY{inc*(((2L*height + inc)/2)/inc)};
+    }
+
     {
         auto const ar = min_aspect();
 
@@ -266,32 +294,6 @@ void miral::WindowInfo::constrain_resize(Point& requested_pos, Size& requested_s
                 new_size.height = new_size.height + DeltaY(height_correction);
             }
         }
-    }
-
-    if (min_width() > new_size.width)
-        new_size.width = min_width();
-
-    if (min_height() > new_size.height)
-        new_size.height = min_height();
-
-    if (max_width() < new_size.width)
-        new_size.width = max_width();
-
-    if (max_height() < new_size.height)
-        new_size.height = max_height();
-
-    {
-        auto const width = new_size.width.as_int() - min_width().as_int();
-        auto inc = width_inc().as_int();
-        if (width % inc)
-            new_size.width = min_width() + DeltaX{inc*(((2L*width + inc)/2)/inc)};
-    }
-
-    {
-        auto const height = new_size.height.as_int() - min_height().as_int();
-        auto inc = height_inc().as_int();
-        if (height % inc)
-            new_size.height = min_height() + DeltaY{inc*(((2L*height + inc)/2)/inc)};
     }
 
     if (left_resize)
@@ -537,6 +539,15 @@ void miral::WindowInfo::preferred_orientation(MirOrientationMode preferred_orien
     self->preferred_orientation = preferred_orientation;
 }
 
+auto miral::WindowInfo::confine_pointer() const -> MirPointerConfinementState
+{
+    return self->confine_pointer;
+}
+
+void miral::WindowInfo::confine_pointer(MirPointerConfinementState confinement)
+{
+    self->confine_pointer = confinement;
+}
 
 bool miral::WindowInfo::has_name() const
 {

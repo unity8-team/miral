@@ -91,6 +91,7 @@ Q_SIGNALS:
     void heightIncrementChanged(int);
     void shellChromeChanged(MirShellChrome);
     void inputBoundsChanged(const QRect &rect);
+    void confinesMousePointerChanged(bool);
 
 private:
     QCursor createQCursorFromMirCursorImage(const mir::graphics::CursorImage &cursorImage);

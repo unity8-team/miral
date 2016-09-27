@@ -74,7 +74,11 @@ struct StubPersistentSurfaceStore : mir::shell::PersistentSurfaceStore
 
 struct StubSurface : mir::test::doubles::StubSurface
 {
-    StubSurface(mir::geometry::Point top_left, mir::geometry::Size size) : top_left_{top_left}, size_{size} {}
+    StubSurface(std::string name, MirSurfaceType type, mir::geometry::Point top_left, mir::geometry::Size size) :
+        name_{name}, type_{type}, top_left_{top_left}, size_{size} {}
+
+    std::string name() const override { return name_; };
+    MirSurfaceType type() const { return type_; }
 
     mir::geometry::Point top_left() const override { return top_left_; }
     void move_to(mir::geometry::Point const& top_left) override { top_left_ = top_left; }
@@ -82,6 +86,8 @@ struct StubSurface : mir::test::doubles::StubSurface
     mir::geometry::Size size() const override { return  size_; }
     void resize(mir::geometry::Size const& size) override { size_ = size; }
 
+    std::string name_;
+    MirSurfaceType type_;
     mir::geometry::Point top_left_;
     mir::geometry::Size size_;
 };
@@ -93,7 +99,7 @@ struct StubStubSession : mir::test::doubles::StubSession
         std::shared_ptr<mir::frontend::EventSink> const& /*sink*/) override
     {
         auto id = mir::frontend::SurfaceId{next_surface_id.fetch_add(1)};
-        auto surface = std::make_shared<StubSurface>(params.top_left, params.size);
+        auto surface = std::make_shared<StubSurface>(params.name, params.type.value(), params.top_left, params.size);
         surfaces[id] = surface;
         return id;
     }
@@ -143,6 +149,15 @@ struct TestWindowManagerTools : testing::Test
                 return std::move(policy);
             }
     };
+
+    static auto create_surface(
+        std::shared_ptr<mir::scene::Session> const& session,
+        mir::scene::SurfaceCreationParameters const& params) -> mir::frontend::SurfaceId
+    {
+        // This type is Mir-internal, I hope we don't need to create it here
+        std::shared_ptr<mir::frontend::EventSink> const sink;
+        return session->create_surface(params, sink);
+    }
 };
 
 #endif //MIRAL_TEST_WINDOW_MANAGER_TOOLS_H

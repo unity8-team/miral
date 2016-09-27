@@ -56,6 +56,7 @@ set(MIRSERVER_QPA_PLUGIN_SRC
     ${MIRAL_QT_SOURCE_DIR}/src/common/debughelpers.cpp
     ${MIRAL_QT_SOURCE_DIR}/src/common/timestamp.cpp
     cursor.cpp
+    eventbuilder.cpp
     logging.cpp
     mircursorimages.cpp
     mirdisplayconfigurationpolicy.cpp

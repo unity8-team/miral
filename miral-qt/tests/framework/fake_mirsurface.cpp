@@ -60,10 +60,13 @@ QSize FakeMirSurface::size() const { return m_size; }
 
 QPoint FakeMirSurface::position() const { return m_position; }
 
-void FakeMirSurface::requestPosition(const QPoint newPosition)
+QPoint FakeMirSurface::requestedPosition() const { return m_position; }
+
+void FakeMirSurface::setRequestedPosition(const QPoint &newPosition)
 {
     if (m_position != newPosition) {
         m_position = newPosition;
+        Q_EMIT requestedPositionChanged(newPosition);
         Q_EMIT positionChanged(newPosition);
     }
 }
@@ -131,7 +134,7 @@ void FakeMirSurface::setLive(bool value)
     }
 }
 
-void FakeMirSurface::setViewVisibility(qintptr viewId, bool visible) {
+void FakeMirSurface::setViewExposure(qintptr viewId, bool visible) {
     if (!m_views.contains(viewId)) return;
 
     m_views[viewId] = visible;

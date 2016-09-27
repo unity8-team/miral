@@ -42,14 +42,17 @@ class MirSurfaceInterface : public unity::shell::application::MirSurfaceInterfac
     /**
      * @brief Position of the current surface buffer, in pixels.
      */
+    // TODO: Move to unity::shell::application::MirSurfaceInterface
     Q_PROPERTY(QPoint position READ position NOTIFY positionChanged)
+
+    // TODO: Move to unity::shell::application::MirSurfaceInterface
+    Q_PROPERTY(QPoint requestedPosition READ requestedPosition WRITE setRequestedPosition NOTIFY requestedPositionChanged)
 
 public:
     MirSurfaceInterface(QObject *parent = nullptr) : unity::shell::application::MirSurfaceInterface(parent) {}
     virtual ~MirSurfaceInterface() {}
 
     virtual QPoint position() const = 0;
-    virtual void requestPosition(const QPoint newPosition) = 0;
 
     virtual void requestState(Mir::State qmlState) = 0; // move to unity-api
 
@@ -64,7 +67,7 @@ public:
 
     virtual void registerView(qintptr viewId) = 0;
     virtual void unregisterView(qintptr viewId) = 0;
-    virtual void setViewVisibility(qintptr viewId, bool visible) = 0;
+    virtual void setViewExposure(qintptr viewId, bool exposed) = 0;
 
     // methods called from the rendering (scene graph) thread:
     virtual QSharedPointer<QSGTexture> texture() = 0;
@@ -117,6 +120,10 @@ public:
 
     virtual bool inputAreaContains(const QPoint &) const = 0;
 
+    // TODO: Move to unity::shell::application::MirSurfaceInterface
+    virtual QPoint requestedPosition() const = 0;
+    virtual void setRequestedPosition(const QPoint &) = 0;
+
 public Q_SLOTS:
     virtual void onCompositorSwappedBuffers() = 0;
 
@@ -131,6 +138,9 @@ Q_SIGNALS:
     void isBeingDisplayedChanged();
     void frameDropped();
     void positionChanged(QPoint position);
+
+    // TODO: Move to unity::shell::application::MirSurfaceInterface
+    void requestedPositionChanged(QPoint position);
 };
 
 } // namespace qtmir

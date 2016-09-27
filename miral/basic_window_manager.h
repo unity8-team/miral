@@ -19,8 +19,9 @@
 #ifndef MIR_ABSTRACTION_BASIC_WINDOW_MANAGER_H_
 #define MIR_ABSTRACTION_BASIC_WINDOW_MANAGER_H_
 
-#include "miral/window_management_policy.h"
 #include "window_manager_tools_implementation.h"
+
+#include "miral/window_management_policy.h"
 #include "miral/window_info.h"
 #include "miral/application.h"
 #include "miral/application_info.h"
@@ -161,7 +162,7 @@ private:
     auto can_activate_window_for_session(miral::Application const& session) -> bool;
 
     auto place_new_surface(ApplicationInfo const& app_info, WindowSpecification parameters) -> WindowSpecification;
-    auto place_relative(Point const& parent_top_left, miral::WindowSpecification const& parameters, Size size)
+    auto place_relative(mir::geometry::Rectangle const& parent, miral::WindowSpecification const& parameters, Size size)
         -> mir::optional_value<Rectangle>;
 
     void move_tree(miral::WindowInfo& root, mir::geometry::Displacement movement);

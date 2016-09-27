@@ -1,5 +1,11 @@
-miral (0.1.0) UNRELEASED; urgency=medium
+miral (0.2.0) UNRELEASED; urgency=medium
 
-  * Initial release. (Closes: #XXXXXX)
+  * TBD
 
- -- Alan Griffiths <alan.griffiths@canonical.com>  Mon, 08 Aug 2016 10:41:55 +0100
+ -- Alan Griffiths <alan@Octopull-desktop>  Fri, 23 Sep 2016 17:16:19 +0100
+
+miral (0.1.0+16.10.20160919-0ubuntu1) yakkety; urgency=medium
+
+  * Initial release. (LP: #1613220)
+
+ -- Larry Price <larry.price@canonical.com>  Mon, 19 Sep 2016 13:41:34 +0000

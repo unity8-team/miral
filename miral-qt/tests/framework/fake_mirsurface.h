@@ -79,6 +79,7 @@ public:
 
     bool focused() const override { return false; }
     QRect inputBounds() const override { return QRect(0,0,10,10); }
+    bool confinesMousePointer() const override { return false; }
 
     void requestFocus() override {
         Q_EMIT focusRequested();
@@ -94,13 +95,14 @@ public:
     // qtmir.MirSurfaceInterface
 
     QPoint position() const override;
-    void requestPosition(const QPoint newPosition) override;
+    QPoint requestedPosition() const override;
+    void setRequestedPosition(const QPoint &) override;
 
     bool isFirstFrameDrawn() const override;
     void stopFrameDropper() override;
     void startFrameDropper() override;
     void setLive(bool value) override;
-    void setViewVisibility(qintptr viewId, bool visible) override;
+    void setViewExposure(qintptr viewId, bool visible) override;
     bool isBeingDisplayed() const override;
     void registerView(qintptr viewId) override;
     void unregisterView(qintptr viewId) override;

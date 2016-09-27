@@ -16,6 +16,7 @@
 
 #include "mirsurface.h"
 #include "mirsurfacelistmodel.h"
+#include "session_interface.h"
 #include "timer.h"
 #include "timestamp.h"
 
@@ -24,6 +25,7 @@
 #include "mirqtconversion.h"
 
 // mirserver
+#include <eventbuilder.h>
 #include <surfaceobserver.h>
 #include "screen.h"
 
@@ -42,144 +44,15 @@
 #include <QQmlEngine>
 #include <QScreen>
 
+// std
+#include <limits>
+
 using namespace qtmir;
 
 #define DEBUG_MSG qCDebug(QTMIR_SURFACES).nospace() << "MirSurface[" << (void*)this << "," << appId() << "]::" << __func__
 #define WARNING_MSG qCWarning(QTMIR_SURFACES).nospace() << "MirSurface[" << (void*)this << "," << appId() << "]::" << __func__
 
 namespace {
-
-// Would be better if QMouseEvent had nativeModifiers
-MirInputEventModifiers
-getMirModifiersFromQt(Qt::KeyboardModifiers mods)
-{
-    MirInputEventModifiers m_mods = mir_input_event_modifier_none;
-    if (mods & Qt::ShiftModifier)
-        m_mods |= mir_input_event_modifier_shift;
-    if (mods & Qt::ControlModifier)
-        m_mods |= mir_input_event_modifier_ctrl;
-    if (mods & Qt::AltModifier)
-        m_mods |= mir_input_event_modifier_alt;
-    if (mods & Qt::MetaModifier)
-        m_mods |= mir_input_event_modifier_meta;
-
-    return m_mods;
-}
-
-MirPointerButtons
-getMirButtonsFromQt(Qt::MouseButtons buttons)
-{
-    MirPointerButtons result = 0;
-    if (buttons & Qt::LeftButton)
-        result |= mir_pointer_button_primary;
-    if (buttons & Qt::RightButton)
-        result |= mir_pointer_button_secondary;
-    if (buttons & Qt::MiddleButton)
-        result |= mir_pointer_button_tertiary;
-    if (buttons & Qt::BackButton)
-        result |= mir_pointer_button_back;
-    if (buttons & Qt::ForwardButton)
-        result |= mir_pointer_button_forward;
-
-    return result;
-}
-
-mir::EventUPtr makeMirEvent(QMouseEvent *qtEvent, MirPointerAction action)
-{
-    auto timestamp = uncompressTimestamp<qtmir::Timestamp>(qtmir::Timestamp(qtEvent->timestamp()));
-    auto modifiers = getMirModifiersFromQt(qtEvent->modifiers());
-    auto buttons = getMirButtonsFromQt(qtEvent->buttons());
-
-    return mir::events::make_event(0 /*DeviceID */, timestamp, std::vector<uint8_t>{} /* cookie */, modifiers, action,
-                                   buttons, qtEvent->x(), qtEvent->y(), 0, 0, 0, 0);
-}
-
-mir::EventUPtr makeMirEvent(QHoverEvent *qtEvent, MirPointerAction action)
-{
-    auto timestamp = uncompressTimestamp<qtmir::Timestamp>(qtmir::Timestamp(qtEvent->timestamp()));
-
-    MirPointerButtons buttons = 0;
-
-    return mir::events::make_event(0 /*DeviceID */, timestamp, std::vector<uint8_t>{} /* cookie */, mir_input_event_modifier_none, action,
-                                   buttons, qtEvent->posF().x(), qtEvent->posF().y(), 0, 0, 0, 0);
-}
-
-mir::EventUPtr makeMirEvent(QWheelEvent *qtEvent)
-{
-    auto timestamp = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::milliseconds(qtEvent->timestamp()));
-    auto modifiers = getMirModifiersFromQt(qtEvent->modifiers());
-    auto buttons = getMirButtonsFromQt(qtEvent->buttons());
-
-    QPointF mirScroll(qtEvent->angleDelta());
-    // QWheelEvent::DefaultDeltasPerStep = 120 but not defined on vivid
-    mirScroll /= 120.0f;
-
-    return mir::events::make_event(0 /*DeviceID */, timestamp, std::vector<uint8_t>{} /* cookie */, modifiers, mir_pointer_action_motion,
-                                   buttons, qtEvent->x(), qtEvent->y(),
-                                   mirScroll.x(), mirScroll.y(),
-                                   0, 0);
-}
-
-mir::EventUPtr makeMirEvent(QKeyEvent *qtEvent)
-{
-    MirKeyboardAction action = mir_keyboard_action_down;
-    switch (qtEvent->type())
-    {
-    case QEvent::KeyPress:
-        action = mir_keyboard_action_down;
-        break;
-    case QEvent::KeyRelease:
-        action = mir_keyboard_action_up;
-        break;
-    default:
-        break;
-    }
-    if (qtEvent->isAutoRepeat())
-        action = mir_keyboard_action_repeat;
-
-    return mir::events::make_event(0 /* DeviceID */, uncompressTimestamp<qtmir::Timestamp>(qtmir::Timestamp(qtEvent->timestamp())),
-                           std::vector<uint8_t>{} /* cookie */, action, qtEvent->nativeVirtualKey(),
-                           qtEvent->nativeScanCode(),
-                           qtEvent->nativeModifiers());
-}
-
-mir::EventUPtr makeMirEvent(Qt::KeyboardModifiers qmods,
-                            const QList<QTouchEvent::TouchPoint> &qtTouchPoints,
-                            Qt::TouchPointStates /* qtTouchPointStates */,
-                            ulong qtTimestamp)
-{
-    auto modifiers = getMirModifiersFromQt(qmods);
-    auto ev = mir::events::make_event(0, uncompressTimestamp<qtmir::Timestamp>(qtmir::Timestamp(qtTimestamp)),
-                                      std::vector<uint8_t>{} /* cookie */, modifiers);
-
-    for (int i = 0; i < qtTouchPoints.count(); ++i) {
-        auto touchPoint = qtTouchPoints.at(i);
-        auto id = touchPoint.id();
-
-        MirTouchAction action = mir_touch_action_change;
-        if (touchPoint.state() == Qt::TouchPointReleased)
-        {
-            action = mir_touch_action_up;
-        }
-        if (touchPoint.state() == Qt::TouchPointPressed)
-        {
-            action = mir_touch_action_down;
-        }
-
-        MirTouchTooltype tooltype = mir_touch_tooltype_finger;
-        if (touchPoint.flags() & QTouchEvent::TouchPoint::Pen)
-            tooltype = mir_touch_tooltype_stylus;
-
-        mir::events::add_touch(*ev, id, action, tooltype,
-                               touchPoint.pos().x(), touchPoint.pos().y(),
-                               touchPoint.pressure(),
-                               touchPoint.rect().width(),
-                               touchPoint.rect().height(),
-                               0 /* size */);
-    }
-
-    return ev;
-}
 
 enum class DirtyState {
     Clean = 0,
@@ -196,10 +69,12 @@ Q_DECLARE_FLAGS(DirtyStates, DirtyState)
 } // namespace {
 
 MirSurface::MirSurface(NewWindow newWindowInfo,
-        WindowControllerInterface* controller)
+        WindowControllerInterface* controller,
+        SessionInterface *session)
     : MirSurfaceInterface()
     , m_windowInfo(newWindowInfo.windowInfo)
     , m_surface(newWindowInfo.surface)
+    , m_session(session)
     , m_controller(controller)
     , m_persistentId(QString::fromStdString(newWindowInfo.persistentId))
     , m_firstFrameDrawn(false)
@@ -227,6 +102,7 @@ MirSurface::MirSurface(NewWindow newWindowInfo,
         setShellChrome(static_cast<Mir::ShellChrome>(shell_chrome));
     });
     connect(m_surfaceObserver.get(), &SurfaceObserver::inputBoundsChanged, this, &MirSurface::setInputBounds);
+    connect(m_surfaceObserver.get(), &SurfaceObserver::confinesMousePointerChanged, this, &MirSurface::confinesMousePointerChanged);
     m_surfaceObserver->setListener(this);
 
     //connect(session, &QObject::destroyed, this, &MirSurface::onSessionDestroyed); // TODO try using Shared pointer for lifecycle
@@ -251,6 +127,9 @@ MirSurface::MirSurface(NewWindow newWindowInfo,
     QQmlEngine::setObjectOwnership(this, QQmlEngine::CppOwnership);
 
     setCloseTimer(new Timer);
+
+    m_requestedPosition.rx() = std::numeric_limits<int>::min();
+    m_requestedPosition.ry() = std::numeric_limits<int>::min();
 }
 
 MirSurface::~MirSurface()
@@ -525,19 +404,6 @@ void MirSurface::setPosition(const QPoint newPosition)
     }
 }
 
-void MirSurface::requestPosition(const QPoint newPosition)
-{
-    m_controller->move(m_windowInfo.window(), newPosition);
-}
-
-void MirSurface::setSize(const QSize newSize)
-{
-    if (m_size != newSize) {
-        m_size = newSize;
-        Q_EMIT sizeChanged(newSize);
-    }
-}
-
 QSize MirSurface::size() const
 {
     return m_size;
@@ -631,12 +497,12 @@ bool MirSurface::live() const
 
 bool MirSurface::visible() const
 {
-    return m_surface->query(mir_surface_attrib_visibility) == mir_surface_visibility_exposed;
+    return m_windowInfo.is_visible();
 }
 #include <mir_toolkit/event.h>
 void MirSurface::mousePressEvent(QMouseEvent *event)
 {
-    auto ev = makeMirEvent(event, mir_pointer_action_button_down);
+    auto ev = EventBuilder::instance()->reconstructMirEvent(event);
     auto ev1 = reinterpret_cast<MirPointerEvent const*>(ev.get());
     m_controller->deliverPointerEvent(m_windowInfo.window(), ev1);
     event->accept();
@@ -644,7 +510,7 @@ void MirSurface::mousePressEvent(QMouseEvent *event)
 
 void MirSurface::mouseMoveEvent(QMouseEvent *event)
 {
-    auto ev = makeMirEvent(event, mir_pointer_action_motion);
+    auto ev = EventBuilder::instance()->reconstructMirEvent(event);
     auto ev1 = reinterpret_cast<MirPointerEvent const*>(ev.get());
     m_controller->deliverPointerEvent(m_windowInfo.window(), ev1);
     event->accept();
@@ -652,7 +518,7 @@ void MirSurface::mouseMoveEvent(QMouseEvent *event)
 
 void MirSurface::mouseReleaseEvent(QMouseEvent *event)
 {
-    auto ev = makeMirEvent(event, mir_pointer_action_button_up);
+    auto ev = EventBuilder::instance()->reconstructMirEvent(event);
     auto ev1 = reinterpret_cast<MirPointerEvent const*>(ev.get());
     m_controller->deliverPointerEvent(m_windowInfo.window(), ev1);
     event->accept();
@@ -660,7 +526,7 @@ void MirSurface::mouseReleaseEvent(QMouseEvent *event)
 
 void MirSurface::hoverEnterEvent(QHoverEvent *event)
 {
-    auto ev = makeMirEvent(event, mir_pointer_action_enter);
+    auto ev = EventBuilder::instance()->reconstructMirEvent(event);
     auto ev1 = reinterpret_cast<MirPointerEvent const*>(ev.get());
     m_controller->deliverPointerEvent(m_windowInfo.window(), ev1);
     event->accept();
@@ -668,7 +534,7 @@ void MirSurface::hoverEnterEvent(QHoverEvent *event)
 
 void MirSurface::hoverLeaveEvent(QHoverEvent *event)
 {
-    auto ev = makeMirEvent(event, mir_pointer_action_leave);
+    auto ev = EventBuilder::instance()->reconstructMirEvent(event);
     auto ev1 = reinterpret_cast<MirPointerEvent const*>(ev.get());
     m_controller->deliverPointerEvent(m_windowInfo.window(), ev1);
     event->accept();
@@ -676,7 +542,7 @@ void MirSurface::hoverLeaveEvent(QHoverEvent *event)
 
 void MirSurface::hoverMoveEvent(QHoverEvent *event)
 {
-    auto ev = makeMirEvent(event, mir_pointer_action_motion);
+    auto ev = EventBuilder::instance()->reconstructMirEvent(event);
     auto ev1 = reinterpret_cast<MirPointerEvent const*>(ev.get());
     m_controller->deliverPointerEvent(m_windowInfo.window(), ev1);
     event->accept();
@@ -684,7 +550,7 @@ void MirSurface::hoverMoveEvent(QHoverEvent *event)
 
 void MirSurface::wheelEvent(QWheelEvent *event)
 {
-    auto ev = makeMirEvent(event);
+    auto ev = EventBuilder::instance()->makeMirEvent(event);
     auto ev1 = reinterpret_cast<MirPointerEvent const*>(ev.get());
     m_controller->deliverPointerEvent(m_windowInfo.window(), ev1);
     event->accept();
@@ -692,7 +558,7 @@ void MirSurface::wheelEvent(QWheelEvent *event)
 
 void MirSurface::keyPressEvent(QKeyEvent *qtEvent)
 {
-    auto ev = makeMirEvent(qtEvent);
+    auto ev = EventBuilder::instance()->makeMirEvent(qtEvent);
     auto ev1 = reinterpret_cast<MirKeyboardEvent const*>(ev.get());
     m_controller->deliverKeyboardEvent(m_windowInfo.window(), ev1);
     qtEvent->accept();
@@ -700,7 +566,7 @@ void MirSurface::keyPressEvent(QKeyEvent *qtEvent)
 
 void MirSurface::keyReleaseEvent(QKeyEvent *qtEvent)
 {
-    auto ev = makeMirEvent(qtEvent);
+    auto ev = EventBuilder::instance()->makeMirEvent(qtEvent);
     auto ev1 = reinterpret_cast<MirKeyboardEvent const*>(ev.get());
     m_controller->deliverKeyboardEvent(m_windowInfo.window(), ev1);
     qtEvent->accept();
@@ -711,7 +577,7 @@ void MirSurface::touchEvent(Qt::KeyboardModifiers mods,
                             Qt::TouchPointStates touchPointStates,
                             ulong timestamp)
 {
-    auto ev = makeMirEvent(mods, touchPoints, touchPointStates, timestamp);
+    auto ev = EventBuilder::instance()->makeMirEvent(mods, touchPoints, touchPointStates, timestamp);
     auto ev1 = reinterpret_cast<MirTouchEvent const*>(ev.get());
     m_controller->deliverTouchEvent(m_windowInfo.window(), ev1);
 }
@@ -719,9 +585,9 @@ void MirSurface::touchEvent(Qt::KeyboardModifiers mods,
 bool MirSurface::clientIsRunning() const
 {
     return (m_session &&
-            (m_session->state() == Session::State::Running
-             || m_session->state() == Session::State::Starting
-             || m_session->state() == Session::State::Suspending))
+            (m_session->state() == SessionInterface::State::Running
+             || m_session->state() == SessionInterface::State::Starting
+             || m_session->state() == SessionInterface::State::Suspending))
         || !m_session;
 }
 
@@ -749,32 +615,34 @@ void MirSurface::unregisterView(qintptr viewId)
             deleteLater();
         }
     }
-    updateVisibility();
+    updateExposure();
     setViewActiveFocus(viewId, false);
 }
 
-void MirSurface::setViewVisibility(qintptr viewId, bool visible)
+void MirSurface::setViewExposure(qintptr viewId, bool exposed)
 {
     if (!m_views.contains(viewId)) return;
 
-    m_views[viewId].visible = visible;
-    updateVisibility();
+    m_views[viewId].exposed = exposed;
+    updateExposure();
 }
 
-void MirSurface::updateVisibility()
+void MirSurface::updateExposure()
 {
-    bool newVisible = false;
+    bool newExposed = false;
     QHashIterator<qintptr, View> i(m_views);
     while (i.hasNext()) {
         i.next();
-        newVisible |= i.value().visible;
+        newExposed |= i.value().exposed;
     }
 
-    if (newVisible != visible()) {
-        DEBUG_MSG << "(" << newVisible << ")";
+    const bool oldExposed = (m_surface->query(mir_surface_attrib_visibility) == mir_surface_visibility_exposed);
+
+    if (newExposed != oldExposed) {
+        DEBUG_MSG << "(" << newExposed << ")";
 
         m_surface->configure(mir_surface_attrib_visibility,
-                             newVisible ? mir_surface_visibility_exposed : mir_surface_visibility_occluded);
+                             newExposed ? mir_surface_visibility_exposed : mir_surface_visibility_occluded);
     }
 }
 
@@ -995,6 +863,11 @@ QRect MirSurface::inputBounds() const
     return m_inputBounds;
 }
 
+bool MirSurface::confinesMousePointer() const
+{
+    return m_surface->confine_pointer_state() == mir_pointer_confined_to_surface;
+}
+
 void MirSurface::requestFocus()
 {
     DEBUG_MSG << "()";
@@ -1048,5 +921,19 @@ void MirSurface::setInputBounds(const QRect &rect)
         DEBUG_MSG << "(" << rect << ")";
         m_inputBounds = rect;
         Q_EMIT inputBoundsChanged(m_inputBounds);
+    }
+}
+
+QPoint MirSurface::requestedPosition() const
+{
+    return m_requestedPosition;
+}
+
+void MirSurface::setRequestedPosition(const QPoint &point)
+{
+    if (point != m_requestedPosition) {
+        m_requestedPosition = point;
+        Q_EMIT requestedPositionChanged(m_requestedPosition);
+        m_controller->move(m_windowInfo.window(), m_requestedPosition);
     }
 }

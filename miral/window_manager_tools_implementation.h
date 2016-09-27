@@ -22,6 +22,7 @@
 #include "miral/application.h"
 
 #include <mir/geometry/displacement.h>
+#include <mir/geometry/rectangle.h>
 
 #include <functional>
 #include <memory>

@@ -56,6 +56,7 @@ set(QMLMIRPLUGIN_SRC
     upstart/taskcontroller.cpp
     timer.cpp
     timesource.cpp
+    toplevelwindowmodel.cpp
     tracepoints.c
     settings.cpp
     windowmodel.cpp

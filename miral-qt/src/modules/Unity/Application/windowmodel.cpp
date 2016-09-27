@@ -55,7 +55,6 @@ void WindowModel::connectToWindowModelNotifier(WindowModelNotifier *notifier)
     connect(notifier, &WindowModelNotifier::windowAdded,        this, &WindowModel::onWindowAdded,        Qt::QueuedConnection);
     connect(notifier, &WindowModelNotifier::windowRemoved,      this, &WindowModel::onWindowRemoved,      Qt::QueuedConnection);
     connect(notifier, &WindowModelNotifier::windowMoved,        this, &WindowModel::onWindowMoved,        Qt::QueuedConnection);
-    connect(notifier, &WindowModelNotifier::windowResized,      this, &WindowModel::onWindowResized,      Qt::QueuedConnection);
     connect(notifier, &WindowModelNotifier::windowStateChanged, this, &WindowModel::onWindowStateChanged, Qt::QueuedConnection);
     connect(notifier, &WindowModelNotifier::windowFocusChanged, this, &WindowModel::onWindowFocusChanged, Qt::QueuedConnection);
     connect(notifier, &WindowModelNotifier::windowsRaised,      this, &WindowModel::onWindowsRaised,      Qt::QueuedConnection);
@@ -104,13 +103,6 @@ void WindowModel::onWindowMoved(const miral::WindowInfo &windowInfo, const QPoin
     }
 }
 
-void WindowModel::onWindowResized(const miral::WindowInfo &windowInfo, const QSize size)
-{
-    if (auto mirSurface = find(windowInfo)) {
-        mirSurface->setSize(size);
-    }
-}
-
 void WindowModel::onWindowFocusChanged(const miral::WindowInfo &windowInfo, bool focused)
 {
     if (auto mirSurface = find(windowInfo)) {
@@ -146,52 +138,52 @@ void WindowModel::removeInputMethodWindow()
 
 void WindowModel::onWindowsRaised(const std::vector<miral::Window> &windows)
 {
+    // Reminder: last item in the "windows" list should end up at the top of the model
     const int modelCount = m_windowModel.count();
+    const int raiseCount = windows.size();
 
-    QVector<int> indices;
-    for (const auto window: windows) {
-        int index = findIndexOf(window);
-        if (index >= 0) {
-            indices.append(index);
-        }
-    }
     // Assumption: no NO-OPs are in this list - Qt will crash on endMoveRows() if you try NO-OPs!!!
     // A NO-OP is if
     //    1. "indices" is an empty list
-    //    2. "indices" of the form (modelCount - 1, modelCount - 2,...) which results in an unchanged list
+    //    2. "indices" of the form (..., modelCount - 2, modelCount - 1) which results in an unchanged list
 
     // Precompute the list of indices of Windows/Surfaces to raise, including the offsets due to
     // indices which have already been moved.
-    QVector<int> moveList;
+    QVector<QPair<int /*from*/, int /*to*/>> moveList;
 
-    for (int i=indices.count()-1; i>=0; i--) {
-        const int index = indices[i];
+    for (int i=raiseCount-1; i>=0; i--) {
+        int from = findIndexOf(windows[i]);
+        const int to = modelCount - raiseCount + i;
+
         int moveCount = 0;
-
-        // how many list items under "index" have been moved so far
-        for (int j=indices.count()-1; j>i; j--) {
-            if (indices[j] < index) {
+        // how many list items under "index" have been moved so far, correct "from" to suit
+        for (int j=raiseCount-1; j>i; j--) {
+            if (findIndexOf(windows[j]) < from) {
                 moveCount++;
             }
         }
+        from -= moveCount;
 
-        if (index - moveCount == modelCount - 1) { // is NO-OP, would be moving last element to itself
-            continue;
+        if (from == to) {
+            // is NO-OP, would result in moving element to itself
+        } else {
+            moveList.prepend({from, to});
         }
-
-        moveList.prepend(index - moveCount);
     }
 
     // Perform the moving, trusting the moveList is correct for each iteration.
     QModelIndex parent;
     for (int i=moveList.count()-1; i>=0; i--) {
-        const int move = moveList[i];
+        const int from = moveList[i].first;
+        const int to = moveList[i].second;
 
-        beginMoveRows(parent, move, move, parent, modelCount);
-
-        // QVector missing a move method in Qt5.4
-        const auto &window = m_windowModel.takeAt(move);
-        m_windowModel.push_back(window);
+        beginMoveRows(parent, from, from, parent, to+1);
+#if QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
+        const auto &window = m_windowModel.takeAt(from);
+        m_windowModel.insert(to, window);
+#else
+        m_windowModel.move(from, to);
+#endif
 
         endMoveRows();
     }
