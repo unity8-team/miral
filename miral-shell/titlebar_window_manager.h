@@ -55,6 +55,7 @@ public:
     /** @name track events that affect titlebar
      *  @{ */
     void advise_new_window(miral::WindowInfo const& window_info) override;
+    void handle_window_ready(miral::WindowInfo& window_info) override;
     void advise_focus_lost(miral::WindowInfo const& info) override;
     void advise_focus_gained(miral::WindowInfo const& info) override;
     void advise_state_change(miral::WindowInfo const& window_info, MirSurfaceState state) override;

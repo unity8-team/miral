@@ -254,11 +254,14 @@ void TitlebarWindowManagerPolicy::advise_new_window(WindowInfo const& window_inf
         titlebar_provider->advise_new_titlebar(window_info);
         return;
     }
+}
 
-    if (application == spinner.session() || !window_info.needs_titlebar(window_info.type()))
-        return;
+void TitlebarWindowManagerPolicy::handle_window_ready(WindowInfo& window_info)
+{
+    if (window_info.window().application() != spinner.session() && window_info.needs_titlebar(window_info.type()))
+        titlebar_provider->create_titlebar_for(window_info.window());
 
-    titlebar_provider->create_titlebar_for(window_info.window());
+    CanonicalWindowManagerPolicy::handle_window_ready(window_info);
 }
 
 void TitlebarWindowManagerPolicy::advise_focus_lost(WindowInfo const& info)
