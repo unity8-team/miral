@@ -18,7 +18,11 @@ add_library(miral-internal STATIC
     basic_window_manager.cpp            basic_window_manager.h window_manager_tools_implementation.h
     mru_window_list.cpp                 mru_window_list.h
     window_management_trace.cpp         window_management_trace.h
+    xcursor_loader.cpp                  xcursor_loader.h
+    xcursor.c                           xcursor.h
 )
+
+set_source_files_properties(xcursor.c PROPERTIES COMPILE_FLAGS "${CMAKE_C_FLAGS} -std=c99 -D_GNU_SOURCE")
 
 add_library(miral SHARED
     active_outputs.cpp                  ${CMAKE_SOURCE_DIR}/include/miral/active_outputs.h
@@ -27,6 +31,7 @@ add_library(miral SHARED
     application_authorizer.cpp          ${CMAKE_SOURCE_DIR}/include/miral/application_authorizer.h
     application_info.cpp                ${CMAKE_SOURCE_DIR}/include/miral/application_info.h
     canonical_window_manager.cpp        ${CMAKE_SOURCE_DIR}/include/miral/canonical_window_manager.h
+    cursor_theme.cpp                    ${CMAKE_SOURCE_DIR}/include/miral/cursor_theme.h
     runner.cpp                          ${CMAKE_SOURCE_DIR}/include/miral/runner.h
     display_configuration_option.cpp    ${CMAKE_SOURCE_DIR}/include/miral/display_configuration_option.h
     output.cpp                          ${CMAKE_SOURCE_DIR}/include/miral/output.h
@@ -45,7 +50,8 @@ add_library(miral SHARED
                                         ${CMAKE_SOURCE_DIR}/include/miral/toolkit/persistent_id.h
                                         ${CMAKE_SOURCE_DIR}/include/miral/toolkit/connection.h
                                         ${CMAKE_SOURCE_DIR}/include/miral/toolkit/surface.h
-        ../include/miral/detail/mir_forward_compatibility.h)
+                                        ${CMAKE_SOURCE_DIR}/include/miral/detail/mir_forward_compatibility.h
+)
 
 target_link_libraries(miral
     PUBLIC

@@ -44,6 +44,11 @@ libmiral.so.1 libmiral1 #MINVER#
  (c++)"miral::CanonicalWindowManagerPolicy::handle_raise_window(miral::WindowInfo&)@MIRAL_0.1" 0.1.0
  (c++)"miral::CanonicalWindowManagerPolicy::handle_window_ready(miral::WindowInfo&)@MIRAL_0.1" 0.1.0
  (c++)"miral::CanonicalWindowManagerPolicy::place_new_surface(miral::ApplicationInfo const&, miral::WindowSpecification const&)@MIRAL_0.1" 0.1.0
+ (c++)"miral::CursorTheme::CursorTheme(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)@MIRAL_0.2" 0.2.0
+ (c++)"miral::CursorTheme::CursorTheme(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)@MIRAL_0.2" 0.2.0
+ (c++)"miral::CursorTheme::~CursorTheme()@MIRAL_0.2" 0.2.0
+ (c++)"miral::CursorTheme::~CursorTheme()@MIRAL_0.2" 0.2.0
+ (c++)"miral::CursorTheme::operator()(mir::Server&) const@MIRAL_0.2" 0.2.0
  (c++)"miral::display_configuration_options(mir::Server&)@MIRAL_0.1" 0.1.0
  (c++)"miral::equivalent_display_area(miral::Output const&, miral::Output const&)@MIRAL_0.1" 0.1.0
  (c++)"miral::InternalClientLauncher::~InternalClientLauncher()@MIRAL_0.1" 0.1.0

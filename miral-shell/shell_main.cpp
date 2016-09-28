@@ -25,6 +25,7 @@
 #include <miral/window_management_options.h>
 #include <miral/append_event_filter.h>
 #include <miral/internal_client.h>
+#include <miral/cursor_theme.h>
 
 #include <linux/input.h>
 
@@ -69,6 +70,7 @@ int main(int argc, char const* argv[])
 
     return runner.run_with(
         {
+            CursorTheme{"default"},
             window_managers,
             display_configuration_options,
             launcher,
