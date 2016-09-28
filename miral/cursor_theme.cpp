@@ -22,6 +22,8 @@
 #include <mir/server.h>
 #include <mir_toolkit/cursors.h>
 
+#include <boost/throw_exception.hpp>
+
 namespace mi = mir::input;
 
 namespace
@@ -43,13 +45,11 @@ void miral::CursorTheme::operator()(mir::Server& server) const
 {
     server.override_the_cursor_images([&]
         {
-            auto theme = this->theme;
-
             std::shared_ptr<mi::CursorImages> const xcursor_loader{std::make_shared<XCursorLoader>(theme)};
 
             if (has_default_cursor(*xcursor_loader))
                 return xcursor_loader;
-            else
-                return std::shared_ptr<mi::CursorImages>{};
+
+            BOOST_THROW_EXCEPTION(std::runtime_error(("Failed to load cursor theme: " + theme).c_str()));
         });
 }
