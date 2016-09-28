@@ -285,7 +285,12 @@ local: *;
 MIRAL_0.2 {
 global:
   extern "C++" {
+    miral::CursorTheme::?CursorTheme*;
+    miral::CursorTheme::CursorTheme*;
+    miral::CursorTheme::operator*;
     miral::WindowInfo::confine_pointer*;
     miral::WindowSpecification::confine_pointer*;
+    typeinfo?for?miral::CursorTheme;
+    vtable?for?miral::CursorTheme;
   };
 } MIRAL_0.1;
