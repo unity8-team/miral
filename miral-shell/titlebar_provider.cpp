@@ -74,6 +74,10 @@ void TitlebarProvider::stop()
         {
             std::lock_guard<decltype(mutex)> lock{mutex};
             window_to_titlebar.clear();
+        });
+
+    enqueue_work([this]
+        {
             connection.reset();
             stop_work();
         });
