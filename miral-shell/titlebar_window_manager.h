@@ -23,6 +23,8 @@
 
 #include "spinner/splash.h"
 
+#include <chrono>
+
 namespace miral { class InternalClientLauncher; }
 
 using namespace mir::geometry;
@@ -99,6 +101,9 @@ private:
         Displacement& delta,
         Width& new_width,
         Height& new_height) const;
+
+    // Workaround for lp:1627697
+    std::chrono::steady_clock::time_point last_resize;
 };
 
 #endif //MIRAL_SHELL_TITLEBAR_WINDOW_MANAGER_H
