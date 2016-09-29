@@ -837,15 +837,13 @@ void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirSur
         return;
     }
 
+    policy->advise_state_change(window_info, value);
 
     switch (value)
     {
     case mir_surface_state_hidden:
     case mir_surface_state_minimized:
-        policy->advise_state_change(window_info, value);
-        window_info.state(value);
         mir_surface->hide();
-        mir_surface->configure(mir_surface_attrib_state, value);
         if (window_info.window() == active_window())
         {
             mru_active_windows.erase(window_info.window());
@@ -857,19 +855,17 @@ void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirSur
                     return !(select_active_window(w));
                 });
         }
-        return;
+        break;
 
     default:
         break;
     }
 
-    policy->advise_state_change(window_info, value);
-    window_info.state(value);
-
     if (window_info.is_visible())
         mir_surface->show();
 
-    mir_surface->configure(mir_surface_attrib_state, window_info.state());
+    window_info.state(value);
+    mir_surface->configure(mir_surface_attrib_state, value);
 }
 
 
