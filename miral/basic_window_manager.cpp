@@ -848,11 +848,11 @@ void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirSur
 
         if (window == active_window())
         {
-            mru_active_windows.erase(window);
-
             // Try to activate to recently active window of any application
             mru_active_windows.enumerate([&](Window& candidate)
                 {
+                    if (candidate == window)
+                        return true;
                     auto const w = candidate;
                     return !(select_active_window(w));
                 });
