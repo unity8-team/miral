@@ -167,6 +167,7 @@ private:
 
     void move_tree(miral::WindowInfo& root, mir::geometry::Displacement movement);
     void erase(miral::WindowInfo const& info);
+    void apply_state(WindowSpecification& modifications, WindowInfo const& window_info) const;
     void validate_modification_request(WindowInfo const& window_info, WindowSpecification const& modifications) const;
     void place_and_size(WindowInfo& root, Point const& new_pos, Size const& new_size);
     void set_state(miral::WindowInfo& window_info, MirSurfaceState value);
