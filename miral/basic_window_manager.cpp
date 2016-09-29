@@ -144,8 +144,8 @@ void miral::BasicWindowManager::modify_surface(
     Locker lock{mutex, policy};
     auto& info = info_for(surface);
     WindowSpecification mods{modifications};
-    position_for_state(mods, info);
     validate_modification_request(info, mods);
+    position_for_state(mods, info);
     policy->handle_modify_window(info, mods);
 }
 
@@ -323,8 +323,8 @@ int miral::BasicWindowManager::set_surface_attribute(
     Locker lock{mutex, policy};
     auto& info = info_for(surface);
 
-    position_for_state(modification, info);
     validate_modification_request(info, modification);
+    position_for_state(modification, info);
     policy->handle_modify_window(info, modification);
 
     switch (attrib)
