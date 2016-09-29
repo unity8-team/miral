@@ -18,6 +18,8 @@
 
 #include "miral/window_info.h"
 
+#include <mir/scene/surface.h>
+
 #include <limits>
 
 using namespace mir::geometry;
@@ -213,9 +215,10 @@ bool miral::WindowInfo::is_visible() const
     case mir_surface_state_minimized:
         return false;
     default:
-        break;
+        if (std::shared_ptr<mir::scene::Surface> surface = window())
+            return surface->visible();
     }
-    return true;
+    return false;
 }
 
 void miral::WindowInfo::constrain_resize(Point& requested_pos, Size& requested_size) const
