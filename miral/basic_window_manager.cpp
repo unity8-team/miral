@@ -144,7 +144,7 @@ void miral::BasicWindowManager::modify_surface(
     Locker lock{mutex, policy};
     auto& info = info_for(surface);
     WindowSpecification mods{modifications};
-    apply_state(mods, info);
+    position_for_state(mods, info);
     validate_modification_request(info, mods);
     policy->handle_modify_window(info, mods);
 }
@@ -323,7 +323,7 @@ int miral::BasicWindowManager::set_surface_attribute(
     Locker lock{mutex, policy};
     auto& info = info_for(surface);
 
-    apply_state(modification, info);
+    position_for_state(modification, info);
     validate_modification_request(info, modification);
     policy->handle_modify_window(info, modification);
 
@@ -690,7 +690,7 @@ void miral::BasicWindowManager::place_and_size(WindowInfo& root, Point const& ne
     move_tree(root, new_pos - root.window().top_left());
 }
 
-void miral::BasicWindowManager::apply_state(WindowSpecification& modifications, WindowInfo const& window_info) const
+void miral::BasicWindowManager::position_for_state(WindowSpecification& modifications, WindowInfo const& window_info) const
 {
     if (!modifications.state().is_set())
         return;
@@ -837,47 +837,9 @@ void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirSur
         return;
     }
 
-    Rectangle rect;
-
-    auto const display_area = displays.bounding_rectangle();
 
     switch (value)
     {
-    case mir_surface_state_restored:
-        rect = window_info.restore_rect();
-        break;
-
-    case mir_surface_state_maximized:
-        rect = display_area;
-        break;
-
-    case mir_surface_state_horizmaximized:
-        rect.top_left = {display_area.top_left.x, window_info.restore_rect().top_left.y};
-        rect.size = {display_area.size.width, window_info.restore_rect().size.height};
-        break;
-
-    case mir_surface_state_vertmaximized:
-        rect.top_left = {window_info.restore_rect().top_left.x, display_area.top_left.y};
-        rect.size = {window_info.restore_rect().size.width, display_area.size.height};
-        break;
-
-    case mir_surface_state_fullscreen:
-    {
-        rect = {(window_info.window().top_left()), window_info.window().size()};
-
-        if (window_info.has_output_id())
-        {
-            graphics::DisplayConfigurationOutputId id{window_info.output_id()};
-            display_layout->place_in_output(id, rect);
-        }
-        else
-        {
-            display_layout->size_to_output(rect);
-        }
-
-        break;
-    }
-
     case mir_surface_state_hidden:
     case mir_surface_state_minimized:
         policy->advise_state_change(window_info, value);
@@ -901,7 +863,6 @@ void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirSur
         break;
     }
 
-    place_and_size(window_info, rect.top_left, rect.size);
     policy->advise_state_change(window_info, value);
     window_info.state(value);
 

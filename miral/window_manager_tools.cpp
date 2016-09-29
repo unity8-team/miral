@@ -85,3 +85,6 @@ auto miral::WindowManagerTools::id_for_window(Window const& window) const -> std
 
 void miral::WindowManagerTools::invoke_under_lock(std::function<void()> const& callback)
 { tools->invoke_under_lock(callback); }
+
+void miral::WindowManagerTools::position_for_state(WindowSpecification& modifications, WindowInfo const& window_info) const
+{ tools->position_for_state(modifications, window_info); }

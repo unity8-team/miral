@@ -65,6 +65,8 @@ public:
     virtual void modify_window(WindowInfo& window_info, WindowSpecification const& modifications) = 0;
     virtual auto info_for_window_id(std::string const& id) const -> WindowInfo& = 0;
     virtual auto id_for_window(Window const& window) const -> std::string = 0;
+    virtual void position_for_state(WindowSpecification& modifications, WindowInfo const& window_info) const= 0;
+
 /** @} */
 
 /** @name Multi-thread support

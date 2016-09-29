@@ -57,7 +57,7 @@ void miral::SetWindowManagmentPolicy::operator()(mir::Server& server) const
             {
                 auto trace_builder = [this](WindowManagerTools const& tools) -> std::unique_ptr<miral::WindowManagementPolicy>
                     {
-                    return std::make_unique<WindowManagementTrace>(tools, builder);
+                        return std::make_unique<WindowManagementTrace>(tools, builder);
                     };
 
                 return std::make_shared<BasicWindowManager>(focus_controller, display_layout, persistent_surface_store, trace_builder);

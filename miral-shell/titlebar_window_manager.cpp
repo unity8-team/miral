@@ -455,7 +455,7 @@ void TitlebarWindowManagerPolicy::toggle(MirSurfaceState state)
         WindowSpecification modifications;
 
         modifications.state() = (info.state() == state) ? mir_surface_state_restored : state;
-
+        tools.position_for_state(modifications, info);
         tools.modify_window(info, modifications);
     }
 }
