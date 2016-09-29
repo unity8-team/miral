@@ -271,6 +271,27 @@ auto dump_of(MirPointerEvent const* event) -> std::string
 
     return out.str();
 }
+
+auto dump_of(MirSurfaceState state) -> std::string
+{
+    std::stringstream out;
+    out << state;
+    return out.str();
+}
+
+auto dump_of(mir::geometry::Point point) -> std::string
+{
+    std::stringstream out;
+    out << point;
+    return out.str();
+}
+
+auto dump_of(mir::geometry::Size const size) -> std::string
+{
+    std::stringstream out;
+    out << size;
+    return out.str();
+}
 }
 
 miral::WindowManagementTrace::WindowManagementTrace(
@@ -560,19 +581,19 @@ void miral::WindowManagementTrace::advise_focus_gained(miral::WindowInfo const& 
 
 void miral::WindowManagementTrace::advise_state_change(miral::WindowInfo const& window_info, MirSurfaceState state)
 {
-    mir::log_info("%s window_info=%s", __func__, dump_of(window_info).c_str());
+    mir::log_info("%s window_info=%s, state=%s", __func__, dump_of(window_info).c_str(), dump_of(state).c_str());
     policy->advise_state_change(window_info, state);
 }
 
 void miral::WindowManagementTrace::advise_move_to(miral::WindowInfo const& window_info, mir::geometry::Point top_left)
 {
-    mir::log_info("%s window_info=%s", __func__, dump_of(window_info).c_str());
+    mir::log_info("%s window_info=%s, top_left=%s", __func__, dump_of(window_info).c_str(), dump_of(top_left).c_str());
     policy->advise_move_to(window_info, top_left);
 }
 
 void miral::WindowManagementTrace::advise_resize(miral::WindowInfo const& window_info, mir::geometry::Size const& new_size)
 {
-    mir::log_info("%s window_info=%s", __func__, dump_of(window_info).c_str());
+    mir::log_info("%s window_info=%s, new_size=%s", __func__, dump_of(window_info).c_str(), dump_of(new_size).c_str());
     policy->advise_resize(window_info, new_size);
 }
 
