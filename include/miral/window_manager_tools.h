@@ -146,7 +146,7 @@ public:
     /// Apply modifications to a window
     void modify_window(WindowInfo& window_info, WindowSpecification const& modifications);
 
-    /// Update modification size and position to reflect state
+    /// Set a default size and position to reflect state change
     void position_for_state(WindowSpecification& modifications, WindowInfo const& window_info) const;
 /** @} */
 
