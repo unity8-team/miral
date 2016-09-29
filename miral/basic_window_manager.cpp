@@ -692,33 +692,33 @@ void miral::BasicWindowManager::place_and_size(WindowInfo& root, Point const& ne
 
 void miral::BasicWindowManager::position_for_state(WindowSpecification& modifications, WindowInfo const& window_info) const
 {
-    if (!modifications.state().is_set())
+    if (!modifications.state().is_set() || modifications.state().value() == window_info.state())
         return;
 
-    auto const value = modifications.state().value();
     auto const display_area = displays.bounding_rectangle();
+    auto const window = window_info.window();
 
     auto restore_rect = window_info.restore_rect();
-    Rectangle rect;
 
+    // window_info.restore_rect() was cached on last state change, update to reflect current window position 
     switch (window_info.state())
     {
     case mir_surface_state_restored:
     case mir_surface_state_hidden:
-        restore_rect = {window_info.window().top_left(), window_info.window().size()};
+        restore_rect = {window.top_left(), window.size()};
         break;
 
     case mir_surface_state_vertmaximized:
     {
-        restore_rect.top_left.x = window_info.window().top_left().x;
-        restore_rect.size.width = window_info.window().size().width;
+        restore_rect.top_left.x = window.top_left().x;
+        restore_rect.size.width = window.size().width;
         break;
     }
 
     case mir_surface_state_horizmaximized:
     {
-        restore_rect.top_left.y = window_info.window().top_left().y;
-        restore_rect.size.height= window_info.window().size().height;
+        restore_rect.top_left.y = window.top_left().y;
+        restore_rect.size.height= window.size().height;
         break;
     }
 
@@ -726,7 +726,17 @@ void miral::BasicWindowManager::position_for_state(WindowSpecification& modifica
         break;
     }
 
-    switch (value)
+    // If the shell has also set position, that overrides restore_rect default
+    if (modifications.top_left().is_set())
+        restore_rect.top_left = modifications.top_left().value();
+
+    // If the client or shell has also set size, that overrides restore_rect default 
+    if (modifications.size().is_set())
+        restore_rect.size = modifications.size().value();
+
+    Rectangle rect;
+
+    switch (modifications.state().value())
     {
     case mir_surface_state_restored:
         rect = restore_rect;
@@ -748,7 +758,7 @@ void miral::BasicWindowManager::position_for_state(WindowSpecification& modifica
 
     case mir_surface_state_fullscreen:
     {
-        rect = {(window_info.window().top_left()), window_info.window().size()};
+        rect = {(window.top_left()), window.size()};
 
         if (window_info.has_output_id())
         {
