@@ -604,9 +604,36 @@ void miral::BasicWindowManager::modify_window(WindowInfo& window_info, WindowSpe
     if (modifications.input_shape().is_set())
         std::shared_ptr<scene::Surface>(window)->set_input_region(modifications.input_shape().value());
 
-    if (modifications.state().is_set())
+    if (modifications.state().is_set() && window_info.state() != modifications.state().value())
     {
-        set_state(window_info, modifications.state().value());
+        switch (window_info.state())
+        {
+        case mir_surface_state_restored:
+        case mir_surface_state_hidden:
+            window_info.restore_rect({window.top_left(), window.size()});
+            break;
+
+        case mir_surface_state_vertmaximized:
+        {
+            auto restore_rect = window_info.restore_rect();
+            restore_rect.top_left.x = window.top_left().x;
+            restore_rect.size.width = window.size().width;
+            window_info.restore_rect(restore_rect);
+            break;
+        }
+
+        case mir_surface_state_horizmaximized:
+        {
+            auto restore_rect = window_info.restore_rect();
+            restore_rect.top_left.y = window.top_left().y;
+            restore_rect.size.height= window.size().height;
+            window_info.restore_rect(restore_rect);
+            break;
+        }
+
+        default:
+            break;
+        }
     }
 
     Point new_pos = modifications.top_left().is_set() ? modifications.top_left().value() : window.top_left();
@@ -644,6 +671,11 @@ void miral::BasicWindowManager::modify_window(WindowInfo& window_info, WindowSpe
             mir_surface->placed_relative(relative_placement);
 #endif
         }
+    }
+
+    if (modifications.state().is_set())
+    {
+        set_state(window_info, modifications.state().value());
     }
 
 #if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 24, 0)
@@ -787,51 +819,6 @@ void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirSur
 {
     auto const window = window_info.window();
     auto const mir_surface = std::shared_ptr<scene::Surface>(window);
-
-    switch (value)
-    {
-    case mir_surface_state_restored:
-    case mir_surface_state_maximized:
-    case mir_surface_state_vertmaximized:
-    case mir_surface_state_horizmaximized:
-    case mir_surface_state_fullscreen:
-    case mir_surface_state_hidden:
-    case mir_surface_state_minimized:
-        break;
-
-    default:
-        mir_surface->configure(mir_surface_attrib_state, window_info.state());
-        return;
-    }
-
-    switch (window_info.state())
-    {
-    case mir_surface_state_restored:
-    case mir_surface_state_hidden:
-        window_info.restore_rect({window.top_left(), window.size()});
-        break;
-
-    case mir_surface_state_vertmaximized:
-    {
-        auto restore_rect = window_info.restore_rect();
-        restore_rect.top_left.x = window.top_left().x;
-        restore_rect.size.width = window.size().width;
-        window_info.restore_rect(restore_rect);
-        break;
-    }
-
-    case mir_surface_state_horizmaximized:
-    {
-        auto restore_rect = window_info.restore_rect();
-        restore_rect.top_left.y = window.top_left().y;
-        restore_rect.size.height= window.size().height;
-        window_info.restore_rect(restore_rect);
-        break;
-    }
-
-    default:
-        break;
-    }
 
     if (value != mir_surface_state_fullscreen)
     {
