@@ -180,7 +180,7 @@ libmiral.so.1 libmiral1 #MINVER#
  (c++)"miral::WindowManagerTools::invoke_under_lock(std::function<void ()> const&)@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowManagerTools::modify_window(miral::WindowInfo&, miral::WindowSpecification const&)@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowManagerTools::operator=(miral::WindowManagerTools const&)@MIRAL_0.1" 0.1.0
- (c++)"miral::WindowManagerTools::position_for_state(miral::WindowSpecification&, miral::WindowInfo const&) const@MIRAL_0.2" 0.2.0
+ (c++)"miral::WindowManagerTools::place_and_size_for_state(miral::WindowSpecification&, miral::WindowInfo const&) const@MIRAL_0.2" 0.2.0
  (c++)"miral::WindowManagerTools::raise_tree(miral::Window const&)@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowManagerTools::select_active_window(miral::Window const&)@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowManagerTools::window_at(mir::geometry::Point) const@MIRAL_0.1" 0.1.0

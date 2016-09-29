@@ -401,11 +401,12 @@ auto miral::WindowManagementTrace::id_for_window(Window const& window) const -> 
     return result;
 }
 
-void miral::WindowManagementTrace::position_for_state(WindowSpecification& modifications, WindowInfo const& window_info) const
+void miral::WindowManagementTrace::place_and_size_for_state(
+    WindowSpecification& modifications, WindowInfo const& window_info) const
 {
     log_input();
     mir::log_info("%s modifications=%s window_info=%s", __func__, dump_of(modifications).c_str(), dump_of(window_info).c_str());
-    wrapped.position_for_state(modifications, window_info);
+    wrapped.place_and_size_for_state(modifications, window_info);
 }
 
 void miral::WindowManagementTrace::drag_active_window(mir::geometry::Displacement movement)

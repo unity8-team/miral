@@ -145,7 +145,7 @@ void miral::BasicWindowManager::modify_surface(
     auto& info = info_for(surface);
     WindowSpecification mods{modifications};
     validate_modification_request(mods, info);
-    position_for_state(mods, info);
+    place_and_size_for_state(mods, info);
     policy->handle_modify_window(info, mods);
 }
 
@@ -324,7 +324,7 @@ int miral::BasicWindowManager::set_surface_attribute(
     auto& info = info_for(surface);
 
     validate_modification_request(modification, info);
-    position_for_state(modification, info);
+    place_and_size_for_state(modification, info);
     policy->handle_modify_window(info, modification);
 
     switch (attrib)
@@ -722,7 +722,8 @@ void miral::BasicWindowManager::place_and_size(WindowInfo& root, Point const& ne
     move_tree(root, new_pos - root.window().top_left());
 }
 
-void miral::BasicWindowManager::position_for_state(WindowSpecification& modifications, WindowInfo const& window_info) const
+void miral::BasicWindowManager::place_and_size_for_state(
+    WindowSpecification& modifications, WindowInfo const& window_info) const
 {
     if (!modifications.state().is_set() || modifications.state().value() == window_info.state())
         return;

@@ -133,7 +133,7 @@ public:
     auto info_for_window_id(std::string const& id) const -> WindowInfo& override;
 
     auto id_for_window(Window const& window) const -> std::string override;
-    void position_for_state(WindowSpecification& modifications, WindowInfo const& window_info) const override;
+    void place_and_size_for_state(WindowSpecification& modifications, WindowInfo const& window_info) const override;
 
     void invoke_under_lock(std::function<void()> const& callback) override;
 

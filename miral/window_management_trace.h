@@ -56,7 +56,7 @@ private:
     virtual auto active_display() -> mir::geometry::Rectangle const override;
     virtual auto info_for_window_id(std::string const& id) const -> WindowInfo& override;
     virtual auto id_for_window(Window const& window) const -> std::string override;
-    virtual void position_for_state(WindowSpecification& modifications, WindowInfo const& window_info) const override;
+    virtual void place_and_size_for_state(WindowSpecification& modifications, WindowInfo const& window_info) const override;
 
     virtual void drag_active_window(mir::geometry::Displacement movement) override;
 
