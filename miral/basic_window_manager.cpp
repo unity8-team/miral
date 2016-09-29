@@ -144,7 +144,7 @@ void miral::BasicWindowManager::modify_surface(
     Locker lock{mutex, policy};
     auto& info = info_for(surface);
     WindowSpecification mods{modifications};
-    validate_modification_request(info, mods);
+    validate_modification_request(mods, info);
     position_for_state(mods, info);
     policy->handle_modify_window(info, mods);
 }
@@ -323,7 +323,7 @@ int miral::BasicWindowManager::set_surface_attribute(
     Locker lock{mutex, policy};
     auto& info = info_for(surface);
 
-    validate_modification_request(info, modification);
+    validate_modification_request(modification, info);
     position_for_state(modification, info);
     policy->handle_modify_window(info, modification);
 
@@ -1471,9 +1471,7 @@ auto miral::BasicWindowManager::place_relative(mir::geometry::Rectangle const& p
     return default_result;
 }
 
-void miral::BasicWindowManager::validate_modification_request(
-    WindowInfo const& window_info,
-    WindowSpecification const& modifications) const
+void miral::BasicWindowManager::validate_modification_request(WindowSpecification const& modifications, WindowInfo const& window_info) const
 {
     auto target_type = window_info.type();
 
