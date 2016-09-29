@@ -74,8 +74,6 @@ public:
     void setRequestedPosition(const QPoint &) override;
 
     Mir::State state() const override;
-    void setState(Mir::State qmlState) override; // To remove from unity-api
-    void requestState(Mir::State qmlState) override;
 
     bool live() const override;
 
@@ -163,13 +161,14 @@ public:
     void setPosition(const QPoint newPosition);
     void updateWindowInfo(const miral::WindowInfo &windowInfo);
     void updateState(MirSurfaceState state);
+    miral::Window window() const { return m_windowInfo.window(); }
 
     // useful for tests
     void setCloseTimer(AbstractTimer *timer);
     std::shared_ptr<SurfaceObserver> surfaceObserver() const;
-    miral::Window window() const { return m_windowInfo.window(); }
 
 public Q_SLOTS:
+    void requestState(Mir::State qmlState) override;
     void onCompositorSwappedBuffers() override;
 
     void setShellChrome(Mir::ShellChrome shellChrome) override;

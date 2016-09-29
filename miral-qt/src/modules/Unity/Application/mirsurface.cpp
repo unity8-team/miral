@@ -319,6 +319,8 @@ void MirSurface::setFocused(bool value)
     if (m_focused == value)
         return;
 
+    DEBUG_MSG << "(" << value << ")";
+
     m_focused = value;
     Q_EMIT focusedChanged(value);
 }
@@ -352,6 +354,8 @@ void MirSurface::updateActiveFocus()
         return;
     }
 
+    // TODO Figure out what to do here
+    /*
     if (m_activelyFocusedViews.isEmpty()) {
         DEBUG_MSG << "() unfocused";
         m_controller->setActiveFocus(m_windowInfo.window(), false);
@@ -359,6 +363,7 @@ void MirSurface::updateActiveFocus()
         DEBUG_MSG << "() focused";
         m_controller->setActiveFocus(m_windowInfo.window(), true);
     }
+    */
 
     m_neverSetSurfaceFocus = false;
 }
@@ -467,15 +472,10 @@ QString MirSurface::persistentId() const
     return m_persistentId;
 }
 
-void MirSurface::setState(Mir::State qmlState)
-{
-    qDebug("MirSurface::setState to be deprecated!");
-    requestState(qmlState);
-}
-
 void MirSurface::requestState(Mir::State state)
 {
-    m_controller->setState(m_windowInfo.window(), toMirState(state));
+    DEBUG_MSG << "(" << unityapiMirStateToStr(state) << ")";
+    m_controller->requestState(m_windowInfo.window(), toMirState(state));
 }
 
 void MirSurface::setLive(bool value)
@@ -802,6 +802,7 @@ void MirSurface::updateState(MirSurfaceState newState)
     if (newState == m_windowInfo.state()) {
         return;
     }
+    DEBUG_MSG << "(" << unityapiMirStateToStr(newState) << ")";
 
     const bool oldVisibility = m_windowInfo.is_visible();
 
@@ -871,7 +872,7 @@ bool MirSurface::confinesMousePointer() const
 void MirSurface::requestFocus()
 {
     DEBUG_MSG << "()";
-    Q_EMIT focusRequested();
+    m_controller->focus(m_windowInfo.window());
 }
 
 void MirSurface::raise()

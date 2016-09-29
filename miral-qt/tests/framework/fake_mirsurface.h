@@ -58,8 +58,6 @@ public:
     void resize(int width, int height) override;
     void resize(const QSize &size) override;
     Mir::State state() const override;
-    void setState(Mir::State qmlState) override;
-    void requestState(Mir::State qmlState) override;
     bool live() const override;
     bool visible() const override;
     Mir::OrientationAngle orientationAngle() const override;
@@ -144,6 +142,7 @@ public:
     bool inputAreaContains(const QPoint &) const override { return true; }
 
 public Q_SLOTS:
+    void requestState(Mir::State qmlState) override;
     void onCompositorSwappedBuffers() override;
 
     void setShellChrome(Mir::ShellChrome shellChrome) override;

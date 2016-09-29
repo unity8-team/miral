@@ -37,13 +37,14 @@ public:
     virtual void focus (const miral::Window &window) = 0;
     // setActiveFocus() is how shell notifies Mir/application that a window actually has input focus
     virtual void setActiveFocus(const miral::Window &window, const bool activeFocus) = 0;
+    virtual void raise(const miral::Window &window) = 0;
 
     virtual void resize(const miral::Window &window, const QSize &size) = 0;
     virtual void move  (const miral::Window &window, const QPoint &topLeft) = 0;
 
     virtual void requestClose(const miral::Window &window) = 0;
 
-    virtual void setState(const miral::Window &window, const MirSurfaceState state) = 0;
+    virtual void requestState(const miral::Window &window, const MirSurfaceState state) = 0;
 
     virtual void deliverKeyboardEvent(const miral::Window &window, const MirKeyboardEvent *event) = 0;
     virtual void deliverTouchEvent   (const miral::Window &window, const MirTouchEvent *event) = 0;

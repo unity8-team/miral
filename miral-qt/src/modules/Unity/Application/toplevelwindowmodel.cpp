@@ -239,6 +239,9 @@ void TopLevelWindowModel::onSurfaceDestroyed(MirSurfaceInterface *surface)
     if (m_windowModel[i].removeOnceSurfaceDestroyed) {
         removeAt(i);
     } else {
+        if (m_windowModel[i].surface == m_focusedSurface) {
+            setFocusedSurface(nullptr);
+        }
         m_windowModel[i].surface = nullptr;
         Q_EMIT dataChanged(index(i) /* topLeft */, index(i) /* bottomRight */, QVector<int>() << SurfaceRole);
         DEBUG_MSG << " Removed surface from entry. After: " << toString();
@@ -304,6 +307,10 @@ void TopLevelWindowModel::removeAt(int index)
         // No point in signaling anything if we're resetting the whole model
     }
 
+    if (m_windowModel[index].surface != nullptr && m_windowModel[index].surface == m_focusedSurface) {
+        setFocusedSurface(nullptr);
+    }
+
     m_windowModel.removeAt(index);
 
     if (m_modelState == RemovingState) {
@@ -327,6 +334,12 @@ void TopLevelWindowModel::onWindowFocusChanged(const miral::WindowInfo &windowIn
 {
     if (auto mirSurface = find(windowInfo)) {
         mirSurface->setFocused(focused);
+
+        if (focused) {
+            setFocusedSurface(mirSurface);
+        } else if (mirSurface == m_focusedSurface) {
+            setFocusedSurface(nullptr);
+        }
     }
 }
 
@@ -445,7 +458,7 @@ MirSurface *TopLevelWindowModel::find(const miral::WindowInfo &needle) const
 int TopLevelWindowModel::findIndexOf(const miral::Window &needle) const
 {
     for (int i=0; i<m_windowModel.count(); i++) {
-        if (m_windowModel[i].surface->window() == needle) {
+        if (m_windowModel[i].surface && m_windowModel[i].surface->window() == needle) {
             return i;
         }
     }
@@ -538,4 +551,47 @@ int TopLevelWindowModel::idAt(int index) const
     } else {
         return 0;
     }
+}
+
+void TopLevelWindowModel::raiseId(int id)
+{
+    if (m_modelState == IdleState) {
+        DEBUG_MSG << "(id=" << id << ") - do it now.";
+        doRaiseId(id);
+    } else {
+        DEBUG_MSG << "(id=" << id << ") - Model busy (modelState=" << m_modelState << "). Try again in the next event loop.";
+        // The model has just signalled some change. If we have a Repeater responding to this update, it will get nuts
+        // if we perform yet another model change straight away.
+        //
+        // A bad sympton of this problem is a Repeater.itemAt(index) call returning null event though Repeater.count says
+        // the index is definitely within bounds.
+        QMetaObject::invokeMethod(this, "raiseId", Qt::QueuedConnection, Q_ARG(int, id));
+    }
+}
+
+void TopLevelWindowModel::doRaiseId(int id)
+{
+    int fromIndex = indexForId(id);
+    if (fromIndex != -1) {
+        auto surface = m_windowModel[fromIndex].surface;
+        if (surface) {
+            m_windowController->raise(surface->window());
+        } else {
+            // call onWindowRaised()
+        }
+    }
+}
+
+void TopLevelWindowModel::setFocusedSurface(MirSurface *surface)
+{
+    if (surface != m_focusedSurface) {
+        DEBUG_MSG << "(" << surface << ")";
+        m_focusedSurface = surface;
+        Q_EMIT focusedSurfaceChanged(m_focusedSurface);
+    }
+}
+
+unityapi::MirSurfaceInterface* TopLevelWindowModel::focusedSurface() const
+{
+    return m_focusedSurface;
 }

@@ -216,6 +216,24 @@ void WindowManagementPolicy::focus(const miral::Window &window)
     });
 }
 
+void WindowManagementPolicy::setFocus(const miral::Window &window, const bool focused)
+{
+    m_tools.invoke_under_lock([&window, focused, this]() {
+        if (focused) {
+            m_tools.select_active_window(window);
+        } else if (m_tools.active_window() == window) {
+            m_tools.select_active_window(miral::Window());
+        }
+    });
+}
+
+void WindowManagementPolicy::raise(const miral::Window &window)
+{
+    m_tools.invoke_under_lock([&window, this]() {
+        m_tools.raise_tree(window);
+    });
+}
+
 void WindowManagementPolicy::resize(const miral::Window &window, const Size size)
 {
     miral::WindowSpecification modifications;
@@ -250,5 +268,14 @@ void WindowManagementPolicy::ask_client_to_close(const miral::Window &window)
 {
     m_tools.invoke_under_lock([&window, this]() {
         m_tools.ask_client_to_close(window);
+    });
+}
+
+void WindowManagementPolicy::requestState(const miral::Window &window, const MirSurfaceState state)
+{
+    miral::WindowSpecification modifications;
+    modifications.state() = state;
+    m_tools.invoke_under_lock([&]() {
+        m_tools.modify_window(m_tools.info_for(window), modifications);
     });
 }
