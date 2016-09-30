@@ -25,13 +25,14 @@ struct StubWindowModelController : public WindowControllerInterface
 {
     void focus (const miral::Window &/*window*/) override { return; }
     void setActiveFocus(const miral::Window &/*window*/, const bool /*activeFocus*/) override { return; }
+    void raise(const miral::Window &/*window*/) override {};
 
     void resize(const miral::Window &/*window*/, const QSize &/*size*/) override { return; }
     void move  (const miral::Window &/*window*/, const QPoint &/*topLeft*/) override { return; }
 
     void requestClose(const miral::Window &/*window*/) override { return; }
 
-    void setState(const miral::Window &/*window*/, const MirSurfaceState /*state*/) override { return; }
+    void requestState(const miral::Window &/*window*/, const MirSurfaceState /*state*/) override { return; }
 
     void deliverKeyboardEvent(const miral::Window &/*window*/, const MirKeyboardEvent */*event*/) override { return; }
     void deliverTouchEvent   (const miral::Window &/*window*/, const MirTouchEvent */*event*/)    override { return; }

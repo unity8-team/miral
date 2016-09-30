@@ -21,6 +21,7 @@
 
 // Unity API
 #include <unity/shell/application/ApplicationInfoInterface.h>
+#include <unity/shell/application/Mir.h>
 
 const char *touchPointStateToString(Qt::TouchPointState state)
 {
@@ -345,6 +346,30 @@ const char *qtCursorShapeToStr(Qt::CursorShape shape)
         return "DragLink";
     case Qt::BitmapCursor:
         return "Bitmap";
+    default:
+        return "???";
+    }
+}
+
+const char *unityapiMirStateToStr(int state)
+{
+    switch (state) {
+    case Mir::UnknownState:
+        return "unknown";
+    case Mir::RestoredState:
+        return "restored";
+    case Mir::MinimizedState:
+        return "minimized";
+    case Mir::MaximizedState:
+        return "maximized";
+    case Mir::VertMaximizedState:
+        return "vertMaximized";
+    case Mir::FullscreenState:
+        return "fullscreen";
+    case Mir::HorizMaximizedState:
+        return "horizMaximized";
+    case Mir::HiddenState:
+        return "hidden";
     default:
         return "???";
     }

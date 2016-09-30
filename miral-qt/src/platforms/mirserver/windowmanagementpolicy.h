@@ -76,8 +76,11 @@ public:
     void deliver_pointer_event (const MirPointerEvent *event,  const miral::Window &window);
 
     void focus (const miral::Window &window);
+    void setFocus(const miral::Window &window, const bool focused);
     void resize(const miral::Window &window, const Size size);
     void move  (const miral::Window &window, const Point topLeft);
+    void raise(const miral::Window &window);
+    void requestState(const miral::Window &window, const MirSurfaceState state);
 
     void ask_client_to_close(const miral::Window &window);
 

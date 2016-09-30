@@ -17,9 +17,6 @@
 #ifndef QTMIR_MIRFOCUSCONTROLLER_H
 #define QTMIR_MIRFOCUSCONTROLLER_H
 
-// unity-api
-#include <unity/shell/application/MirFocusControllerInterface.h>
-
 #include <QPointer>
 
 #include "mirsurfaceinterface.h"
@@ -28,16 +25,25 @@ namespace qtmir {
 
 class MirSurfaceInterface;
 
-class MirFocusController : public unity::shell::application::MirFocusControllerInterface
+// TODO: Get rid of this class?
+class MirFocusController : public QObject
 {
     Q_OBJECT
+
+    Q_PROPERTY(unity::shell::application::MirSurfaceInterface* focusedSurface READ focusedSurface
+                                                                              WRITE setFocusedSurface
+                                                                              NOTIFY focusedSurfaceChanged)
 public:
-    MirFocusController(){}
+    MirFocusController() : QObject(nullptr) {}
     static MirFocusController* instance();
 
-    void setFocusedSurface(unity::shell::application::MirSurfaceInterface *surface) override;
-    unity::shell::application::MirSurfaceInterface* focusedSurface() const override;
+    void setFocusedSurface(unity::shell::application::MirSurfaceInterface *surface);
+    unity::shell::application::MirSurfaceInterface* focusedSurface() const;
     MirSurfaceInterface* previouslyFocusedSurface() { return m_previouslyFocusedSurface.data(); }
+
+Q_SIGNALS:
+    void focusedSurfaceChanged();
+
 private:
     static MirFocusController *m_instance;
     QPointer<MirSurfaceInterface> m_previouslyFocusedSurface;

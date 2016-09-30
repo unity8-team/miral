@@ -51,7 +51,6 @@ public:
     Mir::ShellChrome shellChrome() const override;
 
     Mir::State surfaceState() const override;
-    void setSurfaceState(Mir::State) override;
 
     Mir::OrientationAngle orientationAngle() const override;
     void setOrientationAngle(Mir::OrientationAngle angle) override;

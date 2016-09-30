@@ -484,13 +484,6 @@ Mir::State MirSurfaceItem::surfaceState() const
     }
 }
 
-void MirSurfaceItem::setSurfaceState(Mir::State state)
-{
-    if (m_surface) {
-        m_surface->setState(state);
-    }
-}
-
 void MirSurfaceItem::scheduleMirSurfaceSizeUpdate()
 {
     if (!m_updateMirSurfaceSizeTimer.isActive()) {

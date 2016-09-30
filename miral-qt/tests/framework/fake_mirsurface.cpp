@@ -84,11 +84,6 @@ void FakeMirSurface::resize(const QSize &size) { resize(size.width(), size.heigh
 
 Mir::State FakeMirSurface::state() const { return m_state; }
 
-void FakeMirSurface::setState(Mir::State qmlState)
-{
-    requestState(qmlState);
-}
-
 void FakeMirSurface::requestState(Mir::State qmlState)
 {
     if (qmlState != m_state) {

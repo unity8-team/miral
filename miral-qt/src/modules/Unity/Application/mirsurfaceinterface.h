@@ -54,8 +54,6 @@ public:
 
     virtual QPoint position() const = 0;
 
-    virtual void requestState(Mir::State qmlState) = 0; // move to unity-api
-
     virtual void setLive(bool value) = 0;
 
     virtual bool isFirstFrameDrawn() const = 0;
@@ -125,6 +123,8 @@ public:
     virtual void setRequestedPosition(const QPoint &) = 0;
 
 public Q_SLOTS:
+    virtual void requestState(Mir::State qmlState) = 0; // TODO: move to unity-api
+
     virtual void onCompositorSwappedBuffers() = 0;
 
     virtual void setShellChrome(Mir::ShellChrome shellChrome) = 0;
