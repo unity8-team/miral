@@ -289,6 +289,7 @@ global:
     miral::CursorTheme::CursorTheme*;
     miral::CursorTheme::operator*;
     miral::WindowInfo::confine_pointer*;
+    miral::WindowManagerTools::place_and_size_for_state*;
     miral::WindowSpecification::confine_pointer*;
     typeinfo?for?miral::CursorTheme;
     vtable?for?miral::CursorTheme;
