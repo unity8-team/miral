@@ -892,7 +892,7 @@ auto miral::BasicWindowManager::select_active_window(Window const& hint) -> mira
         }
     }
 
-    if (info_for_hint.can_be_active())
+    if (info_for_hint.can_be_active() && info_for_hint.is_visible())
     {
         mru_active_windows.push(hint);
         focus_controller->set_focus_to(hint.application(), hint);

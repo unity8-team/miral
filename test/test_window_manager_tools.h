@@ -86,6 +86,8 @@ struct StubSurface : mir::test::doubles::StubSurface
     mir::geometry::Size size() const override { return  size_; }
     void resize(mir::geometry::Size const& size) override { size_ = size; }
 
+    bool visible() const override { return  true; }
+
     std::string name_;
     MirSurfaceType type_;
     mir::geometry::Point top_left_;

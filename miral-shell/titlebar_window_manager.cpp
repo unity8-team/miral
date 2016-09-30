@@ -268,7 +268,13 @@ void TitlebarWindowManagerPolicy::advise_new_window(WindowInfo const& window_inf
     if (application == titlebar_provider->session())
     {
         titlebar_provider->advise_new_titlebar(window_info);
-        return;
+
+        auto const parent = window_info.parent();
+
+        if (tools.active_window() == parent)
+            titlebar_provider->paint_titlebar_for(parent, 0xFF);
+        else
+            titlebar_provider->paint_titlebar_for(parent, 0x3F);
     }
 }
 
