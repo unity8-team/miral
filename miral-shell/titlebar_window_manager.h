@@ -23,6 +23,8 @@
 
 #include "spinner/splash.h"
 
+#include <chrono>
+
 namespace miral { class InternalClientLauncher; }
 
 using namespace mir::geometry;
@@ -55,6 +57,7 @@ public:
     /** @name track events that affect titlebar
      *  @{ */
     void advise_new_window(miral::WindowInfo const& window_info) override;
+    void handle_window_ready(miral::WindowInfo& window_info) override;
     void advise_focus_lost(miral::WindowInfo const& info) override;
     void advise_focus_gained(miral::WindowInfo const& info) override;
     void advise_state_change(miral::WindowInfo const& window_info, MirSurfaceState state) override;
@@ -85,10 +88,22 @@ private:
     int old_touch_pinch_left = 0;
     int old_touch_pinch_width = 0;
     int old_touch_pinch_height = 0;
+    bool pinching = false;
 
     SpinnerSplash const spinner;
 
     std::unique_ptr<TitlebarProvider> const titlebar_provider;
+
+    void end_resize();
+
+    void keep_size_within_limits(
+        miral::WindowInfo const& window_info,
+        Displacement& delta,
+        Width& new_width,
+        Height& new_height) const;
+
+    // Workaround for lp:1627697
+    std::chrono::steady_clock::time_point last_resize;
 };
 
 #endif //MIRAL_SHELL_TITLEBAR_WINDOW_MANAGER_H

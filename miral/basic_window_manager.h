@@ -19,8 +19,9 @@
 #ifndef MIR_ABSTRACTION_BASIC_WINDOW_MANAGER_H_
 #define MIR_ABSTRACTION_BASIC_WINDOW_MANAGER_H_
 
-#include "miral/window_management_policy.h"
 #include "window_manager_tools_implementation.h"
+
+#include "miral/window_management_policy.h"
 #include "miral/window_info.h"
 #include "miral/application.h"
 #include "miral/application_info.h"
@@ -132,6 +133,7 @@ public:
     auto info_for_window_id(std::string const& id) const -> WindowInfo& override;
 
     auto id_for_window(Window const& window) const -> std::string override;
+    void place_and_size_for_state(WindowSpecification& modifications, WindowInfo const& window_info) const override;
 
     void invoke_under_lock(std::function<void()> const& callback) override;
 
@@ -161,12 +163,12 @@ private:
     auto can_activate_window_for_session(miral::Application const& session) -> bool;
 
     auto place_new_surface(ApplicationInfo const& app_info, WindowSpecification parameters) -> WindowSpecification;
-    auto place_relative(Point const& parent_top_left, miral::WindowSpecification const& parameters, Size size)
+    auto place_relative(mir::geometry::Rectangle const& parent, miral::WindowSpecification const& parameters, Size size)
         -> mir::optional_value<Rectangle>;
 
     void move_tree(miral::WindowInfo& root, mir::geometry::Displacement movement);
     void erase(miral::WindowInfo const& info);
-    void validate_modification_request(WindowInfo const& window_info, WindowSpecification const& modifications) const;
+    void validate_modification_request(WindowSpecification const& modifications, WindowInfo const& window_info) const;
     void place_and_size(WindowInfo& root, Point const& new_pos, Size const& new_size);
     void set_state(miral::WindowInfo& window_info, MirSurfaceState value);
 };

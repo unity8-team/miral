@@ -1,5 +1,6 @@
 libmiral.so.1 libmiral1 #MINVER#
  MIRAL_0.1@MIRAL_0.1 0.1.0
+ MIRAL_0.2@MIRAL_0.2 0.2.0
  (c++)"miral::ActiveOutputsListener::advise_output_begin()@MIRAL_0.1" 0.1.0
  (c++)"miral::ActiveOutputsListener::advise_output_create(miral::Output const&)@MIRAL_0.1" 0.1.0
  (c++)"miral::ActiveOutputsListener::advise_output_delete(miral::Output const&)@MIRAL_0.1" 0.1.0
@@ -43,6 +44,11 @@ libmiral.so.1 libmiral1 #MINVER#
  (c++)"miral::CanonicalWindowManagerPolicy::handle_raise_window(miral::WindowInfo&)@MIRAL_0.1" 0.1.0
  (c++)"miral::CanonicalWindowManagerPolicy::handle_window_ready(miral::WindowInfo&)@MIRAL_0.1" 0.1.0
  (c++)"miral::CanonicalWindowManagerPolicy::place_new_surface(miral::ApplicationInfo const&, miral::WindowSpecification const&)@MIRAL_0.1" 0.1.0
+ (c++)"miral::CursorTheme::CursorTheme(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)@MIRAL_0.2" 0.2.0
+ (c++)"miral::CursorTheme::CursorTheme(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)@MIRAL_0.2" 0.2.0
+ (c++)"miral::CursorTheme::~CursorTheme()@MIRAL_0.2" 0.2.0
+ (c++)"miral::CursorTheme::~CursorTheme()@MIRAL_0.2" 0.2.0
+ (c++)"miral::CursorTheme::operator()(mir::Server&) const@MIRAL_0.2" 0.2.0
  (c++)"miral::display_configuration_options(mir::Server&)@MIRAL_0.1" 0.1.0
  (c++)"miral::equivalent_display_area(miral::Output const&, miral::Output const&)@MIRAL_0.1" 0.1.0
  (c++)"miral::InternalClientLauncher::~InternalClientLauncher()@MIRAL_0.1" 0.1.0
@@ -92,10 +98,13 @@ libmiral.so.1 libmiral1 #MINVER#
  (c++)"miral::StartupInternalClient::~StartupInternalClient()@MIRAL_0.1" 0.1.0
  (c++)"miral::StartupInternalClient::StartupInternalClient(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::function<void (miral::toolkit::Connection)>, std::function<void (std::weak_ptr<mir::scene::Session>)>)@MIRAL_0.1" 0.1.0
  (c++)"miral::Window::application() const@MIRAL_0.1" 0.1.0
+ (c++)"miral::WindowInfo::WindowInfo()@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowInfo::add_child(miral::Window const&)@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowInfo::can_be_active() const@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowInfo::can_morph_to(MirSurfaceType) const@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowInfo::children() const@MIRAL_0.1" 0.1.0
+ (c++)"miral::WindowInfo::confine_pointer() const@MIRAL_0.2" 0.2.0
+ (c++)"miral::WindowInfo::confine_pointer(MirPointerConfinementState)@MIRAL_0.2" 0.2.0
  (c++)"miral::WindowInfo::constrain_resize(mir::geometry::Point&, mir::geometry::Size&) const@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowInfo::has_name() const@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowInfo::has_output_id() const@MIRAL_0.1" 0.1.0
@@ -171,6 +180,7 @@ libmiral.so.1 libmiral1 #MINVER#
  (c++)"miral::WindowManagerTools::invoke_under_lock(std::function<void ()> const&)@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowManagerTools::modify_window(miral::WindowInfo&, miral::WindowSpecification const&)@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowManagerTools::operator=(miral::WindowManagerTools const&)@MIRAL_0.1" 0.1.0
+ (c++)"miral::WindowManagerTools::place_and_size_for_state(miral::WindowSpecification&, miral::WindowInfo const&) const@MIRAL_0.2" 0.2.0
  (c++)"miral::WindowManagerTools::raise_tree(miral::Window const&)@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowManagerTools::select_active_window(miral::Window const&)@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowManagerTools::window_at(mir::geometry::Point) const@MIRAL_0.1" 0.1.0
@@ -189,6 +199,8 @@ libmiral.so.1 libmiral1 #MINVER#
  (c++)"miral::WindowSpecification::aux_rect_placement_gravity()@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowSpecification::aux_rect_placement_offset() const@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowSpecification::aux_rect_placement_offset()@MIRAL_0.1" 0.1.0
+ (c++)"miral::WindowSpecification::confine_pointer() const@MIRAL_0.2" 0.2.0
+ (c++)"miral::WindowSpecification::confine_pointer()@MIRAL_0.2" 0.2.0
  (c++)"miral::WindowSpecification::height_inc() const@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowSpecification::height_inc()@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowSpecification::input_mode() const@MIRAL_0.1" 0.1.0

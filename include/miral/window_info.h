@@ -31,6 +31,7 @@ struct WindowInfo
 {
     using AspectRatio = WindowSpecification::AspectRatio;
 
+    WindowInfo();
     WindowInfo(Window const& window, WindowSpecification const& params);
     ~WindowInfo();
     WindowInfo(WindowInfo const& that);
@@ -102,6 +103,9 @@ struct WindowInfo
 
     auto preferred_orientation() const -> MirOrientationMode;
     void preferred_orientation(MirOrientationMode preferred_orientation);
+
+    auto confine_pointer() const -> MirPointerConfinementState;
+    void confine_pointer(MirPointerConfinementState confinement);
 
     /// This can be used by client code to store window manager specific information
     auto userdata() const -> std::shared_ptr<void>;

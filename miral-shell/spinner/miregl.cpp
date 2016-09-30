@@ -68,7 +68,9 @@ MirSurface* create_surface(MirConnection* const connection, MirSurfaceParameters
 
     mir_surface_spec_set_name(spec, surfaceparm.name);
     mir_surface_spec_set_buffer_usage(spec, surfaceparm.buffer_usage);
-    mir_surface_spec_set_fullscreen_on_output(spec, surfaceparm.output_id);
+
+    if (!surfaceparm.width && !surfaceparm.height)
+        mir_surface_spec_set_fullscreen_on_output(spec, surfaceparm.output_id);
 
     auto const surface = mir_surface_create_sync(spec);
     mir_surface_spec_release(spec);

@@ -4,10 +4,16 @@
 
 socket=${XDG_RUNTIME_DIR}/mir_socket
 builddir=$(dirname $0)/../build/
+miral_server=miral-shell
 
-if [ $# -gt 0 -a "${1:0:1}" != "-" -a -d "$1" ]; then builddir=$1/; shift; fi
-if [ $# -gt 0 -a "$1" == "-Xmir" ]; then xmir_display=:1; shift; fi
-if [ $# -gt 0 -a "$1" == "-kiosk" ]; then miral_server=miral-kiosk; shift; else miral_server=miral-shell; fi
+while [ $# -gt 0 ]
+do
+    if [ "${1:0:1}" != "-" -a -d "$1" ]; then builddir=$1/; fi
+    if [ "$1" == "-Xmir" ]; then xmir_display=:1; fi
+    if [ "$1" == "-kiosk" ]; then miral_server=miral-kiosk; fi
+    if [ "${1:0:2}" == "--" ]; then break; fi
+    shift
+done
 
 if [ -e "${socket}" ]; then echo "Error: '${socket}' already exists"; exit 1 ;fi
 

@@ -17,7 +17,12 @@ include_directories(include SYSTEM ${MIRSERVER_INCLUDE_DIRS})
 add_library(miral-internal STATIC
     basic_window_manager.cpp            basic_window_manager.h window_manager_tools_implementation.h
     mru_window_list.cpp                 mru_window_list.h
+    window_management_trace.cpp         window_management_trace.h
+    xcursor_loader.cpp                  xcursor_loader.h
+    xcursor.c                           xcursor.h
 )
+
+set_source_files_properties(xcursor.c PROPERTIES COMPILE_FLAGS "${CMAKE_C_FLAGS} -std=c99 -D_GNU_SOURCE")
 
 add_library(miral SHARED
     active_outputs.cpp                  ${CMAKE_SOURCE_DIR}/include/miral/active_outputs.h
@@ -26,6 +31,7 @@ add_library(miral SHARED
     application_authorizer.cpp          ${CMAKE_SOURCE_DIR}/include/miral/application_authorizer.h
     application_info.cpp                ${CMAKE_SOURCE_DIR}/include/miral/application_info.h
     canonical_window_manager.cpp        ${CMAKE_SOURCE_DIR}/include/miral/canonical_window_manager.h
+    cursor_theme.cpp                    ${CMAKE_SOURCE_DIR}/include/miral/cursor_theme.h
     runner.cpp                          ${CMAKE_SOURCE_DIR}/include/miral/runner.h
     display_configuration_option.cpp    ${CMAKE_SOURCE_DIR}/include/miral/display_configuration_option.h
     output.cpp                          ${CMAKE_SOURCE_DIR}/include/miral/output.h
@@ -44,6 +50,7 @@ add_library(miral SHARED
                                         ${CMAKE_SOURCE_DIR}/include/miral/toolkit/persistent_id.h
                                         ${CMAKE_SOURCE_DIR}/include/miral/toolkit/connection.h
                                         ${CMAKE_SOURCE_DIR}/include/miral/toolkit/surface.h
+                                        ${CMAKE_SOURCE_DIR}/include/miral/detail/mir_forward_compatibility.h
 )
 
 target_link_libraries(miral
@@ -68,6 +75,17 @@ set(INCLUDEDIR "${CMAKE_INSTALL_PREFIX}/include/miral")
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/miral.pc.in
     ${CMAKE_CURRENT_BINARY_DIR}/miral.pc
     @ONLY
+)
+
+if (MIRSERVER_VERSION VERSION_LESS 0.24)
+    set(MIR_POINTER_CONFINEMENT 0)
+else()
+    set(MIR_POINTER_CONFINEMENT 1)
+endif()
+
+configure_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/mir_features.h.in
+  ${PROJECT_SOURCE_DIR}/include/miral/detail/mir_features.h
 )
 
 install(TARGETS     miral                           LIBRARY DESTINATION "${CMAKE_INSTALL_FULL_LIBDIR}")
