@@ -1,8 +1,36 @@
 miral (0.2.0) UNRELEASED; urgency=medium
 
-  * TBD
+  * New upstream release 0.2.0 (https://launchpad.net/miral/+milestone/0.2)
+    - ABI summary:
+      . miral ABI unchanged at 1
+    - Enhancements:
+      . –window-management-trace option for debugging window management
+      . Enable cursor theme selection
+      . Improved resizing of size-constrained windows in miral-shell example
+      . Enable pointer confinement (where underlying Mir version >= 0.24)
+      . Enhanced "surface placement" request handling.
+      . Results of placement request notified to clients (where supported by
+        underlying Mir version >= 0.25)
+    - Bugs fixed:
+      . advise_focus_lost() isn't called when the active window is minimised/
+        hidden (LP: #1628594)
+      . miral should not change surface geometry because it got maximized
+        (LP: #1628630)
+      . TitlebarWindowManager: sometime the initial display of titlebars doesn't
+        happen (LP: #1628981)
+      . Dialogs with parents should be modal i.e. they receive focus when the
+        parent is clicked (LP: #1626659)
+      . Deadlock in default window manager when Ctrl+Alt+Backspace with a client
+        connected (LP: #1628482)
+      . Need to support pointer confinement in Mir and toolkits using Mir
+        (LP: #1590099)
+      . User can drag menus (and other inappropriate) surfaces (LP: #1616818)
+      . Starting qtcreator on miral-shell gives an orphan "titlebar"
+        (LP: #1628033)
+      . Mouse cursor disappears (or just never changes) when entering the
+        windows of Qt apps (LP: #1625853)
 
- -- Alan Griffiths <alan@Octopull-desktop>  Fri, 23 Sep 2016 17:16:19 +0100
+ -- Alan Griffiths <alan.griffiths@canonical.com>  Fri, 30 Sep 2016 10:34:11 +0100
 
 miral (0.1.0+16.10.20160919-0ubuntu1) yakkety; urgency=medium
 
