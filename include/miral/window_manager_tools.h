@@ -146,6 +146,8 @@ public:
     /// Apply modifications to a window
     void modify_window(WindowInfo& window_info, WindowSpecification const& modifications);
 
+    /// Set a default size and position to reflect state change
+    void place_and_size_for_state(WindowSpecification& modifications, WindowInfo const& window_info) const;
 /** @} */
 
     /** Multi-thread support

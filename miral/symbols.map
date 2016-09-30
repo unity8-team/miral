@@ -237,7 +237,6 @@ global:
     typeinfo?for?miral::SetTerminator;
     typeinfo?for?miral::SetWindowManagmentPolicy;
     typeinfo?for?miral::StartupInternalClient;
-    typeinfo?for?miral::StreamSpecification;
     typeinfo?for?miral::Window;
     typeinfo?for?miral::WindowInfo;
     typeinfo?for?miral::WindowManagementPolicy;
@@ -267,7 +266,6 @@ global:
     vtable?for?miral::SetTerminator;
     vtable?for?miral::SetWindowManagmentPolicy;
     vtable?for?miral::StartupInternalClient;
-    vtable?for?miral::StreamSpecification;
     vtable?for?miral::Window;
     vtable?for?miral::WindowInfo;
     vtable?for?miral::WindowManagementPolicy;
@@ -283,3 +281,17 @@ global:
   };
 local: *;
 };
+
+MIRAL_0.2 {
+global:
+  extern "C++" {
+    miral::CursorTheme::?CursorTheme*;
+    miral::CursorTheme::CursorTheme*;
+    miral::CursorTheme::operator*;
+    miral::WindowInfo::confine_pointer*;
+    miral::WindowManagerTools::place_and_size_for_state*;
+    miral::WindowSpecification::confine_pointer*;
+    typeinfo?for?miral::CursorTheme;
+    vtable?for?miral::CursorTheme;
+  };
+} MIRAL_0.1;

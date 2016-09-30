@@ -16,34 +16,29 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#ifndef MIRAL_TOOLKIT_SURFACE_H
-#define MIRAL_TOOLKIT_SURFACE_H
+#ifndef MIRAL_CURSOR_THEME_H
+#define MIRAL_CURSOR_THEME_H
 
-#include <mir_toolkit/mir_surface.h>
+#include <string>
 
-#include <memory>
+namespace mir { class Server; }
 
 namespace miral
 {
-namespace toolkit
-{
-/// Handle class for MirSurface - provides automatic reference counting.
-class Surface
+/// Load a cursor theme
+class CursorTheme
 {
 public:
-    Surface() = default;
-    explicit Surface(MirSurface* spec) : self{spec, deleter} {}
+    /// Specify a specific theme
+    explicit CursorTheme(std::string const& theme);
+    ~CursorTheme();
 
-
-    operator MirSurface*() const { return self.get(); }
-
-    void reset() { self.reset(); }
+    void operator()(mir::Server& server) const;
 
 private:
-    static void deleter(MirSurface* surface) { mir_surface_release_sync(surface); }
-    std::shared_ptr<MirSurface> self;
+    std::string const theme;
 };
 }
-}
 
-#endif //MIRAL_TOOLKIT_SURFACE_H
+
+#endif //MIRAL_CURSOR_THEME_H
