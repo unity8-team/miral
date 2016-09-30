@@ -75,7 +75,7 @@ public:
 
     Mir::ShellChrome shellChrome() const override { return Mir::NormalChrome; }
 
-    bool focused() const override { return false; }
+    bool focused() const override { return m_focused; }
     QRect inputBounds() const override { return QRect(0,0,10,10); }
     bool confinesMousePointer() const override { return false; }
 
