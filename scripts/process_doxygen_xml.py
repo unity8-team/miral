@@ -362,6 +362,20 @@ local: *;
 
 MIRAL_0.2 {
 global:
+  extern "C++" {
+    miral::CursorTheme::?CursorTheme*;
+    miral::CursorTheme::CursorTheme*;
+    miral::CursorTheme::operator*;
+    miral::WindowInfo::confine_pointer*;
+    miral::WindowManagerTools::place_and_size_for_state*;
+    miral::WindowSpecification::confine_pointer*;
+    typeinfo?for?miral::CursorTheme;
+    vtable?for?miral::CursorTheme;
+  };
+} MIRAL_0.1;
+
+MIRAL_0.3 {
+global:
   extern "C++" {'''
 
 def print_report():
@@ -371,7 +385,7 @@ def print_report():
         if not formatted_symbol in old_stanzas:
             print formatted_symbol
     print '  };'
-    print '} MIRAL_0.1;'
+    print '} MIRAL_0.2;'
 
 def print_debug_info(node, attributes):
     if not debug: return
