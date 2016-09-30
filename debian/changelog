@@ -1,4 +1,4 @@
-miral (0.2.0) UNRELEASED; urgency=medium
+miral (0.2.0+16.10.20160930.1-0ubuntu1) yakkety; urgency=medium
 
   * New upstream release 0.2.0 (https://launchpad.net/miral/+milestone/0.2)
     - ABI summary:
@@ -30,7 +30,7 @@ miral (0.2.0) UNRELEASED; urgency=medium
       . Mouse cursor disappears (or just never changes) when entering the
         windows of Qt apps (LP: #1625853)
 
- -- Alan Griffiths <alan.griffiths@canonical.com>  Fri, 30 Sep 2016 10:34:11 +0100
+ -- Alan Griffiths <alan.griffiths@canonical.com>  Fri, 30 Sep 2016 13:18:17 +0000
 
 miral (0.1.0+16.10.20160919-0ubuntu1) yakkety; urgency=medium
 
