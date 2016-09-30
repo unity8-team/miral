@@ -419,6 +419,7 @@ public:
         // QWindowSystemInterface::handleShortcutEvent which forcibly sets sync mode from the GUI thread.
         // Sending an event synchronously from the mir input thread risks a deadlock with the main/GUI thread
         // from a miral mutex locked by both thread (eg. holding Alt + dragging a window with the the mouse)
+        // See: https://bugreports.qt.io/browse/QTBUG-56274
         /*
         QWindowSystemInterface::handleExtendedKeyEvent(window, timestamp, type, key, modifiers,
                 nativeScanCode, nativeVirtualKey, nativeModifiers, text, autorep, count);
