@@ -91,6 +91,7 @@ public:
     virtual void stop() = 0;
     virtual bool hadSurface() const = 0; // whether this session ever had any surface (currently or in the past)
     virtual bool hasClosingSurfaces() const = 0; // whether it has surfaces being forcibly closed
+    virtual bool focused() const = 0; // whether any surface in its list is focused()
 
     // Whether any of its MirSurfaces has activeFocus()
     // See qtmir::MirSurfaceInterface::activeFocus
@@ -118,6 +119,7 @@ Q_SIGNALS:
     void stateChanged(State state);
     void fullscreenChanged(bool fullscreen);
     void liveChanged(bool live);
+    void focusedChanged(bool focused);
 
     // Emitted when any surface in this session emits focusRequested()
     void focusRequested();

@@ -19,7 +19,7 @@
 #include "application.h"
 #include "applicationinfo.h"
 #include "dbusfocusinfo.h"
-#include "mirfocuscontroller.h"
+#include "mirsurfaceinterface.h"
 #include "session.h"
 #include "sharedwakelock.h"
 #include "proc_info.h"
@@ -172,17 +172,6 @@ ApplicationManager::ApplicationManager(
 {
     qCDebug(QTMIR_APPLICATIONS) << "ApplicationManager::ApplicationManager (this=%p)" << this;
     setObjectName(QStringLiteral("qtmir::ApplicationManager"));
-
-    /*
-        All begin[...]Rows() and end[...]Rows() functions cause signal emissions which can
-        be processed by slots immediately and then trigger yet more model changes.
-
-        The connection below is queued to avoid stacked model change attempts cause by the above,
-        such as attempting to raise the newly focused application while another one is still
-        getting removed from the model.
-     */
-    connect(MirFocusController::instance(), &MirFocusController::focusedSurfaceChanged,
-        this, &ApplicationManager::updateFocusedApplication, Qt::QueuedConnection);
 }
 
 ApplicationManager::~ApplicationManager()
@@ -266,18 +255,13 @@ bool ApplicationManager::requestFocusApplication(const QString &inputAppId)
 
 QString ApplicationManager::focusedApplicationId() const
 {
-    Application *focusedApplication = nullptr;
-    auto surface = static_cast<qtmir::MirSurfaceInterface*>(MirFocusController::instance()->focusedSurface());
-    if (surface) {
-        auto self = const_cast<ApplicationManager*>(this);
-        focusedApplication = self->findApplication(surface);
+    for (int i = 0; i < m_applications.count(); ++i) {
+        const Application *application = m_applications.at(i);
+        if (application->focused()) {
+            return application->appId();
+        }
     }
-
-    if (focusedApplication) {
-        return focusedApplication->appId();
-    } else {
-        return QString();
-    }
+    return QString();
 }
 
 /**
@@ -633,7 +617,20 @@ void ApplicationManager::add(Application* application)
     Q_ASSERT(!m_modelUnderChange);
     m_modelUnderChange = true;
 
-    connect(application, &Application::focusedChanged, this, [this](bool) { onAppDataChanged(RoleFocused); });
+    /*
+        All begin[...]Rows() and end[...]Rows() functions cause signal emissions which can
+        be processed by slots immediately and then trigger yet more model changes.
+
+        The connection below is queued to avoid stacked model change attempts cause by the above,
+        such as attempting to raise the newly focused application while another one is still
+        getting removed from the model.
+     */
+    // TODO: That might not be the case anymore with miral. Investigate if we can do a direct connection now
+    connect(application, &Application::focusedChanged, this, [this](bool) {
+        onAppDataChanged(RoleFocused);
+        Q_EMIT focusedApplicationIdChanged();
+    }, Qt::QueuedConnection);
+
     connect(application, &Application::stateChanged, this, [this](Application::State) { onAppDataChanged(RoleState); });
     connect(application, &Application::closing, this, [this, application]() { onApplicationClosing(application); });
     connect(application, &unityapi::ApplicationInfoInterface::focusRequested, this, [this, application]() {
@@ -795,35 +792,6 @@ void ApplicationManager::onSessionAboutToCreateSurface(
     } else {
         qCDebug(QTMIR_APPLICATIONS).nospace() << "ApplicationManager::onSessionAboutToCreateSurface type=" << type
             << " NOOP";
-    }
-}
-
-void ApplicationManager::updateFocusedApplication()
-{
-    Application *focusedApplication = nullptr;
-    Application *previouslyFocusedApplication = nullptr;
-
-    auto surface = static_cast<qtmir::MirSurfaceInterface*>(MirFocusController::instance()->focusedSurface());
-    if (surface) {
-        focusedApplication = findApplication(surface);
-    }
-
-    surface = static_cast<qtmir::MirSurfaceInterface*>(MirFocusController::instance()->previouslyFocusedSurface());
-    if (surface) {
-        previouslyFocusedApplication = findApplication(surface);
-    }
-
-    if (focusedApplication != previouslyFocusedApplication) {
-        if (focusedApplication) {
-            DEBUG_MSG << "() focused " << focusedApplication->appId();
-            Q_EMIT focusedApplication->focusedChanged(true);
-            this->move(this->m_applications.indexOf(focusedApplication), 0);
-        }
-        if (previouslyFocusedApplication) {
-            DEBUG_MSG << "() unfocused " << previouslyFocusedApplication->appId();
-            Q_EMIT previouslyFocusedApplication->focusedChanged(false);
-        }
-        Q_EMIT focusedApplicationIdChanged();
     }
 }
 

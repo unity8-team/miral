@@ -42,7 +42,6 @@ set(QMLMIRPLUGIN_SRC
     ../../../common/debughelpers.cpp
     dbusfocusinfo.cpp
     plugin.cpp
-    mirfocuscontroller.cpp
     mirsurface.cpp
     mirsurfaceinterface.h
     mirsurfaceitem.cpp
@@ -64,7 +63,6 @@ set(QMLMIRPLUGIN_SRC
     ${APPLICATION_API_INCLUDEDIR}/unity/shell/application/ApplicationInfoInterface.h
     ${APPLICATION_API_INCLUDEDIR}/unity/shell/application/ApplicationManagerInterface.h
     ${APPLICATION_API_INCLUDEDIR}/unity/shell/application/Mir.h
-    ${APPLICATION_API_INCLUDEDIR}/unity/shell/application/MirFocusControllerInterface.h
     ${APPLICATION_API_INCLUDEDIR}/unity/shell/application/MirSurfaceInterface.h
     ${APPLICATION_API_INCLUDEDIR}/unity/shell/application/MirSurfaceItemInterface.h
     ${APPLICATION_API_INCLUDEDIR}/unity/shell/application/MirSurfaceListInterface.h

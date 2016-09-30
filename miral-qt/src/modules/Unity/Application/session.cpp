@@ -233,6 +233,10 @@ void Session::prependSurface(MirSurfaceInterface *newSurface)
             this->removeSurface(newSurface);
         });
     connect(newSurface, &MirSurfaceInterface::focusRequested, this, &SessionInterface::focusRequested);
+    connect(newSurface, &MirSurfaceInterface::focusedChanged, this, [&](bool /*value*/) {
+        // TODO: May want to optimize that in the future.
+        Q_EMIT focusedChanged(focused());
+    });
 
     m_surfaceList.prependSurface(newSurface);
     m_hadSurface = true;
@@ -511,6 +515,18 @@ bool Session::hasClosingSurfaces() const
 bool Session::hadSurface() const
 {
     return m_hadSurface;
+}
+
+bool Session::focused() const
+{
+    for (int i = 0; i < m_surfaceList.count(); ++i) {
+        auto surface = static_cast<const MirSurfaceInterface*>(m_surfaceList.get(i));
+        if (surface->focused()) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 bool Session::activeFocus() const
