@@ -1,6 +1,7 @@
 libmiral.so.1 libmiral1 #MINVER#
  MIRAL_0.1@MIRAL_0.1 0.1.0
  MIRAL_0.2@MIRAL_0.2 0.2.0
+ MIRAL_0.3@MIRAL_0.3 0.3.0
  (c++)"miral::ActiveOutputsListener::advise_output_begin()@MIRAL_0.1" 0.1.0
  (c++)"miral::ActiveOutputsListener::advise_output_create(miral::Output const&)@MIRAL_0.1" 0.1.0
  (c++)"miral::ActiveOutputsListener::advise_output_delete(miral::Output const&)@MIRAL_0.1" 0.1.0
@@ -241,6 +242,8 @@ libmiral.so.1 libmiral1 #MINVER#
  (c++)"miral::WindowSpecification::type() const@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowSpecification::type()@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowSpecification::update(mir::scene::SurfaceCreationParameters&) const@MIRAL_0.1" 0.1.0
+ (c++)"miral::WindowSpecification::userdata()@MIRAL_0.3" 0.3.0
+ (c++)"miral::WindowSpecification::userdata() const@MIRAL_0.3" 0.3.0
  (c++)"miral::WindowSpecification::width_inc() const@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowSpecification::width_inc()@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowSpecification::window_placement_gravity() const@MIRAL_0.1" 0.1.0

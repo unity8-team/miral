@@ -102,6 +102,9 @@ auto miral::BasicWindowManager::add_surface(
     if (spec.parent().is_set() && spec.parent().value().lock())
         window_info.parent(info_for(spec.parent().value()).window());
 
+    if (spec.userdata().is_set())
+        window_info.userdata() = spec.userdata().value();
+
     session_info.add_window(window);
 
     auto const parent = window_info.parent();
@@ -547,6 +550,7 @@ void miral::BasicWindowManager::modify_window(WindowInfo& window_info, WindowSpe
     COPY_IF_SET(output_id);
     COPY_IF_SET(preferred_orientation);
     COPY_IF_SET(confine_pointer);
+    COPY_IF_SET(userdata);
 
 #undef COPY_IF_SET
 

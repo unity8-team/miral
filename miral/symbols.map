@@ -295,3 +295,10 @@ global:
     vtable?for?miral::CursorTheme;
   };
 } MIRAL_0.1;
+
+MIRAL_0.3 {
+global:
+  extern "C++" {
+    miral::WindowSpecification::userdata*;
+  };
+} MIRAL_0.2;
