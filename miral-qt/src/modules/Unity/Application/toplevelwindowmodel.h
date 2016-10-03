@@ -112,7 +112,7 @@ public Q_SLOTS:
     int indexForId(int id) const;
 
     /**
-     * @brief Raises the row with the given id to index 0
+     * @brief Raises the row with the given id to the top of the window stack (index == count-1)
      */
     void raiseId(int id);
 
