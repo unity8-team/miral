@@ -209,6 +209,8 @@ void WindowManagementPolicy::deliver_pointer_event(const MirPointerEvent *event,
 }
 
 /* Methods to allow Shell to request changes to the window stack. Called from the Qt GUI thread */
+
+// raises the window tree and focus it.
 void WindowManagementPolicy::focus(const miral::Window &window)
 {
     m_tools.invoke_under_lock([&window, this]() {
@@ -216,6 +218,7 @@ void WindowManagementPolicy::focus(const miral::Window &window)
     });
 }
 
+// raises the window tree
 void WindowManagementPolicy::raise(const miral::Window &window)
 {
     m_tools.invoke_under_lock([&window, this]() {
