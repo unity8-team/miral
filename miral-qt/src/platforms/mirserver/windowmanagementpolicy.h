@@ -78,6 +78,8 @@ public:
     void focus (const miral::Window &window);
     void resize(const miral::Window &window, const Size size);
     void move  (const miral::Window &window, const Point topLeft);
+    void raise(const miral::Window &window);
+    void requestState(const miral::Window &window, const MirSurfaceState state);
 
     void ask_client_to_close(const miral::Window &window);
 

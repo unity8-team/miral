@@ -50,6 +50,9 @@ class TopLevelWindowModel : public QAbstractListModel
 
     Q_PROPERTY(unity::shell::application::MirSurfaceInterface* inputMethodSurface READ inputMethodSurface NOTIFY inputMethodSurfaceChanged)
 
+    Q_PROPERTY(unity::shell::application::MirSurfaceInterface* focusedSurface READ focusedSurface
+                                                                              NOTIFY focusedSurfaceChanged)
+
 public:
     /**
      * @brief The Roles supported by the model
@@ -76,7 +79,9 @@ public:
 
     int count() const { return rowCount(); }
 
-    MirSurface* inputMethodSurface() const { return m_inputMethodSurface; }
+    unity::shell::application::MirSurfaceInterface* inputMethodSurface() const { return m_inputMethodSurface; }
+
+    unity::shell::application::MirSurfaceInterface* focusedSurface() const;
 
     void setApplicationManager(ApplicationManagerInterface*);
 
@@ -106,6 +111,11 @@ public Q_SLOTS:
      */
     int indexForId(int id) const;
 
+    /**
+     * @brief Raises the row with the given id to the top of the window stack (index == count-1)
+     */
+    void raiseId(int id);
+
 Q_SIGNALS:
     void countChanged();
     void inputMethodSurfaceChanged(unity::shell::application::MirSurfaceInterface* inputMethodSurface);
@@ -117,6 +127,8 @@ Q_SIGNALS:
      */
     void listChanged();
 
+    void focusedSurfaceChanged(unity::shell::application::MirSurfaceInterface *focusedSurface);
+
 private Q_SLOTS:
     void onWindowAdded(const qtmir::NewWindow &windowInfo);
     void onWindowRemoved(const miral::WindowInfo &window);
@@ -126,6 +138,7 @@ private Q_SLOTS:
     void onWindowsRaised(const std::vector<miral::Window> &windows);
 
 private:
+    void doRaiseId(int id);
     int generateId();
     int nextFreeId(int candidateId);
     void connectToWindowModelNotifier(WindowModelNotifier *notifier);
@@ -133,6 +146,7 @@ private:
     int indexOf(MirSurfaceInterface *surface);
 
     void setInputMethodWindow(MirSurface *surface);
+    void setFocusedSurface(MirSurface *surface);
     void removeInputMethodWindow();
     MirSurface* find(const miral::WindowInfo &needle) const;
     int findIndexOf(const miral::Window &needle) const;
@@ -168,6 +182,7 @@ private:
     WindowControllerInterface *m_windowController;
     SessionManager* m_sessionManager;
     MirSurface* m_inputMethodSurface{nullptr};
+    MirSurface* m_focusedSurface{nullptr};
     int m_nextId{1};
     // Just something big enough that we don't risk running out of unused id numbers.
     // Not sure if QML int type supports something close to std::numeric_limits<int>::max() and

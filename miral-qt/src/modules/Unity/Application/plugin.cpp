@@ -20,7 +20,6 @@
 // local
 #include "application.h"
 #include "application_manager.h"
-#include "mirfocuscontroller.h"
 #include "mirsurfaceinterface.h"
 #include "mirsurfaceitem.h"
 #include "mirsurfacelistmodel.h"
@@ -50,11 +49,6 @@ QObject* applicationManagerSingleton(QQmlEngine* engine, QJSEngine* scriptEngine
 QObject* mirSingleton(QQmlEngine* /*engine*/, QJSEngine* /*scriptEngine*/) {
     return qtmir::Mir::instance();
 }
-
-QObject* mirFocusControllerSingleton(QQmlEngine*, QJSEngine*)
-{
-    return MirFocusController::instance();
-}
 } // anonymous namespace
 
 class UnityApplicationPlugin : public QQmlExtensionPlugin {
@@ -80,7 +74,6 @@ class UnityApplicationPlugin : public QQmlExtensionPlugin {
                     uri, 0, 1, "ApplicationInfoInterface", "Abstract interface. Cannot be created in QML");
         qmlRegisterUncreatableType<qtmir::Application>(
                     uri, 0, 1, "ApplicationInfo", "Application can't be instantiated");
-        qmlRegisterSingletonType<MirFocusController>(uri, 0, 1, "MirFocusController", mirFocusControllerSingleton);
         qmlRegisterUncreatableType<unity::shell::application::MirSurfaceInterface>(
                     uri, 0, 1, "MirSurface", "MirSurface can't be instantiated from QML");
         qmlRegisterType<qtmir::MirSurfaceItem>(uri, 0, 1, "MirSurfaceItem");

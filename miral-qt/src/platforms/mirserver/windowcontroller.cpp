@@ -34,6 +34,13 @@ void WindowController::focus(const miral::Window &window)
     }
 }
 
+void WindowController::raise(const miral::Window &window)
+{
+    if (m_policy) {
+        m_policy->raise(window);
+    }
+}
+
 void WindowController::resize(const miral::Window &window, const QSize &size)
 {
     if (m_policy) {
@@ -57,12 +64,13 @@ void WindowController::requestClose(const miral::Window &window)
 
 void WindowController::setActiveFocus(const miral::Window &/*window*/, const bool /*activeFocus*/)
 {
-
 }
 
-void WindowController::setState(const miral::Window &/*window*/, const MirSurfaceState /*state*/)
+void WindowController::requestState(const miral::Window &window, const MirSurfaceState state)
 {
-
+    if (m_policy) {
+        m_policy->requestState(window, state);
+    }
 }
 
 void WindowController::deliverKeyboardEvent(const miral::Window &window, const MirKeyboardEvent *event)
