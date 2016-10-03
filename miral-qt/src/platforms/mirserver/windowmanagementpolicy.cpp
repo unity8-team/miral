@@ -216,17 +216,6 @@ void WindowManagementPolicy::focus(const miral::Window &window)
     });
 }
 
-void WindowManagementPolicy::setFocus(const miral::Window &window, const bool focused)
-{
-    m_tools.invoke_under_lock([&window, focused, this]() {
-        if (focused) {
-            m_tools.select_active_window(window);
-        } else if (m_tools.active_window() == window) {
-            m_tools.select_active_window(miral::Window());
-        }
-    });
-}
-
 void WindowManagementPolicy::raise(const miral::Window &window)
 {
     m_tools.invoke_under_lock([&window, this]() {
