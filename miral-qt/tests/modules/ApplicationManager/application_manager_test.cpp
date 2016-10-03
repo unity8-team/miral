@@ -19,7 +19,6 @@
 #include <condition_variable>
 #include <QSignalSpy>
 
-#include <Unity/Application/mirfocuscontroller.h>
 #include <Unity/Application/timer.h>
 
 #include <fake_mirsurface.h>
@@ -1847,7 +1846,7 @@ TEST_F(ApplicationManagerTests,focusedApplicationId)
     QSignalSpy focusedApplicationIdChangedSpy(&applicationManager,
             &unityapi::ApplicationManagerInterface::focusedApplicationIdChanged);
 
-    MirFocusController::instance()->setFocusedSurface(&surface1);
+    surface1.setFocused(true);
     qtApp.processEvents(); // process queued signal-slot connections
 
     EXPECT_EQ(1, focusedApplicationIdChangedSpy.count());
@@ -1870,16 +1869,18 @@ TEST_F(ApplicationManagerTests,focusedApplicationId)
 
     EXPECT_EQ(Application::InternalState::Running, app2->internalState());
 
-    MirFocusController::instance()->setFocusedSurface(&surface2);
-    qtApp.processEvents(); // process queued signal-slot connections
-
-    EXPECT_EQ(2, focusedApplicationIdChangedSpy.count());
-    EXPECT_EQ(appId2, applicationManager.focusedApplicationId());
-
-    MirFocusController::instance()->setFocusedSurface(&surface1);
+    surface1.setFocused(false);
+    surface2.setFocused(true);
     qtApp.processEvents(); // process queued signal-slot connections
 
     EXPECT_EQ(3, focusedApplicationIdChangedSpy.count());
+    EXPECT_EQ(appId2, applicationManager.focusedApplicationId());
+
+    surface2.setFocused(false);
+    surface1.setFocused(true);
+    qtApp.processEvents(); // process queued signal-slot connections
+
+    EXPECT_EQ(5, focusedApplicationIdChangedSpy.count());
     EXPECT_EQ(appId1, applicationManager.focusedApplicationId());
 }
 

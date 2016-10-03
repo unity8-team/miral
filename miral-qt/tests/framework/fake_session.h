@@ -55,6 +55,7 @@ public:
     void stop() override;
     bool hadSurface() const override;
     bool hasClosingSurfaces() const override;
+    bool focused() const override { return false; }
 
     void close() override;
 

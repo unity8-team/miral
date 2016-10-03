@@ -165,7 +165,13 @@ unsigned int FakeMirSurface::currentFrameNumber() const { return 0; }
 
 bool FakeMirSurface::numBuffersReadyForCompositor() { return 0; }
 
-void FakeMirSurface::setFocused(bool focus) { m_focused = focus; }
+void FakeMirSurface::setFocused(bool focus)
+{
+    if (m_focused != focus) {
+        m_focused = focus;
+        Q_EMIT focusedChanged(m_focused);
+    }
+}
 
 void FakeMirSurface::mousePressEvent(QMouseEvent *) {}
 

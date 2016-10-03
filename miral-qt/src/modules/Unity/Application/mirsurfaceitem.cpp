@@ -18,7 +18,6 @@
 #include "application.h"
 #include "session.h"
 #include "mirsurfaceitem.h"
-#include "mirfocuscontroller.h"
 #include "logging.h"
 #include "tracepoints.h" // generated from tracepoints.tp
 #include "timestamp.h"

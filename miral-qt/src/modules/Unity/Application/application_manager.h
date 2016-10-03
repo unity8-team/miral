@@ -117,7 +117,6 @@ private Q_SLOTS:
     void onSessionAboutToCreateSurface(const std::shared_ptr<mir::scene::Session> &session,
                                        int type, QSize &size);
     void onApplicationClosing(Application *application);
-    void updateFocusedApplication();
 
 private:
     void setFocused(Application *application);
