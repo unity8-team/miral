@@ -255,8 +255,7 @@ bool ApplicationManager::requestFocusApplication(const QString &inputAppId)
 
 QString ApplicationManager::focusedApplicationId() const
 {
-    for (int i = 0; i < m_applications.count(); ++i) {
-        const Application *application = m_applications.at(i);
+    for (const auto application : m_applications) {
         if (application->focused()) {
             return application->appId();
         }
