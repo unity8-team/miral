@@ -80,6 +80,9 @@ miral::WindowInfo::Self::Self(Window window, WindowSpecification const& params) 
 {
     if (params.output_id().is_set())
         output_id = params.output_id().value();
+
+    if (params.userdata().is_set())
+        userdata = params.userdata().value();
 }
 
 miral::WindowInfo::Self::Self() :
