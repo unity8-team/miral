@@ -25,6 +25,8 @@
 #include <mir/geometry/rectangles.h>
 #include <mir/optional_value.h>
 
+#include <algorithm>
+
 namespace miral
 {
 struct WindowInfo
@@ -34,7 +36,7 @@ struct WindowInfo
     WindowInfo();
     WindowInfo(Window const& window, WindowSpecification const& params);
     ~WindowInfo();
-    WindowInfo(WindowInfo const& that);
+    explicit WindowInfo(WindowInfo const& that);
     WindowInfo& operator=(WindowInfo const& that);
 
     bool can_be_active() const;
@@ -111,10 +113,16 @@ struct WindowInfo
     auto userdata() const -> std::shared_ptr<void>;
     void userdata(std::shared_ptr<void> userdata);
 
+    void swap(WindowInfo& rhs) { std::swap(self, rhs.self); }
 private:
     struct Self;
-    std::unique_ptr<Self> const self;
+    std::unique_ptr<Self> self;
 };
+}
+
+namespace std
+{
+template<> inline void swap(miral::WindowInfo& lhs, miral::WindowInfo& rhs) { lhs.swap(rhs); }
 }
 
 #endif //MIRAL_WINDOW_INFO_H
