@@ -427,8 +427,8 @@ TEST_F(WindowModelTest, Raising2BottomWindowsBringsThemToTheTop)
     // 1:   Window2
     // 0:   Window1
 
-    // Raise windows 1 & 2 (currently at bottom)
-    notifier.windowsRaised({newWindow1.windowInfo.window(), newWindow2.windowInfo.window()});
+    // Raise windows 1 & 2 (currently at bottom) so that window 1 is top
+    notifier.windowsRaised({newWindow2.windowInfo.window(), newWindow1.windowInfo.window()});
 
     // Model should now be like this:
     // 2:   Window1
@@ -462,8 +462,8 @@ TEST_F(WindowModelTest, Raising2WindowsInSwappedOrderReordersTheModel)
     // 1:   Window2
     // 0:   Window1
 
-    // Raise windows 1 & 2 (in opposite order)
-    notifier.windowsRaised({newWindow1.windowInfo.window(), newWindow2.windowInfo.window()});
+    // Raise windows 1 & 2 (i.e. flip the order) - 1 should be on top
+    notifier.windowsRaised({newWindow2.windowInfo.window(), newWindow1.windowInfo.window()});
 
     // Model should now be like this:
     // 1:   Window1
@@ -498,8 +498,8 @@ TEST_F(WindowModelTest, With3WindowsRaising2BottomWindowsInSwappedOrderReordersT
     // 1:   Window2
     // 0:   Window1
 
-    // Raise windows 2 & 1 (i.e. bottom two, but in opposite order)
-    notifier.windowsRaised({newWindow2.windowInfo.window(), newWindow1.windowInfo.window()});
+    // Raise windows 2 & 1 (i.e. bottom two, but in opposite order) so that window 2 is top
+    notifier.windowsRaised({newWindow1.windowInfo.window(), newWindow2.windowInfo.window()});
 
     // Model should now be like this:
     // 2:   Window2
