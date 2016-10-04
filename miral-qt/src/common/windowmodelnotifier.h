@@ -28,20 +28,24 @@ namespace qtmir {
 class NewWindow {
 public:
     NewWindow() = default;
-    NewWindow(const miral::WindowInfo &windowInfo, const std::string &persistentId = "")
+    NewWindow(const miral::WindowInfo &windowInfo)
       : windowInfo(windowInfo)
-      , persistentId(persistentId)
       , surface(windowInfo.window())
     {}
 
     miral::WindowInfo windowInfo;
-    std::string persistentId;
 
     // hold copy of Surface shared pointer, as miral::Window has just a weak pointer to the Surface
     // but MirSurface needs to share ownership of the Surface with Mir
     std::shared_ptr<mir::scene::Surface> surface;
 };
 
+struct ExtraWindowInfo {
+    QString persistentId;
+    MirSurfaceState previousState{mir_surface_state_unknown};
+};
+
+std::shared_ptr<ExtraWindowInfo> getExtraInfo(const miral::WindowInfo &windowInfo);
 
 class WindowModelNotifier : public QObject
 {
