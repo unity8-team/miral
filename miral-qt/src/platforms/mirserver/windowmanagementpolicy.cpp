@@ -26,6 +26,12 @@
 #include <mir/scene/surface.h>
 #include <QDebug>
 
+namespace qtmir {
+    std::shared_ptr<ExtraWindowInfo> getExtraInfo(const miral::WindowInfo &windowInfo) {
+        return std::static_pointer_cast<ExtraWindowInfo>(windowInfo.userdata());
+    }
+}
+
 using namespace qtmir;
 
 WindowManagementPolicy::WindowManagementPolicy(const miral::WindowManagerTools &tools,
@@ -51,6 +57,9 @@ miral::WindowSpecification WindowManagementPolicy::place_new_surface(
     const miral::WindowSpecification &request_parameters)
 {
     auto parameters = CanonicalWindowManagerPolicy::place_new_surface(app_info, request_parameters);
+
+    parameters.userdata() = std::make_shared<ExtraWindowInfo>();
+
     qDebug() << "Place surface" << parameters.top_left().value().x.as_int();
     return parameters;
 }
@@ -100,9 +109,10 @@ bool WindowManagementPolicy::handle_pointer_event(const MirPointerEvent *event)
 void WindowManagementPolicy::advise_new_window(const miral::WindowInfo &windowInfo)
 {
     // TODO: attach surface observer here
-    std::string persistentId = m_tools.id_for_window(windowInfo.window());
 
-    Q_EMIT m_windowModel.windowAdded(NewWindow{windowInfo, persistentId});
+    getExtraInfo(windowInfo)->persistentId = QString::fromStdString(m_tools.id_for_window(windowInfo.window()));
+
+    Q_EMIT m_windowModel.windowAdded(NewWindow{windowInfo});
 }
 
 void WindowManagementPolicy::advise_delete_window(const miral::WindowInfo &windowInfo)
@@ -211,9 +221,21 @@ void WindowManagementPolicy::deliver_pointer_event(const MirPointerEvent *event,
 /* Methods to allow Shell to request changes to the window stack. Called from the Qt GUI thread */
 
 // raises the window tree and focus it.
-void WindowManagementPolicy::focus(const miral::Window &window)
+void WindowManagementPolicy::activate(const miral::Window &window)
 {
-    m_tools.invoke_under_lock([&window, this]() {
+    auto &windowInfo = m_tools.info_for(window);
+
+    m_tools.invoke_under_lock([&]() {
+
+        // restore from minimized if needed
+        if (windowInfo.state() == mir_surface_state_minimized) {
+            auto extraInfo = getExtraInfo(windowInfo);
+            miral::WindowSpecification modifications;
+            modifications.state() = extraInfo->previousState;
+
+            m_tools.modify_window(windowInfo, modifications);
+        }
+
         m_tools.select_active_window(window);
     });
 }
@@ -265,9 +287,19 @@ void WindowManagementPolicy::ask_client_to_close(const miral::Window &window)
 
 void WindowManagementPolicy::requestState(const miral::Window &window, const MirSurfaceState state)
 {
+    auto &windowInfo = m_tools.info_for(window);
+
+    if (windowInfo.state() == state)
+        return;
+
     miral::WindowSpecification modifications;
     modifications.state() = state;
+
+    // TODO: What if the window modification fails? Is that possible?
+    //       Assuming here that the state will indeed change
+    getExtraInfo(windowInfo)->previousState = windowInfo.state();
+
     m_tools.invoke_under_lock([&]() {
-        m_tools.modify_window(m_tools.info_for(window), modifications);
+        m_tools.modify_window(windowInfo, modifications);
     });
 }
