@@ -427,8 +427,8 @@ TEST_F(WindowModelTest, Raising2BottomWindowsBringsThemToTheTop)
     // 1:   Window2
     // 0:   Window1
 
-    // Raise windows 1 & 2 (currently at bottom)
-    notifier.windowsRaised({newWindow1.windowInfo.window(), newWindow2.windowInfo.window()});
+    // Raise windows 1 & 2 (currently at bottom) so that window 1 is top
+    notifier.windowsRaised({newWindow2.windowInfo.window(), newWindow1.windowInfo.window()});
 
     // Model should now be like this:
     // 2:   Window1
@@ -462,8 +462,8 @@ TEST_F(WindowModelTest, Raising2WindowsInSwappedOrderReordersTheModel)
     // 1:   Window2
     // 0:   Window1
 
-    // Raise windows 1 & 2 (in opposite order)
-    notifier.windowsRaised({newWindow1.windowInfo.window(), newWindow2.windowInfo.window()});
+    // Raise windows 1 & 2 (i.e. flip the order) - 1 should be on top
+    notifier.windowsRaised({newWindow2.windowInfo.window(), newWindow1.windowInfo.window()});
 
     // Model should now be like this:
     // 1:   Window1
@@ -498,8 +498,8 @@ TEST_F(WindowModelTest, With3WindowsRaising2BottomWindowsInSwappedOrderReordersT
     // 1:   Window2
     // 0:   Window1
 
-    // Raise windows 2 & 1 (i.e. bottom two, but in opposite order)
-    notifier.windowsRaised({newWindow2.windowInfo.window(), newWindow1.windowInfo.window()});
+    // Raise windows 2 & 1 (i.e. bottom two, but in opposite order) so that window 2 is top
+    notifier.windowsRaised({newWindow1.windowInfo.window(), newWindow2.windowInfo.window()});
 
     // Model should now be like this:
     // 2:   Window2
@@ -623,77 +623,6 @@ TEST_F(WindowModelTest, DISABLED_MirSurfaceSizeSetCorrectlyAtCreation)
 
     auto surface = getMirSurfaceFromModel(model, 0);
     EXPECT_EQ(size, surface->size());
-}
-
-/*
- * Test: Mir resizing a window updates MirSurface size
- */
-TEST_F(WindowModelTest, WindowResizeUpdatesMirSurface)
-{
-    WindowModelNotifier notifier;
-    WindowModel model(&notifier, nullptr); // no need for controller in this testcase
-
-    QSize newSize(150, 220);
-
-    auto newWindow1 = createNewWindow(QPoint(), QSize(300, 200));
-    notifier.windowAdded(newWindow1);
-
-    auto surface = getMirSurfaceFromModel(model, 0);
-
-    // Resize window, check new size set
-    notifier.windowResized(newWindow1.windowInfo, newSize);
-    flushEvents();
-
-    EXPECT_EQ(newSize, surface->size());
-}
-
-/*
- * Test: with 2 windows, ensure window resize impacts the correct MirSurface
- */
-TEST_F(WindowModelTest, WindowResizeUpdatesCorrectMirSurface)
-{
-    WindowModelNotifier notifier;
-    WindowModel model(&notifier, nullptr); // no need for controller in this testcase
-
-    QSize newSize(150, 220);
-
-    auto newWindow1 = createNewWindow(QPoint(), QSize(100, 200));
-    auto newWindow2 = createNewWindow(QPoint(), QSize(300, 400));
-    notifier.windowAdded(newWindow1);
-    notifier.windowAdded(newWindow2);
-
-    auto surface = getMirSurfaceFromModel(model, 0);
-
-    // Resize window, check new size set
-    notifier.windowResized(newWindow1.windowInfo, newSize);
-    flushEvents();
-
-    EXPECT_EQ(newSize, surface->size());
-}
-
-/*
- * Test: with 2 windows, ensure window resize does not impact other MirSurfaces
- */
-TEST_F(WindowModelTest, WindowResizeDoesNotTouchOtherMirSurfaces)
-{
-    WindowModelNotifier notifier;
-    WindowModel model(&notifier, nullptr); // no need for controller in this testcase
-
-    QSize fixedSize(300, 400);
-
-    auto newWindow1 = createNewWindow(QPoint(), QSize(100, 200));
-    auto newWindow2 = createNewWindow(QPoint(), fixedSize);
-    notifier.windowAdded(newWindow1);
-    notifier.windowAdded(newWindow2);
-
-    auto surface = getMirSurfaceFromModel(model, 1);
-
-    // Resize window
-    notifier.windowResized(newWindow1.windowInfo, QSize(150, 220));
-    flushEvents();
-
-    // Ensure other window untouched
-    EXPECT_EQ(fixedSize, surface->size());
 }
 
 /*

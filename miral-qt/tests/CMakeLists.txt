@@ -5,6 +5,8 @@ endif()
 
 pkg_check_modules(MIRTEST mirtest>=0.24 REQUIRED)
 
+unset(CMAKE_RUNTIME_OUTPUT_DIRECTORY) #stop miral copying built tests into bin dir
+
 add_subdirectory(framework)
 add_subdirectory(mirserver)
 add_subdirectory(modules)
