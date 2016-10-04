@@ -33,10 +33,8 @@ public:
     WindowControllerInterface() = default;
     virtual ~WindowControllerInterface() = default;
 
-    // focus() asks Mir to bring particular window to the front and recommend to shell that it be focused
-    virtual void focus (const miral::Window &window) = 0;
-    // setActiveFocus() is how shell notifies Mir/application that a window actually has input focus
-    virtual void setActiveFocus(const miral::Window &window, const bool activeFocus) = 0;
+    // activate() asks Mir to bring particular window to the front and recommend to shell that it be focused
+    virtual void activate (const miral::Window &window) = 0;
     virtual void raise(const miral::Window &window) = 0;
 
     virtual void resize(const miral::Window &window, const QSize &size) = 0;

@@ -29,14 +29,13 @@ public:
     WindowController();
     virtual ~WindowController() = default;
 
-    void focus (const miral::Window &window) override;
+    void activate(const miral::Window &window) override;
     void raise(const miral::Window &window) override;
     void resize(const miral::Window &window, const QSize &size) override;
     void move  (const miral::Window &window, const QPoint &topLeft) override;
 
     void requestClose(const miral::Window &window) override;
 
-    void setActiveFocus(const miral::Window &window, const bool activeFocus) override;
     void requestState(const miral::Window &window, const MirSurfaceState state) override;
 
     void deliverKeyboardEvent(const miral::Window &window, const MirKeyboardEvent *event) override;

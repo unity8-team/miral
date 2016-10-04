@@ -23,8 +23,7 @@ namespace qtmir {
 
 struct StubWindowModelController : public WindowControllerInterface
 {
-    void focus (const miral::Window &/*window*/) override { return; }
-    void setActiveFocus(const miral::Window &/*window*/, const bool /*activeFocus*/) override { return; }
+    void activate (const miral::Window &/*window*/) override { return; }
     void raise(const miral::Window &/*window*/) override {};
 
     void resize(const miral::Window &/*window*/, const QSize &/*size*/) override { return; }

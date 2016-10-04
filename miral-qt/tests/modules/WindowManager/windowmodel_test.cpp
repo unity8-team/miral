@@ -67,7 +67,7 @@ public:
 //        windowSpec.of_size(toMirSize(size)); // useless, Window/Surface has the size actually used
         windowSpec.of_position(toMirPoint(position));
         miral::WindowInfo windowInfo{window, windowSpec};
-        return NewWindow{windowInfo, ""};
+        return NewWindow{windowInfo};
     }
 
     NewWindow createNewWindowForInputMethod()
@@ -78,7 +78,7 @@ public:
         ms::SurfaceCreationParameters windowSpec;
         windowSpec.of_type(mir_surface_type_inputmethod);
         miral::WindowInfo windowInfo{window, windowSpec};
-        return NewWindow{windowInfo, ""};
+        return NewWindow{windowInfo};
     }
 
     NewWindow createNewWindowWithState(Mir::State state)
@@ -89,7 +89,7 @@ public:
         ms::SurfaceCreationParameters windowSpec;
         windowSpec.with_state(qtmir::toMirState(state));
         miral::WindowInfo windowInfo{window, windowSpec};
-        return NewWindow{windowInfo, ""};
+        return NewWindow{windowInfo};
     }
 
     MirSurface *getMirSurfaceFromModel(const WindowModel &model, int index)
@@ -764,7 +764,7 @@ public:
         ms::SurfaceCreationParameters windowSpec;
         windowSpec.with_state(qtmir::toMirState(state));
         miral::WindowInfo windowInfo{window, windowSpec};
-        return NewWindow{windowInfo, ""};
+        return NewWindow{windowInfo};
     }
 };
 

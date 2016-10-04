@@ -194,7 +194,6 @@ private:
     std::shared_ptr<mir::scene::Surface> m_surface; // keep copy of the Surface for lifecycle
     QPointer<SessionInterface> m_session;
     WindowControllerInterface *const m_controller;
-    QString m_persistentId;
     bool m_firstFrameDrawn;
 
     //FIXME -  have to save the state as Mir has no getter for it (bug:1357429)
