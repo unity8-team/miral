@@ -448,7 +448,7 @@ MirSurface *TopLevelWindowModel::find(const miral::WindowInfo &needle) const
 {
     auto window = needle.window();
     Q_FOREACH(const auto entry, m_windowModel) {
-        if (entry.surface->window() == window) {
+        if (entry.surface && entry.surface->window() == window) {
             return entry.surface;
         }
     }
@@ -577,7 +577,9 @@ void TopLevelWindowModel::doRaiseId(int id)
         if (surface) {
             m_windowController->raise(surface->window());
         } else {
-            // call onWindowRaised()
+            // move it ourselves. Since there's no mir::scene::Surface/miral::Window, there's nothing
+            // miral can do about it.
+            move(fromIndex, m_windowModel.count() - 1);
         }
     }
 }
@@ -594,4 +596,28 @@ void TopLevelWindowModel::setFocusedSurface(MirSurface *surface)
 unityapi::MirSurfaceInterface* TopLevelWindowModel::focusedSurface() const
 {
     return m_focusedSurface;
+}
+
+void TopLevelWindowModel::move(int from, int to)
+{
+    if (from == to) return;
+    DEBUG_MSG << " from=" << from << " to=" << to;
+
+    if (from >= 0 && from < m_windowModel.size() && to >= 0 && to < m_windowModel.size()) {
+        QModelIndex parent;
+        /* When moving an item down, the destination index needs to be incremented
+           by one, as explained in the documentation:
+           http://qt-project.org/doc/qt-5.0/qtcore/qabstractitemmodel.html#beginMoveRows */
+
+        Q_ASSERT(m_modelState == IdleState);
+        m_modelState = MovingState;
+
+        beginMoveRows(parent, from, from, parent, to + (to > from ? 1 : 0));
+        m_windowModel.move(from, to);
+        endMoveRows();
+
+        m_modelState = IdleState;
+
+        DEBUG_MSG << " after " << toString();
+    }
 }

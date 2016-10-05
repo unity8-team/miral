@@ -166,6 +166,8 @@ private:
     void onSurfaceDied(MirSurfaceInterface *surface);
     void onSurfaceDestroyed(MirSurfaceInterface *surface);
 
+    void move(int from, int to);
+
     struct ModelEntry {
         ModelEntry() {}
         ModelEntry(MirSurface *surface,
