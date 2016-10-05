@@ -120,6 +120,9 @@ bool TitlebarWindowManagerPolicy::handle_pointer_event(MirPointerEvent const* ev
 
 void TitlebarWindowManagerPolicy::end_resize()
 {
+    if (!resizing  && !pinching)
+        return;
+
     if (auto window = tools.active_window())
     {
         auto& window_info = tools.info_for(window);
