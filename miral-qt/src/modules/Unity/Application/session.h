@@ -23,18 +23,16 @@
 // local
 #include "session_interface.h"
 #include "mirsurfacelistmodel.h"
+#include "promptsessionmanager.h"
 #include "timer.h"
 
 // Qt
 #include <QObject>
 
-namespace mir {
-    namespace scene {
-        class PromptSessionManager;
-    }
-}
 
 namespace qtmir {
+
+class PromptSessionManager;
 
 class Application;
 
@@ -43,7 +41,7 @@ class Session : public SessionInterface
     Q_OBJECT
 public:
     explicit Session(const std::shared_ptr<mir::scene::Session>& session,
-                     const std::shared_ptr<mir::scene::PromptSessionManager>& promptSessionManager,
+                     const std::shared_ptr<PromptSessionManager>& promptSessionManager,
                      QObject *parent = 0);
     virtual ~Session();
 
@@ -121,7 +119,7 @@ protected:
     bool m_live;
     AbstractTimer* m_suspendTimer{nullptr};
     QVector<std::shared_ptr<mir::scene::PromptSession>> m_promptSessions;
-    std::shared_ptr<mir::scene::PromptSessionManager> const m_promptSessionManager;
+    std::shared_ptr<PromptSessionManager> const m_promptSessionManager;
     QList<MirSurfaceInterface*> m_closingSurfaces;
     bool m_hadSurface{false};
 };

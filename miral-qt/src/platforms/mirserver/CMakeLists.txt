@@ -87,6 +87,7 @@ set(MIRSERVER_QPA_PLUGIN_SRC
     tracepoints.c
     mirserverhooks.cpp mirserverhooks.h
     openglcontextfactory.cpp openglcontextfactory.h
+    promptsessionmanager.cpp promptsessionmanager.h
     setqtcompositor.cpp setqtcompositor.h
 # We need to run moc on these headers
     ${APPLICATION_API_INCLUDEDIR}/unity/shell/application/Mir.h

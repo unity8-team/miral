@@ -29,6 +29,7 @@
 #include <Unity/Application/session_interface.h>
 #include <Unity/Application/sharedwakelock.h>
 #include <Unity/Application/proc_info.h>
+#include "promptsessionmanager.h"
 
 #include "mock_proc_info.h"
 #include "mock_mir_session.h"
@@ -66,12 +67,14 @@ public:
 
     Application* startApplication(pid_t procId, QString const& appId);
 
+
     QSharedPointer<qtmir::TaskController> taskControllerSharedPointer{new testing::NiceMock<qtmir::MockTaskController>};
     testing::NiceMock<qtmir::MockTaskController> *taskController{static_cast<testing::NiceMock<qtmir::MockTaskController>*>(taskControllerSharedPointer.data())};
     testing::NiceMock<MockProcInfo> procInfo;
     testing::NiceMock<MockSharedWakelock> sharedWakelock;
     testing::NiceMock<MockSettings> settings;
-    std::shared_ptr<StubPromptSessionManager> promptSessionManager;
+    std::shared_ptr<StubPromptSessionManager> stubPromptSessionManager{std::make_shared<StubPromptSessionManager>()};
+    std::shared_ptr<qtmir::PromptSessionManager> promptSessionManager{std::make_shared<qtmir::PromptSessionManager>(stubPromptSessionManager)};
     std::shared_ptr<StubPersistentSurfaceStore> persistentSurfaceStore;
 
     ApplicationManager applicationManager;

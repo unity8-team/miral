@@ -229,7 +229,7 @@ TEST_F(SessionTests, SuspendPromptSessionWhenSessionSuspends)
     auto mirPromptSession = std::make_shared<ms::MockPromptSession>();
     session->appendPromptSession(mirPromptSession);
 
-    EXPECT_CALL(*promptSessionManager, suspend_prompt_session(_)).Times(1);
+    EXPECT_CALL(*stubPromptSessionManager, suspend_prompt_session(_)).Times(1);
 
     EXPECT_CALL(*mirSession, set_lifecycle_state(mir_lifecycle_state_will_suspend));
     session->suspend();
@@ -267,7 +267,7 @@ TEST_F(SessionTests, ResumePromptSessionWhenSessionResumes)
     auto mirPromptSession = std::make_shared<ms::MockPromptSession>();
     session->appendPromptSession(mirPromptSession);
 
-    EXPECT_CALL(*promptSessionManager, resume_prompt_session(_)).Times(1);
+    EXPECT_CALL(*stubPromptSessionManager, resume_prompt_session(_)).Times(1);
 
     EXPECT_CALL(*mirSession, set_lifecycle_state(mir_lifecycle_state_resumed));
     session->resume();
@@ -284,7 +284,7 @@ TEST_F(SessionTests, SessionStopsWhileSuspendingDoesntSuspend)
     {
     public:
         SessionTestClass(const std::shared_ptr<mir::scene::Session>& session,
-                         const std::shared_ptr<mir::scene::PromptSessionManager>& promptSessionManager)
+                         const std::shared_ptr<qtmir::PromptSessionManager>& promptSessionManager)
             : Session(session, promptSessionManager) {}
 
         using Session::m_suspendTimer;

@@ -30,7 +30,6 @@
 
 // mir
 #include <mir/scene/prompt_session.h>
-#include <mir/scene/prompt_session_manager.h>
 #include <mir/scene/session.h>
 #include <mir/report_exception.h>
 
@@ -94,7 +93,7 @@ catch (...)
 }
 
 SessionManager::SessionManager(
-        const std::shared_ptr<mir::scene::PromptSessionManager>& promptSessionManager,
+        const std::shared_ptr<qtmir::PromptSessionManager>& promptSessionManager,
         ApplicationManager* applicationManager,
         QObject *parent)
     : SessionModel(parent)
@@ -160,7 +159,7 @@ void SessionManager::onPromptSessionStarting(const std::shared_ptr<ms::PromptSes
 {
     qCDebug(QTMIR_SESSIONS) << "SessionManager::onPromptSessionStarting - promptSession=" << promptSession.get();
 
-    std::shared_ptr<mir::scene::Session> appSession = m_promptSessionManager->application_for(promptSession);
+    std::shared_ptr<mir::scene::Session> appSession = m_promptSessionManager->applicationFor(promptSession);
     SessionInterface *qmlAppSession = findSession(appSession.get());
     if (qmlAppSession) {
         m_mirPromptToSessionHash[promptSession.get()] = qmlAppSession;
