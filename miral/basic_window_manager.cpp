@@ -737,7 +737,7 @@ void miral::BasicWindowManager::place_and_size_for_state(
 
     auto restore_rect = window_info.restore_rect();
 
-    // window_info.restore_rect() was cached on last state change, update to reflect current window position 
+    // window_info.restore_rect() was cached on last state change, update to reflect current window position
     switch (window_info.state())
     {
     case mir_surface_state_restored:
@@ -767,7 +767,7 @@ void miral::BasicWindowManager::place_and_size_for_state(
     if (modifications.top_left().is_set())
         restore_rect.top_left = modifications.top_left().value();
 
-    // If the client or shell has also set size, that overrides restore_rect default 
+    // If the client or shell has also set size, that overrides restore_rect default
     if (modifications.size().is_set())
         restore_rect.size = modifications.size().value();
 
