@@ -17,13 +17,14 @@
 #ifndef QTMIR_PROMPTSESSIONMANAGER_H
 #define QTMIR_PROMPTSESSIONMANAGER_H
 
+#include <miral/application.h>
+
 #include <memory>
 
 namespace mir {
 namespace scene {
 class PromptSession;
 class PromptSessionManager;
-class Session;
 }
 }
 
@@ -34,7 +35,7 @@ public:
     explicit PromptSessionManager(std::shared_ptr<mir::scene::PromptSessionManager> const& promptSessionManager);
     virtual ~PromptSessionManager();
 
-    std::shared_ptr<mir::scene::Session> applicationFor(std::shared_ptr<mir::scene::PromptSession> const& promptSession) const;
+    miral::Application applicationFor(std::shared_ptr<mir::scene::PromptSession> const& promptSession) const;
 
     void stopPromptSession(std::shared_ptr<mir::scene::PromptSession> const& promptSession) const;
     void suspendPromptSession(std::shared_ptr<mir::scene::PromptSession> const& promptSession) const;

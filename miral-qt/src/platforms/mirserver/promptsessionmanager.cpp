@@ -25,7 +25,7 @@ qtmir::PromptSessionManager::PromptSessionManager(std::shared_ptr<mir::scene::Pr
 
 qtmir::PromptSessionManager::~PromptSessionManager() = default;
 
-std::shared_ptr<mir::scene::Session> qtmir::PromptSessionManager::applicationFor(
+miral::Application qtmir::PromptSessionManager::applicationFor(
     std::shared_ptr<mir::scene::PromptSession> const& promptSession) const
 {
     return m_promptSessionManager->application_for(promptSession);

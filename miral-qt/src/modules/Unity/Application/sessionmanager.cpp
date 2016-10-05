@@ -30,7 +30,6 @@
 
 // mir
 #include <mir/scene/prompt_session.h>
-#include <mir/scene/prompt_session_manager.h>
 #include <mir/scene/session.h>
 #include <mir/report_exception.h>
 
