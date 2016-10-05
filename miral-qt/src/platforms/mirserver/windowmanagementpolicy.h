@@ -75,7 +75,7 @@ public:
     void deliver_touch_event   (const MirTouchEvent *event,    const miral::Window &window);
     void deliver_pointer_event (const MirPointerEvent *event,  const miral::Window &window);
 
-    void focus (const miral::Window &window);
+    void activate(const miral::Window &window);
     void resize(const miral::Window &window, const Size size);
     void move  (const miral::Window &window, const Point topLeft);
     void raise(const miral::Window &window);

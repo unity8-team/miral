@@ -27,10 +27,10 @@ WindowController::WindowController()
 {
 }
 
-void WindowController::focus(const miral::Window &window)
+void WindowController::activate(const miral::Window &window)
 {
     if (m_policy) {
-        m_policy->focus(window);
+        m_policy->activate(window);
     }
 }
 
@@ -60,10 +60,6 @@ void WindowController::requestClose(const miral::Window &window)
     if (m_policy) {
         m_policy->ask_client_to_close(window);
     }
-}
-
-void WindowController::setActiveFocus(const miral::Window &/*window*/, const bool /*activeFocus*/)
-{
 }
 
 void WindowController::requestState(const miral::Window &window, const MirSurfaceState state)

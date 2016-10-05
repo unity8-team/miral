@@ -76,7 +76,6 @@ MirSurface::MirSurface(NewWindow newWindowInfo,
     , m_surface(newWindowInfo.surface)
     , m_session(session)
     , m_controller(controller)
-    , m_persistentId(QString::fromStdString(newWindowInfo.persistentId))
     , m_firstFrameDrawn(false)
     , m_orientationAngle(Mir::Angle0)
     , m_textureUpdated(false)
@@ -469,7 +468,7 @@ QString MirSurface::name() const
 
 QString MirSurface::persistentId() const
 {
-    return m_persistentId;
+    return getExtraInfo(m_windowInfo)->persistentId;
 }
 
 void MirSurface::requestState(Mir::State state)
@@ -872,7 +871,7 @@ bool MirSurface::confinesMousePointer() const
 void MirSurface::requestFocus()
 {
     DEBUG_MSG << "()";
-    m_controller->focus(m_windowInfo.window());
+    m_controller->activate(m_windowInfo.window());
 }
 
 void MirSurface::raise()
