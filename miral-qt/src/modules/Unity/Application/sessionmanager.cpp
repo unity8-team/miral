@@ -94,7 +94,7 @@ catch (...)
 }
 
 SessionManager::SessionManager(
-        const std::shared_ptr<mir::scene::PromptSessionManager>& promptSessionManager,
+        const std::shared_ptr<qtmir::PromptSessionManager>& promptSessionManager,
         ApplicationManager* applicationManager,
         QObject *parent)
     : SessionModel(parent)

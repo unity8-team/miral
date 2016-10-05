@@ -21,6 +21,7 @@
 #include "mirdisplayconfigurationpolicy.h"
 #include "windowmanagementpolicy.h"
 #include "argvHelper.h"
+#include "promptsessionmanager.h"
 #include "setqtcompositor.h"
 
 // miral
@@ -59,9 +60,9 @@ QPlatformOpenGLContext *QMirServerPrivate::createPlatformOpenGLContext(QOpenGLCo
     return m_openGLContextFactory.createPlatformOpenGLContext(context->format(), *m_mirServerHooks.theMirDisplay());
 }
 
-std::shared_ptr<mir::scene::PromptSessionManager> QMirServerPrivate::promptSessionManager() const
+std::shared_ptr<qtmir::PromptSessionManager> QMirServerPrivate::promptSessionManager() const
 {
-    return m_mirServerHooks.thePromptSessionManager();
+    return std::make_shared<qtmir::PromptSessionManager>(m_mirServerHooks.thePromptSessionManager());
 }
 
 QMirServerPrivate::QMirServerPrivate(int argc, char *argv[]) :

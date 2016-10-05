@@ -62,7 +62,7 @@ TEST_F(SessionManagerTests, sessionTracksPromptSession)
     EXPECT_TRUE(qtmirAppSession != nullptr);
 
     auto promptSession = std::make_shared<ms::MockPromptSession>();
-    ON_CALL(*promptSessionManager, application_for(_)).WillByDefault(Return(mirAppSession));
+    ON_CALL(*stubPromptSessionManager, application_for(_)).WillByDefault(Return(mirAppSession));
 
     sessionManager.onPromptSessionStarting(promptSession);
 
@@ -87,8 +87,8 @@ TEST_F(SessionManagerTests, TestPromptSession)
     SessionInterface* qtmirAppSession = sessionManager.findSession(mirAppSession.get());
     EXPECT_TRUE(qtmirAppSession != nullptr);
 
-    EXPECT_CALL(*promptSessionManager, application_for(_)).WillRepeatedly(Return(mirAppSession));
-    EXPECT_CALL(*promptSessionManager, helper_for(_)).WillRepeatedly(Return(nullptr));
+    EXPECT_CALL(*stubPromptSessionManager, application_for(_)).WillRepeatedly(Return(mirAppSession));
+    EXPECT_CALL(*stubPromptSessionManager, helper_for(_)).WillRepeatedly(Return(nullptr));
 
     std::shared_ptr<ms::PromptSession> mirPromptSession = std::make_shared<ms::MockPromptSession>();
 
@@ -99,7 +99,7 @@ TEST_F(SessionManagerTests, TestPromptSession)
     sessionManager.onSessionStarting(providerAppInfo);
     SessionInterface* qtmirProviderSession = sessionManager.findSession(mirProviderSession.get());
 
-    EXPECT_CALL(*promptSessionManager, for_each_provider_in(mirPromptSession,_)).WillRepeatedly(WithArgs<1>(Invoke(
+    EXPECT_CALL(*stubPromptSessionManager, for_each_provider_in(mirPromptSession,_)).WillRepeatedly(WithArgs<1>(Invoke(
         [&](std::function<void(std::shared_ptr<ms::Session> const& prompt_provider)> const& f) {
             f(mirProviderSession);
         })));
@@ -115,7 +115,7 @@ TEST_F(SessionManagerTests, TestPromptSession)
 
     EXPECT_THAT(listChildSessions(qtmirAppSession), ElementsAre(qtmirProviderSession));
 
-    EXPECT_CALL(*promptSessionManager, for_each_provider_in(mirPromptSession,_)).WillRepeatedly(InvokeWithoutArgs([]{}));
+    EXPECT_CALL(*stubPromptSessionManager, for_each_provider_in(mirPromptSession,_)).WillRepeatedly(InvokeWithoutArgs([]{}));
 
     EXPECT_EQ(qtmirProviderSession->live(), true);
     sessionManager.onPromptProviderRemoved(mirPromptSession.get(), mirProviderSession);

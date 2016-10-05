@@ -23,8 +23,8 @@
 
 #include <memory>
 
-// mir
-namespace mir { namespace scene { class PromptSessionManager; }}
+// qtmir
+namespace qtmir { class PromptSessionManager; }
 
 class QMirServerPrivate;
 class ScreensController;
@@ -47,7 +47,7 @@ public:
     QSharedPointer<ScreensModel> screensModel() const;
     QPlatformOpenGLContext *createPlatformOpenGLContext(QOpenGLContext *context) const;
     void *nativeResourceForIntegration(const QByteArray &resource) const;
-    std::shared_ptr<mir::scene::PromptSessionManager> thePromptSessionManager() const;
+    std::shared_ptr<qtmir::PromptSessionManager> thePromptSessionManager() const;
 
 Q_SIGNALS:
     void started();

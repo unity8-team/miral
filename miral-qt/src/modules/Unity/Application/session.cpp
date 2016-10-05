@@ -27,7 +27,6 @@
 // mir
 #include <mir/scene/session.h>
 #include <mir/scene/prompt_session.h>
-#include <mir/scene/prompt_session_manager.h>
 
 // Qt
 #include <QPainter>
@@ -65,7 +64,7 @@ const char *sessionStateToString(SessionInterface::State state)
 }
 
 Session::Session(const std::shared_ptr<ms::Session>& session,
-                 const std::shared_ptr<ms::PromptSessionManager>& promptSessionManager,
+                 const std::shared_ptr<PromptSessionManager>& promptSessionManager,
                  QObject *parent)
     : SessionInterface(parent)
     , m_session(session)

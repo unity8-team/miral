@@ -52,7 +52,7 @@ class SessionManager : public SessionModel
 
 public:
     explicit SessionManager(
-        const std::shared_ptr<mir::scene::PromptSessionManager>& promptSessionManager,
+        const std::shared_ptr<PromptSessionManager>& promptSessionManager,
         ApplicationManager* applicationManager,
         QObject *parent = 0
     );
@@ -78,7 +78,7 @@ public Q_SLOTS:
 protected:
 
 private:
-    const std::shared_ptr<mir::scene::PromptSessionManager> m_promptSessionManager;
+    const std::shared_ptr<PromptSessionManager> m_promptSessionManager;
     ApplicationManager* m_applicationManager;
     static SessionManager *the_session_manager;
 
