@@ -34,11 +34,11 @@ public:
     explicit PromptSessionManager(std::shared_ptr<mir::scene::PromptSessionManager> const& promptSessionManager);
     virtual ~PromptSessionManager();
 
-    std::shared_ptr<mir::scene::Session> application_for(std::shared_ptr<mir::scene::PromptSession> const& prompt_session) const;
+    std::shared_ptr<mir::scene::Session> applicationFor(std::shared_ptr<mir::scene::PromptSession> const& promptSession) const;
 
-    void stop_prompt_session(std::shared_ptr<mir::scene::PromptSession> const& prompt_session) const;
-    void suspend_prompt_session(std::shared_ptr<mir::scene::PromptSession> const& prompt_session) const;
-    void resume_prompt_session(std::shared_ptr<mir::scene::PromptSession> const& prompt_session) const;
+    void stopPromptSession(std::shared_ptr<mir::scene::PromptSession> const& promptSession) const;
+    void suspendPromptSession(std::shared_ptr<mir::scene::PromptSession> const& promptSession) const;
+    void resumePromptSession(std::shared_ptr<mir::scene::PromptSession> const& promptSession) const;
 
 private:
     std::shared_ptr<mir::scene::PromptSessionManager> const m_promptSessionManager;

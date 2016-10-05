@@ -160,7 +160,7 @@ void SessionManager::onPromptSessionStarting(const std::shared_ptr<ms::PromptSes
 {
     qCDebug(QTMIR_SESSIONS) << "SessionManager::onPromptSessionStarting - promptSession=" << promptSession.get();
 
-    std::shared_ptr<mir::scene::Session> appSession = m_promptSessionManager->application_for(promptSession);
+    std::shared_ptr<mir::scene::Session> appSession = m_promptSessionManager->applicationFor(promptSession);
     SessionInterface *qmlAppSession = findSession(appSession.get());
     if (qmlAppSession) {
         m_mirPromptToSessionHash[promptSession.get()] = qmlAppSession;

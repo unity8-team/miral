@@ -295,7 +295,7 @@ void Session::suspend()
         m_suspendTimer->start();
 
         foreachPromptSession([this](const std::shared_ptr<ms::PromptSession>& promptSession) {
-            m_promptSessionManager->suspend_prompt_session(promptSession);
+            m_promptSessionManager->suspendPromptSession(promptSession);
         });
 
         foreachChildSession([](SessionInterface* session) {
@@ -327,7 +327,7 @@ void Session::doResume()
     session()->set_lifecycle_state(mir_lifecycle_state_resumed);
 
     foreachPromptSession([this](const std::shared_ptr<ms::PromptSession>& promptSession) {
-        m_promptSessionManager->resume_prompt_session(promptSession);
+        m_promptSessionManager->resumePromptSession(promptSession);
     });
 
     foreachChildSession([](SessionInterface* session) {
@@ -480,7 +480,7 @@ void Session::stopPromptSessions()
         std::shared_ptr<ms::PromptSession> promptSession = it.previous();
         DEBUG_MSG << " - promptSession=" << promptSession.get();
 
-        m_promptSessionManager->stop_prompt_session(promptSession);
+        m_promptSessionManager->stopPromptSession(promptSession);
     }
 }
 
