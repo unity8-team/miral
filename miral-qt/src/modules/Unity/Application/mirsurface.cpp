@@ -415,7 +415,9 @@ QSize MirSurface::size() const
 
 Mir::State MirSurface::state() const
 {
-    return toQtState(m_windowInfo.state());
+    // FIXME: use the commented line below when possible
+    // return toQtState(m_windowInfo.state());
+    return m_state;
 }
 
 Mir::OrientationAngle MirSurface::orientationAngle() const
@@ -474,7 +476,7 @@ QString MirSurface::persistentId() const
 void MirSurface::requestState(Mir::State state)
 {
     DEBUG_MSG << "(" << unityapiMirStateToStr(state) << ")";
-    m_controller->requestState(m_windowInfo.window(), toMirState(state));
+    m_controller->requestState(m_windowInfo.window(), state);
 }
 
 void MirSurface::setLive(bool value)
@@ -750,62 +752,18 @@ bool MirSurface::inputAreaContains(const QPoint &point) const
     return result;
 }
 
-void MirSurface::updateWindowInfo(const miral::WindowInfo &windowInfo)
+void MirSurface::updateState(Mir::State newState)
 {
-    qDebug() << "MirSurface::updateWindowInfo";
-    // Need to compare the new windowInfo instance with the existing one to figure out what changed
-    DirtyStates dirt = DirtyState::Clean;
-
-    if (windowInfo.name() != m_windowInfo.name()) {
-        dirt &= DirtyState::Name; qDebug("Name changed");
-    }
-    if (windowInfo.type() != m_windowInfo.type()) {
-        dirt &= DirtyState::Type; qDebug("Type changed");
-    }
-    if (windowInfo.state() != m_windowInfo.state()) {
-        dirt &= DirtyState::State; qDebug("State changed");
-    }
-    if (windowInfo.restore_rect() != m_windowInfo.restore_rect()) {
-        dirt &= DirtyState::RestoreRect; qDebug("RestoreRect changed");
-    }
-    if (windowInfo.children() != m_windowInfo.children()) {
-        dirt &= DirtyState::Children; qDebug("Children changed");
-    }
-    if (windowInfo.min_width() != m_windowInfo.min_width()
-            && windowInfo.min_height() != m_windowInfo.min_height()) {
-        dirt &= DirtyState::MinSize; qDebug("MinSize changed");
-    }
-    if (windowInfo.max_width() != m_windowInfo.max_width()
-            && windowInfo.max_height() != m_windowInfo.max_height()) {
-        dirt &= DirtyState::MaxSize; qDebug("MaxHeight changed");
-    }
-
-    if (dirt | DirtyState::Clean) {
-        return;
-    }
-    m_windowInfo = windowInfo;
-
-    if (dirt | DirtyState::Name) {
-        Q_EMIT nameChanged(name());
-    }
-    if (dirt | DirtyState::Type) {
-        Q_EMIT typeChanged(type());
-    }
-    if (dirt | DirtyState::State) {
-        Q_EMIT stateChanged(state());
-    }
-}
-
-void MirSurface::updateState(MirSurfaceState newState)
-{
-    if (newState == m_windowInfo.state()) {
+    //if (newState == m_windowInfo.state()) {
+    if (newState == m_state) {
         return;
     }
     DEBUG_MSG << "(" << unityapiMirStateToStr(newState) << ")";
 
     const bool oldVisibility = m_windowInfo.is_visible();
 
-    m_windowInfo.state(newState);
+    m_state = newState; // FIXME: remove when possible
+    m_windowInfo.state(toMirState(newState));
     Q_EMIT stateChanged(state());
 
     const bool newVisibility = m_windowInfo.is_visible();

@@ -82,6 +82,16 @@ inline MirSurfaceState toMirState(Mir::State state)
     case Mir::VertMaximizedState:   return mir_surface_state_vertmaximized;
     case Mir::FullscreenState:      return mir_surface_state_fullscreen;
     case Mir::HorizMaximizedState:  return mir_surface_state_horizmaximized;
+
+    // FIXME: Map to the corresponding MirSurfaceState enum value once available
+    case Mir::MaximizedLeftState:
+    case Mir::MaximizedRightState:
+    case Mir::MaximizedTopLeftState:
+    case Mir::MaximizedTopRightState:
+    case Mir::MaximizedBottomLeftState:
+    case Mir::MaximizedBottomRightState:
+        return mir_surface_state_maximized;
+
     case Mir::HiddenState:          return mir_surface_state_hidden;
     }
     Q_UNREACHABLE();
