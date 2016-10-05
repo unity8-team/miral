@@ -531,7 +531,7 @@ void miral::BasicWindowManager::move_tree(miral::WindowInfo& root, mir::geometry
 
 void miral::BasicWindowManager::modify_window(WindowInfo& window_info, WindowSpecification const& modifications)
 {
-    decltype(window_info) window_info_tmp{window_info};
+    WindowInfo window_info_tmp{window_info};
 
 #define COPY_IF_SET(field)\
     if (modifications.field().is_set())\
