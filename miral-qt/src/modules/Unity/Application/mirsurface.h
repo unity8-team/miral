@@ -187,6 +187,7 @@ private:
     void updateExposure();
     void applyKeymap();
     void updateActiveFocus();
+    void updateVisible();
 
     miral::WindowInfo m_windowInfo;
     std::shared_ptr<mir::scene::Surface> m_surface; // keep copy of the Surface for lifecycle
@@ -205,6 +206,7 @@ private:
     bool m_textureUpdated;
     unsigned int m_currentFrameNumber;
 
+    bool m_visible;
     bool m_live;
     struct View {
         bool exposed;

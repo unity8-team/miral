@@ -79,6 +79,7 @@ MirSurface::MirSurface(NewWindow newWindowInfo,
     , m_orientationAngle(Mir::Angle0)
     , m_textureUpdated(false)
     , m_currentFrameNumber(0)
+    , m_visible(newWindowInfo.windowInfo.is_visible())
     , m_live(true)
     , m_surfaceObserver(std::make_shared<SurfaceObserver>())
     , m_position(toQPoint(m_windowInfo.window().top_left()))
@@ -359,6 +360,15 @@ void MirSurface::updateActiveFocus()
     */
 
     m_neverSetSurfaceFocus = false;
+}
+
+void MirSurface::updateVisible()
+{
+    const bool visible = m_windowInfo.is_visible();
+    if (m_visible != visible) {
+        m_visible = visible;
+        Q_EMIT visibleChanged(visible);
+    }
 }
 
 void MirSurface::close()
@@ -751,14 +761,14 @@ void MirSurface::updateState(MirSurfaceState newState)
     m_windowInfo.state(newState);
     Q_EMIT stateChanged(state());
 
-    // Mir determines visiblilty from the state, it may have changed
-    Q_EMIT visibleChanged(m_windowInfo.is_visible());
+    // Mir determines visibilty from the state, it may have changed
+    updateVisible();
 }
 
 void MirSurface::setReady()
 {
     Q_EMIT firstFrameDrawn();
-    Q_EMIT visibleChanged(m_windowInfo.is_visible());
+    updateVisible();
 }
 
 void MirSurface::setCursor(const QCursor &cursor)
