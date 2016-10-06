@@ -635,6 +635,12 @@ void MirSurface::setViewExposure(qintptr viewId, bool exposed)
 
 void MirSurface::updateExposure()
 {
+    // Only update exposure after client has swapped a frame (aka surface is "ready"). MirAL only considers
+    // a surface visible after it has drawn something
+    if (!m_ready) {
+        return;
+    }
+
     bool newExposed = false;
     QHashIterator<qintptr, View> i(m_views);
     while (i.hasNext()) {
