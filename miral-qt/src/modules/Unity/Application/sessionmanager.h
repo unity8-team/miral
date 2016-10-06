@@ -70,8 +70,8 @@ public Q_SLOTS:
     void onSessionStarting(const miral::ApplicationInfo &appInfo);
     void onSessionStopping(const miral::ApplicationInfo &appInfo);
 
-    void onPromptSessionStarting(const std::shared_ptr<mir::scene::PromptSession>& promptSession);
-    void onPromptSessionStopping(const std::shared_ptr<mir::scene::PromptSession>& promptSession);
+    void onPromptSessionStarting(const PromptSession& promptSession);
+    void onPromptSessionStopping(const PromptSession& promptSession);
     void onPromptProviderAdded(const mir::scene::PromptSession *, const std::shared_ptr<mir::scene::Session> &);
     void onPromptProviderRemoved(const mir::scene::PromptSession *, const std::shared_ptr<mir::scene::Session> &);
 

@@ -27,6 +27,7 @@
 #include "logging.h"
 #include "nativeinterface.h"
 #include "promptsessionlistener.h"
+#include "promptsession.h"
 
 // mir
 #include <mir/scene/prompt_session.h>
@@ -155,7 +156,7 @@ void SessionManager::onSessionStopping(const miral::ApplicationInfo &appInfo)
     Q_EMIT sessionStopping(qmlSession);
 }
 
-void SessionManager::onPromptSessionStarting(const std::shared_ptr<ms::PromptSession>& promptSession)
+void SessionManager::onPromptSessionStarting(const qtmir::PromptSession& promptSession)
 {
     qCDebug(QTMIR_SESSIONS) << "SessionManager::onPromptSessionStarting - promptSession=" << promptSession.get();
 
@@ -169,7 +170,7 @@ void SessionManager::onPromptSessionStarting(const std::shared_ptr<ms::PromptSes
     }
 }
 
-void SessionManager::onPromptSessionStopping(const std::shared_ptr<ms::PromptSession>& promptSession)
+void SessionManager::onPromptSessionStopping(const qtmir::PromptSession& promptSession)
 {
     qCDebug(QTMIR_SESSIONS) << "SessionManager::onPromptSessionStopping - promptSession=" << promptSession.get();
 

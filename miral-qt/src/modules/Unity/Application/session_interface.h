@@ -33,7 +33,6 @@
 namespace mir {
     namespace scene {
         class Session;
-        class PromptSession;
     }
 }
 
@@ -41,6 +40,7 @@ namespace qtmir {
 
 class MirSurfaceInterface;
 class MirSurfaceListModel;
+class PromptSession;
 
 class SessionInterface : public QObject {
     Q_OBJECT
@@ -106,13 +106,13 @@ public:
     virtual void removeChildSession(SessionInterface* session) = 0;
     virtual void foreachChildSession(const std::function<void(SessionInterface* session)>& f) const = 0;
 
-    virtual std::shared_ptr<mir::scene::PromptSession> activePromptSession() const = 0;
-    virtual void foreachPromptSession(const std::function<void(const std::shared_ptr<mir::scene::PromptSession>&)>& f) const = 0;
+    virtual PromptSession activePromptSession() const = 0;
+    virtual void foreachPromptSession(const std::function<void(const PromptSession&)>& f) const = 0;
 
     virtual void setFullscreen(bool fullscreen) = 0;
     virtual void setLive(const bool) = 0;
-    virtual void appendPromptSession(const std::shared_ptr<mir::scene::PromptSession>& session) = 0;
-    virtual void removePromptSession(const std::shared_ptr<mir::scene::PromptSession>& session) = 0;
+    virtual void appendPromptSession(const PromptSession& session) = 0;
+    virtual void removePromptSession(const PromptSession& session) = 0;
 
 Q_SIGNALS:
     void applicationChanged(unity::shell::application::ApplicationInfoInterface* application);

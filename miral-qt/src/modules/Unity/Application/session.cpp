@@ -20,6 +20,7 @@
 #include "session.h"
 #include "mirsurfaceinterface.h"
 #include "mirsurfaceitem.h"
+#include "promptsession.h"
 
 // mirserver
 #include "logging.h"
@@ -293,7 +294,7 @@ void Session::suspend()
         session()->set_lifecycle_state(mir_lifecycle_state_will_suspend);
         m_suspendTimer->start();
 
-        foreachPromptSession([this](const std::shared_ptr<ms::PromptSession>& promptSession) {
+        foreachPromptSession([this](const qtmir::PromptSession& promptSession) {
             m_promptSessionManager->suspendPromptSession(promptSession);
         });
 
@@ -325,7 +326,7 @@ void Session::doResume()
 
     session()->set_lifecycle_state(mir_lifecycle_state_resumed);
 
-    foreachPromptSession([this](const std::shared_ptr<ms::PromptSession>& promptSession) {
+    foreachPromptSession([this](const qtmir::PromptSession& promptSession) {
         m_promptSessionManager->resumePromptSession(promptSession);
     });
 
@@ -452,16 +453,16 @@ SessionModel* Session::childSessions() const
     return m_children;
 }
 
-void Session::appendPromptSession(const std::shared_ptr<ms::PromptSession>& promptSession)
+void Session::appendPromptSession(const qtmir::PromptSession& promptSession)
 {
-    DEBUG_MSG << "(promptSession=" << (promptSession ? promptSession.get() : nullptr) << ")";
+    DEBUG_MSG << "(promptSession=" << promptSession.get() << ")";
 
     m_promptSessions.append(promptSession);
 }
 
-void Session::removePromptSession(const std::shared_ptr<ms::PromptSession>& promptSession)
+void Session::removePromptSession(const qtmir::PromptSession& promptSession)
 {
-    DEBUG_MSG << "(promptSession=" << (promptSession ? promptSession.get() : nullptr) << ")";
+    DEBUG_MSG << "(promptSession=" << promptSession.get() << ")";
 
     m_promptSessions.removeAll(promptSession);
 }
@@ -473,26 +474,26 @@ void Session::stopPromptSessions()
         static_cast<Session*>(child)->stopPromptSessions();
     }
 
-    QVector<std::shared_ptr<ms::PromptSession>> copy(m_promptSessions);
-    QVectorIterator<std::shared_ptr<ms::PromptSession>> it(copy);
+    QVector<qtmir::PromptSession> copy(m_promptSessions);
+    QVectorIterator<qtmir::PromptSession> it(copy);
     for ( it.toBack(); it.hasPrevious(); ) {
-        std::shared_ptr<ms::PromptSession> promptSession = it.previous();
+        qtmir::PromptSession promptSession = it.previous();
         DEBUG_MSG << " - promptSession=" << promptSession.get();
 
         m_promptSessionManager->stopPromptSession(promptSession);
     }
 }
 
-std::shared_ptr<ms::PromptSession> Session::activePromptSession() const
+qtmir::PromptSession Session::activePromptSession() const
 {
     if (m_promptSessions.count() > 0)
         return m_promptSessions.back();
-    return nullptr;
+    return {};
 }
 
-void Session::foreachPromptSession(const std::function<void(const std::shared_ptr<ms::PromptSession>&)>& f) const
+void Session::foreachPromptSession(const std::function<void(const qtmir::PromptSession&)>& f) const
 {
-    Q_FOREACH (std::shared_ptr<ms::PromptSession> promptSession, m_promptSessions) {
+    Q_FOREACH (qtmir::PromptSession promptSession, m_promptSessions) {
         f(promptSession);
     }
 }

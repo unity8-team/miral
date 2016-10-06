@@ -17,6 +17,7 @@
 #include <qtmir_test.h>
 #include <fake_mirsurface.h>
 
+#include "promptsession.h"
 #include <Unity/Application/application.h>
 #include <Unity/Application/mirsurfaceitem.h>
 
@@ -226,8 +227,8 @@ TEST_F(SessionTests, SuspendPromptSessionWhenSessionSuspends)
     }
     EXPECT_EQ(Session::Running, session->state());
 
-    auto mirPromptSession = std::make_shared<ms::MockPromptSession>();
-    session->appendPromptSession(mirPromptSession);
+    qtmir::PromptSession promptSession{std::make_shared<ms::MockPromptSession>()};
+    session->appendPromptSession(promptSession);
 
     EXPECT_CALL(*stubPromptSessionManager, suspend_prompt_session(_)).Times(1);
 
@@ -264,8 +265,8 @@ TEST_F(SessionTests, ResumePromptSessionWhenSessionResumes)
     session->doSuspend();
     EXPECT_EQ(Session::Suspended, session->state());
 
-    auto mirPromptSession = std::make_shared<ms::MockPromptSession>();
-    session->appendPromptSession(mirPromptSession);
+    qtmir::PromptSession promptSession{std::make_shared<ms::MockPromptSession>()};
+    session->appendPromptSession(promptSession);
 
     EXPECT_CALL(*stubPromptSessionManager, resume_prompt_session(_)).Times(1);
 
