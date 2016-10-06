@@ -78,6 +78,9 @@ def report(publish, symbol):
 
 old_stanzas = '''MIRAL_0.1 {
 global:
+    # We need to specify the overload of miral::WindowManagerTools::modify_window
+    _ZN5miral18WindowManagerTools13modify_windowERNS_10WindowInfoERKNS_19WindowSpecificationE;
+
   extern "C++" {
     miral::ActiveOutputsListener::?ActiveOutputsListener*;
     miral::ActiveOutputsListener::ActiveOutputsListener*;
@@ -234,7 +237,7 @@ global:
     miral::WindowManagerTools::info_for*;
     miral::WindowManagerTools::info_for_window_id*;
     miral::WindowManagerTools::invoke_under_lock*;
-    miral::WindowManagerTools::modify_window*;
+#    miral::WindowManagerTools::modify_window*;
     miral::WindowManagerTools::operator*;
     miral::WindowManagerTools::raise_tree*;
     miral::WindowManagerTools::select_active_window*;
@@ -376,6 +379,8 @@ global:
 
 MIRAL_0.3 {
 global:
+   # We need to specify the overload of miral::WindowManagerTools::modify_window
+  _ZN5miral18WindowManagerTools13modify_windowERKNS_6WindowERKNS_19WindowSpecificationE;
   extern "C++" {'''
 
 def print_report():
