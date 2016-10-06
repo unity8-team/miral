@@ -515,7 +515,7 @@ bool TitlebarWindowManagerPolicy::resize(Window const& window, Point cursor, Poi
     WindowSpecification modifications;
     modifications.top_left() = new_pos;
     modifications.size() = new_size;
-    tools.modify_window(tools.info_for(window), modifications);
+    tools.modify_window(window, modifications);
 
     return true;
 }
