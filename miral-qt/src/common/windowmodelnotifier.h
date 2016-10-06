@@ -23,6 +23,9 @@
 
 #include "miral/window_info.h"
 
+// Unity API
+#include <unity/shell/application/Mir.h>
+
 namespace qtmir {
 
 class NewWindow {
@@ -42,7 +45,19 @@ public:
 
 struct ExtraWindowInfo {
     QString persistentId;
-    MirSurfaceState previousState{mir_surface_state_unknown};
+
+    // FIXME Use MirSurfaceState when possible.
+    Mir::State previousState{Mir::UnknownState};
+
+    // FIXME: Remove when possible. This exists just because MirSurfaceState has no equivalent
+    //        for the following states:
+    // Mir::MaximizedLeftState:
+    // Mir::MaximizedRightState:
+    // Mir::MaximizedTopLeftState:
+    // Mir::MaximizedTopRightState:
+    // Mir::MaximizedBottomLeftState:
+    // Mir::MaximizedBottomRightState:
+    Mir::State state{Mir::UnknownState};
 };
 
 std::shared_ptr<ExtraWindowInfo> getExtraInfo(const miral::WindowInfo &windowInfo);
@@ -58,7 +73,7 @@ Q_SIGNALS: // **Must used Queued Connection or else events will be out of order*
     void windowRemoved(const miral::WindowInfo &window);
     void windowMoved(const miral::WindowInfo &window, const QPoint topLeft);
     void windowResized(const miral::WindowInfo &window, const QSize size);
-    void windowStateChanged(const miral::WindowInfo &window, MirSurfaceState state);
+    void windowStateChanged(const miral::WindowInfo &window, Mir::State state);
     void windowFocusChanged(const miral::WindowInfo &window, bool focused);
     void windowsRaised(const std::vector<miral::Window> &windows); // results in deep copy when passed over Queued connection:(
 

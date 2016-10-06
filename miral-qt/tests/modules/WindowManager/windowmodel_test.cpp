@@ -729,7 +729,7 @@ TEST_P(WindowModelTestTypes, WhenWindowStateChangedMirSurfaceStateUpdated)
     notifier.windowAdded(newWindow);
 
     // change the state
-    notifier.windowStateChanged(newWindow.windowInfo, toMirState(param));
+    notifier.windowStateChanged(newWindow.windowInfo, param);
 
     auto surface = getMirSurfaceFromModel(model, 0);
     EXPECT_EQ(param, surface->state());
@@ -753,7 +753,7 @@ TEST_P(WindowModelTestTypes, WhenWindowStateChangedMirSurfaceEmitsStateChangedSi
     QSignalSpy spyCountChanged(&model, SIGNAL(countChanged()));
 
     // change the state
-    notifier.windowStateChanged(newWindow.windowInfo, toMirState(param));
+    notifier.windowStateChanged(newWindow.windowInfo, param);
     flushEvents();
 
     EXPECT_EQ(1, spyCountChanged.count());
