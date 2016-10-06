@@ -227,6 +227,7 @@ private:
     QString m_keymap;
 
     QCursor m_cursor;
+    Mir::State m_state;
     Mir::ShellChrome m_shellChrome;
 
     QRect m_inputBounds;
@@ -240,8 +241,6 @@ private:
     };
     ClosingState m_closingState{NotClosing};
     AbstractTimer *m_closeTimer{nullptr};
-
-    Mir::State m_state{Mir::UnknownState}; // FIXME use WindowInfo state when possible
 };
 
 } // namespace qtmir

@@ -84,6 +84,7 @@ MirSurface::MirSurface(NewWindow newWindowInfo,
     , m_surfaceObserver(std::make_shared<SurfaceObserver>())
     , m_position(toQPoint(m_windowInfo.window().top_left()))
     , m_size(toQSize(m_windowInfo.window().size()))
+    , m_state(toQtState(m_windowInfo.state()))
     , m_shellChrome(Mir::NormalChrome)
 {
     DEBUG_MSG << "()";
