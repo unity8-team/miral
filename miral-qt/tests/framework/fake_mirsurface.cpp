@@ -106,7 +106,7 @@ void FakeMirSurface::setOrientationAngle(Mir::OrientationAngle angle)
     }
 }
 
-bool FakeMirSurface::ready() const
+bool FakeMirSurface::isReady() const
 {
     return m_ready;
 }

@@ -96,7 +96,7 @@ public:
     QPoint requestedPosition() const override;
     void setRequestedPosition(const QPoint &) override;
 
-    bool ready() const override;
+    bool isReady() const override;
     void stopFrameDropper() override;
     void startFrameDropper() override;
     void setLive(bool value) override;
@@ -141,8 +141,6 @@ public:
 
     bool inputAreaContains(const QPoint &) const override { return true; }
 
-    void setReady();
-
 public Q_SLOTS:
     void requestState(Mir::State qmlState) override;
     void onCompositorSwappedBuffers() override;
@@ -153,6 +151,8 @@ public Q_SLOTS:
     // Test API from now on
 
 public:
+    void setReady();
+
     bool isFrameDropperRunning() const;
 
     QList<TouchEvent> &touchesReceived();

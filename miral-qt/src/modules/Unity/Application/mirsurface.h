@@ -103,7 +103,7 @@ public:
 
     void setLive(bool value) override;
 
-    bool ready() const override { return m_ready; }
+    bool isReady() const override { return m_ready; }
 
     void stopFrameDropper() override;
     void startFrameDropper() override;
