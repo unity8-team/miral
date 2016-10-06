@@ -198,17 +198,7 @@ void Session::setApplication(ApplicationInfoInterface* application)
 void Session::registerSurface(MirSurfaceInterface *newSurface)
 {
     DEBUG_MSG << "(surface=" << newSurface << ")";
-
-    // Only notify QML of surface creation once it has drawn its first frame.
-    if (newSurface->isFirstFrameDrawn()) {
-        prependSurface(newSurface);
-    } else {
-        connect(newSurface, &MirSurfaceInterface::firstFrameDrawn, this, [this, newSurface]()
-            {
-                newSurface->disconnect(this);
-                this->prependSurface(newSurface);
-            });
-    }
+    prependSurface(newSurface);
 }
 
 void Session::prependSurface(MirSurfaceInterface *newSurface)

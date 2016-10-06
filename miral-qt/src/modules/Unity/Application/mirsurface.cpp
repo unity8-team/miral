@@ -76,7 +76,6 @@ MirSurface::MirSurface(NewWindow newWindowInfo,
     , m_surface(newWindowInfo.surface)
     , m_session(session)
     , m_controller(controller)
-    , m_firstFrameDrawn(false)
     , m_orientationAngle(Mir::Angle0)
     , m_textureUpdated(false)
     , m_currentFrameNumber(0)
@@ -147,11 +146,6 @@ MirSurface::~MirSurface()
 
 void MirSurface::onFramesPostedObserved()
 {
-    if (!m_firstFrameDrawn) {
-        m_firstFrameDrawn = true;
-        Q_EMIT firstFrameDrawn();
-    }
-
     // restart the frame dropper so that items have enough time to render the next frame.
     m_frameDropperTimer.start();
 
@@ -752,21 +746,19 @@ bool MirSurface::inputAreaContains(const QPoint &point) const
 
 void MirSurface::updateState(MirSurfaceState newState)
 {
-    if (newState == m_windowInfo.state()) {
-        return;
-    }
     DEBUG_MSG << "(" << unityapiMirStateToStr(newState) << ")";
-
-    const bool oldVisibility = m_windowInfo.is_visible();
 
     m_windowInfo.state(newState);
     Q_EMIT stateChanged(state());
 
-    const bool newVisibility = m_windowInfo.is_visible();
+    // Mir determines visiblilty from the state, it may have changed
+    Q_EMIT visibleChanged(m_windowInfo.is_visible());
+}
 
-    if (oldVisibility != newVisibility) {
-        Q_EMIT visibleChanged(newVisibility);
-    }
+void MirSurface::setReady()
+{
+    Q_EMIT firstFrameDrawn();
+    Q_EMIT visibleChanged(m_windowInfo.is_visible());
 }
 
 void MirSurface::setCursor(const QCursor &cursor)

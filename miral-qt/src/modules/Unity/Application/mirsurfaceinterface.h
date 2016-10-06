@@ -56,8 +56,6 @@ public:
 
     virtual void setLive(bool value) = 0;
 
-    virtual bool isFirstFrameDrawn() const = 0;
-
     virtual void stopFrameDropper() = 0;
     virtual void startFrameDropper() = 0;
 

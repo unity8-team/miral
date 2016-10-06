@@ -60,6 +60,7 @@ Q_SIGNALS:
 private Q_SLOTS:
     void onWindowAdded(const qtmir::NewWindow &windowInfo);
     void onWindowRemoved(const miral::WindowInfo &window);
+    void onWindowReady(const miral::WindowInfo &windowInfo);
     void onWindowMoved(const miral::WindowInfo &window, const QPoint topLeft);
     void onWindowStateChanged(const miral::WindowInfo &windowInfo, MirSurfaceState state);
     void onWindowFocusChanged(const miral::WindowInfo &window, bool focused);

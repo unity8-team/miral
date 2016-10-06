@@ -96,7 +96,6 @@ public:
     QPoint requestedPosition() const override;
     void setRequestedPosition(const QPoint &) override;
 
-    bool isFirstFrameDrawn() const override;
     void stopFrameDropper() override;
     void startFrameDropper() override;
     void setLive(bool value) override;
@@ -163,8 +162,6 @@ public:
 private:
     void updateVisibility();
 
-
-    bool m_isFirstFrameDrawn;
     bool m_isFrameDropperRunning;
     bool m_live;
     Mir::State m_state;

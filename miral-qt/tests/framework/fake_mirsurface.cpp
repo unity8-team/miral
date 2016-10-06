@@ -36,7 +36,6 @@ FakeMirSurface::TouchEvent::~TouchEvent()
 
 FakeMirSurface::FakeMirSurface(QObject *parent)
     : MirSurfaceInterface(parent)
-    , m_isFirstFrameDrawn(false)
     , m_isFrameDropperRunning(true)
     , m_live(true)
     , m_state(Mir::RestoredState)
@@ -104,11 +103,6 @@ void FakeMirSurface::setOrientationAngle(Mir::OrientationAngle angle)
         m_orientationAngle = angle;
         Q_EMIT orientationAngleChanged(m_orientationAngle);
     }
-}
-
-bool FakeMirSurface::isFirstFrameDrawn() const
-{
-    return m_isFirstFrameDrawn;
 }
 
 void FakeMirSurface::stopFrameDropper()
@@ -207,10 +201,7 @@ void FakeMirSurface::setShellChrome(Mir::ShellChrome /*shellChrome*/) {}
 
 void FakeMirSurface::drawFirstFrame()
 {
-    if (!m_isFirstFrameDrawn) {
-        m_isFirstFrameDrawn = true;
-        Q_EMIT firstFrameDrawn();
-    }
+    Q_EMIT firstFrameDrawn();
 }
 
 bool FakeMirSurface::isFrameDropperRunning() const { return m_isFrameDropperRunning; }

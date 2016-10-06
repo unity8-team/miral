@@ -103,8 +103,6 @@ public:
 
     void setLive(bool value) override;
 
-    bool isFirstFrameDrawn() const override { return m_firstFrameDrawn; }
-
     void stopFrameDropper() override;
     void startFrameDropper() override;
 
@@ -160,6 +158,7 @@ public:
     // Own API
     void setPosition(const QPoint newPosition);
     void updateState(MirSurfaceState state);
+    void setReady();
     miral::Window window() const { return m_windowInfo.window(); }
 
     // useful for tests
@@ -193,7 +192,6 @@ private:
     std::shared_ptr<mir::scene::Surface> m_surface; // keep copy of the Surface for lifecycle
     QPointer<SessionInterface> m_session;
     WindowControllerInterface *const m_controller;
-    bool m_firstFrameDrawn;
 
     //FIXME -  have to save the state as Mir has no getter for it (bug:1357429)
     Mir::OrientationAngle m_orientationAngle;
