@@ -26,7 +26,6 @@
 
 // mir
 #include <mir/scene/session.h>
-#include <mir/scene/prompt_session.h>
 
 // Qt
 #include <QPainter>
