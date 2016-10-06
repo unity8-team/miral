@@ -368,6 +368,18 @@ const char *unityapiMirStateToStr(int state)
         return "fullscreen";
     case Mir::HorizMaximizedState:
         return "horizMaximized";
+    case Mir::MaximizedLeftState:
+        return "maximizedLeft";
+    case Mir::MaximizedRightState:
+        return "maximizedRight";
+    case Mir::MaximizedTopLeftState:
+        return "maximizedTopLeft";
+    case Mir::MaximizedTopRightState:
+        return "maximizedTopRight";
+    case Mir::MaximizedBottomLeftState:
+        return "maximizedBottomLeft";
+    case Mir::MaximizedBottomRightState:
+        return "maximizedBottomRight";
     case Mir::HiddenState:
         return "hidden";
     default:

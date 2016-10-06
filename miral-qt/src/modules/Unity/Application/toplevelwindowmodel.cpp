@@ -343,7 +343,7 @@ void TopLevelWindowModel::onWindowFocusChanged(const miral::WindowInfo &windowIn
     }
 }
 
-void TopLevelWindowModel::onWindowStateChanged(const miral::WindowInfo &windowInfo, MirSurfaceState state)
+void TopLevelWindowModel::onWindowStateChanged(const miral::WindowInfo &windowInfo, Mir::State state)
 {
     if (auto mirSurface = find(windowInfo)) {
         mirSurface->updateState(state);
