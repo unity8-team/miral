@@ -143,7 +143,7 @@ void WindowManagementPolicy::advise_state_change(const miral::WindowInfo &window
     auto extraWinInfo = getExtraInfo(windowInfo);
 
     // FIXME: Remove this mess once MirSurfaceState matches Mir::State
-    if (state == mir_surface_state_maximized && extraWinInfo->state != Mir::MaximizedState
+    if (state == mir_surface_state_restored && extraWinInfo->state != Mir::RestoredState
             && toMirState(extraWinInfo->state) == state) {
         // Ignore. That MirSurfaceState is just a placeholder for a Mir::State value that has no counterpart
         // in MirSurfaceState.

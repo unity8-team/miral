@@ -90,7 +90,7 @@ inline MirSurfaceState toMirState(Mir::State state)
     case Mir::MaximizedTopRightState:
     case Mir::MaximizedBottomLeftState:
     case Mir::MaximizedBottomRightState:
-        return mir_surface_state_maximized;
+        return mir_surface_state_restored;
 
     case Mir::HiddenState:          return mir_surface_state_hidden;
     }
