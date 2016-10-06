@@ -61,13 +61,14 @@ you need Xmir installed:
  
     $ sudo apt install xmir
 
-Then you can use the testrun script to start miral-shell with Xmir:
+Then once you have started miral-shell (as above) you can use miral-xrun to run
+applications under Xmir:
 
-    $ ../scripts/testrun -Xmir
+    $ bin/miral-xrun firefox
 
-This starts an X11 server on DISPLAY=:1. This is set in the terminal the script
-starts so that applications launched from it will automatically connect to
-miral through Xmir.
+This atuomatically starts a Xmir X11 server on a new $DISPLAY for the 
+application to use. You can use miral-xrun both from a command-line outside the
+miral-shell or, for example, from a terminal running in the shell.
 
 Running applications on Miral
 -----------------------------
@@ -82,7 +83,6 @@ Similarly, GTK+, Qt and SDL applications can be run with the miral-run script:
  
     $ bin/miral-run gedit
     $ bin/miral-run 7kaa
-
 
 Configuration options
 ---------------------
@@ -111,14 +111,12 @@ Create a miral-shell config file:
     ...
     $ bin/miral-shell
 
-
 Running Qt applications
 -----------------------
 
 To run Qt applications under Mir you may need to install qtubuntu-desktop:
 
     $ sudo apt-get install qtubuntu-desktop
-
 
 Building the tests
 ------------------
