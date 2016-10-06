@@ -694,7 +694,7 @@ TEST_F(WindowModelTest, WindowReadyCausesMirSurfaceToEmitReadySignal)
     notifier.windowAdded(newWindow);
 
     auto surface = getMirSurfaceFromModel(model, 0); // will be MirSurface for newWindow
-    QSignalSpy readySpy(surface, SIGNAL(ready()));
+    QSignalSpy readySpy(surface, &MirSurface::ready);
 
     // Mark window ready
     notifier.windowReady(newWindow.windowInfo);
