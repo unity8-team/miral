@@ -30,7 +30,6 @@
 #include "promptsession.h"
 
 // mir
-#include <mir/scene/prompt_session.h>
 #include <mir/scene/session.h>
 #include <mir/report_exception.h>
 
@@ -180,12 +179,12 @@ void SessionManager::onPromptSessionStopping(const qtmir::PromptSession& promptS
     m_mirPromptToSessionHash.remove(promptSession.get());
 }
 
-void SessionManager::onPromptProviderAdded(const mir::scene::PromptSession *promptSession,
+void SessionManager::onPromptProviderAdded(const qtmir::PromptSession &promptSession,
                                               const std::shared_ptr<mir::scene::Session> &promptProvider)
 {
-    qCDebug(QTMIR_SESSIONS) << "SessionManager::onPromptProviderAdded - promptSession=" << promptSession << " promptProvider=" << promptProvider.get();
+    qCDebug(QTMIR_SESSIONS) << "SessionManager::onPromptProviderAdded - promptSession=" << promptSession.get() << " promptProvider=" << promptProvider.get();
 
-    SessionInterface* qmlAppSession = m_mirPromptToSessionHash.value(promptSession, nullptr);
+    SessionInterface* qmlAppSession = m_mirPromptToSessionHash.value(promptSession.get(), nullptr);
     if (!qmlAppSession) {
         qCDebug(QTMIR_SESSIONS) << "SessionManager::onPromptProviderAdded - could not find session item for app session";
         return;
@@ -200,10 +199,10 @@ void SessionManager::onPromptProviderAdded(const mir::scene::PromptSession *prom
     qmlAppSession->addChildSession(qmlPromptProvider);
 }
 
-void SessionManager::onPromptProviderRemoved(const mir::scene::PromptSession *promptSession,
+void SessionManager::onPromptProviderRemoved(const qtmir::PromptSession &promptSession,
                                                 const std::shared_ptr<mir::scene::Session> &promptProvider)
 {
-    qCDebug(QTMIR_SESSIONS) << "SessionManager::onPromptProviderRemoved - promptSession=" << promptSession << " promptProvider=" << promptProvider.get();
+    qCDebug(QTMIR_SESSIONS) << "SessionManager::onPromptProviderRemoved - promptSession=" << promptSession.get() << " promptProvider=" << promptProvider.get();
 
     SessionInterface* qmlPromptProvider = findSession(promptProvider.get());
     if (!qmlPromptProvider) {
