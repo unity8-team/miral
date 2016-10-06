@@ -419,7 +419,9 @@ QSize MirSurface::size() const
 
 Mir::State MirSurface::state() const
 {
-    return toQtState(m_windowInfo.state());
+    // FIXME: use the commented line below when possible
+    // return toQtState(m_windowInfo.state());
+    return m_state;
 }
 
 Mir::OrientationAngle MirSurface::orientationAngle() const
@@ -478,7 +480,7 @@ QString MirSurface::persistentId() const
 void MirSurface::requestState(Mir::State state)
 {
     DEBUG_MSG << "(" << unityapiMirStateToStr(state) << ")";
-    m_controller->requestState(m_windowInfo.window(), toMirState(state));
+    m_controller->requestState(m_windowInfo.window(), state);
 }
 
 void MirSurface::setLive(bool value)
@@ -754,14 +756,18 @@ bool MirSurface::inputAreaContains(const QPoint &point) const
     return result;
 }
 
-void MirSurface::updateState(MirSurfaceState newState)
+void MirSurface::updateState(Mir::State newState)
 {
+    if (newState == m_state) {
+        return;
+    }
     DEBUG_MSG << "(" << unityapiMirStateToStr(newState) << ")";
 
-    m_windowInfo.state(newState);
+    m_state = newState;
+    m_windowInfo.state(toMirState(newState));
     Q_EMIT stateChanged(state());
 
-    // Mir determines visibilty from the state, it may have changed
+    // Mir determines visibility from the state, it may have changed
     updateVisible();
 }
 

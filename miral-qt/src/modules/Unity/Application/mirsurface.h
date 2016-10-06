@@ -159,7 +159,7 @@ public:
     ////
     // Own API
     void setPosition(const QPoint newPosition);
-    void updateState(MirSurfaceState state);
+    void updateState(Mir::State state);
     void setReady();
     miral::Window window() const { return m_windowInfo.window(); }
 
@@ -240,6 +240,8 @@ private:
     };
     ClosingState m_closingState{NotClosing};
     AbstractTimer *m_closeTimer{nullptr};
+
+    Mir::State m_state{Mir::UnknownState}; // FIXME use WindowInfo state when possible
 };
 
 } // namespace qtmir

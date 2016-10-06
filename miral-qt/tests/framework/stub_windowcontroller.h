@@ -31,7 +31,7 @@ struct StubWindowModelController : public WindowControllerInterface
 
     void requestClose(const miral::Window &/*window*/) override { return; }
 
-    void requestState(const miral::Window &/*window*/, const MirSurfaceState /*state*/) override { return; }
+    void requestState(const miral::Window &/*window*/, const Mir::State /*state*/) override { return; }
 
     void deliverKeyboardEvent(const miral::Window &/*window*/, const MirKeyboardEvent */*event*/) override { return; }
     void deliverTouchEvent   (const miral::Window &/*window*/, const MirTouchEvent */*event*/)    override { return; }

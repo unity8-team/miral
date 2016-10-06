@@ -36,7 +36,7 @@ public:
 
     void requestClose(const miral::Window &window) override;
 
-    void requestState(const miral::Window &window, const MirSurfaceState state) override;
+    void requestState(const miral::Window &window, const Mir::State state) override;
 
     void deliverKeyboardEvent(const miral::Window &window, const MirKeyboardEvent *event) override;
     void deliverTouchEvent   (const miral::Window &window, const MirTouchEvent *event) override;

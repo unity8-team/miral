@@ -118,7 +118,7 @@ void WindowModel::onWindowFocusChanged(const miral::WindowInfo &windowInfo, bool
     }
 }
 
-void WindowModel::onWindowStateChanged(const miral::WindowInfo &windowInfo, MirSurfaceState state)
+void WindowModel::onWindowStateChanged(const miral::WindowInfo &windowInfo, Mir::State state)
 {
     if (auto mirSurface = find(windowInfo)) {
         mirSurface->updateState(state);
