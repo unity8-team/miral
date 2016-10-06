@@ -103,6 +103,8 @@ public:
 
     void setLive(bool value) override;
 
+    bool ready() const override { return m_ready; }
+
     void stopFrameDropper() override;
     void startFrameDropper() override;
 
@@ -206,6 +208,7 @@ private:
     bool m_textureUpdated;
     unsigned int m_currentFrameNumber;
 
+    bool m_ready{false};
     bool m_visible;
     bool m_live;
     struct View {

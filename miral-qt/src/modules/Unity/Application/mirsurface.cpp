@@ -767,7 +767,8 @@ void MirSurface::updateState(MirSurfaceState newState)
 
 void MirSurface::setReady()
 {
-    Q_EMIT firstFrameDrawn();
+    m_ready = true;
+    Q_EMIT ready();
     updateVisible();
 }
 
