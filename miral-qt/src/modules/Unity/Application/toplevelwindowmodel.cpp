@@ -252,6 +252,7 @@ void TopLevelWindowModel::connectToWindowModelNotifier(WindowModelNotifier *noti
 {
     connect(notifier, &WindowModelNotifier::windowAdded,        this, &TopLevelWindowModel::onWindowAdded,        Qt::QueuedConnection);
     connect(notifier, &WindowModelNotifier::windowRemoved,      this, &TopLevelWindowModel::onWindowRemoved,      Qt::QueuedConnection);
+    connect(notifier, &WindowModelNotifier::windowReady,        this, &TopLevelWindowModel::onWindowReady,        Qt::QueuedConnection);
     connect(notifier, &WindowModelNotifier::windowMoved,        this, &TopLevelWindowModel::onWindowMoved,        Qt::QueuedConnection);
     connect(notifier, &WindowModelNotifier::windowStateChanged, this, &TopLevelWindowModel::onWindowStateChanged, Qt::QueuedConnection);
     connect(notifier, &WindowModelNotifier::windowFocusChanged, this, &TopLevelWindowModel::onWindowFocusChanged, Qt::QueuedConnection);
@@ -323,6 +324,13 @@ void TopLevelWindowModel::removeAt(int index)
     DEBUG_MSG << " after " << toString();
 }
 
+void TopLevelWindowModel::onWindowReady(const miral::WindowInfo &windowInfo)
+{
+    if (auto mirSurface = find(windowInfo)) {
+        mirSurface->setReady();
+    }
+}
+
 void TopLevelWindowModel::onWindowMoved(const miral::WindowInfo &windowInfo, const QPoint topLeft)
 {
     if (auto mirSurface = find(windowInfo)) {
@@ -343,7 +351,7 @@ void TopLevelWindowModel::onWindowFocusChanged(const miral::WindowInfo &windowIn
     }
 }
 
-void TopLevelWindowModel::onWindowStateChanged(const miral::WindowInfo &windowInfo, MirSurfaceState state)
+void TopLevelWindowModel::onWindowStateChanged(const miral::WindowInfo &windowInfo, Mir::State state)
 {
     if (auto mirSurface = find(windowInfo)) {
         mirSurface->updateState(state);

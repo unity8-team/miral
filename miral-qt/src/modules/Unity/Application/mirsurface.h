@@ -103,7 +103,7 @@ public:
 
     void setLive(bool value) override;
 
-    bool isFirstFrameDrawn() const override { return m_firstFrameDrawn; }
+    bool isReady() const override { return m_ready; }
 
     void stopFrameDropper() override;
     void startFrameDropper() override;
@@ -159,7 +159,8 @@ public:
     ////
     // Own API
     void setPosition(const QPoint newPosition);
-    void updateState(MirSurfaceState state);
+    void updateState(Mir::State state);
+    void setReady();
     miral::Window window() const { return m_windowInfo.window(); }
 
     // useful for tests
@@ -188,12 +189,12 @@ private:
     void updateExposure();
     void applyKeymap();
     void updateActiveFocus();
+    void updateVisible();
 
     miral::WindowInfo m_windowInfo;
     std::shared_ptr<mir::scene::Surface> m_surface; // keep copy of the Surface for lifecycle
     QPointer<SessionInterface> m_session;
     WindowControllerInterface *const m_controller;
-    bool m_firstFrameDrawn;
 
     //FIXME -  have to save the state as Mir has no getter for it (bug:1357429)
     Mir::OrientationAngle m_orientationAngle;
@@ -207,6 +208,8 @@ private:
     bool m_textureUpdated;
     unsigned int m_currentFrameNumber;
 
+    bool m_ready{false};
+    bool m_visible;
     bool m_live;
     struct View {
         bool exposed;
@@ -224,6 +227,7 @@ private:
     QString m_keymap;
 
     QCursor m_cursor;
+    Mir::State m_state; // FIXME: remove when Mir gains additional window states to match Mir::State
     Mir::ShellChrome m_shellChrome;
 
     QRect m_inputBounds;

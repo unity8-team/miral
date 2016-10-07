@@ -96,7 +96,7 @@ public:
     QPoint requestedPosition() const override;
     void setRequestedPosition(const QPoint &) override;
 
-    bool isFirstFrameDrawn() const override;
+    bool isReady() const override;
     void stopFrameDropper() override;
     void startFrameDropper() override;
     void setLive(bool value) override;
@@ -151,8 +151,7 @@ public Q_SLOTS:
     // Test API from now on
 
 public:
-
-    void drawFirstFrame();
+    void setReady();
 
     bool isFrameDropperRunning() const;
 
@@ -163,8 +162,7 @@ public:
 private:
     void updateVisibility();
 
-
-    bool m_isFirstFrameDrawn;
+    bool m_ready;
     bool m_isFrameDropperRunning;
     bool m_live;
     Mir::State m_state;

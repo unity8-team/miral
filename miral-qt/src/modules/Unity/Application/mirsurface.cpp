@@ -76,14 +76,15 @@ MirSurface::MirSurface(NewWindow newWindowInfo,
     , m_surface(newWindowInfo.surface)
     , m_session(session)
     , m_controller(controller)
-    , m_firstFrameDrawn(false)
     , m_orientationAngle(Mir::Angle0)
     , m_textureUpdated(false)
     , m_currentFrameNumber(0)
+    , m_visible(newWindowInfo.windowInfo.is_visible())
     , m_live(true)
     , m_surfaceObserver(std::make_shared<SurfaceObserver>())
     , m_position(toQPoint(m_windowInfo.window().top_left()))
     , m_size(toQSize(m_windowInfo.window().size()))
+    , m_state(toQtState(m_windowInfo.state()))
     , m_shellChrome(Mir::NormalChrome)
 {
     DEBUG_MSG << "()";
@@ -147,11 +148,6 @@ MirSurface::~MirSurface()
 
 void MirSurface::onFramesPostedObserved()
 {
-    if (!m_firstFrameDrawn) {
-        m_firstFrameDrawn = true;
-        Q_EMIT firstFrameDrawn();
-    }
-
     // restart the frame dropper so that items have enough time to render the next frame.
     m_frameDropperTimer.start();
 
@@ -367,6 +363,15 @@ void MirSurface::updateActiveFocus()
     m_neverSetSurfaceFocus = false;
 }
 
+void MirSurface::updateVisible()
+{
+    const bool visible = m_windowInfo.is_visible();
+    if (m_visible != visible) {
+        m_visible = visible;
+        Q_EMIT visibleChanged(visible);
+    }
+}
+
 void MirSurface::close()
 {
     if (m_closingState != NotClosing) {
@@ -415,7 +420,9 @@ QSize MirSurface::size() const
 
 Mir::State MirSurface::state() const
 {
-    return toQtState(m_windowInfo.state());
+    // FIXME: use the commented line below when possible
+    // return toQtState(m_windowInfo.state());
+    return m_state;
 }
 
 Mir::OrientationAngle MirSurface::orientationAngle() const
@@ -474,7 +481,7 @@ QString MirSurface::persistentId() const
 void MirSurface::requestState(Mir::State state)
 {
     DEBUG_MSG << "(" << unityapiMirStateToStr(state) << ")";
-    m_controller->requestState(m_windowInfo.window(), toMirState(state));
+    m_controller->requestState(m_windowInfo.window(), state);
 }
 
 void MirSurface::setLive(bool value)
@@ -628,6 +635,12 @@ void MirSurface::setViewExposure(qintptr viewId, bool exposed)
 
 void MirSurface::updateExposure()
 {
+    // Only update exposure after client has swapped a frame (aka surface is "ready"). MirAL only considers
+    // a surface visible after it has drawn something
+    if (!m_ready) {
+        return;
+    }
+
     bool newExposed = false;
     QHashIterator<qintptr, View> i(m_views);
     while (i.hasNext()) {
@@ -750,23 +763,26 @@ bool MirSurface::inputAreaContains(const QPoint &point) const
     return result;
 }
 
-void MirSurface::updateState(MirSurfaceState newState)
+void MirSurface::updateState(Mir::State newState)
 {
-    if (newState == m_windowInfo.state()) {
+    if (newState == m_state) {
         return;
     }
     DEBUG_MSG << "(" << unityapiMirStateToStr(newState) << ")";
 
-    const bool oldVisibility = m_windowInfo.is_visible();
-
-    m_windowInfo.state(newState);
+    m_state = newState;
+    m_windowInfo.state(toMirState(newState));
     Q_EMIT stateChanged(state());
 
-    const bool newVisibility = m_windowInfo.is_visible();
+    // Mir determines visibility from the state, it may have changed
+    updateVisible();
+}
 
-    if (oldVisibility != newVisibility) {
-        Q_EMIT visibleChanged(newVisibility);
-    }
+void MirSurface::setReady()
+{
+    m_ready = true;
+    Q_EMIT ready();
+    updateVisible();
 }
 
 void MirSurface::setCursor(const QCursor &cursor)
