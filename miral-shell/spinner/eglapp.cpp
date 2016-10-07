@@ -103,15 +103,6 @@ std::vector<std::shared_ptr<MirEglSurface>> mir_eglapp_init(MirConnection* const
     // If an output has been specified just do that
     if (surfaceparm.output_id != mir_display_output_id_invalid)
     {
-        for_each_active_output(connection, [&](MirDisplayOutput const* output)
-            {
-                if (output->output_id == surfaceparm.output_id)
-                {
-                    auto const& mode = output->modes[output->current_mode];
-                    surfaceparm.width = mode.horizontal_resolution;
-                    surfaceparm.height = mode.vertical_resolution;
-                }
-            });
         result.push_back(std::make_shared<MirEglSurface>(mir_egl_app, surfaceparm, swapinterval));
         return result;
     }
@@ -126,8 +117,6 @@ std::vector<std::shared_ptr<MirEglSurface>> mir_eglapp_init(MirConnection* const
                    output->position_x, output->position_y,
                    mode.horizontal_resolution, mode.vertical_resolution);
 
-            surfaceparm.width = mode.horizontal_resolution;
-            surfaceparm.height = mode.vertical_resolution;
             surfaceparm.output_id = output->output_id;
             result.push_back(std::make_shared<MirEglSurface>(mir_egl_app, surfaceparm, swapinterval));
         });
