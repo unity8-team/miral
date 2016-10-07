@@ -69,6 +69,8 @@ void WindowManagementPolicy::handle_window_ready(miral::WindowInfo &windowInfo)
     qDebug("Window Ready");
     CanonicalWindowManagerPolicy::handle_window_ready(windowInfo);
 
+    Q_EMIT m_windowModel.windowReady(windowInfo);
+
     auto appInfo = m_tools.info_for(windowInfo.window().application());
     Q_EMIT m_appNotifier.appCreatedWindow(appInfo);
 }
@@ -112,6 +114,9 @@ void WindowManagementPolicy::advise_new_window(const miral::WindowInfo &windowIn
 
     getExtraInfo(windowInfo)->persistentId = QString::fromStdString(m_tools.id_for_window(windowInfo.window()));
 
+    // FIXME: remove when possible
+    getExtraInfo(windowInfo)->state = toQtState(windowInfo.state());
+
     Q_EMIT m_windowModel.windowAdded(NewWindow{windowInfo});
 }
 
@@ -137,7 +142,18 @@ void WindowManagementPolicy::advise_delete_app(const miral::ApplicationInfo &app
 
 void WindowManagementPolicy::advise_state_change(const miral::WindowInfo &windowInfo, MirSurfaceState state)
 {
-    Q_EMIT m_windowModel.windowStateChanged(windowInfo, state);
+    auto extraWinInfo = getExtraInfo(windowInfo);
+
+    // FIXME: Remove this mess once MirSurfaceState matches Mir::State
+    if (state == mir_surface_state_restored && extraWinInfo->state != Mir::RestoredState
+            && toMirState(extraWinInfo->state) == state) {
+        // Ignore. That MirSurfaceState is just a placeholder for a Mir::State value that has no counterpart
+        // in MirSurfaceState.
+    } else {
+        extraWinInfo->state = toQtState(state);
+    }
+
+    Q_EMIT m_windowModel.windowStateChanged(windowInfo, extraWinInfo->state);
 }
 
 void WindowManagementPolicy::advise_move_to(const miral::WindowInfo &windowInfo, Point topLeft)
@@ -225,17 +241,14 @@ void WindowManagementPolicy::activate(const miral::Window &window)
 {
     auto &windowInfo = m_tools.info_for(window);
 
+    // restore from minimized if needed
+    if (windowInfo.state() == mir_surface_state_minimized) {
+        auto extraInfo = getExtraInfo(windowInfo);
+        Q_ASSERT(extraInfo->previousState != Mir::MinimizedState);
+        requestState(window, extraInfo->previousState);
+    }
+
     m_tools.invoke_under_lock([&]() {
-
-        // restore from minimized if needed
-        if (windowInfo.state() == mir_surface_state_minimized) {
-            auto extraInfo = getExtraInfo(windowInfo);
-            miral::WindowSpecification modifications;
-            modifications.state() = extraInfo->previousState;
-
-            m_tools.modify_window(windowInfo, modifications);
-        }
-
         m_tools.select_active_window(window);
     });
 }
@@ -285,21 +298,27 @@ void WindowManagementPolicy::ask_client_to_close(const miral::Window &window)
     });
 }
 
-void WindowManagementPolicy::requestState(const miral::Window &window, const MirSurfaceState state)
+void WindowManagementPolicy::requestState(const miral::Window &window, const Mir::State state)
 {
     auto &windowInfo = m_tools.info_for(window);
+    auto extraWinInfo = getExtraInfo(windowInfo);
 
-    if (windowInfo.state() == state)
+    if (extraWinInfo->state == state)
         return;
 
     miral::WindowSpecification modifications;
-    modifications.state() = state;
+    modifications.state() = toMirState(state);
 
     // TODO: What if the window modification fails? Is that possible?
     //       Assuming here that the state will indeed change
-    getExtraInfo(windowInfo)->previousState = windowInfo.state();
+    extraWinInfo->previousState = extraWinInfo->state;
+    extraWinInfo->state = state;
 
-    m_tools.invoke_under_lock([&]() {
-        m_tools.modify_window(windowInfo, modifications);
-    });
+    if (modifications.state() == windowInfo.state()) {
+        Q_EMIT m_windowModel.windowStateChanged(windowInfo, state);
+    } else {
+        m_tools.invoke_under_lock([&]() {
+            m_tools.modify_window(windowInfo, modifications);
+        });
+    }
 }

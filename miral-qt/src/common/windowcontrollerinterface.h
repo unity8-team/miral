@@ -24,6 +24,9 @@
 #include <QPoint>
 #include <QSize>
 
+// Unity API
+#include <unity/shell/application/Mir.h>
+
 namespace qtmir {
 
 class MirSurface;
@@ -42,7 +45,7 @@ public:
 
     virtual void requestClose(const miral::Window &window) = 0;
 
-    virtual void requestState(const miral::Window &window, const MirSurfaceState state) = 0;
+    virtual void requestState(const miral::Window &window, const Mir::State state) = 0;
 
     virtual void deliverKeyboardEvent(const miral::Window &window, const MirKeyboardEvent *event) = 0;
     virtual void deliverTouchEvent   (const miral::Window &window, const MirTouchEvent *event) = 0;

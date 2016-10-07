@@ -56,7 +56,7 @@ public:
 
     virtual void setLive(bool value) = 0;
 
-    virtual bool isFirstFrameDrawn() const = 0;
+    virtual bool isReady() const = 0;
 
     virtual void stopFrameDropper() = 0;
     virtual void startFrameDropper() = 0;
@@ -130,10 +130,10 @@ public Q_SLOTS:
     virtual void setShellChrome(Mir::ShellChrome shellChrome) = 0;
 
 Q_SIGNALS:
+    void ready();
     void cursorChanged(const QCursor &cursor);
     void raiseRequested();
     void closeRequested();
-    void firstFrameDrawn();
     void framesPosted();
     void isBeingDisplayedChanged();
     void frameDropped();
