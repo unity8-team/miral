@@ -227,7 +227,7 @@ private:
     QString m_keymap;
 
     QCursor m_cursor;
-    Mir::State m_state;
+    Mir::State m_state; // FIXME: remove when Mir gains additional window states to match Mir::State
     Mir::ShellChrome m_shellChrome;
 
     QRect m_inputBounds;
