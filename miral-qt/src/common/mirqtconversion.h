@@ -83,8 +83,8 @@ inline MirSurfaceState toMirState(Mir::State state)
     case Mir::FullscreenState:      return mir_surface_state_fullscreen;
     case Mir::HorizMaximizedState:  return mir_surface_state_horizmaximized;
     case Mir::HiddenState:          return mir_surface_state_hidden;
+    default: Q_UNREACHABLE();
     }
-    Q_UNREACHABLE();
 }
 
 } // namespace qtmir

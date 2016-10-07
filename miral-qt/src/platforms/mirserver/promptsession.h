@@ -32,7 +32,7 @@ class PromptSession
 {
 public:
     // Intentionally promiscuous converting constructor
-    PromptSession(std::shared_ptr<mir::scene::PromptSession> const& promptSession) :
+    PromptSession(std::shared_ptr<mir::scene::PromptSession> const &promptSession) :
         m_promptSession{promptSession} {}
 
     PromptSession() = default;
@@ -40,15 +40,15 @@ public:
     PromptSession& operator=(PromptSession const& rhs) = default;
     ~PromptSession() = default;
 
-    auto get() const -> mir::scene::PromptSession* { return m_promptSession.get(); }
+    mir::scene::PromptSession* get() const { return m_promptSession.get(); }
 
-    friend auto operator==(PromptSession const& lhs, PromptSession const& rhs) -> bool
+    friend bool operator==(PromptSession const &lhs, PromptSession const &rhs)
         { return lhs.m_promptSession == rhs.m_promptSession; }
 
-    friend auto operator==(PromptSession const& lhs, mir::scene::PromptSession* rhs) -> bool
+    friend bool operator==(PromptSession const &lhs, mir::scene::PromptSession *rhs)
         { return lhs.m_promptSession.get() == rhs; }
 
-    friend auto operator==(mir::scene::PromptSession* lhs, PromptSession const& rhs) -> bool
+    friend bool operator==(mir::scene::PromptSession *lhs, PromptSession const &rhs)
         { return lhs == rhs.m_promptSession.get(); }
 
     // Intentionally promiscuous converting operator
@@ -58,6 +58,5 @@ private:
     std::shared_ptr<mir::scene::PromptSession> m_promptSession;
 };
 }
-
 
 #endif //QTMIR_PROMPTSESSION_H
