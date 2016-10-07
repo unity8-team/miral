@@ -71,6 +71,7 @@ public:
 Q_SIGNALS: // **Must used Queued Connection or else events will be out of order**
     void windowAdded(const qtmir::NewWindow &window);
     void windowRemoved(const miral::WindowInfo &window);
+    void windowReady(const miral::WindowInfo &window);
     void windowMoved(const miral::WindowInfo &window, const QPoint topLeft);
     void windowResized(const miral::WindowInfo &window, const QSize size);
     void windowStateChanged(const miral::WindowInfo &window, Mir::State state);

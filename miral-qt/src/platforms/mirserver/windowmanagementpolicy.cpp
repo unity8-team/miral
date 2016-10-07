@@ -69,6 +69,8 @@ void WindowManagementPolicy::handle_window_ready(miral::WindowInfo &windowInfo)
     qDebug("Window Ready");
     CanonicalWindowManagerPolicy::handle_window_ready(windowInfo);
 
+    Q_EMIT m_windowModel.windowReady(windowInfo);
+
     auto appInfo = m_tools.info_for(windowInfo.window().application());
     Q_EMIT m_appNotifier.appCreatedWindow(appInfo);
 }

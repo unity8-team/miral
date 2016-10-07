@@ -54,6 +54,7 @@ void WindowModel::connectToWindowModelNotifier(WindowModelNotifier *notifier)
 {
     connect(notifier, &WindowModelNotifier::windowAdded,        this, &WindowModel::onWindowAdded,        Qt::QueuedConnection);
     connect(notifier, &WindowModelNotifier::windowRemoved,      this, &WindowModel::onWindowRemoved,      Qt::QueuedConnection);
+    connect(notifier, &WindowModelNotifier::windowReady,        this, &WindowModel::onWindowReady,        Qt::QueuedConnection);
     connect(notifier, &WindowModelNotifier::windowMoved,        this, &WindowModel::onWindowMoved,        Qt::QueuedConnection);
     connect(notifier, &WindowModelNotifier::windowStateChanged, this, &WindowModel::onWindowStateChanged, Qt::QueuedConnection);
     connect(notifier, &WindowModelNotifier::windowFocusChanged, this, &WindowModel::onWindowFocusChanged, Qt::QueuedConnection);
@@ -94,6 +95,13 @@ void WindowModel::onWindowRemoved(const miral::WindowInfo &windowInfo)
     m_windowModel.takeAt(index);
     endRemoveRows();
     Q_EMIT countChanged();
+}
+
+void WindowModel::onWindowReady(const miral::WindowInfo &windowInfo)
+{
+    if (auto mirSurface = find(windowInfo)) {
+        mirSurface->setReady();
+    }
 }
 
 void WindowModel::onWindowMoved(const miral::WindowInfo &windowInfo, const QPoint topLeft)

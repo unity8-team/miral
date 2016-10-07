@@ -681,6 +681,28 @@ TEST_F(WindowModelTest, WhenRemoveInputMethodWindowNotifiedModelPropertyReset)
     EXPECT_EQ(nullptr, model.inputMethodSurface());
 }
 
+/*
+ * Test: that the WindowModelNotifier.windowReady causes its associated MirSurface
+ * to emit the ready signal.
+ */
+TEST_F(WindowModelTest, WindowReadyCausesMirSurfaceToEmitReadySignal)
+{
+    WindowModelNotifier notifier;
+    WindowModel model(&notifier, nullptr); // no need for controller in this testcase
+
+    auto newWindow = createNewWindow();
+    notifier.windowAdded(newWindow);
+
+    auto surface = getMirSurfaceFromModel(model, 0); // will be MirSurface for newWindow
+    QSignalSpy readySpy(surface, &MirSurface::ready);
+
+    // Mark window ready
+    notifier.windowReady(newWindow.windowInfo);
+    flushEvents();
+
+    EXPECT_EQ(1, readySpy.count());
+}
+
 
 class WindowModelTestTypes : public WindowModelTest, public ::testing::WithParamInterface<Mir::State>
 {
