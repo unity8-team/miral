@@ -148,23 +148,34 @@ void TilingWindowManagerPolicy::handle_modify_window(
     miral::WindowInfo& window_info,
     miral::WindowSpecification const& modifications)
 {
+    auto const tile = tile_for(tools.info_for(window_info.window().application()));
     auto mods = modifications;
 
-    // filter out changes we don't want the client making
-    reset(mods.top_left());
-    reset(mods.size());
-    reset(mods.output_id());
-    reset(mods.min_width());
-    reset(mods.min_height());
-    reset(mods.max_width());
-    reset(mods.max_height());
-    reset(mods.width_inc());
-    reset(mods.height_inc());
-    reset(mods.min_aspect());
-    reset(mods.max_aspect());
+    if (mods.size().is_set())
+    {
+        auto width = std::min(tile.size.width, mods.size().value().width);
+        auto height = std::min(tile.size.height, mods.size().value().height);
 
-    if (mods.state().is_set())
-        mods.state() = transform_set_state(mods.state().consume());
+        mods.size() = Size{width, height};
+    }
+
+    if (mods.top_left().is_set())
+    {
+        auto x = std::max(tile.top_left.x, mods.top_left().value().x);
+        auto y = std::max(tile.top_left.y, mods.top_left().value().y);
+
+        mods.top_left() = Point{x, y};
+    }
+
+    auto bottom_right = (mods.top_left().is_set() ? mods.top_left().value() : window_info.window().top_left()) +
+        as_displacement(mods.size().is_set() ? mods.size().value() : window_info.window().size());
+
+    auto overhang = bottom_right - tile.bottom_right();
+
+    if (overhang.dx > DeltaX{0}) mods.top_left() = mods.top_left().value() - overhang.dx;
+    if (overhang.dy > DeltaY{0}) mods.top_left() = mods.top_left().value() - overhang.dy;
+
+    reset(mods.output_id());
 
     tools.modify_window(window_info, mods);
 }
