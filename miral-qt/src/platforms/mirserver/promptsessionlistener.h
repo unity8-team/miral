@@ -43,10 +43,10 @@ public:
         std::shared_ptr<mir::scene::Session> const& prompt_provider) override;
 
 Q_SIGNALS:
-    void promptSessionStarting(qtmir::PromptSession const& session);
-    void promptSessionStopping(qtmir::PromptSession const& session);
-    void promptSessionSuspending(qtmir::PromptSession const& session);
-    void promptSessionResuming(qtmir::PromptSession const& session);
+    void promptSessionStarting(qtmir::PromptSession const &session);
+    void promptSessionStopping(qtmir::PromptSession const &session);
+    void promptSessionSuspending(qtmir::PromptSession const &session);
+    void promptSessionResuming(qtmir::PromptSession const &session);
 
     void promptProviderAdded(qtmir::PromptSession const&, std::shared_ptr<mir::scene::Session> const&);
     void promptProviderRemoved(qtmir::PromptSession const&, std::shared_ptr<mir::scene::Session> const&);
