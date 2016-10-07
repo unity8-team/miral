@@ -66,7 +66,7 @@ applications under Xmir:
 
     $ bin/miral-xrun firefox
 
-This atuomatically starts a Xmir X11 server on a new $DISPLAY for the 
+This automatically starts a Xmir X11 server on a new $DISPLAY for the 
 application to use. You can use miral-xrun both from a command-line outside the
 miral-shell or, for example, from a terminal running in the shell.
 
