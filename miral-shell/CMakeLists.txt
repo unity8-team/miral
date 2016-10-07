@@ -9,6 +9,14 @@ install(PROGRAMS ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/miral-run
     DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
 )
 
+add_custom_target(miral-xrun ALL
+    cp ${CMAKE_CURRENT_SOURCE_DIR}/miral-xrun.sh ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/miral-xrun
+)
+
+install(PROGRAMS ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/miral-xrun
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
+)
+
 add_executable(miral-shell
     shell_main.cpp
     tiling_window_manager.cpp   tiling_window_manager.h
