@@ -93,8 +93,8 @@ inline MirSurfaceState toMirState(Mir::State state)
         return mir_surface_state_restored;
 
     case Mir::HiddenState:          return mir_surface_state_hidden;
+    default: Q_UNREACHABLE();
     }
-    Q_UNREACHABLE();
 }
 
 } // namespace qtmir

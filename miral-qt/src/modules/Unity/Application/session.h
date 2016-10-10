@@ -77,15 +77,15 @@ public:
 
     std::shared_ptr<mir::scene::Session> session() const override;
 
-    std::shared_ptr<mir::scene::PromptSession> activePromptSession() const override;
-    void foreachPromptSession(const std::function<void(const std::shared_ptr<mir::scene::PromptSession>&)> &f) const override;
+    PromptSession activePromptSession() const override;
+    void foreachPromptSession(const std::function<void(const PromptSession&)> &f) const override;
 
     SessionModel* childSessions() const override;
 
     void setFullscreen(bool fullscreen) override;
     void setLive(const bool) override;
-    void appendPromptSession(const std::shared_ptr<mir::scene::PromptSession>& session) override;
-    void removePromptSession(const std::shared_ptr<mir::scene::PromptSession>& session) override;
+    void appendPromptSession(const PromptSession& session) override;
+    void removePromptSession(const PromptSession& session) override;
 
     // useful for tests
     void setSuspendTimer(AbstractTimer *timer);
@@ -118,7 +118,7 @@ protected:
     State m_state;
     bool m_live;
     AbstractTimer* m_suspendTimer{nullptr};
-    QVector<std::shared_ptr<mir::scene::PromptSession>> m_promptSessions;
+    QVector<PromptSession> m_promptSessions;
     std::shared_ptr<PromptSessionManager> const m_promptSessionManager;
     QList<MirSurfaceInterface*> m_closingSurfaces;
     bool m_hadSurface{false};

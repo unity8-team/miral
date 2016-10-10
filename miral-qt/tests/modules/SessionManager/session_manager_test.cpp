@@ -18,6 +18,7 @@
 #include <condition_variable>
 #include <QSignalSpy>
 
+#include "promptsession.h"
 #include <Unity/Application/session.h>
 
 #include "qtmir_test.h"
@@ -33,9 +34,9 @@ public:
     SessionManagerTests()
     {}
 
-    QList<std::shared_ptr<ms::PromptSession>> listPromptSessions(SessionInterface* session) {
-        QList<std::shared_ptr<ms::PromptSession>> promptSessions;
-        session->foreachPromptSession([&promptSessions](const std::shared_ptr<ms::PromptSession>& promptSession) {
+    QList<qtmir::PromptSession> listPromptSessions(SessionInterface* session) {
+        QList<qtmir::PromptSession> promptSessions;
+        session->foreachPromptSession([&promptSessions](const qtmir::PromptSession &promptSession) {
             promptSessions << promptSession;
         });
         return promptSessions;
@@ -61,7 +62,7 @@ TEST_F(SessionManagerTests, sessionTracksPromptSession)
     SessionInterface* qtmirAppSession = sessionManager.findSession(mirAppSession.get());
     EXPECT_TRUE(qtmirAppSession != nullptr);
 
-    auto promptSession = std::make_shared<ms::MockPromptSession>();
+    qtmir::PromptSession promptSession{std::make_shared<ms::MockPromptSession>()};
     ON_CALL(*stubPromptSessionManager, application_for(_)).WillByDefault(Return(mirAppSession));
 
     sessionManager.onPromptSessionStarting(promptSession);

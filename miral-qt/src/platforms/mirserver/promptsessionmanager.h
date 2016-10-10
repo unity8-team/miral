@@ -23,23 +23,23 @@
 
 namespace mir {
 namespace scene {
-class PromptSession;
 class PromptSessionManager;
 }
 }
 
 namespace qtmir {
+class PromptSession;
 class PromptSessionManager
 {
 public:
-    explicit PromptSessionManager(std::shared_ptr<mir::scene::PromptSessionManager> const& promptSessionManager);
+    explicit PromptSessionManager(const std::shared_ptr<mir::scene::PromptSessionManager> &promptSessionManager);
     virtual ~PromptSessionManager();
 
-    miral::Application applicationFor(std::shared_ptr<mir::scene::PromptSession> const& promptSession) const;
+    miral::Application applicationFor(qtmir::PromptSession const &promptSession) const;
 
-    void stopPromptSession(std::shared_ptr<mir::scene::PromptSession> const& promptSession) const;
-    void suspendPromptSession(std::shared_ptr<mir::scene::PromptSession> const& promptSession) const;
-    void resumePromptSession(std::shared_ptr<mir::scene::PromptSession> const& promptSession) const;
+    void stopPromptSession(qtmir::PromptSession const &promptSession) const;
+    void suspendPromptSession(qtmir::PromptSession const &promptSession) const;
+    void resumePromptSession(qtmir::PromptSession const &promptSession) const;
 
 private:
     std::shared_ptr<mir::scene::PromptSessionManager> const m_promptSessionManager;
