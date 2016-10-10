@@ -36,7 +36,7 @@ public:
 
     QList<qtmir::PromptSession> listPromptSessions(SessionInterface* session) {
         QList<qtmir::PromptSession> promptSessions;
-        session->foreachPromptSession([&promptSessions](const qtmir::PromptSession& promptSession) {
+        session->foreachPromptSession([&promptSessions](const qtmir::PromptSession &promptSession) {
             promptSessions << promptSession;
         });
         return promptSessions;
