@@ -156,7 +156,7 @@ void SessionManager::onSessionStopping(const miral::ApplicationInfo &appInfo)
     Q_EMIT sessionStopping(qmlSession);
 }
 
-void SessionManager::onPromptSessionStarting(const qtmir::PromptSession& promptSession)
+void SessionManager::onPromptSessionStarting(const qtmir::PromptSession &promptSession)
 {
     qCDebug(QTMIR_SESSIONS) << "SessionManager::onPromptSessionStarting - promptSession=" << promptSession.get();
 
@@ -170,7 +170,7 @@ void SessionManager::onPromptSessionStarting(const qtmir::PromptSession& promptS
     }
 }
 
-void SessionManager::onPromptSessionStopping(const qtmir::PromptSession& promptSession)
+void SessionManager::onPromptSessionStopping(const qtmir::PromptSession &promptSession)
 {
     qCDebug(QTMIR_SESSIONS) << "SessionManager::onPromptSessionStopping - promptSession=" << promptSession.get();
 

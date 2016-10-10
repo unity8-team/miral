@@ -294,7 +294,7 @@ void Session::suspend()
         session()->set_lifecycle_state(mir_lifecycle_state_will_suspend);
         m_suspendTimer->start();
 
-        foreachPromptSession([this](const qtmir::PromptSession& promptSession) {
+        foreachPromptSession([this](const qtmir::PromptSession &promptSession) {
             m_promptSessionManager->suspendPromptSession(promptSession);
         });
 
@@ -326,7 +326,7 @@ void Session::doResume()
 
     session()->set_lifecycle_state(mir_lifecycle_state_resumed);
 
-    foreachPromptSession([this](const qtmir::PromptSession& promptSession) {
+    foreachPromptSession([this](const qtmir::PromptSession &promptSession) {
         m_promptSessionManager->resumePromptSession(promptSession);
     });
 
@@ -453,14 +453,14 @@ SessionModel* Session::childSessions() const
     return m_children;
 }
 
-void Session::appendPromptSession(const qtmir::PromptSession& promptSession)
+void Session::appendPromptSession(const qtmir::PromptSession &promptSession)
 {
     DEBUG_MSG << "(promptSession=" << promptSession.get() << ")";
 
     m_promptSessions.append(promptSession);
 }
 
-void Session::removePromptSession(const qtmir::PromptSession& promptSession)
+void Session::removePromptSession(const qtmir::PromptSession &promptSession)
 {
     DEBUG_MSG << "(promptSession=" << promptSession.get() << ")";
 

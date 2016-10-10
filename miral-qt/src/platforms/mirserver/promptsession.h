@@ -32,23 +32,23 @@ class PromptSession
 {
 public:
     // Intentionally promiscuous converting constructor
-    PromptSession(std::shared_ptr<mir::scene::PromptSession> const &promptSession) :
+    PromptSession(const std::shared_ptr<mir::scene::PromptSession> &promptSession) :
         m_promptSession{promptSession} {}
 
     PromptSession() = default;
-    PromptSession(PromptSession const& that) = default;
-    PromptSession& operator=(PromptSession const& rhs) = default;
+    PromptSession(const PromptSession &that) = default;
+    PromptSession& operator=(const PromptSession &rhs) = default;
     ~PromptSession() = default;
 
     mir::scene::PromptSession* get() const { return m_promptSession.get(); }
 
-    friend bool operator==(PromptSession const &lhs, PromptSession const &rhs)
+    friend bool operator==(const PromptSession &lhs, const PromptSession &rhs)
         { return lhs.m_promptSession == rhs.m_promptSession; }
 
-    friend bool operator==(PromptSession const &lhs, mir::scene::PromptSession *rhs)
+    friend bool operator==(const PromptSession &lhs, mir::scene::PromptSession *rhs)
         { return lhs.m_promptSession.get() == rhs; }
 
-    friend bool operator==(mir::scene::PromptSession *lhs, PromptSession const &rhs)
+    friend bool operator==(mir::scene::PromptSession *lhs, const PromptSession &rhs)
         { return lhs == rhs.m_promptSession.get(); }
 
     // Intentionally promiscuous converting operator
