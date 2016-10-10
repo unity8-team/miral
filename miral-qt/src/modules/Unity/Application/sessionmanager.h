@@ -72,8 +72,8 @@ public Q_SLOTS:
 
     void onPromptSessionStarting(const PromptSession& promptSession);
     void onPromptSessionStopping(const PromptSession& promptSession);
-    void onPromptProviderAdded(const mir::scene::PromptSession *, const std::shared_ptr<mir::scene::Session> &);
-    void onPromptProviderRemoved(const mir::scene::PromptSession *, const std::shared_ptr<mir::scene::Session> &);
+    void onPromptProviderAdded(const qtmir::PromptSession &promptSession, const std::shared_ptr<mir::scene::Session> &);
+    void onPromptProviderRemoved(const qtmir::PromptSession &promptSession, const std::shared_ptr<mir::scene::Session> &);
 
 protected:
 

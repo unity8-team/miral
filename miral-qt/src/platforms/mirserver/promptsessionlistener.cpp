@@ -36,6 +36,7 @@ PromptSessionListener::~PromptSessionListener()
 void PromptSessionListener::starting(std::shared_ptr<ms::PromptSession> const& prompt_session)
 {
     qCDebug(QTMIR_MIR_MESSAGES) << "PromptSessionListener::starting - this=" << this << "prompt_session=" << prompt_session.get();
+    m_mirPromptToSessionHash.insert(prompt_session.get(), prompt_session);
     Q_EMIT promptSessionStarting(prompt_session);
 }
 
@@ -43,6 +44,7 @@ void PromptSessionListener::stopping(std::shared_ptr<ms::PromptSession> const& p
 {
     qCDebug(QTMIR_MIR_MESSAGES) << "PromptSessionListener::stopping - this=" << this << "prompt_session=" << prompt_session.get();
     Q_EMIT promptSessionStopping(prompt_session);
+    m_mirPromptToSessionHash.remove(prompt_session.get());
 }
 
 void PromptSessionListener::suspending(std::shared_ptr<ms::PromptSession> const& prompt_session)
@@ -63,7 +65,7 @@ void PromptSessionListener::prompt_provider_added(ms::PromptSession const& promp
     qCDebug(QTMIR_MIR_MESSAGES) << "PromptSessionListener::prompt_provider_added - this=" << this
                                 << "prompt_session=" << &prompt_session
                                 << "prompt_provider=" << prompt_provider.get();
-    Q_EMIT promptProviderAdded(&prompt_session, prompt_provider);
+    Q_EMIT promptProviderAdded(m_mirPromptToSessionHash[&prompt_session], prompt_provider);
 }
 
 void PromptSessionListener::prompt_provider_removed(ms::PromptSession const& prompt_session,
@@ -72,5 +74,5 @@ void PromptSessionListener::prompt_provider_removed(ms::PromptSession const& pro
     qCDebug(QTMIR_MIR_MESSAGES) << "PromptSessionListener::prompt_provider_removed - this=" << this
                                 << "prompt_session=" << &prompt_session
                                 << "prompt_provider=" << prompt_provider.get();
-    Q_EMIT promptProviderRemoved(&prompt_session, prompt_provider);
+    Q_EMIT promptProviderRemoved(m_mirPromptToSessionHash[&prompt_session], prompt_provider);
 }

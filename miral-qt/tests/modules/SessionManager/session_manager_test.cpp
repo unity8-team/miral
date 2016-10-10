@@ -92,6 +92,7 @@ TEST_F(SessionManagerTests, TestPromptSession)
     EXPECT_CALL(*stubPromptSessionManager, helper_for(_)).WillRepeatedly(Return(nullptr));
 
     std::shared_ptr<ms::PromptSession> mirPromptSession = std::make_shared<ms::MockPromptSession>();
+    qtmir::PromptSession promptSession{mirPromptSession};
 
     // prompt provider session
     std::shared_ptr<ms::Session> mirProviderSession = std::make_shared<MockSession>("mirProviderSession", __LINE__);
@@ -107,22 +108,22 @@ TEST_F(SessionManagerTests, TestPromptSession)
 
     EXPECT_THAT(listPromptSessions(qtmirAppSession), IsEmpty());
 
-    sessionManager.onPromptSessionStarting(mirPromptSession);
+    sessionManager.onPromptSessionStarting(promptSession);
 
     EXPECT_THAT(listPromptSessions(qtmirAppSession), ElementsAre(mirPromptSession));
     EXPECT_THAT(listChildSessions(qtmirAppSession), IsEmpty());
 
-    sessionManager.onPromptProviderAdded(mirPromptSession.get(), mirProviderSession);
+    sessionManager.onPromptProviderAdded(promptSession, mirProviderSession);
 
     EXPECT_THAT(listChildSessions(qtmirAppSession), ElementsAre(qtmirProviderSession));
 
     EXPECT_CALL(*stubPromptSessionManager, for_each_provider_in(mirPromptSession,_)).WillRepeatedly(InvokeWithoutArgs([]{}));
 
     EXPECT_EQ(qtmirProviderSession->live(), true);
-    sessionManager.onPromptProviderRemoved(mirPromptSession.get(), mirProviderSession);
+    sessionManager.onPromptProviderRemoved(promptSession, mirProviderSession);
     EXPECT_EQ(qtmirProviderSession->live(), false);
 
-    sessionManager.onPromptSessionStopping(mirPromptSession);
+    sessionManager.onPromptSessionStopping(promptSession);
 
     EXPECT_THAT(listPromptSessions(qtmirAppSession), IsEmpty());
 
