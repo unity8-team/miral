@@ -86,12 +86,25 @@ struct StubSurface : mir::test::doubles::StubSurface
     mir::geometry::Size size() const override { return  size_; }
     void resize(mir::geometry::Size const& size) override { size_ = size; }
 
-    bool visible() const override { return  true; }
+    auto state() const -> MirSurfaceState override { return state_; }
+    auto configure(MirSurfaceAttrib attrib, int value) -> int override {
+        switch (attrib)
+        {
+        case mir_surface_attrib_state:
+            state_ = MirSurfaceState(value);
+            return state_;
+        default:
+            return value;
+        }
+    }
+
+    bool visible() const override { return  state() != mir_surface_state_hidden; }
 
     std::string name_;
     MirSurfaceType type_;
     mir::geometry::Point top_left_;
     mir::geometry::Size size_;
+    MirSurfaceState state_ = mir_surface_state_restored;
 };
 
 struct StubStubSession : mir::test::doubles::StubSession

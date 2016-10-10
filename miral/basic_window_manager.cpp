@@ -843,6 +843,8 @@ void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirSur
     policy->advise_state_change(window_info, value);
     window_info.state(value);
 
+    mir_surface->configure(mir_surface_attrib_state, value);
+
     switch (value)
     {
     case mir_surface_state_hidden:
@@ -856,6 +858,8 @@ void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirSur
                 {
                     if (candidate == window)
                         return true;
+                    if (!std::shared_ptr<scene::Surface>(candidate)->visible())
+                        return true;
                     auto const w = candidate;
                     return !(select_active_window(w));
                 });
@@ -865,8 +869,6 @@ void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirSur
     default:
         mir_surface->show();
     }
-
-    mir_surface->configure(mir_surface_attrib_state, value);
 }
 
 void miral::BasicWindowManager::update_event_timestamp(MirKeyboardEvent const* kev)
