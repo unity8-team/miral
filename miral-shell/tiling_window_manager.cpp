@@ -148,7 +148,8 @@ void TilingWindowManagerPolicy::handle_modify_window(
     miral::WindowInfo& window_info,
     miral::WindowSpecification const& modifications)
 {
-    auto const tile = tile_for(tools.info_for(window_info.window().application()));
+    auto const window = window_info.window();
+    auto const tile = tile_for(tools.info_for(window.application()));
     auto mods = modifications;
 
     if (mods.size().is_set())
@@ -167,13 +168,17 @@ void TilingWindowManagerPolicy::handle_modify_window(
         mods.top_left() = Point{x, y};
     }
 
-    auto bottom_right = (mods.top_left().is_set() ? mods.top_left().value() : window_info.window().top_left()) +
-        as_displacement(mods.size().is_set() ? mods.size().value() : window_info.window().size());
-
+    auto top_left = mods.top_left().is_set() ? mods.top_left().value() : window.top_left();
+    auto bottom_right = top_left + as_displacement(mods.size().is_set() ? mods.size().value() : window.size());
     auto overhang = bottom_right - tile.bottom_right();
 
-    if (overhang.dx > DeltaX{0}) mods.top_left() = mods.top_left().value() - overhang.dx;
-    if (overhang.dy > DeltaY{0}) mods.top_left() = mods.top_left().value() - overhang.dy;
+    if (overhang.dx > DeltaX{0}) top_left = top_left - overhang.dx;
+    if (overhang.dy > DeltaY{0}) top_left = top_left - overhang.dy;
+
+    if (top_left != window.top_left())
+        mods.top_left() = top_left;
+    else
+        reset(mods.top_left());
 
     reset(mods.output_id());
 
