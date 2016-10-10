@@ -19,30 +19,29 @@
 
 #include <mir/scene/prompt_session_manager.h>
 
-qtmir::PromptSessionManager::PromptSessionManager(std::shared_ptr<mir::scene::PromptSessionManager> const& promptSessionManager) :
+qtmir::PromptSessionManager::PromptSessionManager(std::shared_ptr<mir::scene::PromptSessionManager> const &promptSessionManager) :
     m_promptSessionManager{promptSessionManager}
 {
 }
 
 qtmir::PromptSessionManager::~PromptSessionManager() = default;
 
-miral::Application qtmir::PromptSessionManager::applicationFor(
-    PromptSession const& promptSession) const
+miral::Application qtmir::PromptSessionManager::applicationFor(const PromptSession &promptSession) const
 {
     return m_promptSessionManager->application_for(promptSession);
 }
 
-void qtmir::PromptSessionManager::stopPromptSession(PromptSession const& promptSession) const
+void qtmir::PromptSessionManager::stopPromptSession(const PromptSession &promptSession) const
 {
     m_promptSessionManager->stop_prompt_session(promptSession);
 }
 
-void qtmir::PromptSessionManager::suspendPromptSession(PromptSession const& promptSession) const
+void qtmir::PromptSessionManager::suspendPromptSession(const PromptSession &promptSession) const
 {
     m_promptSessionManager->suspend_prompt_session(promptSession);
 }
 
-void qtmir::PromptSessionManager::resumePromptSession(PromptSession const& promptSession) const
+void qtmir::PromptSessionManager::resumePromptSession(const PromptSession &promptSession) const
 {
     m_promptSessionManager->resume_prompt_session(promptSession);
 }
