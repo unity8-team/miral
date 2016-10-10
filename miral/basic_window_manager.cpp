@@ -930,8 +930,8 @@ auto miral::BasicWindowManager::select_active_window(Window const& hint) -> mira
     {
         if (std::shared_ptr<mir::scene::Surface> surface = child)
         {
-            if (surface->type() == mir_surface_type_dialog)
-                return (select_active_window(child));
+            if (surface->type() == mir_surface_type_dialog && surface->visible())
+                return select_active_window(child);
         }
     }
 
