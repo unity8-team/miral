@@ -97,3 +97,27 @@ TEST_F(SelectActiveWindow, given_a_child_dialog_when_selecting_the_parent_the_di
     EXPECT_THAT(actual, Eq(dialog))
         << "actual=" << actual << ", expected=" << dialog;
 }
+
+TEST_F(SelectActiveWindow, given_a_hidden_child_dialog_when_selecting_the_parent_the_parent_receives_focus)
+{
+    mir::scene::SurfaceCreationParameters creation_parameters;
+    creation_parameters.name = "parent";
+    creation_parameters.type = mir_surface_type_normal;
+    creation_parameters.size = Size{600, 400};
+
+    auto parent = create_window(creation_parameters);
+
+    creation_parameters.name = "dialog";
+    creation_parameters.type = mir_surface_type_dialog;
+    creation_parameters.parent = parent;
+
+    auto dialog = create_window(creation_parameters);
+
+    WindowSpecification mods;
+    mods.state() = mir_surface_state_hidden;
+    basic_window_manager.modify_window(basic_window_manager.info_for(dialog), mods);
+
+    auto actual = basic_window_manager.select_active_window(parent);
+    EXPECT_THAT(actual, Eq(parent))
+                << "actual=" << actual << ", expected=" << parent;
+}
