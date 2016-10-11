@@ -30,6 +30,10 @@ namespace miral
 class Keymap
 {
 public:
+
+    /// Apply keymap from the config.
+    Keymap();
+
     /// Specify a keymap.
     /// Format is <language>[+<variant>]
     /// e.g. "uk" or "us+dvorak"

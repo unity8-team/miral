@@ -21,6 +21,7 @@
 #include <mir/input/input_device_observer.h>
 #include <mir/input/input_device_hub.h>
 #include <mir/input/device.h>
+#include <mir/options/option.h>
 #include <mir/server.h>
 #include <mir/version.h>
 
@@ -34,6 +35,12 @@
 
 #include <algorithm>
 #include <vector>
+
+namespace
+{
+char const* const keymap_option = "keymap";
+char const* const keymap_default = "us";
+}
 
 struct miral::Keymap::Self : mir::input::InputDeviceObserver
 {
@@ -120,6 +127,11 @@ struct miral::Keymap::Self : mir::input::InputDeviceObserver
     std::vector<std::shared_ptr<mir::input::Device>> keyboards;
 };
 
+miral::Keymap::Keymap() :
+    self{std::make_shared<Self>(std::string{})}
+{
+}
+
 miral::Keymap::Keymap(std::string const& keymap) :
     self{std::make_shared<Self>(keymap)}
 {
@@ -133,8 +145,16 @@ auto miral::Keymap::operator=(Keymap const& rhs) -> Keymap& = default;
 
 void miral::Keymap::operator()(mir::Server& server) const
 {
+    if (self->layout.empty())
+        server.add_configuration_option(keymap_option, "keymap <layout>[+<variant>], e,g, \"gb\" or \"cz+qwerty\"", keymap_default);
+
     server.add_init_callback([this, &server]
-        { server.the_input_device_hub()->add_observer(self); });
+        {
+            if (self->layout.empty())
+                self->set_keymap(server.get_options()->get<std::string>(keymap_option));
+
+            server.the_input_device_hub()->add_observer(self);
+        });
 }
 
 void miral::Keymap::set_keymap(std::string const& keymap)

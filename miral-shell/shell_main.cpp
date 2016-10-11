@@ -69,7 +69,7 @@ int main(int argc, char const* argv[])
             return true;
         };
 
-    Keymap system_keymap("gb"); // TODO get from /etc/default/keyboard (I think)
+    Keymap config_keymap;
 
     return runner.run_with(
         {
@@ -78,7 +78,7 @@ int main(int argc, char const* argv[])
             display_configuration_options,
             launcher,
             outputs_monitor,
-            system_keymap,
+            config_keymap,
             AppendEventFilter{quit_on_ctrl_alt_bksp},
             StartupInternalClient{"Intro", spinner}
         });
