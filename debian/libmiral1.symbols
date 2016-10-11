@@ -264,3 +264,14 @@ libmiral.so.1 libmiral1 #MINVER#
  (c++)"vtable for miral::ActiveOutputsListener@MIRAL_0.1" 0.1.0
  (c++)"vtable for miral::CanonicalWindowManagerPolicy@MIRAL_0.1" 0.1.0
  (c++)"vtable for miral::WindowManagementPolicy@MIRAL_0.1" 0.1.0
+ (c++)"miral::Keymap::set_keymap(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)@MIRAL_0.3" 0.3.0
+ (c++)"miral::Keymap::Keymap(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)@MIRAL_0.3" 0.3.0
+ (c++)"miral::Keymap::Keymap(miral::Keymap const&)@MIRAL_0.3" 0.3.0
+ (c++)"miral::Keymap::Keymap()@MIRAL_0.3" 0.3.0
+ (c++)"miral::Keymap::Keymap(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)@MIRAL_0.3" 0.3.0
+ (c++)"miral::Keymap::Keymap(miral::Keymap const&)@MIRAL_0.3" 0.3.0
+ (c++)"miral::Keymap::Keymap()@MIRAL_0.3" 0.3.0
+ (c++)"miral::Keymap::~Keymap()@MIRAL_0.3" 0.3.0
+ (c++)"miral::Keymap::~Keymap()@MIRAL_0.3" 0.3.0
+ (c++)"miral::Keymap::operator=(miral::Keymap const&)@MIRAL_0.3" 0.3.0
+ (c++)"miral::Keymap::operator()(mir::Server&) const@MIRAL_0.3" 0.3.0
