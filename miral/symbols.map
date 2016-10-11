@@ -307,6 +307,7 @@ global:
     miral::Keymap::?Keymap*;
     miral::Keymap::Keymap*;
     miral::Keymap::operator*;
+    miral::Keymap::set_keymap*;
     miral::WindowSpecification::userdata*;
     typeinfo?for?miral::Keymap;
     vtable?for?miral::Keymap;

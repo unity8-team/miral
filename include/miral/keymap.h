@@ -40,6 +40,9 @@ public:
 
     void operator()(mir::Server& server) const;
 
+    /// Specify a new keymap.
+    void set_keymap(std::string const& keymap);
+
 private:
     struct Self;
     std::shared_ptr<Self> self;

@@ -39,12 +39,20 @@ struct miral::Keymap::Self : mir::input::InputDeviceObserver
 {
     Self(std::string const& keymap) : layout{}, variant{}
     {
+        set_keymap(keymap);
+    }
+
+    void set_keymap(std::string const& keymap)
+    {
         auto const i = keymap.find('+');
 
         layout = keymap.substr(0, i);
 
         if (i != std::string::npos)
-            variant = keymap.substr(i+1);
+            variant = keymap.substr(i + 1);
+
+        for (auto const& keyboard : keyboards)
+            apply_keymap(keyboard);
     }
 
     void device_added(std::shared_ptr<mir::input::Device> const& device) override
@@ -127,4 +135,9 @@ void miral::Keymap::operator()(mir::Server& server) const
 {
     server.add_init_callback([this, &server]
         { server.the_input_device_hub()->add_observer(self); });
+}
+
+void miral::Keymap::set_keymap(std::string const& keymap)
+{
+    self->set_keymap(keymap);
 }
