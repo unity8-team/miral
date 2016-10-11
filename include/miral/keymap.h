@@ -30,7 +30,9 @@ namespace miral
 class Keymap
 {
 public:
-    /// Specify a keymap
+    /// Specify a keymap.
+    /// Format is <language>[+<variant>]
+    /// e.g. "uk" or "us+dvorak"
     explicit Keymap(std::string const& keymap);
     ~Keymap();
     Keymap(Keymap const& that);

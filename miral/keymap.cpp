@@ -29,12 +29,23 @@
 #include <mir/input/keyboard_configuration.h>
 #endif
 
+#define MIR_LOG_COMPONENT "miral::Keymap"
+#include <mir/log.h>
+
 #include <algorithm>
 #include <vector>
 
 struct miral::Keymap::Self : mir::input::InputDeviceObserver
 {
-    Self(std::string const& keymap) : keymap{keymap}{}
+    Self(std::string const& keymap) : layout{}, variant{}
+    {
+        auto const i = keymap.find('+');
+
+        layout = keymap.substr(0, i);
+
+        if (i != std::string::npos)
+            variant = keymap.substr(i+1);
+    }
 
     void device_added(std::shared_ptr<mir::input::Device> const& device) override
     {
@@ -75,13 +86,14 @@ struct miral::Keymap::Self : mir::input::InputDeviceObserver
             keymap = keyboard_config.value().device_keymap;
         }
 
-        keymap.layout = this->keymap;
-        keymap.variant = "";
+        keymap.layout = layout;
+        keymap.variant = variant;
         keyboard->apply_keyboard_configuration(std::move(keymap));
     }
 #else
     void apply_keymap(std::shared_ptr<mir::input::Device> const&)
     {
+        mir::log_warning("Cannot apply keymap - not supported for Mir versions prior to 0.24.1")
     }
 #endif
 
@@ -95,7 +107,8 @@ struct miral::Keymap::Self : mir::input::InputDeviceObserver
     {
     }
 
-    std::string keymap;
+    std::string layout;
+    std::string variant;
     std::vector<std::shared_ptr<mir::input::Device>> keyboards;
 };
 
