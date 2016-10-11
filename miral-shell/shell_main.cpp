@@ -26,6 +26,7 @@
 #include <miral/append_event_filter.h>
 #include <miral/internal_client.h>
 #include <miral/cursor_theme.h>
+#include <miral/keymap.h>
 
 #include <linux/input.h>
 
@@ -68,6 +69,8 @@ int main(int argc, char const* argv[])
             return true;
         };
 
+    Keymap system_keymap("gb"); // TODO get from /etc/default/keyboard (I think)
+
     return runner.run_with(
         {
             CursorTheme{"default"},
@@ -75,6 +78,7 @@ int main(int argc, char const* argv[])
             display_configuration_options,
             launcher,
             outputs_monitor,
+            system_keymap,
             AppendEventFilter{quit_on_ctrl_alt_bksp},
             StartupInternalClient{"Intro", spinner}
         });
