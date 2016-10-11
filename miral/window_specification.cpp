@@ -250,6 +250,16 @@ miral::WindowSpecification::Self::Self(mir::scene::SurfaceCreationParameters con
         aux_rect_placement_offset = Displacement{params.aux_rect_placement_offset_x.value(), params.aux_rect_placement_offset_y.value()};
 #endif
 
+#if MIR_SERVER_VERSION < MIR_VERSION_NUMBER(0, 25, 0)
+    // mir_connection_create_spec_for_tooltip() didn't set an edge_attachment preference
+    if (aux_rect.is_set() && !params.edge_attachment.is_set())
+    {
+        window_placement_gravity = mir_placement_gravity_northwest;
+        aux_rect_placement_gravity = mir_placement_gravity_northeast;
+        placement_hints = mir_placement_hints_flip_any;
+    }
+#endif
+
     if (params.edge_attachment.is_set() && !placement_hints.is_set())
     {
         switch (params.edge_attachment.value())
