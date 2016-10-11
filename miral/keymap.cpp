@@ -108,7 +108,7 @@ struct miral::Keymap::Self : mir::input::InputDeviceObserver
 #else
     void apply_keymap(std::shared_ptr<mir::input::Device> const&)
     {
-        mir::log_warning("Cannot apply keymap - not supported for Mir versions prior to 0.24.1")
+        mir::log_warning("Cannot apply keymap - not supported for Mir versions prior to 0.24.1");
     }
 #endif
 
