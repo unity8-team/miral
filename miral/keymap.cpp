@@ -24,14 +24,15 @@
 #include <mir/server.h>
 #include <mir/version.h>
 
-#if MIR_VERSION >= MIR_VERSION_NUMBER(0, 24, 1)
+#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 24, 1)
 #include <mir/input/keymap.h>
+#include <mir/input/keyboard_configuration.h>
 #endif
 
 #include <algorithm>
 #include <vector>
 
-struct miral::Keymap::Self : mir::input::InputDeviceObserver 
+struct miral::Keymap::Self : mir::input::InputDeviceObserver
 {
     Self(std::string const& keymap) : keymap{keymap}{}
 
@@ -63,9 +64,20 @@ struct miral::Keymap::Self : mir::input::InputDeviceObserver
         apply_keymap(keyboard);
     }
 
-#if MIR_VERSION >= MIR_VERSION_NUMBER(0, 24, 1)
+#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 24, 1)
     void apply_keymap(std::shared_ptr<mir::input::Device> const& keyboard)
     {
+        auto const keyboard_config = keyboard->keyboard_configuration();
+        mir::input::Keymap keymap;
+
+        if (keyboard_config.is_set())
+        {
+            keymap = keyboard_config.value().device_keymap;
+        }
+
+        keymap.layout = this->keymap;
+        keymap.variant = "";
+        keyboard->apply_keyboard_configuration(std::move(keymap));
     }
 #else
     void apply_keymap(std::shared_ptr<mir::input::Device> const&)
