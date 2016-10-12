@@ -467,9 +467,6 @@ void MirSurface::setOrientationAngle(Mir::OrientationAngle angle)
 
 QString MirSurface::name() const
 {
-    if (!m_windowInfo.has_name()) {
-        return QStringLiteral();
-    }
     return QString::fromStdString(m_windowInfo.name());
 }
 
