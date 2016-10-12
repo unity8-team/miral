@@ -98,6 +98,7 @@ public:
     auto input_mode() const -> mir::optional_value<InputReceptionMode> const&;
     auto shell_chrome() const -> mir::optional_value<MirShellChrome> const&;
     auto confine_pointer() const -> mir::optional_value<MirPointerConfinementState> const&;
+    auto userdata() const -> mir::optional_value<std::shared_ptr<void>> const&;
 
     auto top_left() -> mir::optional_value<Point>&;
     auto size() -> mir::optional_value<Size>&;
@@ -124,6 +125,7 @@ public:
     auto input_mode() -> mir::optional_value<InputReceptionMode>&;
     auto shell_chrome() -> mir::optional_value<MirShellChrome>&;
     auto confine_pointer() -> mir::optional_value<MirPointerConfinementState>&;
+    auto userdata() -> mir::optional_value<std::shared_ptr<void>>&;
 
 private:
     struct Self;

@@ -148,25 +148,47 @@ void TilingWindowManagerPolicy::handle_modify_window(
     miral::WindowInfo& window_info,
     miral::WindowSpecification const& modifications)
 {
+    auto const window = window_info.window();
+    auto const tile = tile_for(tools.info_for(window.application()));
     auto mods = modifications;
 
-    // filter out changes we don't want the client making
-    reset(mods.top_left());
-    reset(mods.size());
-    reset(mods.output_id());
-    reset(mods.min_width());
-    reset(mods.min_height());
-    reset(mods.max_width());
-    reset(mods.max_height());
-    reset(mods.width_inc());
-    reset(mods.height_inc());
-    reset(mods.min_aspect());
-    reset(mods.max_aspect());
+    constrain_size_and_place(mods, window, tile);
 
-    if (mods.state().is_set())
-        mods.state() = transform_set_state(mods.state().consume());
+    reset(mods.output_id());
 
     tools.modify_window(window_info, mods);
+}
+
+void TilingWindowManagerPolicy::constrain_size_and_place(
+    WindowSpecification& mods, Window const& window, Rectangle const& tile) const
+{
+    if (mods.size().is_set())
+    {
+        auto width = std::min(tile.size.width, mods.size().value().width);
+        auto height = std::min(tile.size.height, mods.size().value().height);
+
+        mods.size() = Size{width, height};
+    }
+
+    if (mods.top_left().is_set())
+    {
+        auto x = std::max(tile.top_left.x, mods.top_left().value().x);
+        auto y = std::max(tile.top_left.y, mods.top_left().value().y);
+
+        mods.top_left() = Point{x, y};
+    }
+
+    auto top_left = mods.top_left().is_set() ? mods.top_left().value() : window.top_left();
+    auto bottom_right = top_left + as_displacement(mods.size().is_set() ? mods.size().value() : window.size());
+    auto overhang = bottom_right - tile.bottom_right();
+
+    if (overhang.dx > DeltaX{0}) top_left = top_left - overhang.dx;
+    if (overhang.dy > DeltaY{0}) top_left = top_left - overhang.dy;
+
+    if (top_left != window.top_left())
+        mods.top_left() = top_left;
+    else
+        reset(mods.top_left());
 }
 
 auto TilingWindowManagerPolicy::transform_set_state(MirSurfaceState value)
@@ -191,7 +213,12 @@ void TilingWindowManagerPolicy::drag(Point cursor)
         {
             if (auto const window = tools.select_active_window(tools.window_at(old_cursor)))
             {
-                drag(tools.info_for(window), cursor, old_cursor, tile_for(tools.info_for(application)));
+
+                auto const tile = tile_for(tools.info_for(application));
+                WindowSpecification mods;
+                mods.top_left() = window.top_left() + (cursor-old_cursor);
+                constrain_size_and_place(mods, window, tile);
+                tools.modify_window(window, mods);
             }
         }
     }
@@ -458,45 +485,6 @@ void TilingWindowManagerPolicy::clip_to_tile(miral::WindowSpecification& paramet
     auto height = std::min(tile.size.height.as_int()-displacement.dy.as_int(), parameters.size().value().height.as_int());
 
     parameters.size() = Size{width, height};
-}
-
-void TilingWindowManagerPolicy::drag(WindowInfo& window_info, Point to, Point from, Rectangle bounds)
-{
-    auto movement = to - from;
-
-    constrained_move(window_info.window(), movement, bounds);
-
-    for (auto const& child: window_info.children())
-    {
-        auto move = movement;
-        constrained_move(child, move, bounds);
-    }
-}
-
-void TilingWindowManagerPolicy::constrained_move(
-    Window window,
-    Displacement& movement,
-    Rectangle const& bounds)
-{
-    auto const top_left = window.top_left();
-    auto const surface_size = window.size();
-    auto const bottom_right = top_left + as_displacement(surface_size);
-
-    if (movement.dx < DeltaX{0})
-            movement.dx = std::max(movement.dx, (bounds.top_left - top_left).dx);
-
-    if (movement.dy < DeltaY{0})
-            movement.dy = std::max(movement.dy, (bounds.top_left - top_left).dy);
-
-    if (movement.dx > DeltaX{0})
-            movement.dx = std::min(movement.dx, (bounds.bottom_right() - bottom_right).dx);
-
-    if (movement.dy > DeltaY{0})
-            movement.dy = std::min(movement.dy, (bounds.bottom_right() - bottom_right).dy);
-
-    auto new_pos = window.top_left() + movement;
-
-    window.move_to(new_pos);
 }
 
 void TilingWindowManagerPolicy::resize(Window window, Point cursor, Point old_cursor, Rectangle bounds)

@@ -1,6 +1,7 @@
 libmiral.so.1 libmiral1 #MINVER#
  MIRAL_0.1@MIRAL_0.1 0.1.0
  MIRAL_0.2@MIRAL_0.2 0.2.0
+ MIRAL_0.3@MIRAL_0.3 0.3.0
  (c++)"miral::ActiveOutputsListener::advise_output_begin()@MIRAL_0.1" 0.1.0
  (c++)"miral::ActiveOutputsListener::advise_output_create(miral::Output const&)@MIRAL_0.1" 0.1.0
  (c++)"miral::ActiveOutputsListener::advise_output_delete(miral::Output const&)@MIRAL_0.1" 0.1.0
@@ -178,6 +179,7 @@ libmiral.so.1 libmiral1 #MINVER#
  (c++)"miral::WindowManagerTools::info_for(std::weak_ptr<mir::scene::Surface> const&) const@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowManagerTools::info_for_window_id(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) const@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowManagerTools::invoke_under_lock(std::function<void ()> const&)@MIRAL_0.1" 0.1.0
+ (c++)"miral::WindowManagerTools::modify_window(miral::Window const&, miral::WindowSpecification const&)@MIRAL_0.3" 0.3.0
  (c++)"miral::WindowManagerTools::modify_window(miral::WindowInfo&, miral::WindowSpecification const&)@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowManagerTools::operator=(miral::WindowManagerTools const&)@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowManagerTools::place_and_size_for_state(miral::WindowSpecification&, miral::WindowInfo const&) const@MIRAL_0.2" 0.2.0
@@ -241,6 +243,8 @@ libmiral.so.1 libmiral1 #MINVER#
  (c++)"miral::WindowSpecification::type() const@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowSpecification::type()@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowSpecification::update(mir::scene::SurfaceCreationParameters&) const@MIRAL_0.1" 0.1.0
+ (c++)"miral::WindowSpecification::userdata()@MIRAL_0.3" 0.3.0
+ (c++)"miral::WindowSpecification::userdata() const@MIRAL_0.3" 0.3.0
  (c++)"miral::WindowSpecification::width_inc() const@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowSpecification::width_inc()@MIRAL_0.1" 0.1.0
  (c++)"miral::WindowSpecification::window_placement_gravity() const@MIRAL_0.1" 0.1.0
@@ -260,3 +264,14 @@ libmiral.so.1 libmiral1 #MINVER#
  (c++)"vtable for miral::ActiveOutputsListener@MIRAL_0.1" 0.1.0
  (c++)"vtable for miral::CanonicalWindowManagerPolicy@MIRAL_0.1" 0.1.0
  (c++)"vtable for miral::WindowManagementPolicy@MIRAL_0.1" 0.1.0
+ (c++)"miral::Keymap::set_keymap(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)@MIRAL_0.3" 0.3.0
+ (c++)"miral::Keymap::Keymap(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)@MIRAL_0.3" 0.3.0
+ (c++)"miral::Keymap::Keymap(miral::Keymap const&)@MIRAL_0.3" 0.3.0
+ (c++)"miral::Keymap::Keymap()@MIRAL_0.3" 0.3.0
+ (c++)"miral::Keymap::Keymap(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)@MIRAL_0.3" 0.3.0
+ (c++)"miral::Keymap::Keymap(miral::Keymap const&)@MIRAL_0.3" 0.3.0
+ (c++)"miral::Keymap::Keymap()@MIRAL_0.3" 0.3.0
+ (c++)"miral::Keymap::~Keymap()@MIRAL_0.3" 0.3.0
+ (c++)"miral::Keymap::~Keymap()@MIRAL_0.3" 0.3.0
+ (c++)"miral::Keymap::operator=(miral::Keymap const&)@MIRAL_0.3" 0.3.0
+ (c++)"miral::Keymap::operator()(mir::Server&) const@MIRAL_0.3" 0.3.0

@@ -60,6 +60,7 @@ struct miral::WindowSpecification::Self
     mir::optional_value<InputReceptionMode> input_mode;
     mir::optional_value<MirShellChrome> shell_chrome;
     mir::optional_value<MirPointerConfinementState> confine_pointer;
+    mir::optional_value<std::shared_ptr<void>> userdata;
 };
 
 miral::WindowSpecification::Self::Self(mir::shell::SurfaceSpecification const& spec) :
@@ -247,6 +248,16 @@ miral::WindowSpecification::Self::Self(mir::scene::SurfaceCreationParameters con
 #if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 25, 0)
     if (params.aux_rect_placement_offset_x.is_set() && params.aux_rect_placement_offset_y.is_set())
         aux_rect_placement_offset = Displacement{params.aux_rect_placement_offset_x.value(), params.aux_rect_placement_offset_y.value()};
+#endif
+
+#if MIR_SERVER_VERSION < MIR_VERSION_NUMBER(0, 25, 0)
+    // mir_connection_create_spec_for_tooltip() didn't set an edge_attachment preference
+    if (aux_rect.is_set() && !params.edge_attachment.is_set())
+    {
+        window_placement_gravity = mir_placement_gravity_northwest;
+        aux_rect_placement_gravity = mir_placement_gravity_northeast;
+        placement_hints = mir_placement_hints_flip_any;
+    }
 #endif
 
     if (params.edge_attachment.is_set() && !placement_hints.is_set())
@@ -487,6 +498,11 @@ auto miral::WindowSpecification::confine_pointer() const -> mir::optional_value<
     return self->confine_pointer;
 }
 
+auto miral::WindowSpecification::userdata() const -> mir::optional_value<std::shared_ptr<void>> const&
+{
+    return self->userdata;
+}
+
 auto miral::WindowSpecification::top_left() -> mir::optional_value<Point>&
 {
     return self->top_left;
@@ -610,4 +626,9 @@ auto miral::WindowSpecification::shell_chrome() -> mir::optional_value<MirShellC
 auto miral::WindowSpecification::confine_pointer() -> mir::optional_value<MirPointerConfinementState>&
 {
     return self->confine_pointer;
+}
+
+auto miral::WindowSpecification::userdata() -> mir::optional_value<std::shared_ptr<void>>&
+{
+    return self->userdata;
 }

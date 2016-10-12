@@ -216,7 +216,7 @@ void TitlebarProvider::advise_state_change(miral::WindowInfo const& window_info,
             break;
         }
 
-        tools.modify_window(tools.info_for(titlebar), modifications);
+        tools.modify_window(titlebar, modifications);
     }
 }
 

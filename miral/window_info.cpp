@@ -40,7 +40,7 @@ struct miral::WindowInfo::Self
     Self();
 
     Window window;
-    mir::optional_value<std::string> name;
+    std::string name;
     MirSurfaceType type;
     MirSurfaceState state;
     mir::geometry::Rectangle restore_rect;
@@ -80,6 +80,9 @@ miral::WindowInfo::Self::Self(Window window, WindowSpecification const& params) 
 {
     if (params.output_id().is_set())
         output_id = params.output_id().value();
+
+    if (params.userdata().is_set())
+        userdata = params.userdata().value();
 }
 
 miral::WindowInfo::Self::Self() :
@@ -554,12 +557,12 @@ void miral::WindowInfo::confine_pointer(MirPointerConfinementState confinement)
 
 bool miral::WindowInfo::has_name() const
 {
-    return self->name.is_set();
+    return true;
 }
 
 auto miral::WindowInfo::name() const -> std::string
 {
-    return self->name.value();
+    return self->name;
 }
 
 void miral::WindowInfo::name(std::string const& name)
