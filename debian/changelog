@@ -1,6 +1,24 @@
 miral (0.3.0) UNRELEASED; urgency=medium
 
-  * TBD
+  * New upstream release 0.3.0 (https://launchpad.net/miral/+milestone/0.3)
+    - ABI summary:
+      . miral ABI unchanged at 1
+    - Enhancements:
+      . Add miral-xrun as a better way to use Xmir
+      . A convenient overload of WindowManagerTools::modify_window() that
+        doesn't require the WindowInfo
+      . Add userdata property to WindowSpecification and copy it to WindowInfo
+    - Bugs fixed:
+      . Crash after closing Qt dialog (LP: #1631958)
+      . tooltips positioned wrong with mir0.24 (LP: #1632325)
+      . Shell wants way to associate initially requested window creation state
+        with the window later created (#1629349)
+      . [Xmir] Alt+` switch between different apps not just windows
+        (LP: #1625849)
+      . miral-shell splash screen should be fullscreen.
+      . TitlebarWindowManagerPolicy::end_resize() should do nothing if not
+        resizing
+      . deduplicate logging of WindowSpecification::top_left
 
  -- Alan Griffiths <alan.griffiths@canonical.com>  Fri, 30 Sep 2016 17:25:31 +0100
 
