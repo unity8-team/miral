@@ -32,6 +32,7 @@ add_library(miral SHARED
     application_info.cpp                ${CMAKE_SOURCE_DIR}/include/miral/application_info.h
     canonical_window_manager.cpp        ${CMAKE_SOURCE_DIR}/include/miral/canonical_window_manager.h
     cursor_theme.cpp                    ${CMAKE_SOURCE_DIR}/include/miral/cursor_theme.h
+    keymap.cpp                          ${CMAKE_SOURCE_DIR}/include/miral/keymap.h
     runner.cpp                          ${CMAKE_SOURCE_DIR}/include/miral/runner.h
     display_configuration_option.cpp    ${CMAKE_SOURCE_DIR}/include/miral/display_configuration_option.h
     output.cpp                          ${CMAKE_SOURCE_DIR}/include/miral/output.h
