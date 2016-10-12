@@ -8,6 +8,8 @@ miral (0.3.0) UNRELEASED; urgency=medium
       . A convenient overload of WindowManagerTools::modify_window() that
         doesn't require the WindowInfo
       . Add userdata property to WindowSpecification and copy it to WindowInfo
+      . miral::Keymap - support for keyboard maps (either programatically
+        Keymap::set_keymap(), or via config --keymap)
     - Bugs fixed:
       . Crash after closing Qt dialog (LP: #1631958)
       . tooltips positioned wrong with mir0.24 (LP: #1632325)
