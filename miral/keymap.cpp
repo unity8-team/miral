@@ -34,6 +34,7 @@
 #include <mir/log.h>
 
 #include <algorithm>
+#include <mutex>
 #include <vector>
 
 namespace
@@ -51,6 +52,8 @@ struct miral::Keymap::Self : mir::input::InputDeviceObserver
 
     void set_keymap(std::string const& keymap)
     {
+        std::lock_guard<decltype(mutex)> lock{mutex};
+
         auto const i = keymap.find('+');
 
         layout = keymap.substr(0, i);
@@ -64,12 +67,16 @@ struct miral::Keymap::Self : mir::input::InputDeviceObserver
 
     void device_added(std::shared_ptr<mir::input::Device> const& device) override
     {
+        std::lock_guard<decltype(mutex)> lock{mutex};
+
         if (mir::contains(device->capabilities(), mir::input::DeviceCapability::keyboard))
             add_keyboard(device);
     }
 
     void device_changed(std::shared_ptr<mir::input::Device> const& device) override
     {
+        std::lock_guard<decltype(mutex)> lock{mutex};
+
         auto const keyboard = std::find(begin(keyboards), end(keyboards), device);
 
         if (mir::contains(device->capabilities(), mir::input::DeviceCapability::keyboard))
@@ -114,6 +121,8 @@ struct miral::Keymap::Self : mir::input::InputDeviceObserver
 
     void device_removed(std::shared_ptr<mir::input::Device> const& device) override
     {
+        std::lock_guard<decltype(mutex)> lock{mutex};
+
         if (mir::contains(device->capabilities(), mir::input::DeviceCapability::keyboard))
             keyboards.erase(std::find(begin(keyboards), end(keyboards), device));
     }
@@ -122,6 +131,7 @@ struct miral::Keymap::Self : mir::input::InputDeviceObserver
     {
     }
 
+    std::mutex mutable mutex;
     std::string layout;
     std::string variant;
     std::vector<std::shared_ptr<mir::input::Device>> keyboards;
