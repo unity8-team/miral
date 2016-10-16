@@ -89,6 +89,11 @@ configure_file(
   ${PROJECT_SOURCE_DIR}/include/miral/detail/mir_features.h
 )
 
+configure_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/version.h.in
+  ${PROJECT_SOURCE_DIR}/include/miral/version.h
+)
+
 install(TARGETS     miral                           LIBRARY DESTINATION "${CMAKE_INSTALL_FULL_LIBDIR}")
 install(DIRECTORY   ${CMAKE_SOURCE_DIR}/include/            DESTINATION "${INCLUDEDIR}")
 install(FILES       ${CMAKE_CURRENT_BINARY_DIR}/miral.pc    DESTINATION "${CMAKE_INSTALL_FULL_LIBDIR}/pkgconfig")
