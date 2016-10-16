@@ -5,6 +5,7 @@ miral (0.3.0) UNRELEASED; urgency=medium
       . miral ABI unchanged at 1
     - Enhancements:
       . Add miral-xrun as a better way to use Xmir
+      . Added miral/version.h to allow permit compile-time feature detection
       . A convenient overload of WindowManagerTools::modify_window() that
         doesn't require the WindowInfo
       . Add userdata property to WindowSpecification and copy it to WindowInfo
@@ -12,7 +13,7 @@ miral (0.3.0) UNRELEASED; urgency=medium
         Keymap::set_keymap(), or via config --keymap)
     - Bugs fixed:
       . Crash after closing Qt dialog (LP: #1631958)
-      . tooltips positioned wrong with mir0.24 (LP: #1632325)
+      . tooltips positioned wrong with mir0.24 (LP: #1632325, LP: #1633052)
       . Shell wants way to associate initially requested window creation state
         with the window later created (#1629349)
       . [Xmir] Alt+` switch between different apps not just windows
