@@ -22,15 +22,37 @@
 #include "mirserverstatuslistener.h"
 #include "promptsessionlistener.h"
 #include "screenscontroller.h"
+#include "logging.h"
 
 // mir
 #include <mir/server.h>
 #include <mir/graphics/cursor.h>
+#include <mir/scene/prompt_session_listener.h>
 
 namespace mg = mir::graphics;
+namespace ms = mir::scene;
 
 namespace
 {
+struct PromptSessionListenerImpl : PromptSessionListener, mir::scene::PromptSessionListener
+{
+    using PromptSessionListener::PromptSessionListener;
+    ~PromptSessionListenerImpl();
+
+    void starting(std::shared_ptr<mir::scene::PromptSession> const& prompt_session) override;
+    void stopping(std::shared_ptr<mir::scene::PromptSession> const& prompt_session) override;
+    void suspending(std::shared_ptr<mir::scene::PromptSession> const& prompt_session) override;
+    void resuming(std::shared_ptr<mir::scene::PromptSession> const& prompt_session) override;
+
+    void prompt_provider_added(mir::scene::PromptSession const& prompt_session,
+                               std::shared_ptr<mir::scene::Session> const& prompt_provider) override;
+    void prompt_provider_removed(mir::scene::PromptSession const& prompt_session,
+                                 std::shared_ptr<mir::scene::Session> const& prompt_provider) override;
+
+private:
+    QHash<const mir::scene::PromptSession *, qtmir::PromptSession> m_mirPromptToSessionHash;
+};
+
 struct HiddenCursorWrapper : mg::Cursor
 {
     HiddenCursorWrapper(std::shared_ptr<mg::Cursor> const& wrapped) :
@@ -72,7 +94,7 @@ void qtmir::MirServerHooks::operator()(mir::Server& server)
 
     server.override_the_prompt_session_listener([this]
         {
-            auto const result = std::make_shared<PromptSessionListener>();
+            auto const result = std::make_shared<PromptSessionListenerImpl>();
             self->m_promptSessionListener = result;
             return result;
         });
@@ -115,3 +137,48 @@ QSharedPointer<ScreensController> qtmir::MirServerHooks::createScreensController
         new ScreensController(screensModel, theMirDisplay(), self->m_mirDisplayConfigurationController.lock()));
 }
 
+PromptSessionListenerImpl::~PromptSessionListenerImpl() = default;
+
+void PromptSessionListenerImpl::starting(std::shared_ptr<ms::PromptSession> const& prompt_session)
+{
+    qCDebug(QTMIR_MIR_MESSAGES) << "PromptSessionListener::starting - this=" << this << "prompt_session=" << prompt_session.get();
+    m_mirPromptToSessionHash.insert(prompt_session.get(), prompt_session);
+    Q_EMIT promptSessionStarting(prompt_session);
+}
+
+void PromptSessionListenerImpl::stopping(std::shared_ptr<ms::PromptSession> const& prompt_session)
+{
+    qCDebug(QTMIR_MIR_MESSAGES) << "PromptSessionListener::stopping - this=" << this << "prompt_session=" << prompt_session.get();
+    Q_EMIT promptSessionStopping(prompt_session);
+    m_mirPromptToSessionHash.remove(prompt_session.get());
+}
+
+void PromptSessionListenerImpl::suspending(std::shared_ptr<ms::PromptSession> const& prompt_session)
+{
+    qCDebug(QTMIR_MIR_MESSAGES) << "PromptSessionListener::suspending - this=" << this << "prompt_session=" << prompt_session.get();
+    Q_EMIT promptSessionSuspending(prompt_session);
+}
+
+void PromptSessionListenerImpl::resuming(std::shared_ptr<ms::PromptSession> const& prompt_session)
+{
+    qCDebug(QTMIR_MIR_MESSAGES) << "PromptSessionListener::resuming - this=" << this << "prompt_session=" << prompt_session.get();
+    Q_EMIT promptSessionResuming(prompt_session);
+}
+
+void PromptSessionListenerImpl::prompt_provider_added(ms::PromptSession const& prompt_session,
+                                                      std::shared_ptr<ms::Session> const& prompt_provider)
+{
+    qCDebug(QTMIR_MIR_MESSAGES) << "PromptSessionListener::prompt_provider_added - this=" << this
+                                << "prompt_session=" << &prompt_session
+                                << "prompt_provider=" << prompt_provider.get();
+    Q_EMIT promptProviderAdded(m_mirPromptToSessionHash[&prompt_session], prompt_provider);
+}
+
+void PromptSessionListenerImpl::prompt_provider_removed(ms::PromptSession const& prompt_session,
+                                                        std::shared_ptr<ms::Session> const& prompt_provider)
+{
+    qCDebug(QTMIR_MIR_MESSAGES) << "PromptSessionListener::prompt_provider_removed - this=" << this
+                                << "prompt_session=" << &prompt_session
+                                << "prompt_provider=" << prompt_provider.get();
+    Q_EMIT promptProviderRemoved(m_mirPromptToSessionHash[&prompt_session], prompt_provider);
+}

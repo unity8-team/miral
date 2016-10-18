@@ -23,36 +23,24 @@
 
 #include "promptsession.h"
 
-#include <mir/scene/prompt_session_listener.h>
+#include <miral/application.h>
 
-class PromptSessionListener : public QObject, public mir::scene::PromptSessionListener
+class PromptSessionListener : public QObject
 {
-    Q_OBJECT
-public:
+Q_OBJECT
+protected:
     explicit PromptSessionListener(QObject *parent = 0);
     ~PromptSessionListener();
 
-    void starting(std::shared_ptr<mir::scene::PromptSession> const& prompt_session) override;
-    void stopping(std::shared_ptr<mir::scene::PromptSession> const& prompt_session) override;
-    void suspending(std::shared_ptr<mir::scene::PromptSession> const& prompt_session) override;
-    void resuming(std::shared_ptr<mir::scene::PromptSession> const& prompt_session) override;
-
-    void prompt_provider_added(mir::scene::PromptSession const& prompt_session,
-        std::shared_ptr<mir::scene::Session> const& prompt_provider) override;
-    void prompt_provider_removed(mir::scene::PromptSession const& prompt_session,
-        std::shared_ptr<mir::scene::Session> const& prompt_provider) override;
-
+public:
 Q_SIGNALS:
     void promptSessionStarting(qtmir::PromptSession const &session);
     void promptSessionStopping(qtmir::PromptSession const &session);
     void promptSessionSuspending(qtmir::PromptSession const &session);
     void promptSessionResuming(qtmir::PromptSession const &session);
 
-    void promptProviderAdded(qtmir::PromptSession const&, std::shared_ptr<mir::scene::Session> const&);
-    void promptProviderRemoved(qtmir::PromptSession const&, std::shared_ptr<mir::scene::Session> const&);
-
-private:
-    QHash<const mir::scene::PromptSession *, qtmir::PromptSession> m_mirPromptToSessionHash;
+    void promptProviderAdded(qtmir::PromptSession const&, miral::Application const&);
+    void promptProviderRemoved(qtmir::PromptSession const&, miral::Application const&);
 };
 
 #endif // SESSIONLISTENER_H
