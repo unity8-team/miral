@@ -53,13 +53,20 @@ struct miral::Keymap::Self : mir::input::InputDeviceObserver
     void set_keymap(std::string const& keymap)
     {
         std::lock_guard<decltype(mutex)> lock{mutex};
+        auto get_next_token = [km = keymap]() mutable
+        {
+            auto const i = km.find('+');
+            auto ret = km.substr(0,i);
+            if (i != std::string::npos)
+                km = km.substr(i+1, std::string::npos);
+            else
+                km = "";
+            return ret;
+        };
 
-        auto const i = keymap.find('+');
-
-        layout = keymap.substr(0, i);
-
-        if (i != std::string::npos)
-            variant = keymap.substr(i + 1);
+        layout = get_next_token();
+        variant = get_next_token();
+        options = get_next_token();
 
         for (auto const& keyboard : keyboards)
             apply_keymap(keyboard);
@@ -110,6 +117,7 @@ struct miral::Keymap::Self : mir::input::InputDeviceObserver
 
         keymap.layout = layout;
         keymap.variant = variant;
+        keymap.options = options;
         keyboard->apply_keyboard_configuration(std::move(keymap));
     }
 #else
@@ -134,6 +142,7 @@ struct miral::Keymap::Self : mir::input::InputDeviceObserver
     std::mutex mutable mutex;
     std::string layout;
     std::string variant;
+    std::string options;
     std::vector<std::shared_ptr<mir::input::Device>> keyboards;
 };
 
@@ -156,7 +165,7 @@ auto miral::Keymap::operator=(Keymap const& rhs) -> Keymap& = default;
 void miral::Keymap::operator()(mir::Server& server) const
 {
     if (self->layout.empty())
-        server.add_configuration_option(keymap_option, "keymap <layout>[+<variant>], e,g, \"gb\" or \"cz+qwerty\"", keymap_default);
+        server.add_configuration_option(keymap_option, "keymap <layout>[+<variant>[+<options>]], e,g, \"gb\" or \"cz+qwerty\" or \"de++compose:caps\"", keymap_default);
 
     server.add_init_callback([this, &server]
         {
