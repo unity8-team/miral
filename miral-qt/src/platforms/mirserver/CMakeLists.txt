@@ -30,7 +30,6 @@ include_directories(
 include_directories(
     SYSTEM
     ${MIRCOMMON_INCLUDE_DIRS}
-    ${MIRSERVER_INCLUDE_DIRS}
     ${MIRRENDERERGLDEV_INCLUDE_DIRS}
 
     ${URL_DISPATCHER_INCLUDE_DIRS}
@@ -52,21 +51,35 @@ string (REPLACE " -pedantic " " " CMAKE_C_FLAGS ${CMAKE_C_FLAGS})
 # Needed to compile tracepoints in C99 mode.
 add_definitions(-DBYTE_ORDER=__BYTE_ORDER)
 
+# These files will compile without mirserver-dev
+add_library(qpa-mirserver-static STATIC
+    ${MIRAL_QT_SOURCE_DIR}/src/common/timestamp.cpp
+    logging.cpp
+    plugin.cpp
+    shelluuid.cpp
+    ubuntutheme.cpp
+    clipboard.cpp
+    openglcontextfactory.cpp openglcontextfactory.h
+# We need to run moc on these headers
+    ${APPLICATION_API_INCLUDEDIR}/unity/shell/application/Mir.h
+    ${MIRAL_QT_SOURCE_DIR}/src/common/appnotifier.h
+    ${MIRAL_QT_SOURCE_DIR}/src/common/windowcontrollerinterface.h
+    ${MIRAL_QT_SOURCE_DIR}/src/common/windowmodelnotifier.h
+)
+
+include_directories(SYSTEM ${MIRSERVER_INCLUDE_DIRS})
+
 set(MIRSERVER_QPA_PLUGIN_SRC
     ${MIRAL_QT_SOURCE_DIR}/src/common/debughelpers.cpp
-    ${MIRAL_QT_SOURCE_DIR}/src/common/timestamp.cpp
     cursor.cpp
     eventbuilder.cpp
-    logging.cpp
     mircursorimages.cpp
     mirdisplayconfigurationpolicy.cpp
     mirsingleton.cpp
     qteventfeeder.cpp
-    plugin.cpp
     qmirserver.cpp
     qmirserver_p.cpp
     sessionauthorizer.cpp
-    shelluuid.cpp
     surfaceobserver.cpp
     promptsessionlistener.cpp
     mirserverstatuslistener.cpp
@@ -80,21 +93,14 @@ set(MIRSERVER_QPA_PLUGIN_SRC
     offscreensurface.cpp
     qtcompositor.cpp
     services.cpp
-    ubuntutheme.cpp
-    clipboard.cpp
     windowcontroller.cpp
     windowmanagementpolicy.cpp
     tracepoints.c
     mirserverhooks.cpp mirserverhooks.h
-    openglcontextfactory.cpp openglcontextfactory.h
     promptsessionmanager.cpp promptsessionmanager.h promptsession.h
     setqtcompositor.cpp setqtcompositor.h
 # We need to run moc on these headers
-    ${APPLICATION_API_INCLUDEDIR}/unity/shell/application/Mir.h
     ${APPLICATION_API_INCLUDEDIR}/unity/shell/application/MirMousePointerInterface.h
-    ${MIRAL_QT_SOURCE_DIR}/src/common/appnotifier.h
-    ${MIRAL_QT_SOURCE_DIR}/src/common/windowcontrollerinterface.h
-    ${MIRAL_QT_SOURCE_DIR}/src/common/windowmodelnotifier.h
 )
 
 add_library(qpa-mirserver SHARED
@@ -103,6 +109,7 @@ add_library(qpa-mirserver SHARED
 
 target_link_libraries(
     qpa-mirserver
+    -L-whole-archive qpa-mirserver-static
     Qt5PlatformSupport
     miral
 
