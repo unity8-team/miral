@@ -11,7 +11,6 @@ include_directories(
 
 include_directories(
   SYSTEM
-  ${MIRSERVER_INCLUDE_DIRS}
   ${Qt5Core_INCLUDE_DIRS}
   ${Qt5GUI_INCLUDE_DIRS}
   ${Qt5Quick_INCLUDE_DIRS}
@@ -26,7 +25,7 @@ target_link_libraries(
   application_test
 
   Qt5::Test
-  
+
   unityapplicationplugin
 
   -L${CMAKE_BINARY_DIR}/miral-qt/tests/framework

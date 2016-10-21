@@ -17,7 +17,6 @@ include_directories(
 include_directories(
   SYSTEM
   ${MIRTEST_INCLUDE_DIRS}
-  ${MIRSERVER_INCLUDE_DIRS}
   ${Qt5Quick_PRIVATE_INCLUDE_DIRS}
 )
 

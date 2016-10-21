@@ -13,7 +13,6 @@ include_directories(
 include_directories(
   SYSTEM
   ${Qt5Gui_PRIVATE_INCLUDE_DIRS}
-  ${MIRSERVER_INCLUDE_DIRS}
 )
 
 add_executable(ScreenTest ${SCREEN_TEST_SOURCES})
