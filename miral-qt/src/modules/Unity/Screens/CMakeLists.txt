@@ -14,6 +14,7 @@ set(SCREENSPLUGIN_SRC
     qquickscreenwindow.cpp
     )
 
+# screens.h references mir/graphics/display_configuration.h
 set_source_files_properties(screens.cpp             PROPERTIES COMPILE_FLAGS "${CMAKE_CXX_FLAGS} ${FIXME_MIRSERVER_CXXFLAGS}")
 set_source_files_properties(qquickscreenwindow.cpp  PROPERTIES COMPILE_FLAGS "${CMAKE_CXX_FLAGS} ${FIXME_MIRSERVER_CXXFLAGS}")
 
