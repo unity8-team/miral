@@ -154,7 +154,6 @@ auto dump_of(miral::WindowSpecification const& specification) -> std::string
 //        APPEND_IF_SET(input_shape);
 //        APPEND_IF_SET(input_mode);
         APPEND_IF_SET(shell_chrome);
-        APPEND_IF_SET(top_left);
         APPEND_IF_SET(confine_pointer);
 #undef  APPEND_IF_SET
     }

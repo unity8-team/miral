@@ -102,6 +102,9 @@ auto miral::BasicWindowManager::add_surface(
     if (spec.parent().is_set() && spec.parent().value().lock())
         window_info.parent(info_for(spec.parent().value()).window());
 
+    if (spec.userdata().is_set())
+        window_info.userdata() = spec.userdata().value();
+
     session_info.add_window(window);
 
     auto const parent = window_info.parent();
@@ -528,7 +531,7 @@ void miral::BasicWindowManager::move_tree(miral::WindowInfo& root, mir::geometry
 
 void miral::BasicWindowManager::modify_window(WindowInfo& window_info, WindowSpecification const& modifications)
 {
-    auto window_info_tmp = window_info;
+    WindowInfo window_info_tmp{window_info};
 
 #define COPY_IF_SET(field)\
     if (modifications.field().is_set())\
@@ -547,6 +550,7 @@ void miral::BasicWindowManager::modify_window(WindowInfo& window_info, WindowSpe
     COPY_IF_SET(output_id);
     COPY_IF_SET(preferred_orientation);
     COPY_IF_SET(confine_pointer);
+    COPY_IF_SET(userdata);
 
 #undef COPY_IF_SET
 
@@ -733,7 +737,7 @@ void miral::BasicWindowManager::place_and_size_for_state(
 
     auto restore_rect = window_info.restore_rect();
 
-    // window_info.restore_rect() was cached on last state change, update to reflect current window position 
+    // window_info.restore_rect() was cached on last state change, update to reflect current window position
     switch (window_info.state())
     {
     case mir_surface_state_restored:
@@ -763,7 +767,7 @@ void miral::BasicWindowManager::place_and_size_for_state(
     if (modifications.top_left().is_set())
         restore_rect.top_left = modifications.top_left().value();
 
-    // If the client or shell has also set size, that overrides restore_rect default 
+    // If the client or shell has also set size, that overrides restore_rect default
     if (modifications.size().is_set())
         restore_rect.size = modifications.size().value();
 
@@ -839,12 +843,12 @@ void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirSur
     policy->advise_state_change(window_info, value);
     window_info.state(value);
 
-    if (window_info.is_visible())
+    mir_surface->configure(mir_surface_attrib_state, value);
+
+    switch (value)
     {
-        mir_surface->show();
-    }
-    else
-    {
+    case mir_surface_state_hidden:
+    case mir_surface_state_minimized:
         mir_surface->hide();
 
         if (window == active_window())
@@ -854,15 +858,18 @@ void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirSur
                 {
                     if (candidate == window)
                         return true;
+                    if (!std::shared_ptr<scene::Surface>(candidate)->visible())
+                        return true;
                     auto const w = candidate;
                     return !(select_active_window(w));
                 });
         }
+        break;
+
+    default:
+        mir_surface->show();
     }
-
-    mir_surface->configure(mir_surface_attrib_state, value);
 }
-
 
 void miral::BasicWindowManager::update_event_timestamp(MirKeyboardEvent const* kev)
 {
@@ -925,8 +932,8 @@ auto miral::BasicWindowManager::select_active_window(Window const& hint) -> mira
     {
         if (std::shared_ptr<mir::scene::Surface> surface = child)
         {
-            if (surface->type() == mir_surface_type_dialog)
-                return (select_active_window(child));
+            if (surface->type() == mir_surface_type_dialog && surface->visible())
+                return select_active_window(child);
         }
     }
 
