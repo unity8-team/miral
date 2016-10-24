@@ -1,2 +1,3 @@
 include/miral/detail/mir_features.h
+include/miral/version.h
 .idea
