@@ -22,7 +22,7 @@ def _get_text(node):
 def _get_text_for_element(parent, tagname):
     substrings = []
     nodes = parent.getElementsByTagName(tagname)
-    for node in nodes : substrings.append(_get_text(node))
+    for node in nodes: substrings.append(_get_text(node))
     return ''.join(substrings)
 
 def _get_file_location(node):
@@ -39,11 +39,11 @@ def _has_element(node, tagname):
     return False
 
 def _print_attribs(node, attribs):
-    for attrib in attribs : print ' ', attrib, '=', node.attributes[attrib].value
+    for attrib in attribs: print ' ', attrib, '=', node.attributes[attrib].value
 
 def _concat_text_from_tags(parent, tagnames):
     substrings = []
-    for tag in tagnames : substrings.append(_get_text_for_element(parent, tag))
+    for tag in tagnames: substrings.append(_get_text_for_element(parent, tag))
     return ''.join(substrings)
 
 def _print_location(node):
@@ -52,7 +52,7 @@ def _print_location(node):
 def _get_attribs(node):
     kind = node.attributes['kind'].value
     static = node.attributes['static'].value
-    prot =  node.attributes['prot'].value
+    prot = node.attributes['prot'].value
     return kind, static, prot
 
 COMPONENT_MAP = {}
@@ -62,11 +62,11 @@ def _report(publish, symbol):
     symbol = symbol.replace('~', '?')
 
     if publish: SYMBOLS['public'].add(symbol)
-    else:       SYMBOLS['private'].add(symbol)
+    else: SYMBOLS['private'].add(symbol)
 
     if not DEBUG: return
     if publish: print '  PUBLISH: {}'.format(symbol)
-    else      : print 'NOPUBLISH: {}'.format(symbol)
+    else: print 'NOPUBLISH: {}'.format(symbol)
 
 OLD_STANZAS = '''MIRAL_0.1 {
 global:
@@ -382,7 +382,7 @@ def _print_report():
     print OLD_STANZAS
     for symbol in sorted(SYMBOLS['public']):
         formatted_symbol = '    {};'.format(symbol)
-        if not formatted_symbol in OLD_STANZAS:
+        if formatted_symbol not in OLD_STANZAS:
             print formatted_symbol
     print END_NEW_STANZA
 
@@ -415,7 +415,7 @@ def _parse_member_def(context_name, node, is_class):
     if publish and is_class: publish = is_function or static == 'yes'
     if publish and prot == 'private':
         if is_function: publish = node.attributes['virt'].value == 'virtual'
-        else: publish =  False
+        else: publish = False
 
     if publish and _has_element(node, ['argsstring']):
         publish = not _get_text_for_element(node, 'argsstring').endswith('=0')
@@ -425,7 +425,7 @@ def _parse_member_def(context_name, node, is_class):
     if DEBUG: print '  is_class:', is_class
     _report(publish, symbol + '*')
     if is_function and node.attributes['virt'].value == 'virtual': _report(publish,
-                                                                          'non-virtual?thunk?to?' + symbol + '*')
+                                                                           'non-virtual?thunk?to?' + symbol + '*')
 
 def _parse_compound_defs(xmldoc):
     compounddefs = xmldoc.getElementsByTagName('compounddef')
@@ -435,19 +435,19 @@ def _parse_compound_defs(xmldoc):
         if kind in ['page', 'file', 'example', 'union']: continue
 
         if kind in ['group']:
-            for member in node.getElementsByTagName('memberdef') :
+            for member in node.getElementsByTagName('memberdef'):
                 _parse_member_def(None, member, False)
             continue
 
         if kind in ['namespace']:
             symbol = _concat_text_from_tags(node, ['compoundname'])
-            for member in node.getElementsByTagName('memberdef') :
+            for member in node.getElementsByTagName('memberdef'):
                 _parse_member_def(symbol, member, False)
             continue
 
-        file = _get_file_location(node)
-        if DEBUG: print '  from file:', file
-        if '/examples/' in file or '/test/' in file or '[generated]' in file or '[STL]' in file:
+        filename = _get_file_location(node)
+        if DEBUG: print '  from file:', filename
+        if '/examples/' in filename or '/test/' in filename or '[generated]' in filename or '[STL]' in filename:
             continue
 
         if _has_element(node, ['templateparamlist']): continue
@@ -458,14 +458,14 @@ def _parse_compound_defs(xmldoc):
 
         if publish:
             if kind in ['class', 'struct']:
-                prot =  node.attributes['prot'].value
+                prot = node.attributes['prot'].value
                 publish = prot != 'private'
                 _print_debug_info(node, ['kind', 'prot'])
                 _report(publish, 'vtable?for?' + symbol)
                 _report(publish, 'typeinfo?for?' + symbol)
 
         if publish:
-            for member in node.getElementsByTagName('memberdef') :
+            for member in node.getElementsByTagName('memberdef'):
                 _parse_member_def(symbol, member, kind in ['class', 'struct'])
 
 if __name__ == "__main__":
