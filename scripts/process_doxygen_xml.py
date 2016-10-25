@@ -21,15 +21,18 @@ def _get_text(node):
 
 def _get_text_for_element(parent, tagname):
     substrings = []
-    nodes = parent.getElementsByTagName(tagname)
-    for node in nodes: substrings.append(_get_text(node))
+
+    for node in parent.getElementsByTagName(tagname):
+        substrings.append(_get_text(node))
+
     return ''.join(substrings)
 
 def _get_file_location(node):
     for node in node.childNodes:
         if node.nodeType == node.ELEMENT_NODE and node.tagName == 'location':
             return node.attributes['file'].value
-    if DEBUG: print 'no location in:', node
+    if DEBUG:
+        print 'no location in:', node
     return None
 
 def _has_element(node, tagname):
@@ -39,11 +42,15 @@ def _has_element(node, tagname):
     return False
 
 def _print_attribs(node, attribs):
-    for attrib in attribs: print ' ', attrib, '=', node.attributes[attrib].value
+    for attrib in attribs:
+        print ' ', attrib, '=', node.attributes[attrib].value
 
 def _concat_text_from_tags(parent, tagnames):
     substrings = []
-    for tag in tagnames: substrings.append(_get_text_for_element(parent, tag))
+
+    for tag in tagnames:
+        substrings.append(_get_text_for_element(parent, tag))
+
     return ''.join(substrings)
 
 def _print_location(node):
@@ -61,12 +68,18 @@ SYMBOLS = {'public' : set(), 'private' : set()}
 def _report(publish, symbol):
     symbol = symbol.replace('~', '?')
 
-    if publish: SYMBOLS['public'].add(symbol)
-    else: SYMBOLS['private'].add(symbol)
+    if publish:
+        SYMBOLS['public'].add(symbol)
+    else:
+        SYMBOLS['private'].add(symbol)
 
-    if not DEBUG: return
-    if publish: print '  PUBLISH: {}'.format(symbol)
-    else: print 'NOPUBLISH: {}'.format(symbol)
+    if not DEBUG:
+        return
+
+    if publish:
+        print '  PUBLISH: {}'.format(symbol)
+    else:
+        print 'NOPUBLISH: {}'.format(symbol)
 
 OLD_STANZAS = '''MIRAL_0.1 {
 global:
@@ -387,52 +400,83 @@ def _print_report():
     print END_NEW_STANZA
 
 def _print_debug_info(node, attributes):
-    if not DEBUG: return
+    if not DEBUG:
+        return
     print
     _print_attribs(node, attributes)
     _print_location(node)
 
 def _parse_member_def(context_name, node, is_class):
-    (kind, static, prot) = _get_attribs(node)
+    kind = node.attributes['kind'].value
 
-    if kind in ['enum', 'typedef']: return
-    if _has_element(node, ['templateparamlist']): return
-    if kind in ['function'] and node.attributes['inline'].value == 'yes': return
-
-    name = _concat_text_from_tags(node, ['name'])
-    if name in ['__attribute__']:
-        if DEBUG: print '  ignoring doxygen mis-parsing:', _concat_text_from_tags(node, ['argsstring'])
+    if kind in ['enum', 'typedef'] or\
+        _has_element(node, ['templateparamlist']) or\
+        kind in ['function'] and node.attributes['inline'].value == 'yes':
         return
 
-    if name.startswith('operator'): name = 'operator'
-    if not context_name is None: symbol = context_name + '::' + name
-    else: symbol = name
+    name = _concat_text_from_tags(node, ['name'])
+
+    if name in ['__attribute__']:
+        if DEBUG:
+            print '  ignoring doxygen mis-parsing:', _concat_text_from_tags(node, ['argsstring'])
+        return
+
+    if name.startswith('operator'):
+        name = 'operator'
+
+    if not context_name is None:
+        symbol = context_name + '::' + name
+    else:
+        symbol = name
+
+    is_function = kind == 'function'
+
+    if is_function:
+        _print_debug_info(node, ['kind', 'prot', 'static', 'virt'])
+    else:
+        _print_debug_info(node, ['kind', 'prot', 'static'])
+
+    if DEBUG:
+        print '  is_class:', is_class
+
+    publish = _should_publish(is_class, is_function, node)
+
+    _report(publish, symbol + '*')
+
+    if is_function and node.attributes['virt'].value == 'virtual':
+        _report(publish, 'non-virtual?thunk?to?' + symbol + '*')
+
+
+def _should_publish(is_class, is_function, node):
+    (kind, static, prot) = _get_attribs(node)
 
     publish = True
 
-    is_function = kind == 'function'
-    if publish: publish = kind != 'define'
-    if publish and is_class: publish = is_function or static == 'yes'
+    if publish:
+        publish = kind != 'define'
+
+    if publish and is_class:
+        publish = is_function or static == 'yes'
+
     if publish and prot == 'private':
-        if is_function: publish = node.attributes['virt'].value == 'virtual'
-        else: publish = False
+        if is_function:
+            publish = node.attributes['virt'].value == 'virtual'
+        else:
+            publish = False
 
     if publish and _has_element(node, ['argsstring']):
         publish = not _get_text_for_element(node, 'argsstring').endswith('=0')
 
-    if is_function: _print_debug_info(node, ['kind', 'prot', 'static', 'virt'])
-    else: _print_debug_info(node, ['kind', 'prot', 'static'])
-    if DEBUG: print '  is_class:', is_class
-    _report(publish, symbol + '*')
-    if is_function and node.attributes['virt'].value == 'virtual': _report(publish,
-                                                                           'non-virtual?thunk?to?' + symbol + '*')
+    return publish
+
 
 def _parse_compound_defs(xmldoc):
     compounddefs = xmldoc.getElementsByTagName('compounddef')
     for node in compounddefs:
         kind = node.attributes['kind'].value
 
-        if kind in ['page', 'file', 'example', 'union']: continue
+        if kind in ['page', 'file', 'example', 'union']:
+            continue
 
         if kind in ['group']:
             for member in node.getElementsByTagName('memberdef'):
@@ -446,11 +490,13 @@ def _parse_compound_defs(xmldoc):
             continue
 
         filename = _get_file_location(node)
-        if DEBUG: print '  from file:', filename
-        if '/examples/' in filename or '/test/' in filename or '[generated]' in filename or '[STL]' in filename:
-            continue
 
-        if _has_element(node, ['templateparamlist']): continue
+        if DEBUG:
+            print '  from file:', filename
+
+        if '/examples/' in filename or '/test/' in filename or '[generated]' in filename or\
+            '[STL]' in filename or _has_element(node, ['templateparamlist']):
+            continue
 
         symbol = _concat_text_from_tags(node, ['compoundname'])
 
@@ -475,12 +521,13 @@ if __name__ == "__main__":
 
     for arg in argv[1:]:
         try:
-            if DEBUG: print 'Processing:', arg
-            xmldoc = minidom.parse(arg)
-            _parse_compound_defs(xmldoc)
+            if DEBUG:
+                print 'Processing:', arg
+            _parse_compound_defs(minidom.parse(arg))
         except Exception as error:
             print 'Error:', arg, error
 
-    if DEBUG: print 'Processing complete'
+    if DEBUG:
+        print 'Processing complete'
 
     _print_report()
