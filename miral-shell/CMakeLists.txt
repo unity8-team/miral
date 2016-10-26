@@ -24,6 +24,11 @@ add_executable(miral-shell
     titlebar_provider.cpp       titlebar_provider.h
 )
 
+pkg_check_modules(FREETYPE freetype2 REQUIRED)
+target_include_directories(miral-shell PUBLIC ${FREETYPE_INCLUDE_DIRS})
+target_compile_definitions(miral-shell PUBLIC -DTYPO_SUPPORTS_FREETYPE)
+target_link_libraries(miral-shell ${FREETYPE_LIBRARIES})
+
 target_link_libraries(miral-shell
     miral-spinner
     miral

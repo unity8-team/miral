@@ -67,7 +67,7 @@ public:
 
     void create_titlebar_for(miral::Window const& window);
     void place_new_titlebar(miral::WindowSpecification& window_spec);
-    void paint_titlebar_for(miral::Window const& window, int intensity);
+    void paint_titlebar_for(miral::WindowInfo const& window, int intensity);
     void destroy_titlebar_for(miral::Window const& window);
     void resize_titlebar_for(miral::Window const& window, mir::geometry::Size const& size);
     void advise_new_titlebar(miral::WindowInfo const& window_info);

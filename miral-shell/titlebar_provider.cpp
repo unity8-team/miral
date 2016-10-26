@@ -22,6 +22,9 @@
 
 #include <mir_toolkit/mir_buffer_stream.h>
 
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
 #include <cstring>
 #include <sstream>
 
@@ -31,7 +34,22 @@ int const title_bar_height = 10;
 
 void null_surface_callback(MirSurface*, void*) {}
 
-void paint_surface(MirSurface* surface, int const intensity)
+struct Printer
+{
+    Printer();
+    ~Printer();
+    Printer(Printer const&) = delete;
+    Printer& operator=(Printer const&) = delete;
+
+    void print(MirGraphicsRegion const& region, std::wstring const& title, int const intensity);
+
+private:
+    bool working = false;
+    FT_Library lib;
+    FT_Face face;
+};
+
+void paint_surface(MirSurface* surface, std::string const& title, int const intensity)
 {
     MirBufferStream* buffer_stream = mir_surface_get_buffer_stream(surface);
 
@@ -51,7 +69,88 @@ void paint_surface(MirSurface* surface, int const intensity)
         row += region.stride;
     }
 
+    static Printer printer;
+    printer.print(region, std::wstring{begin(title), end(title)}, intensity);
+
     mir_buffer_stream_swap_buffers_sync(buffer_stream);
+}
+
+char const* const fontlist[] = {
+    "/usr/share/fonts/truetype/ubuntu-font-family/Ubuntu-B.ttf",
+    "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
+    nullptr // Sentinel value
+};
+
+Printer::Printer()
+{
+    if (FT_Init_FreeType(&lib))
+        return;
+
+    for (auto font : fontlist)
+    {
+        if (!font) // hit the sentinel? We're done!
+        {
+            FT_Done_FreeType(lib);
+            return;
+        }
+
+        if (!FT_New_Face(lib, font, 0, &face))
+        {
+            puts(font);
+            break;
+        }
+    }
+
+    FT_Set_Pixel_Sizes(face, 0, 8);
+    working = true;
+}
+
+Printer::~Printer()
+{
+    if (working)
+    {
+        FT_Done_Face(face);
+        FT_Done_FreeType(lib);
+    }
+}
+
+void Printer::print(MirGraphicsRegion const& region, std::wstring const& title, int const intensity)
+{
+    if (!working)
+        return;
+
+    int base_x = 2;
+    int base_y = region.height-2;
+
+    for (auto const& ch : title)
+    {
+        FT_Load_Glyph(face, FT_Get_Char_Index(face, ch), FT_LOAD_DEFAULT);
+        auto const glyph = face->glyph;
+        FT_Render_Glyph(glyph, FT_RENDER_MODE_NORMAL);
+
+        auto const& bitmap = glyph->bitmap;
+        auto const x = base_x + glyph->bitmap_left;
+
+        if (static_cast<int>(x + bitmap.width) <= region.width)
+        {
+            unsigned char* src = bitmap.buffer;
+
+            auto const y = base_y - glyph->bitmap_top;
+            char* dest = region.vaddr + y*region.stride + 4*x;
+
+            for (auto row = 0u; row != bitmap.rows; ++row)
+            {
+                for (auto col = 0u; col != bitmap.width; ++col)
+                    memset(dest+ 4*col, intensity^src[col], 4);
+
+                src += bitmap.pitch;
+                dest += region.stride;
+            }
+        }
+
+        base_x += glyph->advance.x >> 6;
+        base_y += glyph->advance.y >> 6;
+    }
 }
 }
 
@@ -121,18 +220,20 @@ void TitlebarProvider::create_titlebar_for(miral::Window const& window)
         });
 }
 
-void TitlebarProvider::paint_titlebar_for(miral::Window const& window, int intensity)
+void TitlebarProvider::paint_titlebar_for(miral::WindowInfo const& info, int intensity)
 {
-    if (auto data = find_titlebar_data(window))
+    if (auto data = find_titlebar_data(info.window()))
     {
+        auto const title = info.name();
+
         if (auto surface = data->titlebar.load())
         {
-            enqueue_work([this, surface, intensity]{ paint_surface(surface, intensity); });
+            enqueue_work([this, surface, title, intensity]{ paint_surface(surface, title, intensity); });
         }
         else
         {
-            data->on_create = [this, intensity](MirSurface* surface)
-                { enqueue_work([this, surface, intensity]{ paint_surface(surface, intensity); }); };
+            data->on_create = [this, title, intensity](MirSurface* surface)
+                { enqueue_work([this, surface, title, intensity]{ paint_surface(surface, title, intensity); }); };
         }
     }
 }
