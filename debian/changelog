@@ -1,4 +1,4 @@
-miral (0.3.0) UNRELEASED; urgency=medium
+miral (0.3.0+17.04.20161024-0ubuntu1) zesty; urgency=medium
 
   * New upstream release 0.3.0 (https://launchpad.net/miral/+milestone/0.3)
     - ABI summary:
@@ -23,7 +23,7 @@ miral (0.3.0) UNRELEASED; urgency=medium
         resizing
       . deduplicate logging of WindowSpecification::top_left
 
- -- Alan Griffiths <alan.griffiths@canonical.com>  Fri, 30 Sep 2016 17:25:31 +0100
+ -- Alan Griffiths <alan.griffiths@canonical.com>  Mon, 24 Oct 2016 15:25:46 +0000
 
 miral (0.2.0+16.10.20160930.1-0ubuntu1) yakkety; urgency=medium
 
