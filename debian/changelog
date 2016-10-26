@@ -1,10 +1,11 @@
-miral (0.3.0) UNRELEASED; urgency=medium
+miral (0.3.0+17.04.20161024-0ubuntu1) zesty; urgency=medium
 
   * New upstream release 0.3.0 (https://launchpad.net/miral/+milestone/0.3)
     - ABI summary:
       . miral ABI unchanged at 1
     - Enhancements:
       . Add miral-xrun as a better way to use Xmir
+      . Added miral/version.h to allow permit compile-time feature detection
       . A convenient overload of WindowManagerTools::modify_window() that
         doesn't require the WindowInfo
       . Add userdata property to WindowSpecification and copy it to WindowInfo
@@ -12,7 +13,7 @@ miral (0.3.0) UNRELEASED; urgency=medium
         Keymap::set_keymap(), or via config --keymap)
     - Bugs fixed:
       . Crash after closing Qt dialog (LP: #1631958)
-      . tooltips positioned wrong with mir0.24 (LP: #1632325)
+      . tooltips positioned wrong with mir0.24 (LP: #1632325, LP: #1633052)
       . Shell wants way to associate initially requested window creation state
         with the window later created (#1629349)
       . [Xmir] Alt+` switch between different apps not just windows
@@ -22,7 +23,7 @@ miral (0.3.0) UNRELEASED; urgency=medium
         resizing
       . deduplicate logging of WindowSpecification::top_left
 
- -- Alan Griffiths <alan.griffiths@canonical.com>  Fri, 30 Sep 2016 17:25:31 +0100
+ -- Alan Griffiths <alan.griffiths@canonical.com>  Mon, 24 Oct 2016 15:25:46 +0000
 
 miral (0.2.0+16.10.20160930.1-0ubuntu1) yakkety; urgency=medium
 
