@@ -36,7 +36,7 @@ using namespace mir::geometry;
 
 namespace
 {
-int const title_bar_height = 10;
+int const title_bar_height = 12;
 
 struct Locker
 {

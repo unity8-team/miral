@@ -25,12 +25,15 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
+#include <locale>
+#include <codecvt>
+#include <string>
 #include <cstring>
 #include <sstream>
 
 namespace
 {
-int const title_bar_height = 10;
+int const title_bar_height = 12;
 
 void null_surface_callback(MirSurface*, void*) {}
 
@@ -41,9 +44,11 @@ struct Printer
     Printer(Printer const&) = delete;
     Printer& operator=(Printer const&) = delete;
 
-    void print(MirGraphicsRegion const& region, std::wstring const& title, int const intensity);
+    void print(MirGraphicsRegion const& region, std::string const& title, int const intensity);
 
 private:
+    std::wstring_convert<std::codecvt_utf16<wchar_t>> converter;
+
     bool working = false;
     FT_Library lib;
     FT_Face face;
@@ -70,7 +75,7 @@ void paint_surface(MirSurface* surface, std::string const& title, int const inte
     }
 
     static Printer printer;
-    printer.print(region, std::wstring{begin(title), end(title)}, intensity);
+    printer.print(region, title, intensity);
 
     mir_buffer_stream_swap_buffers_sync(buffer_stream);
 }
@@ -101,7 +106,7 @@ Printer::Printer()
         }
     }
 
-    FT_Set_Pixel_Sizes(face, 0, 8);
+    FT_Set_Pixel_Sizes(face, 0, 10);
     working = true;
 }
 
@@ -114,10 +119,12 @@ Printer::~Printer()
     }
 }
 
-void Printer::print(MirGraphicsRegion const& region, std::wstring const& title, int const intensity)
+void Printer::print(MirGraphicsRegion const& region, std::string const& title_, int const intensity)
 {
     if (!working)
         return;
+
+    auto title = converter.from_bytes(title_);
 
     int base_x = 2;
     int base_y = region.height-2;
@@ -141,7 +148,7 @@ void Printer::print(MirGraphicsRegion const& region, std::wstring const& title, 
             for (auto row = 0u; row != bitmap.rows; ++row)
             {
                 for (auto col = 0u; col != bitmap.width; ++col)
-                    memset(dest+ 4*col, intensity^src[col], 4);
+                    memset(dest+ 4*col, (intensity*(0xff^src[col]))/0xff, 4);
 
                 src += bitmap.pitch;
                 dest += region.stride;
