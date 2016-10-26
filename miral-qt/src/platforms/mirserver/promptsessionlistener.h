@@ -43,4 +43,7 @@ Q_SIGNALS:
     void promptProviderRemoved(qtmir::PromptSession const&, miral::Application const&);
 };
 
+Q_DECLARE_METATYPE(qtmir::PromptSession)
+Q_DECLARE_METATYPE(miral::Application)
+
 #endif // SESSIONLISTENER_H

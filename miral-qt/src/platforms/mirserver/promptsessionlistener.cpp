@@ -19,13 +19,12 @@
 
 namespace ms = mir::scene;
 
-Q_DECLARE_METATYPE(std::shared_ptr<ms::PromptSession>)
-
 PromptSessionListener::PromptSessionListener(QObject *parent) :
     QObject(parent)
 {
     qCDebug(QTMIR_MIR_MESSAGES) << "PromptSessionListener::PromptSessionListener - this=" << this;
-    qRegisterMetaType<std::shared_ptr<ms::PromptSession>>("std::shared_ptr<mir::scene::PromptSession>");
+    qRegisterMetaType<qtmir::PromptSession>("qtmir::PromptSession");
+    qRegisterMetaType<miral::Application>("miral::Application");
 }
 
 PromptSessionListener::~PromptSessionListener()
