@@ -313,3 +313,14 @@ global:
     vtable?for?miral::Keymap;
   };
 } MIRAL_0.2;
+
+MIRAL_0.4 {
+global:
+  extern "C++" {
+    miral::CommandLineOption::?CommandLineOption*;
+    miral::CommandLineOption::CommandLineOption*;
+    miral::CommandLineOption::operator*;
+    typeinfo?for?miral::CommandLineOption;
+    vtable?for?miral::CommandLineOption;
+  };
+} MIRAL_0.3;
