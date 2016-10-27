@@ -61,7 +61,7 @@ struct miral::CommandLineOption::Self
         setup{[=](mir::Server& server)
                   { server.add_configuration_option(option, description, default_value); }},
         callback{[=](mir::Server& server)
-                     { callback(server.get_options()->get<decltype(default_value)>(option.c_str())); }}
+                     { callback(server.get_options()->get<Value_t>(option.c_str())); }}
     {
     }
 
@@ -73,7 +73,7 @@ struct miral::CommandLineOption::Self
         setup{[=](mir::Server& server)
                   { server.add_configuration_option(option, description, default_value); }},
         callback{[=](mir::Server& server)
-                     { callback(server.get_options()->get<decltype(default_value)>(option.c_str())); }}
+                     { callback(server.get_options()->get<Value_t>(option.c_str())); }}
     {
     }
 
