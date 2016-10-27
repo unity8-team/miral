@@ -134,7 +134,7 @@ void Printer::print(MirGraphicsRegion const& region, std::string const& title_, 
             auto const y = base_y - glyph->bitmap_top;
             char* dest = region.vaddr + y*region.stride + 4*x;
 
-            for (auto row = 0u; row != bitmap.rows; ++row)
+            for (auto row = 0u; row != std::min(bitmap.rows, glyph->bitmap_top+2u); ++row)
             {
                 for (auto col = 0u; col != bitmap.width; ++col)
                     memset(dest+ 4*col, (intensity*(0xff^src[col]))/0xff, 4);
