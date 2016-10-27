@@ -422,9 +422,9 @@ def _print_debug_info(node, attributes):
 def _parse_member_def(context_name, node, is_class):
     kind = node.attributes['kind'].value
 
-    if kind in ['enum', 'typedef'] or\
-        _has_element(node, ['templateparamlist']) or\
-        kind in ['function'] and node.attributes['inline'].value == 'yes':
+    if (kind in ['enum', 'typedef']
+        or _has_element(node, ['templateparamlist'])
+        or kind in ['function'] and node.attributes['inline'].value == 'yes'):
         return
 
     name = _concat_text_from_tags(node, ['name'])
@@ -507,8 +507,8 @@ def _parse_compound_defs(xmldoc):
         if DEBUG:
             print '  from file:', filename
 
-        if '/examples/' in filename or '/test/' in filename or '[generated]' in filename or\
-            '[STL]' in filename or _has_element(node, ['templateparamlist']):
+        if ('/examples/' in filename or '/test/' in filename or '[generated]' in filename
+            or '[STL]' in filename or _has_element(node, ['templateparamlist'])):
             continue
 
         symbol = _concat_text_from_tags(node, ['compoundname'])
