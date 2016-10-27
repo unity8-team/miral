@@ -323,7 +323,7 @@ void TitlebarWindowManagerPolicy::advise_resize(WindowInfo const& window_info, S
 {
     CanonicalWindowManagerPolicy::advise_resize(window_info, new_size);
 
-    titlebar_provider->resize_titlebar_for(window_info.window(), new_size);
+    titlebar_provider->resize_titlebar_for(window_info, new_size);
 }
 
 void TitlebarWindowManagerPolicy::advise_delete_window(WindowInfo const& window_info)
