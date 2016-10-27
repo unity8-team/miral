@@ -30,7 +30,6 @@ include_directories(
 include_directories(
     SYSTEM
     ${MIRCOMMON_INCLUDE_DIRS}
-    ${MIRSERVER_INCLUDE_DIRS}
     ${MIRRENDERERGLDEV_INCLUDE_DIRS}
 
     ${URL_DISPATCHER_INCLUDE_DIRS}
@@ -52,53 +51,61 @@ string (REPLACE " -pedantic " " " CMAKE_C_FLAGS ${CMAKE_C_FLAGS})
 # Needed to compile tracepoints in C99 mode.
 add_definitions(-DBYTE_ORDER=__BYTE_ORDER)
 
-set(MIRSERVER_QPA_PLUGIN_SRC
-    ${MIRAL_QT_SOURCE_DIR}/src/common/debughelpers.cpp
+# These files will compile without mirserver-dev
+add_library(qpa-mirserver-nomirserver OBJECT
     ${MIRAL_QT_SOURCE_DIR}/src/common/timestamp.cpp
-    cursor.cpp
-    eventbuilder.cpp
     logging.cpp
+    plugin.cpp
+    shelluuid.cpp
+    ubuntutheme.cpp
+    clipboard.cpp
+    openglcontextfactory.cpp openglcontextfactory.h
     mircursorimages.cpp
     mirdisplayconfigurationpolicy.cpp
     mirsingleton.cpp
-    qteventfeeder.cpp
-    plugin.cpp
-    qmirserver.cpp
-    qmirserver_p.cpp
     sessionauthorizer.cpp
-    shelluuid.cpp
-    surfaceobserver.cpp
     promptsessionlistener.cpp
     mirserverstatuslistener.cpp
-    screen.cpp
-    screenwindow.cpp
     screenscontroller.cpp
-    screensmodel.cpp
-    mirserverintegration.cpp
-    miropenglcontext.cpp
     nativeinterface.cpp
-    offscreensurface.cpp
     qtcompositor.cpp
     services.cpp
-    ubuntutheme.cpp
-    clipboard.cpp
     windowcontroller.cpp
     windowmanagementpolicy.cpp
-    tracepoints.c
     mirserverhooks.cpp mirserverhooks.h
-    openglcontextfactory.cpp openglcontextfactory.h
-    promptsessionmanager.cpp promptsessionmanager.h promptsession.h
     setqtcompositor.cpp setqtcompositor.h
 # We need to run moc on these headers
     ${APPLICATION_API_INCLUDEDIR}/unity/shell/application/Mir.h
-    ${APPLICATION_API_INCLUDEDIR}/unity/shell/application/MirMousePointerInterface.h
     ${MIRAL_QT_SOURCE_DIR}/src/common/appnotifier.h
     ${MIRAL_QT_SOURCE_DIR}/src/common/windowcontrollerinterface.h
     ${MIRAL_QT_SOURCE_DIR}/src/common/windowmodelnotifier.h
 )
 
+include_directories(SYSTEM ${MIRSERVER_INCLUDE_DIRS})
+
+set(MIRSERVER_QPA_PLUGIN_SRC
+    ${MIRAL_QT_SOURCE_DIR}/src/common/debughelpers.cpp
+    cursor.cpp
+    eventbuilder.cpp
+    qteventfeeder.cpp
+    qmirserver.cpp
+    qmirserver_p.cpp
+    surfaceobserver.cpp
+    screen.cpp
+    screenwindow.cpp
+    screensmodel.cpp
+    mirserverintegration.cpp
+    miropenglcontext.cpp
+    offscreensurface.cpp
+    tracepoints.c
+    promptsessionmanager.cpp promptsessionmanager.h promptsession.h
+# We need to run moc on these headers
+    ${APPLICATION_API_INCLUDEDIR}/unity/shell/application/MirMousePointerInterface.h
+)
+
 add_library(qpa-mirserver SHARED
     ${MIRSERVER_QPA_PLUGIN_SRC}
+    $<TARGET_OBJECTS:qpa-mirserver-nomirserver>
 )
 
 target_link_libraries(

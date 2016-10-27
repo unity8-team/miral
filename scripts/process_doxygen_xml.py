@@ -386,10 +386,23 @@ MIRAL_0.3 {
 global:
    # We need to specify the overload of miral::WindowManagerTools::modify_window
   _ZN5miral18WindowManagerTools13modify_windowERKNS_6WindowERKNS_19WindowSpecificationE;
+  extern "C++" {
+    miral::Keymap::?Keymap*;
+    miral::Keymap::Keymap*;
+    miral::Keymap::operator*;
+    miral::Keymap::set_keymap*;
+    miral::WindowSpecification::userdata*;
+    typeinfo?for?miral::Keymap;
+    vtable?for?miral::Keymap;
+  };
+} MIRAL_0.2;
+
+MIRAL_0.4 {
+global:
   extern "C++" {'''
 
 END_NEW_STANZA = '''  };
-} MIRAL_0.2;'''
+} MIRAL_0.3;'''
 
 def _print_report():
     print OLD_STANZAS
