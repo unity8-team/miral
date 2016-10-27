@@ -18,6 +18,7 @@
 
 #include "tiling_window_manager.h"
 #include "titlebar_window_manager.h"
+#include "titlebar_config.h"
 #include "spinner/splash.h"
 
 #include <miral/display_configuration_option.h>
@@ -25,6 +26,7 @@
 #include <miral/window_management_options.h>
 #include <miral/append_event_filter.h>
 #include <miral/internal_client.h>
+#include <miral/command_line_option.h>
 #include <miral/cursor_theme.h>
 #include <miral/keymap.h>
 
@@ -80,6 +82,8 @@ int main(int argc, char const* argv[])
             outputs_monitor,
             config_keymap,
             AppendEventFilter{quit_on_ctrl_alt_bksp},
-            StartupInternalClient{"Intro", spinner}
+            StartupInternalClient{"Intro", spinner},
+            CommandLineOption{[&](std::string const& typeface) { ::titlebar::font_file(typeface); },
+                              "shell-titlebar-font", "font file to use for titlebars", ::titlebar::font_file()}
         });
 }

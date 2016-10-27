@@ -17,6 +17,7 @@
  */
 
 #include "titlebar_provider.h"
+#include "titlebar_config.h"
 
 #include <miral/toolkit/surface_spec.h>
 
@@ -80,30 +81,15 @@ void paint_surface(MirSurface* surface, std::string const& title, int const inte
     mir_buffer_stream_swap_buffers_sync(buffer_stream);
 }
 
-char const* const fontlist[] = {
-    "/usr/share/fonts/truetype/ubuntu-font-family/Ubuntu-B.ttf",
-    "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
-    nullptr // Sentinel value
-};
-
 Printer::Printer()
 {
     if (FT_Init_FreeType(&lib))
         return;
 
-    for (auto font : fontlist)
+    if (FT_New_Face(lib, titlebar::font_file().c_str(), 0, &face))
     {
-        if (!font) // hit the sentinel? We're done!
-        {
-            FT_Done_FreeType(lib);
-            return;
-        }
-
-        if (!FT_New_Face(lib, font, 0, &face))
-        {
-            puts(font);
-            break;
-        }
+        FT_Done_FreeType(lib);
+        return;
     }
 
     FT_Set_Pixel_Sizes(face, 0, 10);

@@ -22,6 +22,7 @@ add_executable(miral-shell
     tiling_window_manager.cpp   tiling_window_manager.h
     titlebar_window_manager.cpp titlebar_window_manager.h
     titlebar_provider.cpp       titlebar_provider.h
+    titlebar_config.cpp         titlebar_config.h
 )
 
 pkg_check_modules(FREETYPE freetype2 REQUIRED)
