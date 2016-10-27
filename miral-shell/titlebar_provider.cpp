@@ -218,6 +218,8 @@ void TitlebarProvider::create_titlebar_for(miral::Window const& window)
 
 void TitlebarProvider::paint_titlebar_for(miral::WindowInfo const& info, int intensity)
 {
+    this->intensity = intensity;
+
     if (auto data = find_titlebar_data(info.window()))
     {
         auto const title = info.name();
@@ -254,14 +256,18 @@ void TitlebarProvider::destroy_titlebar_for(miral::Window const& window)
     }
 }
 
-void TitlebarProvider::resize_titlebar_for(miral::Window const& window, Size const& size)
+void TitlebarProvider::resize_titlebar_for(miral::WindowInfo const& window_info, Size const& size)
 {
+    auto const window = window_info.window();
+
     if (window.size().width == size.width)
         return;
 
     if (auto titlebar_window = find_titlebar_window(window))
     {
         titlebar_window.resize({size.width, title_bar_height});
+
+        repaint_titlebar_for(window_info);
     }
 }
 
@@ -314,6 +320,18 @@ void TitlebarProvider::advise_state_change(miral::WindowInfo const& window_info,
         }
 
         tools.modify_window(titlebar, modifications);
+        repaint_titlebar_for(window_info);
+    }
+}
+
+void TitlebarProvider::repaint_titlebar_for(miral::WindowInfo const& window_info)
+{
+    if (auto data = find_titlebar_data(window_info.window()))
+    {
+        auto const title = window_info.name();
+
+        if (auto surface = data->titlebar.load())
+            enqueue_work([this, surface, title]{ paint_surface(surface, title, intensity); });
     }
 }
 
