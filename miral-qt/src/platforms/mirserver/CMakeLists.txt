@@ -52,7 +52,7 @@ string (REPLACE " -pedantic " " " CMAKE_C_FLAGS ${CMAKE_C_FLAGS})
 add_definitions(-DBYTE_ORDER=__BYTE_ORDER)
 
 # These files will compile without mirserver-dev
-add_library(qpa-mirserver-static STATIC
+add_library(qpa-mirserver-nomirserver OBJECT
     ${MIRAL_QT_SOURCE_DIR}/src/common/timestamp.cpp
     logging.cpp
     plugin.cpp
@@ -105,11 +105,11 @@ set(MIRSERVER_QPA_PLUGIN_SRC
 
 add_library(qpa-mirserver SHARED
     ${MIRSERVER_QPA_PLUGIN_SRC}
+    $<TARGET_OBJECTS:qpa-mirserver-nomirserver>
 )
 
 target_link_libraries(
     qpa-mirserver
-    -L-whole-archive qpa-mirserver-static
     Qt5PlatformSupport
     miral
 
