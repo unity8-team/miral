@@ -6,7 +6,6 @@ include_directories(
     SYSTEM
     ${Qt5Gui_PRIVATE_INCLUDE_DIRS}
     ${Qt5Quick_INCLUDE_DIRS}
-    ${MIRSERVER_INCLUDE_DIRS}
     )
 
 set(SCREENSPLUGIN_SRC
@@ -14,6 +13,10 @@ set(SCREENSPLUGIN_SRC
     screens.cpp
     qquickscreenwindow.cpp
     )
+
+# screens.h references mir/graphics/display_configuration.h
+set_source_files_properties(screens.cpp             PROPERTIES COMPILE_FLAGS "${CMAKE_CXX_FLAGS} ${FIXME_MIRSERVER_CXXFLAGS}")
+set_source_files_properties(qquickscreenwindow.cpp  PROPERTIES COMPILE_FLAGS "${CMAKE_CXX_FLAGS} ${FIXME_MIRSERVER_CXXFLAGS}")
 
 add_library(unityscreensplugin SHARED
     ${SCREENSPLUGIN_SRC}
