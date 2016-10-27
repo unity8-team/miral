@@ -12,6 +12,7 @@ include_directories(
 include_directories(
   SYSTEM
   ${APPLICATION_API_INCLUDE_DIRS}
+  ${MIRSERVER_INCLUDE_DIRS}
 )
 
 add_executable(applicationmanager_test ${APPLICATION_MANAGER_TEST_SOURCES})
@@ -22,7 +23,7 @@ target_link_libraries(
   applicationmanager_test
 
   Qt5::Test
-
+  
   unityapplicationplugin
 
   -L${CMAKE_BINARY_DIR}/miral-qt/tests/framework

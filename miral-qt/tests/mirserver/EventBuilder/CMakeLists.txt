@@ -8,6 +8,11 @@ include_directories(
   ${MIRAL_QT_SOURCE_DIR}/src/common
 )
 
+include_directories(
+  SYSTEM
+  ${MIRSERVER_INCLUDE_DIRS}
+)
+
 add_executable(EventBuilderTest ${EVENT_BUILDER_TEST_SOURCES})
 
 target_link_libraries(
