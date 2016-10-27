@@ -60,6 +60,20 @@ add_library(qpa-mirserver-nomirserver OBJECT
     ubuntutheme.cpp
     clipboard.cpp
     openglcontextfactory.cpp openglcontextfactory.h
+    mircursorimages.cpp
+    mirdisplayconfigurationpolicy.cpp
+    mirsingleton.cpp
+    sessionauthorizer.cpp
+    promptsessionlistener.cpp
+    mirserverstatuslistener.cpp
+    screenscontroller.cpp
+    nativeinterface.cpp
+    qtcompositor.cpp
+    services.cpp
+    windowcontroller.cpp
+    windowmanagementpolicy.cpp
+    mirserverhooks.cpp mirserverhooks.h
+    setqtcompositor.cpp setqtcompositor.h
 # We need to run moc on these headers
     ${APPLICATION_API_INCLUDEDIR}/unity/shell/application/Mir.h
     ${MIRAL_QT_SOURCE_DIR}/src/common/appnotifier.h
@@ -73,32 +87,18 @@ set(MIRSERVER_QPA_PLUGIN_SRC
     ${MIRAL_QT_SOURCE_DIR}/src/common/debughelpers.cpp
     cursor.cpp
     eventbuilder.cpp
-    mircursorimages.cpp
-    mirdisplayconfigurationpolicy.cpp
-    mirsingleton.cpp
     qteventfeeder.cpp
     qmirserver.cpp
     qmirserver_p.cpp
-    sessionauthorizer.cpp
     surfaceobserver.cpp
-    promptsessionlistener.cpp
-    mirserverstatuslistener.cpp
     screen.cpp
     screenwindow.cpp
-    screenscontroller.cpp
     screensmodel.cpp
     mirserverintegration.cpp
     miropenglcontext.cpp
-    nativeinterface.cpp
     offscreensurface.cpp
-    qtcompositor.cpp
-    services.cpp
-    windowcontroller.cpp
-    windowmanagementpolicy.cpp
     tracepoints.c
-    mirserverhooks.cpp mirserverhooks.h
     promptsessionmanager.cpp promptsessionmanager.h promptsession.h
-    setqtcompositor.cpp setqtcompositor.h
 # We need to run moc on these headers
     ${APPLICATION_API_INCLUDEDIR}/unity/shell/application/MirMousePointerInterface.h
 )
