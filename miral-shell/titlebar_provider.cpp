@@ -32,6 +32,8 @@
 #include <cstring>
 #include <sstream>
 
+#include <iostream>
+
 namespace
 {
 int const title_bar_height = 12;
@@ -88,6 +90,7 @@ Printer::Printer()
 
     if (FT_New_Face(lib, titlebar::font_file().c_str(), 0, &face))
     {
+        std::cerr << "WARNING: failed to load titlebar font: \"" <<  titlebar::font_file() << "\"\n";
         FT_Done_FreeType(lib);
         return;
     }
