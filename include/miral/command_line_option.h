@@ -19,6 +19,8 @@
 #ifndef MIRAL_COMMAND_LINE_OPTION_H
 #define MIRAL_COMMAND_LINE_OPTION_H
 
+#include <mir/optional_value.h>
+
 #include <functional>
 #include <memory>
 #include <string>
@@ -63,25 +65,25 @@ public:
         std::string const& description,
         bool default_value);
 
-//    CommandLineOption(
-//        std::function<void(int value)> callback,
-//        std::string const& option,
-//        std::string const& description);
-//
-//    CommandLineOption(
-//        std::function<void(double value)> callback,
-//        std::string const& option,
-//        std::string const& description);
-//
-//    CommandLineOption(
-//        std::function<void(std::string const& value)> callback,
-//        std::string const& option,
-//        std::string const& description);
-//
-//    CommandLineOption(
-//        std::function<void(bool value)> callback,
-//        std::string const& option,
-//        std::string const& description);
+    CommandLineOption(
+        std::function<void(mir::optional_value<int> const& value)> callback,
+        std::string const& option,
+        std::string const& description);
+
+    CommandLineOption(
+        std::function<void(mir::optional_value<std::string> const& value)> callback,
+        std::string const& option,
+        std::string const& description);
+
+    CommandLineOption(
+        std::function<void(mir::optional_value<bool> const& value)> callback,
+        std::string const& option,
+        std::string const& description);
+
+    CommandLineOption(
+        std::function<void(bool is_set)> callback,
+        std::string const& option,
+        std::string const& description);
 
     void operator()(mir::Server& server) const;
 

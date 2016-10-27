@@ -21,6 +21,36 @@
 #include <mir/server.h>
 #include <mir/options/option.h>
 
+namespace
+{
+template<typename Type>
+struct OptionType;
+
+template<>
+struct OptionType<bool>
+{
+    auto static constexpr value = mir::OptionType::boolean;
+};
+
+template<>
+struct OptionType<void>
+{
+    auto static constexpr value = mir::OptionType::null;
+};
+
+template<>
+struct OptionType<std::string>
+{
+    auto static constexpr value = mir::OptionType::string;
+};
+
+template<>
+struct OptionType<int>
+{
+    auto static constexpr value = mir::OptionType::integer;
+};
+}
+
 struct miral::CommandLineOption::Self
 {
     template<typename Value_t>
@@ -44,6 +74,36 @@ struct miral::CommandLineOption::Self
                   { server.add_configuration_option(option, description, default_value); }},
         callback{[=](mir::Server& server)
                      { callback(server.get_options()->get<decltype(default_value)>(option.c_str())); }}
+    {
+    }
+
+    template<typename Value_t>
+    Self(std::function<void(mir::optional_value<Value_t> const& value)> callback,
+         std::string const& option,
+         std::string const& description) :
+        setup{[=](mir::Server& server)
+                  { server.add_configuration_option(option, description, OptionType<Value_t>::value); }},
+        callback{[=](mir::Server& server)
+                     {
+                        mir::optional_value<Value_t> optional_value;
+                        auto const options = server.get_options();
+                        if (options->is_set(option.c_str()))
+                            optional_value = server.get_options()->get<Value_t>(option.c_str());
+                        callback(optional_value);
+                     }}
+    {
+    }
+
+    Self(std::function<void(bool is_set)> callback,
+         std::string const& option,
+         std::string const& description) :
+        setup{[=](mir::Server& server)
+                  { server.add_configuration_option(option, description, OptionType<void>::value); }},
+        callback{[=](mir::Server& server)
+                 {
+                     auto const options = server.get_options();
+                     callback(options->is_set(option.c_str()));
+                 }}
     {
     }
 
@@ -96,25 +156,37 @@ miral::CommandLineOption::CommandLineOption(
 {
 }
 
-//miral::CommandLineOption::CommandLineOption(
-//    std::function<void(int value)> callback,
-//std::string const& option,
-//    std::string const& description);
-//
-//miral::CommandLineOption::CommandLineOption(
-//    std::function<void(double value)> callback,
-//std::string const& option,
-//    std::string const& description);
-//
-//miral::CommandLineOption::CommandLineOption(
-//    std::function<void(std::string const& value)> callback,
-//std::string const& option,
-//    std::string const& description);
-//
-//miral::CommandLineOption::CommandLineOption(
-//    std::function<void(bool value)> callback,
-//std::string const& option,
-//    std::string const& description);
+miral::CommandLineOption::CommandLineOption(
+    std::function<void(mir::optional_value<int> const& value)> callback,
+    std::string const& option,
+    std::string const& description) :
+    self{std::make_shared<Self>(callback, option, description)}
+{
+}
+
+miral::CommandLineOption::CommandLineOption(
+    std::function<void(mir::optional_value<std::string> const& value)> callback,
+    std::string const& option,
+    std::string const& description) :
+    self{std::make_shared<Self>(callback, option, description)}
+{
+}
+
+miral::CommandLineOption::CommandLineOption(
+    std::function<void(mir::optional_value<bool> const& value)> callback,
+    std::string const& option,
+    std::string const& description) :
+    self{std::make_shared<Self>(callback, option, description)}
+{
+}
+
+miral::CommandLineOption::CommandLineOption(
+    std::function<void(bool is_set)> callback,
+    std::string const& option,
+    std::string const& description) :
+    self{std::make_shared<Self>(callback, option, description)}
+{
+}
 
 void miral::CommandLineOption::operator()(mir::Server& server) const
 {
