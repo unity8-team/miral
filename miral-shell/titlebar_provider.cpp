@@ -326,11 +326,13 @@ void TitlebarProvider::advise_state_change(miral::WindowInfo const& window_info,
 
 void TitlebarProvider::repaint_titlebar_for(miral::WindowInfo const& window_info)
 {
-    auto const title = window_info.name();
-
     if (auto data = find_titlebar_data(window_info.window()))
-            if (auto surface = data->titlebar.load())
-                enqueue_work([this, surface, title]{ paint_surface(surface, title, intensity); });
+    {
+        auto const title = window_info.name();
+
+        if (auto surface = data->titlebar.load())
+            enqueue_work([this, surface, title]{ paint_surface(surface, title, intensity); });
+    }
 }
 
 TitlebarProvider::Data::~Data()
