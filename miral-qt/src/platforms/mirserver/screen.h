@@ -30,7 +30,7 @@
 // local
 #include "cursor.h"
 #include "screenwindow.h"
-#include "screen_configuration.h"
+#include "screentypes.h"
 
 class QOrientationSensor;
 namespace mir {

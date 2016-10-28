@@ -14,8 +14,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef QTMIR_SCREEN_CONFIGURATION_H
-#define QTMIR_SCREEN_CONFIGURATION_H
+#ifndef QTMIR_SCREEN_TYPES_H
+#define QTMIR_SCREEN_TYPES_H
 
 #include <mir/int_wrapper.h>
 
@@ -57,4 +57,4 @@ enum FormFactor {
 
 Q_DECLARE_METATYPE(qtmir::FormFactor)
 
-#endif //QTMIR_SCREEN_CONFIGURATION_H
+#endif //QTMIR_SCREEN_TYPES_H

@@ -17,7 +17,7 @@
 #ifndef SCREENS_H
 #define SCREENS_H
 
-#include "screen_configuration.h"
+#include "screentypes.h"
 
 #include <QAbstractListModel>
 

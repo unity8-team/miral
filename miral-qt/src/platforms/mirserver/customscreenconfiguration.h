@@ -20,7 +20,7 @@
 #include <QPoint>
 #include <QVector>
 
-#include "screen_configuration.h"
+#include "screentypes.h"
 #include <mir_toolkit/common.h>
 
 
