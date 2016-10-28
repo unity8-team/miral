@@ -25,7 +25,8 @@
 #include <qpa/qplatformscreen.h>
 
 // Mir
-#include <mir/graphics/display_configuration.h>
+#include <mir/int_wrapper.h>
+#include <mir_toolkit/common.h>
 
 // local
 #include "cursor.h"
@@ -34,8 +35,15 @@
 
 class QOrientationSensor;
 namespace mir {
-    namespace graphics { class DisplayBuffer; class DisplaySyncGroup; }
+    namespace graphics { class DisplayBuffer; class DisplaySyncGroup; class DisplayConfigurationOutput;
+        namespace detail { struct GraphicsConfCardIdTag; struct GraphicsConfOutputIdTag; }
+    }
     namespace renderer { namespace gl { class RenderTarget; }}
+}
+
+namespace qtmir
+{
+typedef mir::IntWrapper<mir::graphics::detail::GraphicsConfOutputIdTag> DisplayConfigurationOutputId;
 }
 
 class Screen : public QObject, public QPlatformScreen
@@ -60,7 +68,7 @@ public:
     float scale() const { return m_scale; }
     MirFormFactor formFactor() const { return m_formFactor; }
     MirPowerMode powerMode() const { return m_powerMode; }
-    mir::graphics::DisplayConfigurationOutputId outputId() const { return m_outputId; }
+    qtmir::DisplayConfigurationOutputId outputId() const { return m_outputId; }
     qtmir::OutputTypes outputType() const { return m_type; }
     uint32_t currentModeIndex() const { return m_currentModeIndex; }
 
@@ -102,7 +110,7 @@ private:
 
     mir::renderer::gl::RenderTarget *m_renderTarget;
     mir::graphics::DisplaySyncGroup *m_displayGroup;
-    mir::graphics::DisplayConfigurationOutputId m_outputId;
+    qtmir::DisplayConfigurationOutputId m_outputId;
     qtmir::OutputTypes m_type;
     MirPowerMode m_powerMode;
 
