@@ -21,8 +21,8 @@
 
 #include "miral/application.h"
 
+#include <string>
 #include <vector>
-
 
 namespace miral
 {
@@ -36,6 +36,7 @@ struct ApplicationInfo
     ApplicationInfo(ApplicationInfo const& that);
     auto operator=(ApplicationInfo const& that) -> miral::ApplicationInfo&;
 
+    auto name() const -> std::string;
     auto application()  const -> Application;
     auto windows() const -> std::vector <Window>&;
     void add_window(Window const& window);
