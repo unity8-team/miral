@@ -34,9 +34,6 @@
 #include "mirapplication.h"
 
 // mir
-#include <mir/scene/surface.h>
-#include <mir/graphics/display.h>
-#include <mir/graphics/display_buffer.h>
 #include <mir/geometry/rectangles.h>
 
 // Qt
