@@ -91,6 +91,40 @@ qreal QQuickScreenWindow::scale()
     return m_scale;
 }
 
+bool QQuickScreenWindow::setScaleAndFormFactor(const float scale, const FormFactor formFactor)
+{
+    if (qFuzzyCompare(scale, m_scale) && formFactor == m_formFactor) {
+        return true;
+    }
+
+    // Operates through the mirserver ScreensController API
+    auto controller = static_cast<ScreensController*>(qGuiApp->platformNativeInterface()
+                                                      ->nativeResourceForIntegration("ScreensController"));
+    if (!controller) {
+        return false;
+    }
+
+    auto screenHandle = static_cast<Screen *>(screen()->handle());
+    if (!screenHandle) {
+        return false;
+    }
+
+    auto id = screenHandle->outputId();
+
+    auto configs = controller->configuration();
+
+    auto config = configs.begin();
+    while (config != configs.end()) {
+        if (config->id == id) {
+            config->scale = scale;
+            config->formFactor = static_cast<MirFormFactor>(formFactor);
+        }
+        config++;
+    }
+
+    return controller->setConfiguration(configs);
+}
+
 FormFactor QQuickScreenWindow::formFactor()
 {
     if (m_formFactor == FormFactorUnknown) {

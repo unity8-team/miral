@@ -38,6 +38,7 @@ public:
 
     qreal scale();
     FormFactor formFactor();
+    Q_INVOKABLE bool setScaleAndFormFactor(const float scale, const FormFactor formFactor);
 
 Q_SIGNALS:
     void screenChanged(QScreen *screen);
