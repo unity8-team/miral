@@ -14,9 +14,6 @@ set(SCREENSPLUGIN_SRC
     qquickscreenwindow.cpp
     )
 
-# miral-qt/src/platforms/mirserver/customscreenconfiguration.h references mir/graphics/display_configuration.h
-set_source_files_properties(qquickscreenwindow.cpp  PROPERTIES COMPILE_FLAGS "${CMAKE_CXX_FLAGS} ${FIXME_MIRSERVER_CXXFLAGS}")
-
 add_library(unityscreensplugin SHARED
     ${SCREENSPLUGIN_SRC}
 )
