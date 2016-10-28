@@ -24,9 +24,7 @@
 
 // mirserver
 #include "logging.h"
-
-// mir
-#include <mir/scene/session.h>
+#include "mirapplication.h"
 
 // Qt
 #include <QPainter>
@@ -119,7 +117,7 @@ void Session::doSuspend()
 
 QString Session::name() const
 {
-    return QString::fromStdString(m_session->name());
+    return QString::fromStdString(name_of(m_session));
 }
 
 std::shared_ptr<ms::Session> Session::session() const
@@ -291,7 +289,7 @@ void Session::suspend()
 {
     DEBUG_MSG << " state=" << sessionStateToString(m_state);
     if (m_state == Running) {
-        session()->set_lifecycle_state(mir_lifecycle_state_will_suspend);
+        apply_lifecycle_state_to(session(), mir_lifecycle_state_will_suspend);
         m_suspendTimer->start();
 
         foreachPromptSession([this](const qtmir::PromptSession &promptSession) {
@@ -324,7 +322,7 @@ void Session::doResume()
         }
     }
 
-    session()->set_lifecycle_state(mir_lifecycle_state_resumed);
+    apply_lifecycle_state_to(session(), mir_lifecycle_state_resumed);
 
     foreachPromptSession([this](const qtmir::PromptSession &promptSession) {
         m_promptSessionManager->resumePromptSession(promptSession);
@@ -542,7 +540,7 @@ bool Session::activeFocus() const
 
 pid_t Session::pid() const
 {
-    return m_session->process_id();
+    return pid_of(m_session);
 }
 
 void Session::setSuspendTimer(AbstractTimer *timer)
