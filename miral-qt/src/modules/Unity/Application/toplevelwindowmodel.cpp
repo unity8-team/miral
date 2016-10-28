@@ -20,8 +20,6 @@
 #include "mirsurface.h"
 #include "sessionmanager.h"
 
-#include <mir/scene/surface.h>
-
 // mirserver
 #include "nativeinterface.h"
 

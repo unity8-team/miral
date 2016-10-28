@@ -18,8 +18,6 @@
 
 #include "mirsurface.h"
 
-#include <mir/scene/surface.h>
-
 // mirserver
 #include "nativeinterface.h"
 
