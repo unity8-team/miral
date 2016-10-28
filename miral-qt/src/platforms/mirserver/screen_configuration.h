@@ -17,10 +17,16 @@
 #ifndef QTMIR_SCREEN_CONFIGURATION_H
 #define QTMIR_SCREEN_CONFIGURATION_H
 
+#include <mir/int_wrapper.h>
+
 #include <QtCore/qmetatype.h>
+
+namespace mir { namespace graphics { namespace detail { struct GraphicsConfOutputIdTag; } } }
 
 namespace qtmir
 {
+using OutputId = mir::IntWrapper<mir::graphics::detail::GraphicsConfOutputIdTag>;
+
 enum OutputTypes {
     Unknown,
     VGA,
