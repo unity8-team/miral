@@ -30,6 +30,7 @@
 // local
 #include "cursor.h"
 #include "screenwindow.h"
+#include "screen_configuration.h"
 
 class QOrientationSensor;
 namespace mir {
@@ -60,7 +61,7 @@ public:
     MirFormFactor formFactor() const { return m_formFactor; }
     MirPowerMode powerMode() const { return m_powerMode; }
     mir::graphics::DisplayConfigurationOutputId outputId() const { return m_outputId; }
-    mir::graphics::DisplayConfigurationOutputType outputType() const { return m_type; }
+    qtmir::OutputTypes outputType() const { return m_type; }
     uint32_t currentModeIndex() const { return m_currentModeIndex; }
 
     ScreenWindow* window() const;
@@ -102,7 +103,7 @@ private:
     mir::renderer::gl::RenderTarget *m_renderTarget;
     mir::graphics::DisplaySyncGroup *m_displayGroup;
     mir::graphics::DisplayConfigurationOutputId m_outputId;
-    mir::graphics::DisplayConfigurationOutputType m_type;
+    qtmir::OutputTypes m_type;
     MirPowerMode m_powerMode;
 
     Qt::ScreenOrientation m_nativeOrientation;

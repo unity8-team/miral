@@ -96,25 +96,25 @@ enum QImage::Format qImageFormatFromMirPixelFormat(MirPixelFormat mirPixelFormat
     }
 }
 
-QString displayTypeToString(enum mir::graphics::DisplayConfigurationOutputType type)
+QString displayTypeToString(qtmir::OutputTypes type)
 {
-    typedef mir::graphics::DisplayConfigurationOutputType Type;
+    typedef qtmir::OutputTypes Type;
     switch (type) {
-    case Type::vga:           return QStringLiteral("VGP");
-    case Type::dvii:          return QStringLiteral("DVI-I");
-    case Type::dvid:          return QStringLiteral("DVI-D");
-    case Type::dvia:          return QStringLiteral("DVI-A");
-    case Type::composite:     return QStringLiteral("Composite");
-    case Type::svideo:        return QStringLiteral("S-Video");
-    case Type::lvds:          return QStringLiteral("LVDS");
-    case Type::component:     return QStringLiteral("Component");
-    case Type::ninepindin:    return QStringLiteral("9 Pin DIN");
-    case Type::displayport:   return QStringLiteral("DisplayPort");
-    case Type::hdmia:         return QStringLiteral("HDMI-A");
-    case Type::hdmib:         return QStringLiteral("HDMI-B");
-    case Type::tv:            return QStringLiteral("TV");
-    case Type::edp:           return QStringLiteral("EDP");
-    case Type::unknown:
+    case Type::VGA:           return QStringLiteral("VGP");
+    case Type::DVII:          return QStringLiteral("DVI-I");
+    case Type::DVID:          return QStringLiteral("DVI-D");
+    case Type::DVIA:          return QStringLiteral("DVI-A");
+    case Type::Composite:     return QStringLiteral("Composite");
+    case Type::SVideo:        return QStringLiteral("S-Video");
+    case Type::LVDS:          return QStringLiteral("LVDS");
+    case Type::Component:     return QStringLiteral("Component");
+    case Type::NinePinDIN:    return QStringLiteral("9 Pin DIN");
+    case Type::DisplayPort:   return QStringLiteral("DisplayPort");
+    case Type::HDMIA:         return QStringLiteral("HDMI-A");
+    case Type::HDMIB:         return QStringLiteral("HDMI-B");
+    case Type::TV:            return QStringLiteral("TV");
+    case Type::EDP:           return QStringLiteral("EDP");
+    case Type::Unknown:
     default:
         return QStringLiteral("Unknown");
     } //switch
@@ -211,7 +211,7 @@ void Screen::setMirDisplayConfiguration(const mir::graphics::DisplayConfiguratio
 
     // Output data - each output has a unique id and corresponding type. Can be multiple cards.
     m_outputId = screen.id;
-    m_type = screen.type;
+    m_type = static_cast<qtmir::OutputTypes>(screen.type); //FIXME: need compile time check these are equivalent
 
     // Physical screen size
     m_physicalSize.setWidth(screen.physical_size_mm.width.as_int());
@@ -412,7 +412,7 @@ void Screen::doneCurrent()
 bool Screen::internalDisplay() const
 {
     using namespace mir::graphics;
-    if (m_type == DisplayConfigurationOutputType::lvds || m_type == DisplayConfigurationOutputType::edp) {
+    if (m_type == qtmir::OutputTypes::LVDS || m_type == qtmir::OutputTypes::EDP) {
         return true;
     }
     return false;
