@@ -276,6 +276,7 @@ libmiral.so.1 libmiral1 #MINVER#
  (c++)"miral::Keymap::~Keymap()@MIRAL_0.3" 0.3.0
  (c++)"miral::Keymap::operator=(miral::Keymap const&)@MIRAL_0.3" 0.3.0
  (c++)"miral::Keymap::operator()(mir::Server&) const@MIRAL_0.3" 0.3.0
+ (c++)"miral::ApplicationInfo::name[abi:cxx11]() const@MIRAL_0.4" 0.4.0
  (c++)"miral::CommandLineOption::CommandLineOption(miral::CommandLineOption const&)@MIRAL_0.4" 0.4.0
  (c++)"miral::CommandLineOption::CommandLineOption(std::function<void (mir::optional_value<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > const&)>, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)@MIRAL_0.4" 0.4.0
  (c++)"miral::CommandLineOption::CommandLineOption(std::function<void (mir::optional_value<bool> const&)>, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)@MIRAL_0.4" 0.4.0

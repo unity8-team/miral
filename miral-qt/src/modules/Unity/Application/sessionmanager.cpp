@@ -29,11 +29,6 @@
 #include "promptsessionlistener.h"
 #include "promptsession.h"
 
-// mir
-#include <mir/scene/session.h>
-#include <mir/report_exception.h>
-
-namespace ms = mir::scene;
 
 namespace qtmir {
 
@@ -61,7 +56,6 @@ void connectToPromptSessionListener(SessionManager * manager, PromptSessionListe
 }
 
 SessionManager* SessionManager::singleton()
-try
 {
     if (!the_session_manager) {
 
@@ -82,14 +76,6 @@ try
         connectToPromptSessionListener(the_session_manager, promptSessionListener);
     }
     return the_session_manager;
-}
-catch (...)
-{
-    // We only call mir::report_exception() here to force linkage against libmirserver.
-    // Unless we force this module to have a link dependency on libmirserver we get
-    // several tests hanging during link loading. I wish I understood why.    alan_g
-    mir::report_exception();
-    throw;
 }
 
 SessionManager::SessionManager(
@@ -122,9 +108,9 @@ SessionInterface *SessionManager::findSession(const mir::scene::Session* session
 
 void SessionManager::onSessionStarting(const miral::ApplicationInfo &appInfo)
 {
-    const auto &session = appInfo.application();
-    qCDebug(QTMIR_SESSIONS) << "SessionManager::onSessionStarting - sessionName=" <<  session->name().c_str();
+    qCDebug(QTMIR_SESSIONS) << "SessionManager::onSessionStarting - sessionName=" <<  appInfo.name().c_str();
 
+    const auto &session = appInfo.application();
     Session* qmlSession = new Session(session, m_promptSessionManager);
     insert(0, qmlSession);
 
@@ -143,10 +129,9 @@ void SessionManager::onSessionStarting(const miral::ApplicationInfo &appInfo)
 
 void SessionManager::onSessionStopping(const miral::ApplicationInfo &appInfo)
 {
-    const auto &session = appInfo.application();
-    qCDebug(QTMIR_SESSIONS) << "SessionManager::onSessionStopping - sessionName=" << session->name().c_str();
+    qCDebug(QTMIR_SESSIONS) << "SessionManager::onSessionStopping - sessionName=" << appInfo.name().c_str();
 
-    SessionInterface* qmlSession = findSession(session.get());
+    SessionInterface* qmlSession = findSession(appInfo.application().get());
     if (!qmlSession) return;
 
     remove(qmlSession);

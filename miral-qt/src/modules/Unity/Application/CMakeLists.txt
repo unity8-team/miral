@@ -77,9 +77,6 @@ set_source_files_properties(application_manager.cpp PROPERTIES COMPILE_FLAGS "${
 set_source_files_properties(mirsurface.cpp          PROPERTIES COMPILE_FLAGS "${CMAKE_CXX_FLAGS} ${FIXME_MIRSERVER_CXXFLAGS}")
 set_source_files_properties(mirbuffersgtexture.cpp  PROPERTIES COMPILE_FLAGS "${CMAKE_CXX_FLAGS} ${FIXME_MIRSERVER_CXXFLAGS}")
 set_source_files_properties(session.cpp             PROPERTIES COMPILE_FLAGS "${CMAKE_CXX_FLAGS} ${FIXME_MIRSERVER_CXXFLAGS}")
-set_source_files_properties(sessionmanager.cpp      PROPERTIES COMPILE_FLAGS "${CMAKE_CXX_FLAGS} ${FIXME_MIRSERVER_CXXFLAGS}")
-set_source_files_properties(toplevelwindowmodel.cpp PROPERTIES COMPILE_FLAGS "${CMAKE_CXX_FLAGS} ${FIXME_MIRSERVER_CXXFLAGS}")
-set_source_files_properties(windowmodel.cpp         PROPERTIES COMPILE_FLAGS "${CMAKE_CXX_FLAGS} ${FIXME_MIRSERVER_CXXFLAGS}")
 
 add_library(unityapplicationplugin SHARED
     ${QMLMIRPLUGIN_SRC}

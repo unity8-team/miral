@@ -317,6 +317,7 @@ global:
 MIRAL_0.4 {
 global:
   extern "C++" {
+    miral::ApplicationInfo::name*;
     miral::CommandLineOption::?CommandLineOption*;
     miral::CommandLineOption::CommandLineOption*;
     miral::CommandLineOption::operator*;
