@@ -74,12 +74,14 @@ add_library(qpa-mirserver-nomirserver OBJECT
     windowmanagementpolicy.cpp
     mirserverhooks.cpp mirserverhooks.h
     setqtcompositor.cpp setqtcompositor.h
+    tracepoints.c
 # We need to run moc on these headers
     ${APPLICATION_API_INCLUDEDIR}/unity/shell/application/Mir.h
     ${MIRAL_QT_SOURCE_DIR}/src/common/appnotifier.h
     ${MIRAL_QT_SOURCE_DIR}/src/common/windowcontrollerinterface.h
     ${MIRAL_QT_SOURCE_DIR}/src/common/windowmodelnotifier.h
 )
+set_source_files_properties(tracepoints.c PROPERTIES COMPILE_FLAGS "${CMAKE_CFLAGS} -fPIC")
 
 include_directories(SYSTEM ${MIRSERVER_INCLUDE_DIRS})
 
@@ -97,7 +99,6 @@ set(MIRSERVER_QPA_PLUGIN_SRC
     mirserverintegration.cpp
     miropenglcontext.cpp
     offscreensurface.cpp
-    tracepoints.c
     promptsessionmanager.cpp promptsessionmanager.h promptsession.h
 # We need to run moc on these headers
     ${APPLICATION_API_INCLUDEDIR}/unity/shell/application/MirMousePointerInterface.h
