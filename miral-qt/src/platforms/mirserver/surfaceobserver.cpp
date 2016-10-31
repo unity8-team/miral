@@ -20,13 +20,14 @@
 #include "logging.h"
 
 #include <QImage>
+#include <QCursor>
 #include <QMetaObject>
 #include <QMutableMapIterator>
 #include <QMutexLocker>
 #include <QPixmap>
 
+#include <miral/window_specification.h>
 #include <mir/geometry/size.h>
-#include <mir/shell/surface_specification.h>
 
 
 namespace {
@@ -154,35 +155,35 @@ void SurfaceObserver::resized_to(mir::geometry::Size const&size)
     Q_EMIT resized(QSize(size.width.as_int(), size.height.as_int()));
 }
 
-void SurfaceObserver::notifySurfaceModifications(const mir::shell::SurfaceSpecification &modifications)
+void SurfaceObserver::notifySurfaceModifications(const miral::WindowSpecification &modifications)
 {
-    if (modifications.min_width.is_set()) {
-        Q_EMIT minimumWidthChanged(modifications.min_width.value().as_int());
+    if (modifications.min_width().is_set()) {
+        Q_EMIT minimumWidthChanged(modifications.min_width().value().as_int());
     }
-    if (modifications.min_height.is_set()) {
-        Q_EMIT minimumHeightChanged(modifications.min_height.value().as_int());
+    if (modifications.min_height().is_set()) {
+        Q_EMIT minimumHeightChanged(modifications.min_height().value().as_int());
     }
-    if (modifications.max_width.is_set()) {
-        Q_EMIT maximumWidthChanged(modifications.max_width.value().as_int());
+    if (modifications.max_width().is_set()) {
+        Q_EMIT maximumWidthChanged(modifications.max_width().value().as_int());
     }
-    if (modifications.max_height.is_set()) {
-        Q_EMIT maximumHeightChanged(modifications.max_height.value().as_int());
+    if (modifications.max_height().is_set()) {
+        Q_EMIT maximumHeightChanged(modifications.max_height().value().as_int());
     }
-    if (modifications.width_inc.is_set()) {
-        Q_EMIT widthIncrementChanged(modifications.width_inc.value().as_int());
+    if (modifications.width_inc().is_set()) {
+        Q_EMIT widthIncrementChanged(modifications.width_inc().value().as_int());
     }
-    if (modifications.height_inc.is_set()) {
-        Q_EMIT heightIncrementChanged(modifications.height_inc.value().as_int());
+    if (modifications.height_inc().is_set()) {
+        Q_EMIT heightIncrementChanged(modifications.height_inc().value().as_int());
     }
-    if (modifications.shell_chrome.is_set()) {
-        Q_EMIT shellChromeChanged(modifications.shell_chrome.value());
+    if (modifications.shell_chrome().is_set()) {
+        Q_EMIT shellChromeChanged(modifications.shell_chrome().value());
     }
-    if (modifications.input_shape.is_set()) {
-        QRect qRect = calculateBoundingRect(modifications.input_shape.value());
+    if (modifications.input_shape().is_set()) {
+        QRect qRect = calculateBoundingRect(modifications.input_shape().value());
         Q_EMIT inputBoundsChanged(qRect);
     }
-    if (modifications.confine_pointer.is_set()) {
-        Q_EMIT confinesMousePointerChanged(modifications.confine_pointer.value() == mir_pointer_confined_to_surface);
+    if (modifications.confine_pointer().is_set()) {
+        Q_EMIT confinesMousePointerChanged(modifications.confine_pointer().value() == mir_pointer_confined_to_surface);
     }
 }
 
