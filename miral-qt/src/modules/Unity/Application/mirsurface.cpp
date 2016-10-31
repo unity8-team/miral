@@ -78,8 +78,8 @@ MirSurface::MirSurface(NewWindow newWindowInfo,
     , m_visible(newWindowInfo.windowInfo.is_visible())
     , m_live(true)
     , m_surfaceObserver(std::make_shared<SurfaceObserver>())
-    , m_position(toQPoint(m_windowInfo.window().top_left()))
-    , m_size(toQSize(m_windowInfo.window().size()))
+    , m_position(toQPoint(m_window.top_left()))
+    , m_size(toQSize(m_window.size()))
     , m_state(toQtState(m_windowInfo.state()))
     , m_shellChrome(Mir::NormalChrome)
 {
@@ -355,10 +355,10 @@ void MirSurface::updateActiveFocus()
     /*
     if (m_activelyFocusedViews.isEmpty()) {
         DEBUG_MSG << "() unfocused";
-        m_controller->setActiveFocus(m_windowInfo.window(), false);
+        m_controller->setActiveFocus(m_window, false);
     } else {
         DEBUG_MSG << "() focused";
-        m_controller->setActiveFocus(m_windowInfo.window(), true);
+        m_controller->setActiveFocus(m_window, true);
     }
     */
 
@@ -396,7 +396,7 @@ void MirSurface::resize(int width, int height)
     bool mirSizeIsDifferent = width != m_size.width() || height != m_size.height();
 
     if (clientIsRunning() && mirSizeIsDifferent) {
-        m_controller->resize(m_windowInfo.window(), QSize(width, height));
+        m_controller->resize(m_window, QSize(width, height));
         DEBUG_MSG << " old (" << m_size.width() << "," << m_size.height() << ")"
                   << ", new (" << width << "," << height << ")";
     }
@@ -480,7 +480,7 @@ QString MirSurface::persistentId() const
 void MirSurface::requestState(Mir::State state)
 {
     DEBUG_MSG << "(" << unityapiMirStateToStr(state) << ")";
-    m_controller->requestState(m_windowInfo.window(), state);
+    m_controller->requestState(m_window, state);
 }
 
 void MirSurface::setLive(bool value)
@@ -509,7 +509,7 @@ void MirSurface::mousePressEvent(QMouseEvent *event)
 {
     auto ev = EventBuilder::instance()->reconstructMirEvent(event);
     auto ev1 = reinterpret_cast<MirPointerEvent const*>(ev.get());
-    m_controller->deliverPointerEvent(m_windowInfo.window(), ev1);
+    m_controller->deliverPointerEvent(m_window, ev1);
     event->accept();
 }
 
@@ -517,7 +517,7 @@ void MirSurface::mouseMoveEvent(QMouseEvent *event)
 {
     auto ev = EventBuilder::instance()->reconstructMirEvent(event);
     auto ev1 = reinterpret_cast<MirPointerEvent const*>(ev.get());
-    m_controller->deliverPointerEvent(m_windowInfo.window(), ev1);
+    m_controller->deliverPointerEvent(m_window, ev1);
     event->accept();
 }
 
@@ -525,7 +525,7 @@ void MirSurface::mouseReleaseEvent(QMouseEvent *event)
 {
     auto ev = EventBuilder::instance()->reconstructMirEvent(event);
     auto ev1 = reinterpret_cast<MirPointerEvent const*>(ev.get());
-    m_controller->deliverPointerEvent(m_windowInfo.window(), ev1);
+    m_controller->deliverPointerEvent(m_window, ev1);
     event->accept();
 }
 
@@ -533,7 +533,7 @@ void MirSurface::hoverEnterEvent(QHoverEvent *event)
 {
     auto ev = EventBuilder::instance()->reconstructMirEvent(event);
     auto ev1 = reinterpret_cast<MirPointerEvent const*>(ev.get());
-    m_controller->deliverPointerEvent(m_windowInfo.window(), ev1);
+    m_controller->deliverPointerEvent(m_window, ev1);
     event->accept();
 }
 
@@ -541,7 +541,7 @@ void MirSurface::hoverLeaveEvent(QHoverEvent *event)
 {
     auto ev = EventBuilder::instance()->reconstructMirEvent(event);
     auto ev1 = reinterpret_cast<MirPointerEvent const*>(ev.get());
-    m_controller->deliverPointerEvent(m_windowInfo.window(), ev1);
+    m_controller->deliverPointerEvent(m_window, ev1);
     event->accept();
 }
 
@@ -549,7 +549,7 @@ void MirSurface::hoverMoveEvent(QHoverEvent *event)
 {
     auto ev = EventBuilder::instance()->reconstructMirEvent(event);
     auto ev1 = reinterpret_cast<MirPointerEvent const*>(ev.get());
-    m_controller->deliverPointerEvent(m_windowInfo.window(), ev1);
+    m_controller->deliverPointerEvent(m_window, ev1);
     event->accept();
 }
 
@@ -557,7 +557,7 @@ void MirSurface::wheelEvent(QWheelEvent *event)
 {
     auto ev = EventBuilder::instance()->makeMirEvent(event);
     auto ev1 = reinterpret_cast<MirPointerEvent const*>(ev.get());
-    m_controller->deliverPointerEvent(m_windowInfo.window(), ev1);
+    m_controller->deliverPointerEvent(m_window, ev1);
     event->accept();
 }
 
@@ -565,7 +565,7 @@ void MirSurface::keyPressEvent(QKeyEvent *qtEvent)
 {
     auto ev = EventBuilder::instance()->makeMirEvent(qtEvent);
     auto ev1 = reinterpret_cast<MirKeyboardEvent const*>(ev.get());
-    m_controller->deliverKeyboardEvent(m_windowInfo.window(), ev1);
+    m_controller->deliverKeyboardEvent(m_window, ev1);
     qtEvent->accept();
 }
 
@@ -573,7 +573,7 @@ void MirSurface::keyReleaseEvent(QKeyEvent *qtEvent)
 {
     auto ev = EventBuilder::instance()->makeMirEvent(qtEvent);
     auto ev1 = reinterpret_cast<MirKeyboardEvent const*>(ev.get());
-    m_controller->deliverKeyboardEvent(m_windowInfo.window(), ev1);
+    m_controller->deliverKeyboardEvent(m_window, ev1);
     qtEvent->accept();
 }
 
@@ -584,7 +584,7 @@ void MirSurface::touchEvent(Qt::KeyboardModifiers mods,
 {
     auto ev = EventBuilder::instance()->makeMirEvent(mods, touchPoints, touchPointStates, timestamp);
     auto ev1 = reinterpret_cast<MirTouchEvent const*>(ev.get());
-    m_controller->deliverTouchEvent(m_windowInfo.window(), ev1);
+    m_controller->deliverTouchEvent(m_window, ev1);
 }
 
 bool MirSurface::clientIsRunning() const
@@ -840,7 +840,7 @@ bool MirSurface::confinesMousePointer() const
 void MirSurface::requestFocus()
 {
     DEBUG_MSG << "()";
-    m_controller->activate(m_windowInfo.window());
+    m_controller->activate(m_window);
 }
 
 void MirSurface::raise()
@@ -857,7 +857,7 @@ void MirSurface::onCloseTimedOut()
 
     m_closingState = CloseOverdue;
 
-    m_controller->requestClose(m_windowInfo.window());
+    m_controller->requestClose(m_window);
 }
 
 void MirSurface::setCloseTimer(AbstractTimer *timer)
@@ -903,6 +903,6 @@ void MirSurface::setRequestedPosition(const QPoint &point)
     if (point != m_requestedPosition) {
         m_requestedPosition = point;
         Q_EMIT requestedPositionChanged(m_requestedPosition);
-        m_controller->move(m_windowInfo.window(), m_requestedPosition);
+        m_controller->move(m_window, m_requestedPosition);
     }
 }
