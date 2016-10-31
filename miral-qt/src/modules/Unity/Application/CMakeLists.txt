@@ -73,7 +73,6 @@ set(QMLMIRPLUGIN_SRC
     )
 
 set_source_files_properties(application_manager.cpp PROPERTIES COMPILE_FLAGS "${CMAKE_CXX_FLAGS} ${FIXME_MIRSERVER_CXXFLAGS}")
-# SurfaceObserver unecessarily uses public inheritance from mir::scene::SurfaceObserver
 set_source_files_properties(mirsurface.cpp          PROPERTIES COMPILE_FLAGS "${CMAKE_CXX_FLAGS} ${FIXME_MIRSERVER_CXXFLAGS}")
 set_source_files_properties(mirbuffersgtexture.cpp  PROPERTIES COMPILE_FLAGS "${CMAKE_CXX_FLAGS} ${FIXME_MIRSERVER_CXXFLAGS}")
 set_source_files_properties(session.cpp             PROPERTIES COMPILE_FLAGS "${CMAKE_CXX_FLAGS} ${FIXME_MIRSERVER_CXXFLAGS}")
