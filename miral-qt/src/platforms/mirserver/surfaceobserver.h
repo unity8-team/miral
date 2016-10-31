@@ -24,10 +24,8 @@
 #include <mir_toolkit/common.h>
 #include <mir/geometry/size.h>
 
-namespace mir
-{
-    namespace scene
-    {
+namespace mir {
+    namespace scene {
         class Surface;
     }
 }
