@@ -18,7 +18,6 @@
 #define SESSIONOBSERVER_H
 
 #include <QByteArray>
-#include <QCursor>
 #include <QObject>
 #include <QMap>
 #include <QMutex>
@@ -31,10 +30,9 @@ namespace mir {
     namespace scene {
         class Surface;
     }
-    namespace shell {
-        struct SurfaceSpecification;
-    }
 }
+
+namespace miral { class WindowSpecification; }
 
 class SurfaceObserver : public QObject, public mir::scene::SurfaceObserver
 {
@@ -69,7 +67,7 @@ public:
     void placed_relative(mir::geometry::Rectangle const& placement) override;
 #endif
 
-    void notifySurfaceModifications(const mir::shell::SurfaceSpecification&);
+    void notifySurfaceModifications(const miral::WindowSpecification&);
 
     static SurfaceObserver *observerForSurface(const mir::scene::Surface *surface);
     static void registerObserverForSurface(SurfaceObserver *observer, const mir::scene::Surface *surface);
