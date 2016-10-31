@@ -18,7 +18,6 @@
 #define SESSIONOBSERVER_H
 
 #include <QObject>
-#include <QMutex>
 #include <QRect>
 #include <QSize>
 
@@ -66,10 +65,6 @@ Q_SIGNALS:
     void shellChromeChanged(MirShellChrome);
     void inputBoundsChanged(const QRect &rect);
     void confinesMousePointerChanged(bool);
-
-private:
-    static QMutex mutex;
-    static QHash<const mir::scene::Surface*, SurfaceObserver*> m_surfaceToObserverMap;
 };
 
 #endif

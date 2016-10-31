@@ -16,12 +16,9 @@
 
 #include "surfaceobserver.h"
 
-#include <QImage>
-#include <QCursor>
-#include <QMetaObject>
-#include <QMutableMapIterator>
+#include <QHash>
 #include <QMutexLocker>
-#include <QPixmap>
+#include <QMutex>
 
 #include <miral/window_specification.h>
 #include <mir/geometry/size.h>
@@ -41,16 +38,15 @@ QRect calculateBoundingRect(const std::vector<mir::geometry::Rectangle> &rectVec
     return boundingRect;
 }
 
+QHash<const mir::scene::Surface*, SurfaceObserver*> surfaceToObserverMap;
+QMutex mutex;
 } // anonymous namespace
-
-QHash<const mir::scene::Surface*, SurfaceObserver*> SurfaceObserver::m_surfaceToObserverMap;
-QMutex SurfaceObserver::mutex;
 
 
 SurfaceObserver::~SurfaceObserver()
 {
     QMutexLocker locker(&mutex);
-    QMutableHashIterator<const mir::scene::Surface*, SurfaceObserver*> i(m_surfaceToObserverMap);
+    QMutableHashIterator<const mir::scene::Surface*, SurfaceObserver*> i(surfaceToObserverMap);
     while (i.hasNext()) {
         i.next();
         if (i.value() == this) {
@@ -94,8 +90,8 @@ void SurfaceObserver::notifySurfaceModifications(const miral::WindowSpecificatio
 
 SurfaceObserver *SurfaceObserver::observerForSurface(const mir::scene::Surface *surface)
 {
-    if (m_surfaceToObserverMap.contains(surface)) {
-        return m_surfaceToObserverMap.value(surface);
+    if (surfaceToObserverMap.contains(surface)) {
+        return surfaceToObserverMap.value(surface);
     } else {
         return nullptr;
     }
@@ -104,5 +100,5 @@ SurfaceObserver *SurfaceObserver::observerForSurface(const mir::scene::Surface *
 void SurfaceObserver::registerObserverForSurface(SurfaceObserver *observer, const mir::scene::Surface *surface)
 {
     QMutexLocker locker(&mutex);
-    m_surfaceToObserverMap[surface] = observer;
+    surfaceToObserverMap[surface] = observer;
 }
