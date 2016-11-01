@@ -34,3 +34,18 @@ void miral::kill(Application const& application, int sig)
             ::kill(pid, sig);
     }
 }
+
+auto miral::name_of(Application const& application) -> std::string
+{
+    return application->name();
+}
+
+auto miral::pid_of(Application const& application) -> pid_t
+{
+    return application->process_id();
+}
+
+void miral::apply_lifecycle_state_to(Application const& application, MirLifecycleState state)
+{
+    application->set_lifecycle_state(state);
+}

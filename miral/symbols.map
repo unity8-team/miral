@@ -321,6 +321,9 @@ global:
     miral::CommandLineOption::?CommandLineOption*;
     miral::CommandLineOption::CommandLineOption*;
     miral::CommandLineOption::operator*;
+    miral::apply_lifecycle_state_to*;
+    miral::name_of*;
+    miral::pid_of*;
     typeinfo?for?miral::CommandLineOption;
     vtable?for?miral::CommandLineOption;
   };

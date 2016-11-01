@@ -19,7 +19,10 @@
 #ifndef MIRAL_APPLICATION_H
 #define MIRAL_APPLICATION_H
 
+#include <mir_toolkit/common.h>
+
 #include <memory>
+#include <string>
 
 namespace mir
 {
@@ -30,7 +33,10 @@ namespace miral
 {
 using Application = std::shared_ptr<mir::scene::Session>;
 
+void apply_lifecycle_state_to(Application const& application, MirLifecycleState state);
 void kill(Application const& application, int sig);
+auto name_of(Application const& application) -> std::string;
+auto pid_of(Application const& application) -> pid_t;
 }
 
 #endif //MIRAL_APPLICATION_H
