@@ -17,6 +17,7 @@
 #include "windowmanagementpolicy.h"
 
 #include "screensmodel.h"
+#include "surfaceobserver.h"
 
 #include "miral/window_manager_tools.h"
 #include "miral/window_specification.h"
@@ -81,6 +82,11 @@ void WindowManagementPolicy::handle_modify_window(
 {
     qDebug("Window Modified!");
     CanonicalWindowManagerPolicy::handle_modify_window(windowInfo, modifications);
+
+    std::shared_ptr<mir::scene::Surface> surface{windowInfo.window()};
+    if (SurfaceObserver *observer = SurfaceObserver::observerForSurface(surface.get())) {
+        observer->notifySurfaceModifications(modifications);
+    }
 }
 
 void WindowManagementPolicy::handle_raise_window(miral::WindowInfo &windowInfo)
