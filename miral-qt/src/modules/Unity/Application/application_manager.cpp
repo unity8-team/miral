@@ -31,12 +31,9 @@
 #include "nativeinterface.h"
 #include "sessionauthorizer.h"
 #include "logging.h"
+#include "mirapplication.h"
 
 // mir
-#include <mir/scene/session.h>
-#include <mir/scene/surface.h>
-#include <mir/graphics/display.h>
-#include <mir/graphics/display_buffer.h>
 #include <mir/geometry/rectangles.h>
 
 // Qt
@@ -580,14 +577,9 @@ void ApplicationManager::authorizeSession(const pid_t pid, bool &authorized)
 
 Application* ApplicationManager::findApplicationWithSession(const std::shared_ptr<ms::Session> &session)
 {
-    return findApplicationWithSession(session.get());
-}
-
-Application* ApplicationManager::findApplicationWithSession(const ms::Session *session)
-{
     if (!session)
         return nullptr;
-    return findApplicationWithPid(session->process_id());
+    return findApplicationWithPid(pid_of(session));
 }
 
 Application* ApplicationManager::findApplicationWithPid(const pid_t pid) const

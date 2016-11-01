@@ -122,7 +122,7 @@ private:
     void setFocused(Application *application);
     void add(Application *application);
     void remove(Application* application);
-    Application* findApplicationWithSession(const mir::scene::Session *session);
+
     QModelIndex findIndex(Application* application);
     void resumeApplication(Application *application);
     QString toString() const;
