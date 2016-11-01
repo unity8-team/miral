@@ -161,7 +161,7 @@ public:
     void setPosition(const QPoint newPosition);
     void updateState(Mir::State state);
     void setReady();
-    miral::Window window() const { return m_windowInfo.window(); }
+    miral::Window window() const { return m_window; }
 
     // useful for tests
     void setCloseTimer(AbstractTimer *timer);
@@ -190,9 +190,25 @@ private:
     void applyKeymap();
     void updateActiveFocus();
     void updateVisible();
+    void onNameChanged(const QString &name);
+    void onMinimumWidthChanged(int minWidth);
+    void onMinimumHeightChanged(int minHeight);
+    void onMaximumWidthChanged(int maxWidth);
+    void onMaximumHeightChanged(int maxHeight);
+    void onWidthIncrementChanged(int incWidth);
+    void onHeightIncrementChanged(int incHeight);
 
-    miral::WindowInfo m_windowInfo;
     const miral::Window m_window;
+    const std::shared_ptr<ExtraWindowInfo> m_extraInfo;
+    QString m_name;
+    MirSurfaceType m_type;
+    int m_minWidth;
+    int m_minHeight;
+    int m_maxWidth;
+    int m_maxHeight;
+    int m_incWidth;
+    int m_incHeight;
+
     const std::shared_ptr<mir::scene::Surface> m_surface; // keep copy of the Surface for lifecycle
     QPointer<SessionInterface> m_session;
     WindowControllerInterface *const m_controller;

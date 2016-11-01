@@ -68,7 +68,16 @@ MirSurface::MirSurface(NewWindow newWindowInfo,
         WindowControllerInterface* controller,
         SessionInterface *session)
     : MirSurfaceInterface()
-    , m_windowInfo(newWindowInfo.windowInfo)
+    , m_window{newWindowInfo.windowInfo.window()}
+    , m_extraInfo{getExtraInfo(newWindowInfo.windowInfo)}
+    , m_name{QString::fromStdString(newWindowInfo.windowInfo.name())}
+    , m_type{newWindowInfo.windowInfo.type()}
+    , m_minWidth{newWindowInfo.windowInfo.min_width().as_int()}
+    , m_minHeight{newWindowInfo.windowInfo.min_height().as_int()}
+    , m_maxWidth{newWindowInfo.windowInfo.max_width().as_int()}
+    , m_maxHeight{newWindowInfo.windowInfo.max_height().as_int()}
+    , m_incWidth{newWindowInfo.windowInfo.width_inc().as_int()}
+    , m_incHeight{newWindowInfo.windowInfo.height_inc().as_int()}
     , m_surface(newWindowInfo.surface)
     , m_session(session)
     , m_controller(controller)
@@ -80,7 +89,7 @@ MirSurface::MirSurface(NewWindow newWindowInfo,
     , m_surfaceObserver(std::make_shared<SurfaceObserver>())
     , m_position(toQPoint(m_window.top_left()))
     , m_size(toQSize(m_window.size()))
-    , m_state(toQtState(m_windowInfo.state()))
+    , m_state(toQtState(newWindowInfo.windowInfo.state()))
     , m_shellChrome(Mir::NormalChrome)
 {
     DEBUG_MSG << "()";
@@ -92,14 +101,14 @@ MirSurface::MirSurface(NewWindow newWindowInfo,
 
     connect(m_surfaceObserver.get(), &SurfaceObserver::framesPosted, this, &MirSurface::onFramesPostedObserved);
     connect(m_surfaceObserver.get(), &SurfaceObserver::attributeChanged, this, &MirSurface::onAttributeChanged);
-    connect(m_surfaceObserver.get(), &SurfaceObserver::nameChanged, this, &MirSurface::nameChanged);
+    connect(m_surfaceObserver.get(), &SurfaceObserver::nameChanged, this, &MirSurface::onNameChanged);
     connect(m_surfaceObserver.get(), &SurfaceObserver::cursorChanged, this, &MirSurface::setCursor);
-    connect(m_surfaceObserver.get(), &SurfaceObserver::minimumWidthChanged, this, &MirSurface::minimumWidth);
-    connect(m_surfaceObserver.get(), &SurfaceObserver::minimumHeightChanged, this, &MirSurface::minimumHeight);
-    connect(m_surfaceObserver.get(), &SurfaceObserver::maximumWidthChanged, this, &MirSurface::maximumWidth);
-    connect(m_surfaceObserver.get(), &SurfaceObserver::maximumHeightChanged, this, &MirSurface::maximumHeight);
-    connect(m_surfaceObserver.get(), &SurfaceObserver::widthIncrementChanged, this, &MirSurface::widthIncrement);
-    connect(m_surfaceObserver.get(), &SurfaceObserver::heightIncrementChanged, this, &MirSurface::heightIncrement);
+    connect(m_surfaceObserver.get(), &SurfaceObserver::minimumWidthChanged, this, &MirSurface::onMinimumWidthChanged);
+    connect(m_surfaceObserver.get(), &SurfaceObserver::minimumHeightChanged, this, &MirSurface::onMinimumHeightChanged);
+    connect(m_surfaceObserver.get(), &SurfaceObserver::maximumWidthChanged, this, &MirSurface::onMaximumWidthChanged);
+    connect(m_surfaceObserver.get(), &SurfaceObserver::maximumHeightChanged, this, &MirSurface::onMaximumHeightChanged);
+    connect(m_surfaceObserver.get(), &SurfaceObserver::widthIncrementChanged, this, &MirSurface::onWidthIncrementChanged);
+    connect(m_surfaceObserver.get(), &SurfaceObserver::heightIncrementChanged, this, &MirSurface::onHeightIncrementChanged);
     connect(m_surfaceObserver.get(), &SurfaceObserver::shellChromeChanged, this, [&](MirShellChrome shell_chrome) {
         setShellChrome(static_cast<Mir::ShellChrome>(shell_chrome));
     });
@@ -170,7 +179,7 @@ void MirSurface::onAttributeChanged(const MirSurfaceAttrib attribute, const int 
 
 Mir::Type MirSurface::type() const
 {
-    switch (m_windowInfo.type()) {
+    switch (m_type) {
     case mir_surface_type_normal:
         return Mir::NormalType;
 
@@ -367,7 +376,8 @@ void MirSurface::updateActiveFocus()
 
 void MirSurface::updateVisible()
 {
-    const bool visible = m_windowInfo.is_visible();
+    const bool visible = !(m_state == Mir::HiddenState || m_state == Mir::MinimizedState) && m_surface->visible();
+
     if (m_visible != visible) {
         m_visible = visible;
         Q_EMIT visibleChanged(visible);
@@ -422,8 +432,6 @@ QSize MirSurface::size() const
 
 Mir::State MirSurface::state() const
 {
-    // FIXME: use the commented line below when possible
-    // return toQtState(m_windowInfo.state());
     return m_state;
 }
 
@@ -469,12 +477,12 @@ void MirSurface::setOrientationAngle(Mir::OrientationAngle angle)
 
 QString MirSurface::name() const
 {
-    return QString::fromStdString(m_windowInfo.name());
+    return m_name;
 }
 
 QString MirSurface::persistentId() const
 {
-    return getExtraInfo(m_windowInfo)->persistentId;
+    return m_extraInfo->persistentId;
 }
 
 void MirSurface::requestState(Mir::State state)
@@ -502,7 +510,7 @@ bool MirSurface::live() const
 
 bool MirSurface::visible() const
 {
-    return m_windowInfo.is_visible();
+    return m_visible;
 }
 #include <mir_toolkit/event.h>
 void MirSurface::mousePressEvent(QMouseEvent *event)
@@ -770,7 +778,6 @@ void MirSurface::updateState(Mir::State newState)
     DEBUG_MSG << "(" << unityapiMirStateToStr(newState) << ")";
 
     m_state = newState;
-    m_windowInfo.state(toMirState(newState));
     Q_EMIT stateChanged(state());
 
     // Mir determines visibility from the state, it may have changed
@@ -794,32 +801,32 @@ void MirSurface::setCursor(const QCursor &cursor)
 
 int MirSurface::minimumWidth() const
 {
-    return m_windowInfo.min_width().as_int();
+    return m_minWidth;
 }
 
 int MirSurface::minimumHeight() const
 {
-    return m_windowInfo.min_height().as_int();
+    return m_minHeight;
 }
 
 int MirSurface::maximumWidth() const
 {
-    return m_windowInfo.max_width().as_int();
+    return m_maxWidth;
 }
 
 int MirSurface::maximumHeight() const
 {
-    return m_windowInfo.max_height().as_int();
+    return m_maxHeight;
 }
 
 int MirSurface::widthIncrement() const
 {
-    return 0; //TODO
+    return m_incWidth;
 }
 
 int MirSurface::heightIncrement() const
 {
-    return 0; //TODO
+    return m_incHeight;
 }
 
 bool MirSurface::focused() const
@@ -906,3 +913,67 @@ void MirSurface::setRequestedPosition(const QPoint &point)
         m_controller->move(m_window, m_requestedPosition);
     }
 }
+
+void MirSurface::onMinimumWidthChanged(int minWidth)
+{
+    if (m_minWidth != minWidth)
+    {
+        m_minWidth = minWidth;
+        Q_EMIT minimumWidthChanged(minWidth);
+    }
+}
+
+void MirSurface::onMinimumHeightChanged(int minHeight)
+{
+    if (m_minHeight != minHeight)
+    {
+        m_minHeight = minHeight;
+        Q_EMIT minimumHeightChanged(minHeight);
+    }
+}
+
+void MirSurface::onMaximumWidthChanged(int maxWidth)
+{
+    if (m_maxWidth != maxWidth)
+    {
+        m_maxWidth = maxWidth;
+        Q_EMIT maximumWidthChanged(maxWidth);
+    }
+}
+
+void MirSurface::onMaximumHeightChanged(int maxHeight)
+{
+    if (m_maxHeight != maxHeight)
+    {
+        m_maxHeight = maxHeight;
+        Q_EMIT maximumHeightChanged(maxHeight);
+    }
+}
+
+void MirSurface::onWidthIncrementChanged(int incWidth)
+{
+    if (m_incWidth != incWidth)
+    {
+        m_incWidth = incWidth;
+        Q_EMIT widthIncrementChanged(incWidth);
+    }
+}
+
+void MirSurface::onHeightIncrementChanged(int incHeight)
+{
+    if (m_incHeight != incHeight)
+    {
+        m_incHeight = incHeight;
+        Q_EMIT heightIncrementChanged(incHeight);
+    }
+}
+
+void MirSurface::onNameChanged(const QString &name)
+{
+    if (m_name != name)
+    {
+        m_name = name;
+        Q_EMIT nameChanged(name);
+    }
+}
+
