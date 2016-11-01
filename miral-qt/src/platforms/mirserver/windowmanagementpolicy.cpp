@@ -183,12 +183,12 @@ void WindowManagementPolicy::advise_focus_gained(const miral::WindowInfo &window
 
 void WindowManagementPolicy::advise_begin()
 {
-    // TODO
+    Q_EMIT m_windowModel.modificationsStarted();
 }
 
 void WindowManagementPolicy::advise_end()
 {
-    // TODO
+    Q_EMIT m_windowModel.modificationsEnded();
 }
 
 /* Following methods all called from the Qt GUI thread to deliver events to clients */
@@ -239,13 +239,15 @@ void WindowManagementPolicy::deliver_pointer_event(const MirPointerEvent *event,
 // raises the window tree and focus it.
 void WindowManagementPolicy::activate(const miral::Window &window)
 {
-    auto &windowInfo = m_tools.info_for(window);
+    if (window) {
+        auto &windowInfo = m_tools.info_for(window);
 
-    // restore from minimized if needed
-    if (windowInfo.state() == mir_surface_state_minimized) {
-        auto extraInfo = getExtraInfo(windowInfo);
-        Q_ASSERT(extraInfo->previousState != Mir::MinimizedState);
-        requestState(window, extraInfo->previousState);
+        // restore from minimized if needed
+        if (windowInfo.state() == mir_surface_state_minimized) {
+            auto extraInfo = getExtraInfo(windowInfo);
+            Q_ASSERT(extraInfo->previousState != Mir::MinimizedState);
+            requestState(window, extraInfo->previousState);
+        }
     }
 
     m_tools.invoke_under_lock([&]() {

@@ -57,6 +57,7 @@ set(QMLMIRPLUGIN_SRC
     toplevelwindowmodel.cpp
     tracepoints.c
     settings.cpp
+    window.cpp
     windowmodel.cpp
 # We need to run moc on these headers
     ${APPLICATION_API_INCLUDEDIR}/unity/shell/application/ApplicationInfoInterface.h
@@ -65,6 +66,8 @@ set(QMLMIRPLUGIN_SRC
     ${APPLICATION_API_INCLUDEDIR}/unity/shell/application/MirSurfaceInterface.h
     ${APPLICATION_API_INCLUDEDIR}/unity/shell/application/MirSurfaceItemInterface.h
     ${APPLICATION_API_INCLUDEDIR}/unity/shell/application/MirSurfaceListInterface.h
+    ${APPLICATION_API_INCLUDEDIR}/unity/shell/application/TopLevelWindowModelInterface.h
+    ${APPLICATION_API_INCLUDEDIR}/unity/shell/application/WindowInterface.h
 # Feed the automoc monster
     session_interface.h
     applicationinfo.h

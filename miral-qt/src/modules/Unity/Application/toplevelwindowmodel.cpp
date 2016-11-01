@@ -16,6 +16,7 @@
 
 #include "toplevelwindowmodel.h"
 
+#include "application.h"
 #include "application_manager.h"
 #include "mirsurface.h"
 #include "sessionmanager.h"
@@ -27,9 +28,9 @@
 #include <QGuiApplication>
 #include <QDebug>
 
-Q_LOGGING_CATEGORY(QTMIR_WINDOWMODEL, "qtmir.windowmodel", QtDebugMsg)
+Q_LOGGING_CATEGORY(QTMIR_TOPLEVELWINDOWMODEL, "qtmir.toplevelwindowmodel", QtDebugMsg)
 
-#define DEBUG_MSG qCDebug(QTMIR_WINDOWMODEL).nospace().noquote() << __func__
+#define DEBUG_MSG qCDebug(QTMIR_TOPLEVELWINDOWMODEL).nospace().noquote() << __func__
 
 using namespace qtmir;
 namespace unityapi = unity::shell::application;
@@ -82,7 +83,7 @@ void TopLevelWindowModel::setApplicationManager(ApplicationManagerInterface* val
                 this, [this](const QModelIndex &/*parent*/, int first, int last) {
                     for (int i = first; i <= last; ++i) {
                         auto application = m_applicationManager->get(i);
-                        addApplication(application);
+                        addApplication(static_cast<Application*>(application));
                     }
                 });
 
@@ -90,13 +91,13 @@ void TopLevelWindowModel::setApplicationManager(ApplicationManagerInterface* val
                 this, [this](const QModelIndex &/*parent*/, int first, int last) {
                     for (int i = first; i <= last; ++i) {
                         auto application = m_applicationManager->get(i);
-                        removeApplication(application);
+                        removeApplication(static_cast<Application*>(application));
                     }
                 });
 
         for (int i = 0; i < m_applicationManager->rowCount(); ++i) {
             auto application = m_applicationManager->get(i);
-            addApplication(application);
+            addApplication(static_cast<Application*>(application));
         }
     }
 
@@ -104,16 +105,16 @@ void TopLevelWindowModel::setApplicationManager(ApplicationManagerInterface* val
     m_modelState = IdleState;
 }
 
-void TopLevelWindowModel::addApplication(unityapi::ApplicationInfoInterface *application)
+void TopLevelWindowModel::addApplication(Application *application)
 {
     DEBUG_MSG << "(" << application->appId() << ")";
 
     if (application->state() != unityapi::ApplicationInfoInterface::Stopped && application->surfaceList()->count() == 0) {
-        appendPlaceholder(application);
+        prependPlaceholder(application);
     }
 }
 
-void TopLevelWindowModel::removeApplication(unityapi::ApplicationInfoInterface *application)
+void TopLevelWindowModel::removeApplication(Application *application)
 {
     DEBUG_MSG << "(" << application->appId() << ")";
 
@@ -138,51 +139,56 @@ void TopLevelWindowModel::removeApplication(unityapi::ApplicationInfoInterface *
     DEBUG_MSG << " after " << toString();
 }
 
-void TopLevelWindowModel::appendPlaceholder(unityapi::ApplicationInfoInterface *application)
+void TopLevelWindowModel::prependPlaceholder(Application *application)
 {
     DEBUG_MSG << "(" << application->appId() << ")";
 
-    appendSurfaceHelper(nullptr, application);
+    prependSurfaceHelper(nullptr, application);
 }
 
-void TopLevelWindowModel::appendSurface(MirSurface *surface, unityapi::ApplicationInfoInterface *application)
+void TopLevelWindowModel::prependSurface(MirSurface *surface, Application *application)
 {
     Q_ASSERT(surface != nullptr);
 
     bool filledPlaceholder = false;
     for (int i = 0; i < m_windowModel.count() && !filledPlaceholder; ++i) {
         ModelEntry &entry = m_windowModel[i];
-        if (entry.application == application && entry.surface == nullptr) {
-            entry.surface = surface;
+        if (entry.application == application && entry.window->surface() == nullptr) {
+            entry.window->setSurface(surface);
             connectSurface(surface);
             DEBUG_MSG << " appId=" << application->appId() << " surface=" << surface
                       << ", filling out placeholder. after: " << toString();
-            Q_EMIT dataChanged(index(i) /* topLeft */, index(i) /* bottomRight */, QVector<int>() << SurfaceRole);
             filledPlaceholder = true;
         }
     }
 
     if (!filledPlaceholder) {
         DEBUG_MSG << " appId=" << application->appId() << " surface=" << surface << ", adding new row";
-        appendSurfaceHelper(surface, application);
+        prependSurfaceHelper(surface, application);
     }
 }
 
-void TopLevelWindowModel::appendSurfaceHelper(MirSurface *surface, unityapi::ApplicationInfoInterface *application)
+void TopLevelWindowModel::prependSurfaceHelper(MirSurface *surface, Application *application)
 {
     if (m_modelState == IdleState) {
         m_modelState = InsertingState;
-        beginInsertRows(QModelIndex(), m_windowModel.size() /*first*/, m_windowModel.size() /*last*/);
+        beginInsertRows(QModelIndex(), 0 /*first*/, 0 /*last*/);
     } else {
         Q_ASSERT(m_modelState == ResettingState);
         // No point in signaling anything if we're resetting the whole model
     }
 
     int id = generateId();
-    m_windowModel.append(ModelEntry(surface, application, id));
+    Window *window = new Window(id);
+    if (surface) {
+        window->setSurface(surface);
+    }
+    m_windowModel.prepend(ModelEntry(window, application));
     if (surface) {
         connectSurface(surface);
     }
+
+    connectWindow(window);
 
     if (m_modelState == InsertingState) {
         endInsertRows();
@@ -191,7 +197,52 @@ void TopLevelWindowModel::appendSurfaceHelper(MirSurface *surface, unityapi::App
         m_modelState = IdleState;
     }
 
+    if (!surface) {
+        // focus the newly added window. miral can't help with that as it doesn't know about it.
+        window->setFocused(true);
+        if (m_focusedWindow && m_focusedWindow->surface()) {
+            m_windowController->activate(miral::Window());
+        }
+    }
+
     DEBUG_MSG << " after " << toString();
+}
+
+void TopLevelWindowModel::connectWindow(Window *window)
+{
+    connect(window, &unityapi::WindowInterface::focusRequested, this, [this, window]() {
+        if (!window->surface()) {
+            // miral doesn't know about this window, so we have to do it ourselves
+            window->setFocused(true);
+            raiseId(window->id());
+            Window *previousWindow = m_focusedWindow;
+            setFocusedWindow(window);
+            if (previousWindow && previousWindow->surface() && previousWindow->surface()->focused()) {
+                m_windowController->activate(miral::Window());
+            }
+        }
+    });
+
+    connect(window, &unityapi::WindowInterface::focusedChanged, this, [this, window](bool focused) {
+        if (window->surface()) {
+            // Condense changes to the focused window
+            // eg: Do focusedWindow=A to focusedWindow=B instead of
+            // focusedWindow=A to focusedWindow=null to focusedWindow=B
+            m_focusedWindowChanged = true;
+            if (focused) {
+                Q_ASSERT(m_newlyFocusedWindow == nullptr);
+                m_newlyFocusedWindow = window;
+            }
+        }
+    });
+
+    connect(window, &Window::closeRequested, this, [this, window]() {
+        if (!window->surface()) {
+            int index = indexForId(window->id());
+            Q_ASSERT(index >= 0);
+            m_windowModel[index].application->close();
+        }
+    });
 }
 
 void TopLevelWindowModel::connectSurface(MirSurfaceInterface *surface)
@@ -237,11 +288,9 @@ void TopLevelWindowModel::onSurfaceDestroyed(MirSurfaceInterface *surface)
     if (m_windowModel[i].removeOnceSurfaceDestroyed) {
         removeAt(i);
     } else {
-        if (m_windowModel[i].surface == m_focusedSurface) {
-            setFocusedSurface(nullptr);
-        }
-        m_windowModel[i].surface = nullptr;
-        Q_EMIT dataChanged(index(i) /* topLeft */, index(i) /* bottomRight */, QVector<int>() << SurfaceRole);
+        auto window = m_windowModel[i].window;
+        window->setSurface(nullptr);
+        window->setFocused(false);
         DEBUG_MSG << " Removed surface from entry. After: " << toString();
     }
 }
@@ -255,14 +304,8 @@ void TopLevelWindowModel::connectToWindowModelNotifier(WindowModelNotifier *noti
     connect(notifier, &WindowModelNotifier::windowStateChanged, this, &TopLevelWindowModel::onWindowStateChanged, Qt::QueuedConnection);
     connect(notifier, &WindowModelNotifier::windowFocusChanged, this, &TopLevelWindowModel::onWindowFocusChanged, Qt::QueuedConnection);
     connect(notifier, &WindowModelNotifier::windowsRaised,      this, &TopLevelWindowModel::onWindowsRaised,      Qt::QueuedConnection);
-}
-
-QHash<int, QByteArray> TopLevelWindowModel::roleNames() const
-{
-    QHash<int, QByteArray> roleNames { {SurfaceRole, "surface"},
-                                       {ApplicationRole, "application"},
-                                       {IdRole, "id"} };
-    return roleNames;
+    connect(notifier, &WindowModelNotifier::modificationsStarted, this, &TopLevelWindowModel::onModificationsStarted, Qt::QueuedConnection);
+    connect(notifier, &WindowModelNotifier::modificationsEnded, this, &TopLevelWindowModel::onModificationsEnded, Qt::QueuedConnection);
 }
 
 void TopLevelWindowModel::onWindowAdded(const NewWindow &window)
@@ -276,11 +319,16 @@ void TopLevelWindowModel::onWindowAdded(const NewWindow &window)
         session->registerSurface(surface);
 
     if (window.windowInfo.type() == mir_surface_type_inputmethod) {
-        setInputMethodWindow(surface);
+        int id = generateId();
+        Window *qmlWindow = new Window(id);
+        connectWindow(qmlWindow);
+        qmlWindow->setSurface(surface);
+        setInputMethodWindow(qmlWindow);
     } else {
-        unityapi::ApplicationInfoInterface *application = m_applicationManager->findApplicationWithSession(mirSession);
-        appendSurface(surface, application);
+        Application *application = m_applicationManager->findApplicationWithSession(mirSession);
+        prependSurface(surface, application);
     }
+    // TODO: handle surfaces that are neither top-level windows nor input method. eg: child dialogs, popups, menus
 }
 
 void TopLevelWindowModel::onWindowRemoved(const miral::WindowInfo &windowInfo)
@@ -292,7 +340,8 @@ void TopLevelWindowModel::onWindowRemoved(const miral::WindowInfo &windowInfo)
 
     const int index = findIndexOf(windowInfo.window());
     if (index >= 0) {
-        m_windowModel[index].surface->setLive(false);
+        auto surface = static_cast<MirSurface*>(m_windowModel[index].window->surface());
+        surface->setLive(false);
     }
 }
 
@@ -306,11 +355,14 @@ void TopLevelWindowModel::removeAt(int index)
         // No point in signaling anything if we're resetting the whole model
     }
 
-    if (m_windowModel[index].surface != nullptr && m_windowModel[index].surface == m_focusedSurface) {
-        setFocusedSurface(nullptr);
-    }
+    auto window = m_windowModel[index].window;
+
+    window->setSurface(nullptr);
+    window->setFocused(false);
 
     m_windowModel.removeAt(index);
+
+    delete window;
 
     if (m_modelState == RemovingState) {
         endRemoveRows();
@@ -340,12 +392,6 @@ void TopLevelWindowModel::onWindowFocusChanged(const miral::WindowInfo &windowIn
 {
     if (auto mirSurface = find(windowInfo)) {
         mirSurface->setFocused(focused);
-
-        if (focused) {
-            setFocusedSurface(mirSurface);
-        } else if (mirSurface == m_focusedSurface) {
-            setFocusedSurface(nullptr);
-        }
     }
 }
 
@@ -353,32 +399,46 @@ void TopLevelWindowModel::onWindowStateChanged(const miral::WindowInfo &windowIn
 {
     if (auto mirSurface = find(windowInfo)) {
         mirSurface->updateState(state);
+    } else if (m_inputMethodWindow) {
+        auto surface = static_cast<MirSurface*>(m_inputMethodWindow->surface());
+        if (surface->window() == windowInfo.window()) {
+            surface->updateState(state);
+        }
     }
 }
 
-void TopLevelWindowModel::setInputMethodWindow(MirSurface *surface)
+void TopLevelWindowModel::setInputMethodWindow(Window *window)
 {
-    if (m_inputMethodSurface) {
-        qDebug("Multiple Input Method Surfaces created, removing the old one!");
-        delete m_inputMethodSurface;
+    if (m_inputMethodWindow) {
+        qWarning("Multiple Input Method Surfaces created, removing the old one!");
+        delete m_inputMethodWindow;
     }
-    m_inputMethodSurface = surface;
-    Q_EMIT inputMethodSurfaceChanged(m_inputMethodSurface);
+    m_inputMethodWindow = window;
+    Q_EMIT inputMethodSurfaceChanged(m_inputMethodWindow->surface());
 }
 
 void TopLevelWindowModel::removeInputMethodWindow()
 {
-    if (m_inputMethodSurface) {
-        delete m_inputMethodSurface;
-        m_inputMethodSurface = nullptr;
-        Q_EMIT inputMethodSurfaceChanged(m_inputMethodSurface);
+    if (m_inputMethodWindow) {
+        delete m_inputMethodWindow;
+        m_inputMethodWindow = nullptr;
+        Q_EMIT inputMethodSurfaceChanged(nullptr);
     }
 }
 
 void TopLevelWindowModel::onWindowsRaised(const std::vector<miral::Window> &windows)
 {
-    // Reminder: last item in the "windows" list should end up at the top of the model
-    const int modelCount = m_windowModel.count();
+    const int raiseCount = windows.size();
+    for (int i = 0; i < raiseCount; i++) {
+        int fromIndex = findIndexOf(windows[i]);
+        if (fromIndex != -1) {
+            move(fromIndex, 0);
+        }
+    }
+
+// Code below crashes with things like move(from=-1, to=0) when there's only one item in the list
+#if 0
+    // Reminder: last item in the "windows" list should end up at the base of the stack
     const int raiseCount = windows.size();
 
     // Assumption: no NO-OPs are in this list - Qt will crash on endMoveRows() if you try NO-OPs!!!
@@ -386,33 +446,33 @@ void TopLevelWindowModel::onWindowsRaised(const std::vector<miral::Window> &wind
     //    1. "indices" is an empty list
     //    2. "indices" of the form (..., modelCount - 2, modelCount - 1) which results in an unchanged list
 
-    // Precompute the list of indices of Windows/Surfaces to raise, including the offsets due to
-    // indices which have already been moved.
+    // Precompute the list of indices of Windows/Surfaces to raise (i.e. move to base of the stack),
+    // including the offsets due to indices which have already been moved.
     QVector<QPair<int /*from*/, int /*to*/>> moveList;
 
     for (int i=raiseCount-1; i>=0; i--) {
         int from = findIndexOf(windows[i]);
-        const int to = modelCount - raiseCount + i;
+        const int to = raiseCount - i - 1;
 
         int moveCount = 0;
-        // how many list items under "index" have been moved so far, correct "from" to suit
+        // how many list items over "index" have been moved so far, correct "from" to suit
         for (int j=raiseCount-1; j>i; j--) {
-            if (findIndexOf(windows[j]) < from) {
+            if (findIndexOf(windows[j]) > from) {
                 moveCount++;
             }
         }
-        from -= moveCount;
+        from += moveCount;
 
         if (from == to) {
             // is NO-OP, would result in moving element to itself
         } else {
-            moveList.prepend({from, to});
+            moveList.append({from, to});
         }
     }
 
     // Perform the moving, trusting the moveList is correct for each iteration.
     QModelIndex parent;
-    for (int i=moveList.count()-1; i>=0; i--) {
+    for (int i=0; i<moveList.count(); i--) {
         const int from = moveList[i].first;
         const int to = moveList[i].second;
 
@@ -426,6 +486,7 @@ void TopLevelWindowModel::onWindowsRaised(const std::vector<miral::Window> &wind
 
         endMoveRows();
     }
+#endif
 }
 
 int TopLevelWindowModel::rowCount(const QModelIndex &/*parent*/) const
@@ -438,13 +499,11 @@ QVariant TopLevelWindowModel::data(const QModelIndex& index, int role) const
     if (index.row() < 0 || index.row() >= m_windowModel.size())
         return QVariant();
 
-    if (role == SurfaceRole) {
-        unityapi::MirSurfaceInterface *surface = m_windowModel.at(index.row()).surface;
-        return QVariant::fromValue(surface);
+    if (role == WindowRole) {
+        unityapi::WindowInterface *window = m_windowModel.at(index.row()).window;
+        return QVariant::fromValue(window);
     } else if (role == ApplicationRole) {
         return QVariant::fromValue(m_windowModel.at(index.row()).application);
-    } else if (role == IdRole) {
-        return QVariant::fromValue(m_windowModel.at(index.row()).id);
     } else {
         return QVariant();
     }
@@ -454,8 +513,9 @@ MirSurface *TopLevelWindowModel::find(const miral::WindowInfo &needle) const
 {
     auto window = needle.window();
     Q_FOREACH(const auto entry, m_windowModel) {
-        if (entry.surface && entry.surface->window() == window) {
-            return entry.surface;
+        auto surface = static_cast<MirSurface*>(entry.window->surface());
+        if (surface && surface->window() == window) {
+            return surface;
         }
     }
     return nullptr;
@@ -464,7 +524,8 @@ MirSurface *TopLevelWindowModel::find(const miral::WindowInfo &needle) const
 int TopLevelWindowModel::findIndexOf(const miral::Window &needle) const
 {
     for (int i=0; i<m_windowModel.count(); i++) {
-        if (m_windowModel[i].surface && m_windowModel[i].surface->window() == needle) {
+        auto surface = static_cast<MirSurface*>(m_windowModel[i].window->surface());
+        if (surface && surface->window() == needle) {
             return i;
         }
     }
@@ -501,8 +562,8 @@ QString TopLevelWindowModel::toString()
         QString itemStr = QString("(index=%1,appId=%2,surface=0x%3,id=%4)")
             .arg(i)
             .arg(item.application->appId())
-            .arg((qintptr)item.surface, 0, 16)
-            .arg(item.id);
+            .arg((qintptr)item.window->surface(), 0, 16)
+            .arg(item.window->id());
 
         if (i > 0) {
             str.append(",");
@@ -515,7 +576,7 @@ QString TopLevelWindowModel::toString()
 int TopLevelWindowModel::indexOf(MirSurfaceInterface *surface)
 {
     for (int i = 0; i < m_windowModel.count(); ++i) {
-        if (m_windowModel.at(i).surface == surface) {
+        if (m_windowModel.at(i).window->surface() == surface) {
             return i;
         }
     }
@@ -525,17 +586,26 @@ int TopLevelWindowModel::indexOf(MirSurfaceInterface *surface)
 int TopLevelWindowModel::indexForId(int id) const
 {
     for (int i = 0; i < m_windowModel.count(); ++i) {
-        if (m_windowModel[i].id == id) {
+        if (m_windowModel[i].window->id() == id) {
             return i;
         }
     }
     return -1;
 }
 
+unityapi::WindowInterface *TopLevelWindowModel::windowAt(int index) const
+{
+    if (index >=0 && index < m_windowModel.count()) {
+        return m_windowModel[index].window;
+    } else {
+        return nullptr;
+    }
+}
+
 unityapi::MirSurfaceInterface *TopLevelWindowModel::surfaceAt(int index) const
 {
     if (index >=0 && index < m_windowModel.count()) {
-        return m_windowModel[index].surface;
+        return m_windowModel[index].window->surface();
     } else {
         return nullptr;
     }
@@ -553,7 +623,7 @@ unityapi::ApplicationInfoInterface *TopLevelWindowModel::applicationAt(int index
 int TopLevelWindowModel::idAt(int index) const
 {
     if (index >=0 && index < m_windowModel.count()) {
-        return m_windowModel[index].id;
+        return m_windowModel[index].window->id();
     } else {
         return 0;
     }
@@ -579,29 +649,53 @@ void TopLevelWindowModel::doRaiseId(int id)
 {
     int fromIndex = indexForId(id);
     if (fromIndex != -1) {
-        auto surface = m_windowModel[fromIndex].surface;
+        auto surface = static_cast<MirSurface*>(m_windowModel[fromIndex].window->surface());
         if (surface) {
             m_windowController->raise(surface->window());
         } else {
             // move it ourselves. Since there's no mir::scene::Surface/miral::Window, there's nothing
             // miral can do about it.
-            move(fromIndex, m_windowModel.count() - 1);
+            move(fromIndex, 0);
         }
     }
 }
 
-void TopLevelWindowModel::setFocusedSurface(MirSurface *surface)
+Window *TopLevelWindowModel::findWindowWithSurface(MirSurface *surface)
 {
-    if (surface != m_focusedSurface) {
-        DEBUG_MSG << "(" << surface << ")";
-        m_focusedSurface = surface;
-        Q_EMIT focusedSurfaceChanged(m_focusedSurface);
+    for (int i = 0; i < m_windowModel.count(); ++i) {
+        Window *window = m_windowModel[i].window;
+        if (window->surface() == surface) {
+            return window;
+        }
+    }
+    return nullptr;
+}
+
+void TopLevelWindowModel::setFocusedWindow(Window *window)
+{
+    if (window != m_focusedWindow) {
+        DEBUG_MSG << "(" << window << ")";
+
+        Window* previousWindow = m_focusedWindow;
+
+        m_focusedWindow = window;
+        Q_EMIT focusedWindowChanged(m_focusedWindow);
+
+        if (previousWindow && previousWindow->focused() && !previousWindow->surface()) {
+            // do it ourselves. miral doesn't know about this window
+            previousWindow->setFocused(false);
+        }
     }
 }
 
-unityapi::MirSurfaceInterface* TopLevelWindowModel::focusedSurface() const
+unityapi::MirSurfaceInterface* TopLevelWindowModel::inputMethodSurface() const
 {
-    return m_focusedSurface;
+    return m_inputMethodWindow ? m_inputMethodWindow->surface() : nullptr;
+}
+
+unityapi::WindowInterface* TopLevelWindowModel::focusedWindow() const
+{
+    return m_focusedWindow;
 }
 
 void TopLevelWindowModel::move(int from, int to)
@@ -619,11 +713,30 @@ void TopLevelWindowModel::move(int from, int to)
         m_modelState = MovingState;
 
         beginMoveRows(parent, from, from, parent, to + (to > from ? 1 : 0));
+#if QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
+        const auto &window = m_windowModel.takeAt(from);
+        m_windowModel.insert(to, window);
+#else
         m_windowModel.move(from, to);
+#endif
         endMoveRows();
 
+        Q_EMIT listChanged();
         m_modelState = IdleState;
 
         DEBUG_MSG << " after " << toString();
     }
+}
+void TopLevelWindowModel::onModificationsStarted()
+{
+}
+
+void TopLevelWindowModel::onModificationsEnded()
+{
+    if (m_focusedWindowChanged) {
+        setFocusedWindow(m_newlyFocusedWindow);
+    }
+    // reset
+    m_focusedWindowChanged = false;
+    m_newlyFocusedWindow = nullptr;
 }

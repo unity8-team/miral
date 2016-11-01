@@ -77,6 +77,8 @@ Q_SIGNALS: // **Must used Queued Connection or else events will be out of order*
     void windowStateChanged(const miral::WindowInfo &window, Mir::State state);
     void windowFocusChanged(const miral::WindowInfo &window, bool focused);
     void windowsRaised(const std::vector<miral::Window> &windows); // results in deep copy when passed over Queued connection:(
+    void modificationsStarted();
+    void modificationsEnded();
 
 private:
     Q_DISABLE_COPY(WindowModelNotifier)
