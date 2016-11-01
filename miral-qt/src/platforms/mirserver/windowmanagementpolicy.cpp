@@ -81,8 +81,11 @@ void WindowManagementPolicy::handle_modify_window(
     const miral::WindowSpecification &modifications)
 {
     qDebug("Window Modified!");
+
+    // TODO this applies the default policy. Qt needs to process the request instead
     CanonicalWindowManagerPolicy::handle_modify_window(windowInfo, modifications);
 
+    // TODO Once Qt processes the request we probably don't want to notify from here
     std::shared_ptr<mir::scene::Surface> surface{windowInfo.window()};
     if (SurfaceObserver *observer = SurfaceObserver::observerForSurface(surface.get())) {
         observer->notifySurfaceModifications(modifications);
