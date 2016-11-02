@@ -31,7 +31,9 @@
 #include "nativeinterface.h"
 #include "sessionauthorizer.h"
 #include "logging.h"
-#include "mirapplication.h"
+
+//miral
+#include <miral/application.h>
 
 // mir
 #include <mir/geometry/rectangles.h>
@@ -579,7 +581,7 @@ Application* ApplicationManager::findApplicationWithSession(const std::shared_pt
 {
     if (!session)
         return nullptr;
-    return findApplicationWithPid(pid_of(session));
+    return findApplicationWithPid(miral::pid_of(session));
 }
 
 Application* ApplicationManager::findApplicationWithPid(const pid_t pid) const

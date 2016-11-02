@@ -96,7 +96,6 @@ set(MIRSERVER_QPA_PLUGIN_SRC
     screen.cpp
     screenwindow.cpp
     screensmodel.cpp
-    mirapplication.cpp mirapplication.h
     mirserverintegration.cpp
     miropenglcontext.cpp
     offscreensurface.cpp

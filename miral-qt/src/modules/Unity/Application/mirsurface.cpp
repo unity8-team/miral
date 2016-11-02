@@ -32,13 +32,8 @@
 
 // Mir
 #include <mir/geometry/rectangle.h>
-#include <mir/graphics/cursor_image.h>
-#include <mir/events/event_builders.h>
-#include <mir/shell/shell.h>
 #include <mir/scene/surface.h>
-#include <mir/scene/session.h>
 #include <mir/scene/surface_observer.h>
-#include <mir_toolkit/event.h>
 #include <mir/version.h>
 
 // mirserver
