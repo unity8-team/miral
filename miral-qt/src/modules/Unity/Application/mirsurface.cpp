@@ -438,8 +438,8 @@ void MirSurface::close()
     Q_EMIT closeRequested();
     m_closeTimer->start();
 
-    if (m_surface) {
-        m_surface->request_client_surface_close();
+    if (m_window) {
+        m_controller->requestClose(m_window);
     }
 }
 
