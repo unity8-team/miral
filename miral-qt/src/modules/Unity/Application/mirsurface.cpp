@@ -16,6 +16,7 @@
 
 #include "mirsurface.h"
 #include "mirsurfacelistmodel.h"
+#include "namedcursor.h"
 #include "session_interface.h"
 #include "timer.h"
 #include "timestamp.h"
@@ -31,11 +32,14 @@
 
 // Mir
 #include <mir/geometry/rectangle.h>
+#include <mir/graphics/cursor_image.h>
 #include <mir/events/event_builders.h>
 #include <mir/shell/shell.h>
 #include <mir/scene/surface.h>
 #include <mir/scene/session.h>
+#include <mir/scene/surface_observer.h>
 #include <mir_toolkit/event.h>
+#include <mir/version.h>
 
 // mirserver
 #include <logging.h>
@@ -68,6 +72,45 @@ Q_DECLARE_FLAGS(DirtyStates, DirtyState)
 
 } // namespace {
 
+class MirSurface::SurfaceObserverImpl : public SurfaceObserver, public mir::scene::SurfaceObserver
+{
+public:
+    SurfaceObserverImpl();
+    virtual ~SurfaceObserverImpl();
+
+    void setListener(QObject *listener);
+
+    void attrib_changed(MirSurfaceAttrib, int) override;
+    void resized_to(mir::geometry::Size const&) override;
+    void moved_to(mir::geometry::Point const&) override {}
+    void hidden_set_to(bool) override {}
+
+    // Get new frame notifications from Mir, called from a Mir thread.
+    void frame_posted(int frames_available, mir::geometry::Size const& size ) override;
+
+    void alpha_set_to(float) override {}
+    void transformation_set_to(glm::mat4 const&) override {}
+    void reception_mode_set_to(mir::input::InputReceptionMode) override {}
+    void cursor_image_set_to(mir::graphics::CursorImage const&) override;
+    void orientation_set_to(MirOrientation) override {}
+    void client_surface_close_requested() override {}
+    void keymap_changed(MirInputDeviceId, std::string const& model, std::string const& layout,
+                        std::string const& variant, std::string const& options) override;
+    void renamed(char const * name) override;
+    void cursor_image_removed() override;
+
+#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 25, 0)
+    void placed_relative(mir::geometry::Rectangle const& placement) override;
+#endif
+
+private:
+    QCursor createQCursorFromMirCursorImage(const mir::graphics::CursorImage &cursorImage);
+    QObject *m_listener;
+    bool m_framesPosted;
+    QMap<QByteArray, Qt::CursorShape> m_cursorNameToShape;
+};
+
+
 MirSurface::MirSurface(NewWindow newWindowInfo,
         WindowControllerInterface* controller,
         SessionInterface *session)
@@ -81,7 +124,7 @@ MirSurface::MirSurface(NewWindow newWindowInfo,
     , m_currentFrameNumber(0)
     , m_visible(newWindowInfo.windowInfo.is_visible())
     , m_live(true)
-    , m_surfaceObserver(std::make_shared<SurfaceObserver>())
+    , m_surfaceObserver(std::make_shared<SurfaceObserverImpl>())
     , m_position(toQPoint(m_windowInfo.window().top_left()))
     , m_size(toQSize(m_windowInfo.window().size()))
     , m_state(toQtState(m_windowInfo.state()))
@@ -908,5 +951,147 @@ void MirSurface::setRequestedPosition(const QPoint &point)
         m_requestedPosition = point;
         Q_EMIT requestedPositionChanged(m_requestedPosition);
         m_controller->move(m_windowInfo.window(), m_requestedPosition);
+    }
+}
+
+
+MirSurface::SurfaceObserverImpl::SurfaceObserverImpl()
+    : m_listener(nullptr)
+    , m_framesPosted(false)
+{
+    m_cursorNameToShape["left_ptr"] = Qt::ArrowCursor;
+    m_cursorNameToShape["up_arrow"] = Qt::UpArrowCursor;
+    m_cursorNameToShape["cross"] = Qt::CrossCursor;
+    m_cursorNameToShape["watch"] = Qt::WaitCursor;
+    m_cursorNameToShape["xterm"] = Qt::IBeamCursor;
+    m_cursorNameToShape["size_ver"] = Qt::SizeVerCursor;
+    m_cursorNameToShape["size_hor"] = Qt::SizeHorCursor;
+    m_cursorNameToShape["size_bdiag"] = Qt::SizeBDiagCursor;
+    m_cursorNameToShape["size_fdiag"] = Qt::SizeFDiagCursor;
+    m_cursorNameToShape["size_all"] = Qt::SizeAllCursor;
+    m_cursorNameToShape["blank"] = Qt::BlankCursor;
+    m_cursorNameToShape["split_v"] = Qt::SplitVCursor;
+    m_cursorNameToShape["split_h"] = Qt::SplitHCursor;
+    m_cursorNameToShape["hand"] = Qt::PointingHandCursor;
+    m_cursorNameToShape["forbidden"] = Qt::ForbiddenCursor;
+    m_cursorNameToShape["whats_this"] = Qt::WhatsThisCursor;
+    m_cursorNameToShape["left_ptr_watch"] = Qt::BusyCursor;
+    m_cursorNameToShape["openhand"] = Qt::OpenHandCursor;
+    m_cursorNameToShape["closedhand"] = Qt::ClosedHandCursor;
+    m_cursorNameToShape["dnd-copy"] = Qt::DragCopyCursor;
+    m_cursorNameToShape["dnd-move"] = Qt::DragMoveCursor;
+    m_cursorNameToShape["dnd-link"] = Qt::DragLinkCursor;
+
+    // Used by Mir client API (mir_*_cursor_name strings)
+    m_cursorNameToShape["default"] = Qt::ArrowCursor;
+    m_cursorNameToShape["disabled"] = Qt::BlankCursor;
+    m_cursorNameToShape["arrow"] = Qt::ArrowCursor;
+    m_cursorNameToShape["busy"] = Qt::WaitCursor;
+    m_cursorNameToShape["caret"] = Qt::IBeamCursor;
+    m_cursorNameToShape["pointing-hand"] = Qt::PointingHandCursor;
+    m_cursorNameToShape["open-hand"] = Qt::OpenHandCursor;
+    m_cursorNameToShape["closed-hand"] = Qt::ClosedHandCursor;
+    m_cursorNameToShape["horizontal-resize"] = Qt::SizeHorCursor;
+    m_cursorNameToShape["vertical-resize"] = Qt::SizeVerCursor;
+    m_cursorNameToShape["diagonal-resize-bottom-to-top"] = Qt::SizeBDiagCursor;
+    m_cursorNameToShape["diagonal-resize-top_to_bottom"] = Qt::SizeFDiagCursor; // current string with typo
+    m_cursorNameToShape["diagonal-resize-top-to-bottom"] = Qt::SizeFDiagCursor; // how it will be when they fix it (if ever)
+    m_cursorNameToShape["omnidirectional-resize"] = Qt::SizeAllCursor;
+    m_cursorNameToShape["vsplit-resize"] = Qt::SplitVCursor;
+    m_cursorNameToShape["hsplit-resize"] = Qt::SplitHCursor;
+    m_cursorNameToShape["crosshair"] = Qt::CrossCursor;
+
+    qRegisterMetaType<MirShellChrome>("MirShellChrome");
+}
+
+MirSurface::SurfaceObserverImpl::~SurfaceObserverImpl()
+{
+}
+
+void MirSurface::SurfaceObserverImpl::setListener(QObject *listener)
+{
+    m_listener = listener;
+    if (m_framesPosted) {
+        Q_EMIT framesPosted();
+    }
+}
+
+void MirSurface::SurfaceObserverImpl::frame_posted(int /*frames_available*/, mir::geometry::Size const& /*size*/)
+{
+    m_framesPosted = true;
+    if (m_listener) {
+        Q_EMIT framesPosted();
+    }
+}
+
+void MirSurface::SurfaceObserverImpl::renamed(char const * name)
+{
+    Q_EMIT nameChanged(QString::fromUtf8(name));
+}
+
+void MirSurface::SurfaceObserverImpl::cursor_image_removed()
+{
+    Q_EMIT cursorChanged(QCursor());
+}
+
+#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 25, 0)
+void MirSurface::SurfaceObserverImpl::placed_relative(mir::geometry::Rectangle const& /*placement*/)
+{
+}
+#endif
+
+void MirSurface::SurfaceObserverImpl::attrib_changed(MirSurfaceAttrib attribute, int value)
+{
+    if (m_listener) {
+        Q_EMIT attributeChanged(attribute, value);
+    }
+}
+
+void MirSurface::SurfaceObserverImpl::resized_to(mir::geometry::Size const&size)
+{
+    Q_EMIT resized(QSize(size.width.as_int(), size.height.as_int()));
+}
+
+void MirSurface::SurfaceObserverImpl::cursor_image_set_to(const mir::graphics::CursorImage &cursorImage)
+{
+    QCursor qcursor = createQCursorFromMirCursorImage(cursorImage);
+    Q_EMIT cursorChanged(qcursor);
+}
+
+void MirSurface::SurfaceObserverImpl::keymap_changed(MirInputDeviceId, const std::string &, const std::string &layout,
+                                         const std::string &variant, const std::string &)
+{
+    Q_EMIT keymapChanged(QString::fromStdString(layout), QString::fromStdString(variant));
+}
+
+QCursor MirSurface::SurfaceObserverImpl::createQCursorFromMirCursorImage(const mir::graphics::CursorImage &cursorImage) {
+    if (cursorImage.as_argb_8888() == nullptr) {
+        // Must be a named cursor
+        auto namedCursor = dynamic_cast<const qtmir::NamedCursor*>(&cursorImage);
+        Q_ASSERT(namedCursor != nullptr);
+        if (namedCursor) {
+            // NB: If we need a named cursor not covered by Qt::CursorShape, we won't be able to
+            //     used Qt's cursor API anymore for transmitting MirSurface's cursor image.
+
+            Qt::CursorShape cursorShape = Qt::ArrowCursor;
+            {
+                auto iterator = m_cursorNameToShape.constFind(namedCursor->name());
+                if (iterator == m_cursorNameToShape.constEnd()) {
+                    qCWarning(QTMIR_SURFACES).nospace() << "SurfaceObserver: unrecognized cursor name "
+                                                        << namedCursor->name();
+                } else {
+                    cursorShape = iterator.value();
+                }
+            }
+            return QCursor(cursorShape);
+        } else {
+            // shouldn't happen
+            return QCursor();
+        }
+    } else {
+        QImage image((const uchar*)cursorImage.as_argb_8888(),
+                     cursorImage.size().width.as_int(), cursorImage.size().height.as_int(), QImage::Format_ARGB32);
+
+        return QCursor(QPixmap::fromImage(image), cursorImage.hotspot().dx.as_int(), cursorImage.hotspot().dy.as_int());
     }
 }

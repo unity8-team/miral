@@ -219,7 +219,8 @@ private:
     QSet<qintptr> m_activelyFocusedViews;
     bool m_neverSetSurfaceFocus{true};
 
-    std::shared_ptr<SurfaceObserver> m_surfaceObserver;
+    class SurfaceObserverImpl;
+    std::shared_ptr<SurfaceObserverImpl> m_surfaceObserver;
 
     QPoint m_position;
     QPoint m_requestedPosition;
