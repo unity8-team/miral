@@ -435,58 +435,6 @@ void TopLevelWindowModel::onWindowsRaised(const std::vector<miral::Window> &wind
             move(fromIndex, 0);
         }
     }
-
-// Code below crashes with things like move(from=-1, to=0) when there's only one item in the list
-#if 0
-    // Reminder: last item in the "windows" list should end up at the base of the stack
-    const int raiseCount = windows.size();
-
-    // Assumption: no NO-OPs are in this list - Qt will crash on endMoveRows() if you try NO-OPs!!!
-    // A NO-OP is if
-    //    1. "indices" is an empty list
-    //    2. "indices" of the form (..., modelCount - 2, modelCount - 1) which results in an unchanged list
-
-    // Precompute the list of indices of Windows/Surfaces to raise (i.e. move to base of the stack),
-    // including the offsets due to indices which have already been moved.
-    QVector<QPair<int /*from*/, int /*to*/>> moveList;
-
-    for (int i=raiseCount-1; i>=0; i--) {
-        int from = findIndexOf(windows[i]);
-        const int to = raiseCount - i - 1;
-
-        int moveCount = 0;
-        // how many list items over "index" have been moved so far, correct "from" to suit
-        for (int j=raiseCount-1; j>i; j--) {
-            if (findIndexOf(windows[j]) > from) {
-                moveCount++;
-            }
-        }
-        from += moveCount;
-
-        if (from == to) {
-            // is NO-OP, would result in moving element to itself
-        } else {
-            moveList.append({from, to});
-        }
-    }
-
-    // Perform the moving, trusting the moveList is correct for each iteration.
-    QModelIndex parent;
-    for (int i=0; i<moveList.count(); i--) {
-        const int from = moveList[i].first;
-        const int to = moveList[i].second;
-
-        beginMoveRows(parent, from, from, parent, to+1);
-#if QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
-        const auto &window = m_windowModel.takeAt(from);
-        m_windowModel.insert(to, window);
-#else
-        m_windowModel.move(from, to);
-#endif
-
-        endMoveRows();
-    }
-#endif
 }
 
 int TopLevelWindowModel::rowCount(const QModelIndex &/*parent*/) const
