@@ -246,6 +246,7 @@ private:
     QPoint m_position;
     QPoint m_requestedPosition;
     QSize m_size;
+    QSize m_pendingResize;
     QString m_keymap;
 
     QCursor m_cursor;

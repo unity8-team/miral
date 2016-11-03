@@ -159,6 +159,12 @@ MirSurface::MirSurface(NewWindow newWindowInfo,
     m_surfaceObserver->setListener(this);
 
     //connect(session, &QObject::destroyed, this, &MirSurface::onSessionDestroyed); // TODO try using Shared pointer for lifecycle
+    connect(session, &SessionInterface::stateChanged, this, [this]() {
+        if (clientIsRunning() && m_pendingResize.isValid()) {
+            resize(m_pendingResize.width(), m_pendingResize.height());
+            m_pendingResize = QSize(-1, -1);
+        }
+    });
 
     connect(&m_frameDropperTimer, &QTimer::timeout,
             this, &MirSurface::dropPendingBuffer);
@@ -445,9 +451,14 @@ void MirSurface::close()
 
 void MirSurface::resize(int width, int height)
 {
+    if (!clientIsRunning()) {
+        m_pendingResize = QSize(width, height);
+        return;
+    }
+
     bool mirSizeIsDifferent = width != m_size.width() || height != m_size.height();
 
-    if (clientIsRunning() && mirSizeIsDifferent) {
+    if (mirSizeIsDifferent) {
         m_controller->resize(m_window, QSize(width, height));
         DEBUG_MSG << " old (" << m_size.width() << "," << m_size.height() << ")"
                   << ", new (" << width << "," << height << ")";
