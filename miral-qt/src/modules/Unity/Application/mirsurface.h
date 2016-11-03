@@ -168,9 +168,13 @@ public:
     std::shared_ptr<SurfaceObserver> surfaceObserver() const;
 
 public Q_SLOTS:
+    ////
+    // unity::shell::application::MirSurfaceInterface
     void requestState(Mir::State qmlState) override;
-    void onCompositorSwappedBuffers() override;
 
+    ////
+    // qtmir::MirSurfaceInterface
+    void onCompositorSwappedBuffers() override;
     void setShellChrome(Mir::ShellChrome shellChrome) override;
 
 private Q_SLOTS:

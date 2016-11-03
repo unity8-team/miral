@@ -149,6 +149,8 @@ const char *mirSurfaceStateToStr(int value)
         return "vertmaximized";
     case mir_surface_state_fullscreen:
         return "fullscreen";
+    case mir_surface_state_hidden:
+        return "hidden";
     default:
         return "???";
     }
