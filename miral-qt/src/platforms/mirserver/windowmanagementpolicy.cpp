@@ -314,7 +314,6 @@ void WindowManagementPolicy::forceClose(const miral::Window &window)
     });
 }
 
-
 void WindowManagementPolicy::requestState(const miral::Window &window, const Mir::State state)
 {
     auto &windowInfo = m_tools.info_for(window);
