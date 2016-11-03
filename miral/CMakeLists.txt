@@ -71,6 +71,12 @@ set_target_properties(miral
         LINK_DEPENDS ${symbol_map}
 )
 
+add_custom_target(check-symbols ALL
+        DEPENDS miral ${PROJECT_SOURCE_DIR}/debian/libmiral1.symbols
+        COMMAND dpkg-gensymbols -e${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libmiral.so.1 -plibmiral1 | c++filt
+        WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+)
+
 set(LIBDIR "${CMAKE_INSTALL_FULL_LIBDIR}")
 set(INCLUDEDIR "${CMAKE_INSTALL_PREFIX}/include/miral")
 

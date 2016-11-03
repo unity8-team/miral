@@ -301,3 +301,7 @@ libmiral.so.1 libmiral1 #MINVER#
  (c++)"miral::CommandLineOption::~CommandLineOption()@MIRAL_0.4" 0.4.0
  (c++)"miral::CommandLineOption::operator=(miral::CommandLineOption const&)@MIRAL_0.4" 0.4.0
  (c++)"miral::CommandLineOption::operator()(mir::Server&) const@MIRAL_0.4" 0.4.0
+ (c++)"miral::WindowManagerTools::force_close(miral::Window const&)@MIRAL_0.4" 0.4.0
+ (c++)"miral::apply_lifecycle_state_to(std::shared_ptr<mir::scene::Session> const&, MirLifecycleState)@MIRAL_0.4" 0.4.0
+ (c++)"miral::pid_of(std::shared_ptr<mir::scene::Session> const&)@MIRAL_0.4" 0.4.0
+ (c++)"miral::name_of[abi:cxx11](std::shared_ptr<mir::scene::Session> const&)@MIRAL_0.4" 0.4.0
