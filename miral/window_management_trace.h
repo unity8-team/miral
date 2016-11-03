@@ -49,6 +49,7 @@ private:
     virtual auto info_for(Window const& window) const -> WindowInfo& override;
 
     virtual void ask_client_to_close(Window const& window) override;
+    virtual void force_close(Window const& window) override;
 
     virtual auto active_window() const -> Window override;
     virtual auto select_active_window(Window const& hint) -> Window override;

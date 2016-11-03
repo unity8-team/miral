@@ -35,6 +35,7 @@ public:
     void move  (const miral::Window &window, const QPoint &topLeft) override;
 
     void requestClose(const miral::Window &window) override;
+    void forceClose(const miral::Window &window) override;
 
     void requestState(const miral::Window &window, const Mir::State state) override;
 

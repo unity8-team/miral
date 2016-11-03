@@ -62,6 +62,13 @@ void WindowController::requestClose(const miral::Window &window)
     }
 }
 
+void WindowController::forceClose(const miral::Window &window)
+{
+    if (m_policy) {
+        m_policy->forceClose(window);
+    }
+}
+
 void WindowController::requestState(const miral::Window &window, const Mir::State state)
 {
     if (m_policy) {

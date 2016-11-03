@@ -363,6 +363,14 @@ void miral::WindowManagementTrace::ask_client_to_close(miral::Window const& wind
     wrapped.ask_client_to_close(window);
 }
 
+void miral::WindowManagementTrace::force_close(miral::Window const& window)
+{
+    log_input();
+    mir::log_info("%s -> %s", __func__, dump_of(window).c_str());
+    trace_count++;
+    wrapped.force_close(window);
+}
+
 auto miral::WindowManagementTrace::active_window() const -> Window
 {
     log_input();

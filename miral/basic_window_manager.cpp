@@ -400,6 +400,14 @@ void miral::BasicWindowManager::ask_client_to_close(Window const& window)
         mir_surface->request_client_surface_close();
 }
 
+void miral::BasicWindowManager::force_close(Window const& window)
+{
+    auto application = window.application();
+
+    if (application && window)
+        remove_surface(application, window);
+}
+
 auto miral::BasicWindowManager::active_window() const -> Window
 {
     return mru_active_windows.top();

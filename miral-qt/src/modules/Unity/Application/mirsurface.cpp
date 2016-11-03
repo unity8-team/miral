@@ -906,7 +906,7 @@ void MirSurface::onCloseTimedOut()
 
     m_closingState = CloseOverdue;
 
-    m_controller->requestClose(m_window);
+    m_controller->forceClose(m_window);
 }
 
 void MirSurface::setCloseTimer(AbstractTimer *timer)

@@ -82,6 +82,7 @@ public:
     void requestState(const miral::Window &window, const Mir::State state);
 
     void ask_client_to_close(const miral::Window &window);
+    void forceClose(const miral::Window &window);
 
 Q_SIGNALS:
 
