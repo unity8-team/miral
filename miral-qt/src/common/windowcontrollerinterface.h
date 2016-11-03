@@ -44,6 +44,7 @@ public:
     virtual void move  (const miral::Window &window, const QPoint &topLeft) = 0;
 
     virtual void requestClose(const miral::Window &window) = 0;
+    virtual void forceClose(const miral::Window &window) = 0;
 
     virtual void requestState(const miral::Window &window, const Mir::State state) = 0;
 

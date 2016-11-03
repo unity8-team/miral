@@ -30,6 +30,7 @@ struct StubWindowModelController : public WindowControllerInterface
     void move  (const miral::Window &/*window*/, const QPoint &/*topLeft*/) override { return; }
 
     void requestClose(const miral::Window &/*window*/) override { return; }
+    void forceClose(const miral::Window &/*window*/) override { return; }
 
     void requestState(const miral::Window &/*window*/, const Mir::State /*state*/) override { return; }
 

@@ -54,6 +54,7 @@ public:
     virtual auto info_for(Window const& window) const -> WindowInfo& = 0;
 
     virtual void ask_client_to_close(Window const& window) = 0;
+    virtual void force_close(Window const& window) = 0;
     virtual auto active_window() const -> Window = 0;
     virtual auto select_active_window(Window const& hint) -> Window = 0;
     virtual void drag_active_window(mir::geometry::Displacement movement) = 0;

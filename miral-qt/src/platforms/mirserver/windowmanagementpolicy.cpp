@@ -309,6 +309,13 @@ void WindowManagementPolicy::ask_client_to_close(const miral::Window &window)
     });
 }
 
+void WindowManagementPolicy::forceClose(const miral::Window &window)
+{
+    m_tools.invoke_under_lock([&window, this]() {
+        m_tools.force_close(window);
+    });
+}
+
 void WindowManagementPolicy::requestState(const miral::Window &window, const Mir::State state)
 {
     auto &windowInfo = m_tools.info_for(window);
