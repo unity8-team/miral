@@ -15,6 +15,12 @@ miral (0.4.0) UNRELEASED; urgency=medium
 
  -- Alan Griffiths <alan.griffiths@canonical.com>  Fri, 28 Oct 2016 12:14:59 +0100
 
+miral (0.3.0+17.04.20161028-0ubuntu1) zesty; urgency=medium
+
+  * No change rebuild to target Xenial+Overlay
+
+ -- Alan Griffiths <alan.griffiths@canonical.com>  Fri, 28 Oct 2016 16:03:16 +0000
+
 miral (0.3.0+17.04.20161024-0ubuntu1) zesty; urgency=medium
 
   * New upstream release 0.3.0 (https://launchpad.net/miral/+milestone/0.3)
