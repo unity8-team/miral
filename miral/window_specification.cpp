@@ -59,6 +59,8 @@ struct miral::WindowSpecification::Self
     mir::optional_value<std::vector<Rectangle>> input_shape;
     mir::optional_value<InputReceptionMode> input_mode;
     mir::optional_value<MirShellChrome> shell_chrome;
+    mir::optional_value<MirPointerConfinementState> confine_pointer;
+    mir::optional_value<std::shared_ptr<void>> userdata;
 };
 
 miral::WindowSpecification::Self::Self(mir::shell::SurfaceSpecification const& spec) :
@@ -90,10 +92,23 @@ miral::WindowSpecification::Self::Self(mir::shell::SurfaceSpecification const& s
     input_shape(spec.input_shape),
     input_mode(),
     shell_chrome(spec.shell_chrome)
+#if MIRAL_MIR_DEFINES_POINTER_CONFINEMENT
+    ,confine_pointer(spec.confine_pointer)
+#endif
 {
 #if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 25, 0)
     if (spec.aux_rect_placement_offset_x.is_set() && spec.aux_rect_placement_offset_y.is_set())
         aux_rect_placement_offset = Displacement{spec.aux_rect_placement_offset_x.value(), spec.aux_rect_placement_offset_y.value()};
+#endif
+
+#if MIR_SERVER_VERSION < MIR_VERSION_NUMBER(0, 25, 0)
+    // mir_connection_create_spec_for_tooltip() didn't set an edge_attachment preference
+    if (aux_rect.is_set() && !spec.edge_attachment.is_set())
+    {
+        window_placement_gravity = mir_placement_gravity_northwest;
+        aux_rect_placement_gravity = mir_placement_gravity_northeast;
+        placement_hints = mir_placement_hints_flip_any;
+    }
 #endif
 
     if (spec.edge_attachment.is_set() && !placement_hints.is_set())
@@ -236,10 +251,23 @@ miral::WindowSpecification::Self::Self(mir::scene::SurfaceCreationParameters con
     input_shape(params.input_shape),
     input_mode(static_cast<InputReceptionMode>(params.input_mode)),
     shell_chrome(params.shell_chrome)
+#if MIRAL_MIR_DEFINES_POINTER_CONFINEMENT
+    ,confine_pointer(params.confine_pointer)
+#endif
 {
 #if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 25, 0)
     if (params.aux_rect_placement_offset_x.is_set() && params.aux_rect_placement_offset_y.is_set())
         aux_rect_placement_offset = Displacement{params.aux_rect_placement_offset_x.value(), params.aux_rect_placement_offset_y.value()};
+#endif
+
+#if MIR_SERVER_VERSION < MIR_VERSION_NUMBER(0, 25, 0)
+    // mir_connection_create_spec_for_tooltip() didn't set an edge_attachment preference
+    if (aux_rect.is_set() && !params.edge_attachment.is_set())
+    {
+        window_placement_gravity = mir_placement_gravity_northwest;
+        aux_rect_placement_gravity = mir_placement_gravity_northeast;
+        placement_hints = mir_placement_hints_flip_any;
+    }
 #endif
 
     if (params.edge_attachment.is_set() && !placement_hints.is_set())
@@ -304,6 +332,9 @@ void miral::WindowSpecification::Self::update(mir::scene::SurfaceCreationParamet
     copy_if_set(params.input_shape, input_shape);
     copy_if_set(params.input_mode, input_mode);
     copy_if_set(params.shell_chrome, shell_chrome);
+#if MIRAL_MIR_DEFINES_POINTER_CONFINEMENT
+    copy_if_set(params.confine_pointer, confine_pointer);
+#endif
 
 #if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 25, 0)
     copy_if_set(params.placement_hints, placement_hints);
@@ -472,6 +503,16 @@ auto miral::WindowSpecification::shell_chrome() const -> mir::optional_value<Mir
     return self->shell_chrome;
 }
 
+auto miral::WindowSpecification::confine_pointer() const -> mir::optional_value<MirPointerConfinementState> const&
+{
+    return self->confine_pointer;
+}
+
+auto miral::WindowSpecification::userdata() const -> mir::optional_value<std::shared_ptr<void>> const&
+{
+    return self->userdata;
+}
+
 auto miral::WindowSpecification::top_left() -> mir::optional_value<Point>&
 {
     return self->top_left;
@@ -480,11 +521,6 @@ auto miral::WindowSpecification::top_left() -> mir::optional_value<Point>&
 auto miral::WindowSpecification::size() -> mir::optional_value<Size>&
 {
     return self->size;
-}
-
-auto miral::WindowSpecification::pixel_format() -> mir::optional_value<MirPixelFormat>&
-{
-    return self->pixel_format;
 }
 
 auto miral::WindowSpecification::name() -> mir::optional_value<std::string>&
@@ -595,4 +631,14 @@ auto miral::WindowSpecification::input_mode() -> mir::optional_value<InputRecept
 auto miral::WindowSpecification::shell_chrome() -> mir::optional_value<MirShellChrome>&
 {
     return self->shell_chrome;
+}
+
+auto miral::WindowSpecification::confine_pointer() -> mir::optional_value<MirPointerConfinementState>&
+{
+    return self->confine_pointer;
+}
+
+auto miral::WindowSpecification::userdata() -> mir::optional_value<std::shared_ptr<void>>&
+{
+    return self->userdata;
 }

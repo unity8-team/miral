@@ -22,6 +22,7 @@
 #include "miral/application.h"
 
 #include <mir/geometry/displacement.h>
+#include <mir/geometry/rectangle.h>
 
 #include <functional>
 #include <memory>
@@ -53,6 +54,7 @@ public:
     virtual auto info_for(Window const& window) const -> WindowInfo& = 0;
 
     virtual void ask_client_to_close(Window const& window) = 0;
+    virtual void force_close(Window const& window) = 0;
     virtual auto active_window() const -> Window = 0;
     virtual auto select_active_window(Window const& hint) -> Window = 0;
     virtual void drag_active_window(mir::geometry::Displacement movement) = 0;
@@ -64,6 +66,8 @@ public:
     virtual void modify_window(WindowInfo& window_info, WindowSpecification const& modifications) = 0;
     virtual auto info_for_window_id(std::string const& id) const -> WindowInfo& = 0;
     virtual auto id_for_window(Window const& window) const -> std::string = 0;
+    virtual void place_and_size_for_state(WindowSpecification& modifications, WindowInfo const& window_info) const= 0;
+
 /** @} */
 
 /** @name Multi-thread support

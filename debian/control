@@ -19,6 +19,7 @@ Build-Depends: cmake,
                mirtest-dev,
                libglib2.0-dev,
                libgles2-mesa-dev,
+               libfreetype6-dev,
 # The following workaround missing dependencies in Mir packages
                uuid-dev,
                libboost-system-dev,

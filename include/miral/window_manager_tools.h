@@ -115,6 +115,10 @@ public:
     /// Send close request to the window
     void ask_client_to_close(Window const& window);
 
+    /// Close the window by force
+    /// \note ask_client_to_close() is the polite way
+    void force_close(Window const& window);
+
     /// retrieve the active window
     auto active_window() const -> Window;
 
@@ -146,6 +150,11 @@ public:
     /// Apply modifications to a window
     void modify_window(WindowInfo& window_info, WindowSpecification const& modifications);
 
+    /// Apply modifications to a window
+    void modify_window(Window const& window, WindowSpecification const& modifications);
+
+    /// Set a default size and position to reflect state change
+    void place_and_size_for_state(WindowSpecification& modifications, WindowInfo const& window_info) const;
 /** @} */
 
     /** Multi-thread support

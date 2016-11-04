@@ -36,7 +36,7 @@ using namespace mir::geometry;
 
 namespace
 {
-int const title_bar_height = 10;
+int const title_bar_height = 12;
 
 struct Locker
 {
@@ -102,9 +102,14 @@ auto miral::BasicWindowManager::add_surface(
     if (spec.parent().is_set() && spec.parent().value().lock())
         window_info.parent(info_for(spec.parent().value()).window());
 
+    if (spec.userdata().is_set())
+        window_info.userdata() = spec.userdata().value();
+
     session_info.add_window(window);
 
-    if (auto const parent = window_info.parent())
+    auto const parent = window_info.parent();
+
+    if (parent)
         info_for(parent).add_child(window);
 
     if (window_info.state() == mir_surface_state_fullscreen)
@@ -122,6 +127,15 @@ auto miral::BasicWindowManager::add_surface(
             scene_surface));
     }
 
+#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 25, 0)
+    if (parent && spec.aux_rect().is_set() && spec.placement_hints().is_set())
+    {
+        Rectangle relative_placement{window.top_left() - (parent.top_left()-Point{}), window.size()};
+        auto const mir_surface = std::shared_ptr<scene::Surface>(window);
+        mir_surface->placed_relative(relative_placement);
+    }
+#endif
+
     return surface_id;
 }
 
@@ -132,8 +146,10 @@ void miral::BasicWindowManager::modify_surface(
 {
     Locker lock{mutex, policy};
     auto& info = info_for(surface);
-    validate_modification_request(info, modifications);
-    policy->handle_modify_window(info, modifications);
+    WindowSpecification mods{modifications};
+    validate_modification_request(mods, info);
+    place_and_size_for_state(mods, info);
+    policy->handle_modify_window(info, mods);
 }
 
 void miral::BasicWindowManager::remove_surface(
@@ -173,11 +189,11 @@ void miral::BasicWindowManager::remove_surface(
             Window new_focus;
 
             mru_active_windows.enumerate([&](Window& window)
-            {
-                // select_active_window() calls set_focus_to() which updates mru_active_windows and changes window
-                auto const w = window;
-                return !(new_focus = select_active_window(w));
-            });
+                {
+                    // select_active_window() calls set_focus_to() which updates mru_active_windows and changes window
+                    auto const w = window;
+                    return !(new_focus = select_active_window(w));
+                });
 
             if (new_focus) return;
         }
@@ -310,7 +326,8 @@ int miral::BasicWindowManager::set_surface_attribute(
     Locker lock{mutex, policy};
     auto& info = info_for(surface);
 
-    validate_modification_request(info, modification);
+    validate_modification_request(modification, info);
+    place_and_size_for_state(modification, info);
     policy->handle_modify_window(info, modification);
 
     switch (attrib)
@@ -381,6 +398,14 @@ void miral::BasicWindowManager::ask_client_to_close(Window const& window)
 {
     if (auto const mir_surface = std::shared_ptr<scene::Surface>(window))
         mir_surface->request_client_surface_close();
+}
+
+void miral::BasicWindowManager::force_close(Window const& window)
+{
+    auto application = window.application();
+
+    if (application && window)
+        remove_surface(application, window);
 }
 
 auto miral::BasicWindowManager::active_window() const -> Window
@@ -514,7 +539,7 @@ void miral::BasicWindowManager::move_tree(miral::WindowInfo& root, mir::geometry
 
 void miral::BasicWindowManager::modify_window(WindowInfo& window_info, WindowSpecification const& modifications)
 {
-    auto window_info_tmp = window_info;
+    WindowInfo window_info_tmp{window_info};
 
 #define COPY_IF_SET(field)\
     if (modifications.field().is_set())\
@@ -532,6 +557,8 @@ void miral::BasicWindowManager::modify_window(WindowInfo& window_info, WindowSpe
     COPY_IF_SET(max_aspect);
     COPY_IF_SET(output_id);
     COPY_IF_SET(preferred_orientation);
+    COPY_IF_SET(confine_pointer);
+    COPY_IF_SET(userdata);
 
 #undef COPY_IF_SET
 
@@ -589,14 +616,43 @@ void miral::BasicWindowManager::modify_window(WindowInfo& window_info, WindowSpe
     if (modifications.input_shape().is_set())
         std::shared_ptr<scene::Surface>(window)->set_input_region(modifications.input_shape().value());
 
+    if (modifications.state().is_set() && window_info.state() != modifications.state().value())
+    {
+        switch (window_info.state())
+        {
+        case mir_surface_state_restored:
+        case mir_surface_state_hidden:
+            window_info.restore_rect({window.top_left(), window.size()});
+            break;
+
+        case mir_surface_state_vertmaximized:
+        {
+            auto restore_rect = window_info.restore_rect();
+            restore_rect.top_left.x = window.top_left().x;
+            restore_rect.size.width = window.size().width;
+            window_info.restore_rect(restore_rect);
+            break;
+        }
+
+        case mir_surface_state_horizmaximized:
+        {
+            auto restore_rect = window_info.restore_rect();
+            restore_rect.top_left.y = window.top_left().y;
+            restore_rect.size.height= window.size().height;
+            window_info.restore_rect(restore_rect);
+            break;
+        }
+
+        default:
+            break;
+        }
+    }
+
     Point new_pos = modifications.top_left().is_set() ? modifications.top_left().value() : window.top_left();
 
     if (modifications.size().is_set())
     {
-        Size new_size = modifications.size().value();
-
-        window_info.constrain_resize(new_pos, new_size);
-        place_and_size(window_info, new_pos, new_size);
+        place_and_size(window_info, new_pos, modifications.size().value());
     }
     else if (modifications.min_width().is_set() || modifications.min_height().is_set() ||
              modifications.max_width().is_set() || modifications.max_height().is_set() ||
@@ -612,16 +668,20 @@ void miral::BasicWindowManager::modify_window(WindowInfo& window_info, WindowSpe
         place_and_size(window_info, new_pos, window.size());
     }
 
-    if (window_info.parent() && modifications.placement_hints().is_set())
+    if (modifications.placement_hints().is_set())
     {
-        auto parent = window_info.parent();
-
-        if (parent)
+        if (auto parent = window_info.parent())
         {
-            auto new_pos = place_relative(parent.top_left(), modifications, window.size());
+            auto new_pos = place_relative({parent.top_left(), parent.size()}, modifications, window.size());
 
             if (new_pos.is_set())
                 place_and_size(window_info, new_pos.value().top_left, new_pos.value().size);
+
+#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 25, 0)
+            Rectangle relative_placement{window.top_left() - (parent.top_left()-Point{}), window.size()};
+            auto const mir_surface = std::shared_ptr<scene::Surface>(window);
+            mir_surface->placed_relative(relative_placement);
+#endif
         }
     }
 
@@ -629,6 +689,11 @@ void miral::BasicWindowManager::modify_window(WindowInfo& window_info, WindowSpe
     {
         set_state(window_info, modifications.state().value());
     }
+
+#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 24, 0)
+    if (modifications.confine_pointer().is_set())
+        std::shared_ptr<scene::Surface>(window)->set_confine_pointer_state(modifications.confine_pointer().value());
+#endif
 }
 
 auto miral::BasicWindowManager::info_for_window_id(std::string const& id) const -> WindowInfo&
@@ -669,48 +734,36 @@ void miral::BasicWindowManager::place_and_size(WindowInfo& root, Point const& ne
     move_tree(root, new_pos - root.window().top_left());
 }
 
-void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirSurfaceState value)
+void miral::BasicWindowManager::place_and_size_for_state(
+    WindowSpecification& modifications, WindowInfo const& window_info) const
 {
-    auto const mir_surface = std::shared_ptr<scene::Surface>(window_info.window());
-
-    switch (value)
-    {
-    case mir_surface_state_restored:
-    case mir_surface_state_maximized:
-    case mir_surface_state_vertmaximized:
-    case mir_surface_state_horizmaximized:
-    case mir_surface_state_fullscreen:
-    case mir_surface_state_hidden:
-    case mir_surface_state_minimized:
-        break;
-
-    default:
-        mir_surface->configure(mir_surface_attrib_state, window_info.state());
+    if (!modifications.state().is_set() || modifications.state().value() == window_info.state())
         return;
-    }
 
+    auto const display_area = displays.bounding_rectangle();
+    auto const window = window_info.window();
+
+    auto restore_rect = window_info.restore_rect();
+
+    // window_info.restore_rect() was cached on last state change, update to reflect current window position
     switch (window_info.state())
     {
     case mir_surface_state_restored:
     case mir_surface_state_hidden:
-        window_info.restore_rect({window_info.window().top_left(), window_info.window().size()});
+        restore_rect = {window.top_left(), window.size()};
         break;
 
     case mir_surface_state_vertmaximized:
     {
-        auto restore_rect = window_info.restore_rect();
-        restore_rect.top_left.x = window_info.window().top_left().x;
-        restore_rect.size.width = window_info.window().size().width;
-        window_info.restore_rect(restore_rect);
+        restore_rect.top_left.x = window.top_left().x;
+        restore_rect.size.width = window.size().width;
         break;
     }
 
     case mir_surface_state_horizmaximized:
     {
-        auto restore_rect = window_info.restore_rect();
-        restore_rect.top_left.y = window_info.window().top_left().y;
-        restore_rect.size.height= window_info.window().size().height;
-        window_info.restore_rect(restore_rect);
+        restore_rect.top_left.y = window.top_left().y;
+        restore_rect.size.height= window.size().height;
         break;
     }
 
@@ -718,29 +771,20 @@ void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirSur
         break;
     }
 
-    if (value != mir_surface_state_fullscreen)
-    {
-        window_info.output_id({});
-        fullscreen_surfaces.erase(window_info.window());
-    }
-    else
-    {
-        fullscreen_surfaces.insert(window_info.window());
-    }
+    // If the shell has also set position, that overrides restore_rect default
+    if (modifications.top_left().is_set())
+        restore_rect.top_left = modifications.top_left().value();
 
-    if (window_info.state() == value)
-    {
-        return;
-    }
+    // If the client or shell has also set size, that overrides restore_rect default
+    if (modifications.size().is_set())
+        restore_rect.size = modifications.size().value();
 
     Rectangle rect;
 
-    auto const display_area = displays.bounding_rectangle();
-
-    switch (value)
+    switch (modifications.state().value())
     {
     case mir_surface_state_restored:
-        rect = window_info.restore_rect();
+        rect = restore_rect;
         break;
 
     case mir_surface_state_maximized:
@@ -748,18 +792,18 @@ void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirSur
         break;
 
     case mir_surface_state_horizmaximized:
-        rect.top_left = {display_area.top_left.x, window_info.restore_rect().top_left.y};
-        rect.size = {display_area.size.width, window_info.restore_rect().size.height};
+        rect.top_left = {display_area.top_left.x, restore_rect.top_left.y};
+        rect.size = {display_area.size.width, restore_rect.size.height};
         break;
 
     case mir_surface_state_vertmaximized:
-        rect.top_left = {window_info.restore_rect().top_left.x, display_area.top_left.y};
-        rect.size = {window_info.restore_rect().size.width, display_area.size.height};
+        rect.top_left = {restore_rect.top_left.x, display_area.top_left.y};
+        rect.size = {restore_rect.size.width, display_area.size.height};
         break;
 
     case mir_surface_state_fullscreen:
     {
-        rect = {(window_info.window().top_left()), window_info.window().size()};
+        rect = {(window.top_left()), window.size()};
 
         if (window_info.has_output_id())
         {
@@ -776,37 +820,64 @@ void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirSur
 
     case mir_surface_state_hidden:
     case mir_surface_state_minimized:
-        policy->advise_state_change(window_info, value);
-        window_info.state(value);
-        mir_surface->hide();
-        mir_surface->configure(mir_surface_attrib_state, value);
-        if (window_info.window() == active_window())
-        {
-            mru_active_windows.erase(window_info.window());
-
-            // Try to activate to recently active window of any application
-            mru_active_windows.enumerate([&](Window& window)
-                {
-                    auto const w = window;
-                    return !(select_active_window(w));
-                });
-        }
-        return;
-
     default:
-        break;
+        return;
     }
 
-    place_and_size(window_info, rect.top_left, rect.size);
+    modifications.top_left() = rect.top_left;
+    modifications.size() = rect.size;
+}
+
+void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirSurfaceState value)
+{
+    auto const window = window_info.window();
+    auto const mir_surface = std::shared_ptr<scene::Surface>(window);
+
+    if (value != mir_surface_state_fullscreen)
+    {
+        window_info.output_id({});
+        fullscreen_surfaces.erase(window);
+    }
+    else
+    {
+        fullscreen_surfaces.insert(window);
+    }
+
+    if (window_info.state() == value)
+    {
+        return;
+    }
+
     policy->advise_state_change(window_info, value);
     window_info.state(value);
 
-    if (window_info.is_visible())
+    mir_surface->configure(mir_surface_attrib_state, value);
+
+    switch (value)
+    {
+    case mir_surface_state_hidden:
+    case mir_surface_state_minimized:
+        mir_surface->hide();
+
+        if (window == active_window())
+        {
+            // Try to activate to recently active window of any application
+            mru_active_windows.enumerate([&](Window& candidate)
+                {
+                    if (candidate == window)
+                        return true;
+                    if (!std::shared_ptr<scene::Surface>(candidate)->visible())
+                        return true;
+                    auto const w = candidate;
+                    return !(select_active_window(w));
+                });
+        }
+        break;
+
+    default:
         mir_surface->show();
-
-    mir_surface->configure(mir_surface_attrib_state, window_info.state());
+    }
 }
-
 
 void miral::BasicWindowManager::update_event_timestamp(MirKeyboardEvent const* kev)
 {
@@ -865,7 +936,16 @@ auto miral::BasicWindowManager::select_active_window(Window const& hint) -> mira
 
     auto const& info_for_hint = info_for(hint);
 
-    if (info_for_hint.can_be_active())
+    for (auto const& child : info_for_hint.children())
+    {
+        if (std::shared_ptr<mir::scene::Surface> surface = child)
+        {
+            if (surface->type() == mir_surface_type_dialog && surface->visible())
+                return select_active_window(child);
+        }
+    }
+
+    if (info_for_hint.can_be_active() && info_for_hint.is_visible())
     {
         mru_active_windows.push(hint);
         focus_controller->set_focus_to(hint.application(), hint);
@@ -895,7 +975,28 @@ void miral::BasicWindowManager::drag_active_window(mir::geometry::Displacement m
 
     auto& window_info = info_for(window);
 
-    // placeholder - constrain onscreen
+    // When a surface is moved interactively
+    // -------------------------------------
+    // Regular, floating regular, dialog, and satellite surfaces should be user-movable.
+    // Popups, glosses, and tips should not be.
+    // Freestyle surfaces may or may not be, as specified by the app.
+    //                              Mir and Unity: Surfaces, input, and displays (v0.3)
+    switch (window_info.type())
+    {
+    case mir_surface_type_normal:   // regular
+    case mir_surface_type_utility:  // floating regular
+    case mir_surface_type_dialog:   // dialog
+    case mir_surface_type_satellite:// satellite
+    case mir_surface_type_freestyle:// freestyle
+        break;
+
+    case mir_surface_type_gloss:
+    case mir_surface_type_menu:
+    case mir_surface_type_inputmethod:
+    case mir_surface_type_tip:
+    case mir_surface_types:
+        return;
+    }
 
     switch (window_info.state())
     {
@@ -985,37 +1086,41 @@ auto miral::BasicWindowManager::place_new_surface(ApplicationInfo const& app_inf
         }
     }
 
-    if (has_parent && parameters.aux_rect().is_set() && parameters.placement_hints().is_set())
+    if (has_parent)
     {
-        auto const position = place_relative(
-            info_for(parameters.parent().value()).window().top_left(),
-            parameters,
-            parameters.size().value());
+        auto const parent = info_for(parameters.parent().value()).window();
 
-        if (position.is_set())
+        if (parameters.aux_rect().is_set() && parameters.placement_hints().is_set())
         {
-            parameters.top_left() = position.value().top_left;
-            parameters.size() = position.value().size;
+            auto const position = place_relative(
+                {parent.top_left(), parent.size()},
+                parameters,
+                parameters.size().value());
+
+            if (position.is_set())
+            {
+                parameters.top_left() = position.value().top_left;
+                parameters.size() = position.value().size;
+                positioned = true;
+            }
+        }
+        else
+        {
+            //  o Otherwise, if the dialog is not the same as any previous dialog for the
+            //    same parent window, and/or it does not have user-customized position:
+            //      o It should be optically centered relative to its parent, unless this
+            //        would overlap or cover the title bar of the parent.
+            //      o Otherwise, it should be cascaded vertically (but not horizontally)
+            //        relative to its parent, unless, this would cause at least part of
+            //        it to extend into shell space.
+            auto const parent_top_left = parent.top_left();
+            auto const centred = parent_top_left
+                                 + 0.5*(as_displacement(parent.size()) - as_displacement(parameters.size().value()))
+                                 - DeltaY{(parent.size().height.as_int()-height)/6};
+
+            parameters.top_left() = centred;
             positioned = true;
         }
-    }
-    else if (has_parent)
-    {
-        auto parent = info_for(parameters.parent().value()).window();
-        //  o Otherwise, if the dialog is not the same as any previous dialog for the
-        //    same parent window, and/or it does not have user-customized position:
-        //      o It should be optically centered relative to its parent, unless this
-        //        would overlap or cover the title bar of the parent.
-        //      o Otherwise, it should be cascaded vertically (but not horizontally)
-        //        relative to its parent, unless, this would cause at least part of
-        //        it to extend into shell space.
-        auto const parent_top_left = parent.top_left();
-        auto const centred = parent_top_left
-                             + 0.5*(as_displacement(parent.size()) - as_displacement(parameters.size().value()))
-                             - DeltaY{(parent.size().height.as_int()-height)/6};
-
-        parameters.top_left() = centred;
-        positioned = true;
     }
 
     if (!positioned)
@@ -1149,6 +1254,23 @@ auto antipodes(MirPlacementGravity rect_gravity) -> MirPlacementGravity
     }
 }
 
+auto constrain_to(mir::geometry::Rectangle const& rect, Point point) -> Point
+{
+    if (point.x < rect.top_left.x)
+        point.x = rect.top_left.x;
+
+    if (point.y < rect.top_left.y)
+        point.y = rect.top_left.y;
+
+    if (point.x > rect.bottom_right().x)
+        point.x = rect.bottom_right().x;
+
+    if (point.y > rect.bottom_right().y)
+        point.y = rect.bottom_right().y;
+
+    return point;
+}
+
 auto anchor_for(Rectangle const& aux_rect, MirPlacementGravity rect_gravity) -> Point
 {
     switch (rect_gravity)
@@ -1224,7 +1346,7 @@ auto offset_for(Size const& size, MirPlacementGravity rect_gravity) -> Displacem
 }
 }
 
-auto miral::BasicWindowManager::place_relative(Point const& parent_top_left, WindowSpecification const& parameters, Size size)
+auto miral::BasicWindowManager::place_relative(mir::geometry::Rectangle const& parent, WindowSpecification const& parameters, Size size)
 -> mir::optional_value<Rectangle>
 {
     auto const hints = parameters.placement_hints().value();
@@ -1238,7 +1360,7 @@ auto miral::BasicWindowManager::place_relative(Point const& parent_top_left, Win
                   parameters.aux_rect_placement_offset().value() : Displacement{};
 
     Rectangle aux_rect = parameters.aux_rect().value();
-    aux_rect.top_left = aux_rect.top_left + (parent_top_left-Point{});
+    aux_rect.top_left = aux_rect.top_left + (parent.top_left-Point{});
 
     std::vector<MirPlacementGravity> rect_gravities{parameters.aux_rect_placement_gravity().value()};
 
@@ -1250,7 +1372,8 @@ auto miral::BasicWindowManager::place_relative(Point const& parent_top_left, Win
     for (auto const& rect_gravity : rect_gravities)
     {
         {
-            auto result = anchor_for(aux_rect, rect_gravity) + offset_for(size, win_gravity) + offset;
+            auto result = constrain_to(parent, anchor_for(aux_rect, rect_gravity) + offset) +
+                offset_for(size, win_gravity);
 
             if (active_display_area.contains(Rectangle{result, size}))
                 return Rectangle{result, size};
@@ -1261,8 +1384,8 @@ auto miral::BasicWindowManager::place_relative(Point const& parent_top_left, Win
 
         if (hints & mir_placement_hints_flip_x)
         {
-            auto result = anchor_for(aux_rect, flip_x(rect_gravity)) +
-                offset_for(size, flip_x(win_gravity)) + flip_x(offset);
+            auto result = constrain_to(parent, anchor_for(aux_rect, flip_x(rect_gravity)) + flip_x(offset)) +
+                offset_for(size, flip_x(win_gravity));
 
             if (active_display_area.contains(Rectangle{result, size}))
                 return Rectangle{result, size};
@@ -1270,8 +1393,8 @@ auto miral::BasicWindowManager::place_relative(Point const& parent_top_left, Win
 
         if (hints & mir_placement_hints_flip_y)
         {
-            auto result = anchor_for(aux_rect, flip_y(rect_gravity)) +
-                offset_for(size, flip_y(win_gravity)) + flip_y(offset);
+            auto result = constrain_to(parent, anchor_for(aux_rect, flip_y(rect_gravity)) + flip_y(offset)) +
+                offset_for(size, flip_y(win_gravity));
 
             if (active_display_area.contains(Rectangle{result, size}))
                 return Rectangle{result, size};
@@ -1279,8 +1402,8 @@ auto miral::BasicWindowManager::place_relative(Point const& parent_top_left, Win
 
         if (hints & mir_placement_hints_flip_x && hints & mir_placement_hints_flip_y)
         {
-            auto result = anchor_for(aux_rect, flip_x(flip_y(rect_gravity))) +
-                offset_for(size, flip_x(flip_y(win_gravity))) + flip_x(flip_y(offset));
+            auto result = constrain_to(parent, anchor_for(aux_rect, flip_x(flip_y(rect_gravity))) + flip_x(flip_y(offset))) +
+                offset_for(size, flip_x(flip_y(win_gravity)));
 
             if (active_display_area.contains(Rectangle{result, size}))
                 return Rectangle{result, size};
@@ -1289,7 +1412,8 @@ auto miral::BasicWindowManager::place_relative(Point const& parent_top_left, Win
 
     for (auto const& rect_gravity : rect_gravities)
     {
-        auto result = anchor_for(aux_rect, rect_gravity) + offset_for(size, win_gravity) + offset;
+        auto result = constrain_to(parent, anchor_for(aux_rect, rect_gravity) + offset) +
+            offset_for(size, win_gravity);
 
         if (hints & mir_placement_hints_slide_x)
         {
@@ -1319,7 +1443,8 @@ auto miral::BasicWindowManager::place_relative(Point const& parent_top_left, Win
 
     for (auto const& rect_gravity : rect_gravities)
     {
-        auto result = anchor_for(aux_rect, rect_gravity) + offset_for(size, win_gravity) + offset;
+        auto result = constrain_to(parent, anchor_for(aux_rect, rect_gravity) + offset) +
+            offset_for(size, win_gravity);
 
         if (hints & mir_placement_hints_resize_x)
         {
@@ -1362,9 +1487,7 @@ auto miral::BasicWindowManager::place_relative(Point const& parent_top_left, Win
     return default_result;
 }
 
-void miral::BasicWindowManager::validate_modification_request(
-    WindowInfo const& window_info,
-    WindowSpecification const& modifications) const
+void miral::BasicWindowManager::validate_modification_request(WindowSpecification const& modifications, WindowInfo const& window_info) const
 {
     auto target_type = window_info.type();
 

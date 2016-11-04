@@ -37,9 +37,6 @@ additions to libmiral to expose additional Mir functionality.
  - Titlebars. GTK+ apps provide their own titlebars, better integration is
    needed.
    
- - Keyboard layouts. It should be possible to configure and use non-US keyboard
-   layouts.
-   
  - Better integration of startup animation. A short animation is played on
    startup. Ideally this should remain visible until a client is launched,
    fade out over the top of the client and resume when the last client exits.
@@ -71,9 +68,6 @@ additions to libmiral to expose additional Mir functionality.
  - Enabling (disabling) cursor when pointing devices are (not) present.
     - ability to track connected input devices
     - ability to control cursor visibility
-   
- - Cursor images. lp:qtmir stubs the cursor images and paints the cursor in its
-   compositor. Need to consider what ought to be supported here.
    
  - Cut&Paste/Drag&Drop toolkits expect this functionality, but it isn't
    provided by Mir. We ought to find a way to provide this.
@@ -115,22 +109,3 @@ currently need:
  - Default wallpaper
 
  - Default icon (using ubuntu logo atm). Must be svg
- 
-Developer Tools
----------------
-
-When writing tests it would be useful to be able insert wrappers around the
-WindowManagerTools and WindowManagementPolicy to trace the calls.
-
-When manually testing it would be useful to be able to have logging wrappers 
-around the WindowManagerTools and WindowManagementPolicy to trace the calls.
- 
-  - A wrapper class for WindowManagerTools
-  - A wrapper class for WindowManagementPolicy
-  - A logging extension to the WindowManagerTools wrapper
-  - A logging extension to the WindowManagementPolicy wrapper
-  - An option to insert the above wrappers at runtime
-  - A feature to insert mock "expectations" into WindowInfo
-  - A feature to insert mock "expectations" into Window
-  - An option to insert logging into WindowInfo
-  - An option to insert logging into Window

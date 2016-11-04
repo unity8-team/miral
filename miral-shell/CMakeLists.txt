@@ -9,12 +9,26 @@ install(PROGRAMS ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/miral-run
     DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
 )
 
+add_custom_target(miral-xrun ALL
+    cp ${CMAKE_CURRENT_SOURCE_DIR}/miral-xrun.sh ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/miral-xrun
+)
+
+install(PROGRAMS ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/miral-xrun
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
+)
+
 add_executable(miral-shell
     shell_main.cpp
     tiling_window_manager.cpp   tiling_window_manager.h
     titlebar_window_manager.cpp titlebar_window_manager.h
     titlebar_provider.cpp       titlebar_provider.h
+    titlebar_config.cpp         titlebar_config.h
 )
+
+pkg_check_modules(FREETYPE freetype2 REQUIRED)
+target_include_directories(miral-shell PUBLIC ${FREETYPE_INCLUDE_DIRS})
+target_compile_definitions(miral-shell PUBLIC -DTYPO_SUPPORTS_FREETYPE)
+target_link_libraries(miral-shell ${FREETYPE_LIBRARIES})
 
 target_link_libraries(miral-shell
     miral-spinner
