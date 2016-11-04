@@ -58,13 +58,13 @@ bool contains_alpha(MirPixelFormat format)
 }
 
 PixelFormatSelector::PixelFormatSelector(
-    std::shared_ptr<DisplayConfigurationPolicy> const& base_policy,
+    std::shared_ptr<mg::DisplayConfigurationPolicy> const& base_policy,
     bool with_alpha) :
     base_policy{base_policy},
     with_alpha{with_alpha}
 {}
 
-void PixelFormatSelector::apply_to(mg::DisplayConfiguration & conf)
+void PixelFormatSelector::apply_to(mg::DisplayConfiguration& conf)
 {
     base_policy->apply_to(conf);
     conf.for_each_output(

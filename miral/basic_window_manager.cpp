@@ -36,7 +36,7 @@ using namespace mir::geometry;
 
 namespace
 {
-int const title_bar_height = 10;
+int const title_bar_height = 12;
 
 struct Locker
 {
@@ -398,6 +398,14 @@ void miral::BasicWindowManager::ask_client_to_close(Window const& window)
 {
     if (auto const mir_surface = std::shared_ptr<scene::Surface>(window))
         mir_surface->request_client_surface_close();
+}
+
+void miral::BasicWindowManager::force_close(Window const& window)
+{
+    auto application = window.application();
+
+    if (application && window)
+        remove_surface(application, window);
 }
 
 auto miral::BasicWindowManager::active_window() const -> Window

@@ -1,3 +1,20 @@
+miral (0.4.0) UNRELEASED; urgency=medium
+
+  * New upstream release 0.4.0 (https://launchpad.net/miral/+milestone/0.4)
+    - ABI summary:
+      . miral ABI unchanged at 1
+    - Enhancements:
+      . Add miral::WindowManagerTools::force_close(window) to forcefully close
+        a window (i.e. without a close request to the client)
+      . Add functions to manage Applications
+      . Add miral::CommandLineOption - enables the setting and processing of
+        configuration options. These may be supplied on the commandline, as
+        MIR_SERVER_XXX environment variables or in a config file.
+      . Add +options to the keymap configuration
+      . [miral-shell] Add window name to titlebars
+
+ -- Alan Griffiths <alan.griffiths@canonical.com>  Fri, 28 Oct 2016 12:14:59 +0100
+
 miral (0.3.0+17.04.20161028-0ubuntu1) zesty; urgency=medium
 
   * No change rebuild to target Xenial+Overlay

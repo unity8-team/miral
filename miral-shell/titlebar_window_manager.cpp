@@ -31,7 +31,7 @@ using namespace miral;
 
 namespace
 {
-int const title_bar_height = 10;
+int const title_bar_height = 12;
 }
 
 TitlebarWindowManagerPolicy::TitlebarWindowManagerPolicy(
@@ -275,9 +275,9 @@ void TitlebarWindowManagerPolicy::advise_new_window(WindowInfo const& window_inf
         auto const parent = window_info.parent();
 
         if (tools.active_window() == parent)
-            titlebar_provider->paint_titlebar_for(parent, 0xFF);
+            titlebar_provider->paint_titlebar_for(tools.info_for(parent), 0xFF);
         else
-            titlebar_provider->paint_titlebar_for(parent, 0x3F);
+            titlebar_provider->paint_titlebar_for(tools.info_for(parent), 0x3F);
     }
 }
 
@@ -293,14 +293,14 @@ void TitlebarWindowManagerPolicy::advise_focus_lost(WindowInfo const& info)
 {
     CanonicalWindowManagerPolicy::advise_focus_lost(info);
 
-    titlebar_provider->paint_titlebar_for(info.window(), 0x3F);
+    titlebar_provider->paint_titlebar_for(info, 0x3F);
 }
 
 void TitlebarWindowManagerPolicy::advise_focus_gained(WindowInfo const& info)
 {
     CanonicalWindowManagerPolicy::advise_focus_gained(info);
 
-    titlebar_provider->paint_titlebar_for(info.window(), 0xFF);
+    titlebar_provider->paint_titlebar_for(info, 0xFF);
 
     // Frig to force the spinner to the top
     if (auto const spinner_session = spinner.session())
@@ -323,7 +323,7 @@ void TitlebarWindowManagerPolicy::advise_resize(WindowInfo const& window_info, S
 {
     CanonicalWindowManagerPolicy::advise_resize(window_info, new_size);
 
-    titlebar_provider->resize_titlebar_for(window_info.window(), new_size);
+    titlebar_provider->resize_titlebar_for(window_info, new_size);
 }
 
 void TitlebarWindowManagerPolicy::advise_delete_window(WindowInfo const& window_info)

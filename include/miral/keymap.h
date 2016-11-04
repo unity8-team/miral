@@ -35,7 +35,8 @@ public:
     Keymap();
 
     /// Specify a keymap.
-    /// Format is <language>[+<variant>]
+    /// Format is <language>[+<variant>[+<options>]]
+    /// Options is a comma separated list.
     /// e.g. "uk" or "us+dvorak"
     explicit Keymap(std::string const& keymap);
     ~Keymap();

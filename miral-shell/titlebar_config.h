@@ -16,27 +16,15 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#ifndef MIRAL_APPLICATION_H
-#define MIRAL_APPLICATION_H
+#ifndef MIRAL_TITLEBAR_CONFIG_H
+#define MIRAL_TITLEBAR_CONFIG_H
 
-#include <mir_toolkit/common.h>
-
-#include <memory>
 #include <string>
 
-namespace mir
+namespace titlebar
 {
-namespace scene { class Session; }
+void font_file(std::string const& font_file);
+auto font_file() -> std::string;
 }
 
-namespace miral
-{
-using Application = std::shared_ptr<mir::scene::Session>;
-
-void apply_lifecycle_state_to(Application const& application, MirLifecycleState state);
-void kill(Application const& application, int sig);
-auto name_of(Application const& application) -> std::string;
-auto pid_of(Application const& application) -> pid_t;
-}
-
-#endif //MIRAL_APPLICATION_H
+#endif //MIRAL_TITLEBAR_CONFIG_H

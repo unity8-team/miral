@@ -16,27 +16,23 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#ifndef MIRAL_APPLICATION_H
-#define MIRAL_APPLICATION_H
+#include "titlebar_config.h"
+#include <mutex>
 
-#include <mir_toolkit/common.h>
-
-#include <memory>
-#include <string>
-
-namespace mir
+namespace
 {
-namespace scene { class Session; }
+std::mutex mutex;
+std::string font_file{"/usr/share/fonts/truetype/ubuntu-font-family/Ubuntu-B.ttf"};
 }
 
-namespace miral
+void titlebar::font_file(std::string const& font_file)
 {
-using Application = std::shared_ptr<mir::scene::Session>;
-
-void apply_lifecycle_state_to(Application const& application, MirLifecycleState state);
-void kill(Application const& application, int sig);
-auto name_of(Application const& application) -> std::string;
-auto pid_of(Application const& application) -> pid_t;
+    std::lock_guard<decltype(mutex)> lock{mutex};
+    ::font_file = font_file;
 }
 
-#endif //MIRAL_APPLICATION_H
+auto titlebar::font_file() -> std::string
+{
+    std::lock_guard<decltype(mutex)> lock{mutex};
+    return ::font_file;
+}

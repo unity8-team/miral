@@ -50,6 +50,9 @@ auto miral::WindowManagerTools::info_for(Window const& window) const -> WindowIn
 void miral::WindowManagerTools::ask_client_to_close(Window const& window)
 { tools->ask_client_to_close(window); }
 
+void miral::WindowManagerTools::force_close(Window const& window)
+{ tools->force_close(window); }
+
 auto miral::WindowManagerTools::active_window() const -> Window
 { return tools->active_window(); }
 

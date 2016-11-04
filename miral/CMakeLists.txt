@@ -31,6 +31,7 @@ add_library(miral SHARED
     application_authorizer.cpp          ${CMAKE_SOURCE_DIR}/include/miral/application_authorizer.h
     application_info.cpp                ${CMAKE_SOURCE_DIR}/include/miral/application_info.h
     canonical_window_manager.cpp        ${CMAKE_SOURCE_DIR}/include/miral/canonical_window_manager.h
+    command_line_option.cpp             ${CMAKE_SOURCE_DIR}/include/miral/command_line_option.h
     cursor_theme.cpp                    ${CMAKE_SOURCE_DIR}/include/miral/cursor_theme.h
     keymap.cpp                          ${CMAKE_SOURCE_DIR}/include/miral/keymap.h
     runner.cpp                          ${CMAKE_SOURCE_DIR}/include/miral/runner.h
@@ -68,6 +69,14 @@ set_target_properties(miral
         SOVERSION ${MIRAL_ABI}
         LINK_FLAGS "-Wl,--exclude-libs=ALL -Wl,--version-script,${symbol_map}"
         LINK_DEPENDS ${symbol_map}
+)
+
+
+add_custom_target(check-symbols ALL
+        DEPENDS miral ${PROJECT_SOURCE_DIR}/debian/libmiral1.symbols
+        COMMAND dpkg-gensymbols -e${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libmiral.so.1 -plibmiral1 | scripts/filter_symbols_diff.sh
+        WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+        VERBATIM
 )
 
 set(LIBDIR "${CMAKE_INSTALL_FULL_LIBDIR}")

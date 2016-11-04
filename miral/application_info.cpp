@@ -19,6 +19,8 @@
 #include "miral/application_info.h"
 #include "miral/window.h"
 
+#include <mir/scene/session.h>
+
 struct miral::ApplicationInfo::Self
 {
     Self() = default;
@@ -50,6 +52,11 @@ auto miral::ApplicationInfo::operator=(ApplicationInfo const& that) -> Applicati
 {
     *self = *that.self;
     return *this;
+}
+
+auto miral::ApplicationInfo::name() const -> std::string
+{
+    return self->app ? self->app->name() : std::string{};
 }
 
 auto miral::ApplicationInfo::application() const -> Application

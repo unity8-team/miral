@@ -115,6 +115,10 @@ public:
     /// Send close request to the window
     void ask_client_to_close(Window const& window);
 
+    /// Close the window by force
+    /// \note ask_client_to_close() is the polite way
+    void force_close(Window const& window);
+
     /// retrieve the active window
     auto active_window() const -> Window;
 

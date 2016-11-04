@@ -2,6 +2,7 @@ libmiral.so.1 libmiral1 #MINVER#
  MIRAL_0.1@MIRAL_0.1 0.1.0
  MIRAL_0.2@MIRAL_0.2 0.2.0
  MIRAL_0.3@MIRAL_0.3 0.3.0
+ MIRAL_0.4@MIRAL_0.4 0.3.0
  (c++)"miral::ActiveOutputsListener::advise_output_begin()@MIRAL_0.1" 0.1.0
  (c++)"miral::ActiveOutputsListener::advise_output_create(miral::Output const&)@MIRAL_0.1" 0.1.0
  (c++)"miral::ActiveOutputsListener::advise_output_delete(miral::Output const&)@MIRAL_0.1" 0.1.0
@@ -275,3 +276,32 @@ libmiral.so.1 libmiral1 #MINVER#
  (c++)"miral::Keymap::~Keymap()@MIRAL_0.3" 0.3.0
  (c++)"miral::Keymap::operator=(miral::Keymap const&)@MIRAL_0.3" 0.3.0
  (c++)"miral::Keymap::operator()(mir::Server&) const@MIRAL_0.3" 0.3.0
+ (c++)"miral::ApplicationInfo::name[abi:cxx11]() const@MIRAL_0.4" 0.4.0
+ (c++)"miral::CommandLineOption::CommandLineOption(miral::CommandLineOption const&)@MIRAL_0.4" 0.4.0
+ (c++)"miral::CommandLineOption::CommandLineOption(std::function<void (mir::optional_value<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > const&)>, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)@MIRAL_0.4" 0.4.0
+ (c++)"miral::CommandLineOption::CommandLineOption(std::function<void (mir::optional_value<bool> const&)>, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)@MIRAL_0.4" 0.4.0
+ (c++)"miral::CommandLineOption::CommandLineOption(std::function<void (mir::optional_value<int> const&)>, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)@MIRAL_0.4" 0.4.0
+ (c++)"miral::CommandLineOption::CommandLineOption(std::function<void (std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)>, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, char const*)@MIRAL_0.4" 0.4.0
+ (c++)"miral::CommandLineOption::CommandLineOption(std::function<void (std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)>, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)@MIRAL_0.4" 0.4.0
+ (c++)"miral::CommandLineOption::CommandLineOption(std::function<void (bool)>, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)@MIRAL_0.4" 0.4.0
+ (c++)"miral::CommandLineOption::CommandLineOption(std::function<void (bool)>, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, bool)@MIRAL_0.4" 0.4.0
+ (c++)"miral::CommandLineOption::CommandLineOption(std::function<void (double)>, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, double)@MIRAL_0.4" 0.4.0
+ (c++)"miral::CommandLineOption::CommandLineOption(std::function<void (int)>, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, int)@MIRAL_0.4" 0.4.0
+ (c++)"miral::CommandLineOption::CommandLineOption(miral::CommandLineOption const&)@MIRAL_0.4" 0.4.0
+ (c++)"miral::CommandLineOption::CommandLineOption(std::function<void (mir::optional_value<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > const&)>, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)@MIRAL_0.4" 0.4.0
+ (c++)"miral::CommandLineOption::CommandLineOption(std::function<void (mir::optional_value<bool> const&)>, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)@MIRAL_0.4" 0.4.0
+ (c++)"miral::CommandLineOption::CommandLineOption(std::function<void (mir::optional_value<int> const&)>, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)@MIRAL_0.4" 0.4.0
+ (c++)"miral::CommandLineOption::CommandLineOption(std::function<void (std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)>, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, char const*)@MIRAL_0.4" 0.4.0
+ (c++)"miral::CommandLineOption::CommandLineOption(std::function<void (std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)>, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)@MIRAL_0.4" 0.4.0
+ (c++)"miral::CommandLineOption::CommandLineOption(std::function<void (bool)>, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)@MIRAL_0.4" 0.4.0
+ (c++)"miral::CommandLineOption::CommandLineOption(std::function<void (bool)>, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, bool)@MIRAL_0.4" 0.4.0
+ (c++)"miral::CommandLineOption::CommandLineOption(std::function<void (double)>, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, double)@MIRAL_0.4" 0.4.0
+ (c++)"miral::CommandLineOption::CommandLineOption(std::function<void (int)>, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, int)@MIRAL_0.4" 0.4.0
+ (c++)"miral::CommandLineOption::~CommandLineOption()@MIRAL_0.4" 0.4.0
+ (c++)"miral::CommandLineOption::~CommandLineOption()@MIRAL_0.4" 0.4.0
+ (c++)"miral::CommandLineOption::operator=(miral::CommandLineOption const&)@MIRAL_0.4" 0.4.0
+ (c++)"miral::CommandLineOption::operator()(mir::Server&) const@MIRAL_0.4" 0.4.0
+ (c++)"miral::WindowManagerTools::force_close(miral::Window const&)@MIRAL_0.4" 0.4.0
+ (c++)"miral::apply_lifecycle_state_to(std::shared_ptr<mir::scene::Session> const&, MirLifecycleState)@MIRAL_0.4" 0.4.0
+ (c++)"miral::pid_of(std::shared_ptr<mir::scene::Session> const&)@MIRAL_0.4" 0.4.0
+ (c++)"miral::name_of[abi:cxx11](std::shared_ptr<mir::scene::Session> const&)@MIRAL_0.4" 0.4.0
