@@ -1,6 +1,0 @@
-add_subdirectory(Application)
-add_subdirectory(ApplicationManager)
-add_subdirectory(General)
-add_subdirectory(SharedWakelock)
-add_subdirectory(SessionManager)
-add_subdirectory(WindowManager)
