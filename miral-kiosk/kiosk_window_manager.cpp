@@ -119,3 +119,18 @@ void KioskWindowManagerPolicy::advise_focus_gained(WindowInfo const& info)
             tools.raise_tree(s);
     }
 }
+
+void KioskWindowManagerPolicy::advise_new_window(WindowInfo const& window_info)
+{
+    if (window_info.type() == mir_surface_type_normal && !window_info.parent())
+    {
+        WindowSpecification specification;
+
+        specification.state() = mir_surface_state_maximized;
+
+        tools.place_and_size_for_state(specification, window_info);
+        tools.modify_window(window_info.window(), specification);
+    }
+
+    WindowManagementPolicy::advise_new_window(window_info);
+}

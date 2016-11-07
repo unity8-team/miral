@@ -32,6 +32,8 @@ public:
 
     void advise_focus_gained(miral::WindowInfo const& info) override;
 
+    virtual void advise_new_window(miral::WindowInfo const& window_info) override;
+
     bool handle_keyboard_event(MirKeyboardEvent const* event) override;
     bool handle_touch_event(MirTouchEvent const* event) override;
     bool handle_pointer_event(MirPointerEvent const* event) override;
