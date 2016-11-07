@@ -65,11 +65,6 @@ if (MIRAL_ENABLE_TESTS)
 endif()
 endif()
 
-option(MIRAL_ENABLE_QT "Build Qt integration" OFF)
-if (MIRAL_ENABLE_QT)
-    add_subdirectory(miral-qt)
-endif()
-
 include (cmake/Doxygen.cmake)
 
 if(TARGET doc)
