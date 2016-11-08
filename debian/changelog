@@ -1,4 +1,4 @@
-miral (0.4.0) UNRELEASED; urgency=medium
+miral (0.4.0+17.04.20161104-0ubuntu1) zesty; urgency=medium
 
   * New upstream release 0.4.0 (https://launchpad.net/miral/+milestone/0.4)
     - ABI summary:
@@ -13,7 +13,13 @@ miral (0.4.0) UNRELEASED; urgency=medium
       . Add +options to the keymap configuration
       . [miral-shell] Add window name to titlebars
 
- -- Alan Griffiths <alan.griffiths@canonical.com>  Fri, 28 Oct 2016 12:14:59 +0100
+ -- Alan Griffiths <alan.griffiths@canonical.com>  Fri, 04 Nov 2016 16:45:44 +0000
+
+miral (0.3.0+17.04.20161028-0ubuntu1) zesty; urgency=medium
+
+  * No change rebuild to target Xenial+Overlay
+
+ -- Alan Griffiths <alan.griffiths@canonical.com>  Fri, 28 Oct 2016 16:03:16 +0000
 
 miral (0.3.0+17.04.20161024-0ubuntu1) zesty; urgency=medium
 
