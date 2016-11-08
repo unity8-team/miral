@@ -547,6 +547,7 @@ void miral::BasicWindowManager::modify_window(WindowInfo& window_info, WindowSpe
 
     COPY_IF_SET(name);
     COPY_IF_SET(type);
+    // state is handled "differently" and only updated by set_state() at the end
     COPY_IF_SET(min_width);
     COPY_IF_SET(min_height);
     COPY_IF_SET(max_width);
