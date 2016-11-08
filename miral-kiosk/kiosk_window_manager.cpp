@@ -27,6 +27,9 @@
 namespace ms = mir::scene;
 using namespace miral;
 
+std::atomic<bool> KioskWindowManagerPolicy::maximize_root_windows{true};
+
+
 KioskWindowManagerPolicy::KioskWindowManagerPolicy(WindowManagerTools const& tools, SwSplash const& splash) :
     CanonicalWindowManagerPolicy{tools},
     splash{splash}
@@ -122,7 +125,9 @@ void KioskWindowManagerPolicy::advise_focus_gained(WindowInfo const& info)
 
 void KioskWindowManagerPolicy::advise_new_window(WindowInfo const& window_info)
 {
-    if (window_info.type() == mir_surface_type_normal && !window_info.parent())
+    // We do this here, not in place_new_surface() so that clients get a resize event.
+    // This shouldn't be necessary, but works better with the gtk-mir backend.
+    if (maximize_root_windows && window_info.type() == mir_surface_type_normal && !window_info.parent())
     {
         WindowSpecification specification;
 
@@ -132,5 +137,5 @@ void KioskWindowManagerPolicy::advise_new_window(WindowInfo const& window_info)
         tools.modify_window(window_info.window(), specification);
     }
 
-    WindowManagementPolicy::advise_new_window(window_info);
+    CanonicalWindowManagerPolicy::advise_new_window(window_info);
 }

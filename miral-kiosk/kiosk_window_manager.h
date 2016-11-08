@@ -23,6 +23,8 @@
 
 #include <miral/canonical_window_manager.h>
 
+#include <atomic>
+
 using namespace mir::geometry;
 
 class KioskWindowManagerPolicy : public miral::CanonicalWindowManagerPolicy
@@ -37,6 +39,8 @@ public:
     bool handle_keyboard_event(MirKeyboardEvent const* event) override;
     bool handle_touch_event(MirTouchEvent const* event) override;
     bool handle_pointer_event(MirPointerEvent const* event) override;
+
+    static std::atomic<bool> maximize_root_windows;
 
 private:
     static const int modifier_mask =
