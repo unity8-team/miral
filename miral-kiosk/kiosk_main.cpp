@@ -21,6 +21,7 @@
 #include <miral/runner.h>
 #include <miral/application_authorizer.h>
 #include <miral/command_line_option.h>
+#include <miral/keymap.h>
 #include <miral/set_window_managment_policy.h>
 #include <miral/internal_client.h>
 
@@ -90,6 +91,7 @@ int main(int argc, char const* argv[])
         {
             set_window_managment_policy<KioskWindowManagerPolicy>(splash),
             SetApplicationAuthorizer<KioskAuthorizer>{splash},
+            Keymap{},
             maximise_roots,
             startup_only,
             StartupInternalClient{"Intro", splash}
