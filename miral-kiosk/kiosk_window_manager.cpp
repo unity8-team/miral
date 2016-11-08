@@ -127,7 +127,10 @@ void KioskWindowManagerPolicy::advise_new_window(WindowInfo const& window_info)
 {
     // We do this here, not in place_new_surface() so that clients get a resize event.
     // This shouldn't be necessary, but works better with the gtk-mir backend.
-    if (maximize_root_windows && window_info.type() == mir_surface_type_normal && !window_info.parent())
+    if (maximize_root_windows &&
+        window_info.type() == mir_surface_type_normal &&
+        !window_info.parent() &&
+        window_info.state() == mir_surface_state_restored)
     {
         WindowSpecification specification;
 
