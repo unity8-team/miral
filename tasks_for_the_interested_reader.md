@@ -79,8 +79,6 @@ This code was originally written to prove that different strategies are
 possible, without much consideration of being useful. Here are some suggestions
 for a better approach:
 
- - top level windows ought to fill the tile when created
- 
  - Add a titlebar to the top of the screen. The titlebar should be split evenly
    into horizontal blocks, one per tile. Each block containing the title of the
    top-level window. The focussed tile is highlighted. Clicking on a title
