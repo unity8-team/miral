@@ -20,6 +20,9 @@ echo output = ${output}
 echo socket = ${socket}
 echo fifofile = ${fifofile}
 
+if ! which mirscreencast >> /dev/null ; then echo "Need mirscreencast - run \"sudo apt install mir-utils\""; exit 1 ;fi
+if ! which mencoder >> /dev/null ;      then echo "Need mencoder - run \"sudo apt install mencoder\""; exit 1 ;fi
+
 if [ -e ${output} ]; then echo "Output exists, moving to ${output}~"; mv ${output} ${output}~ ;fi
 while [ ! -e "${socket}" ]; do echo "waiting for ${socket}"; sleep 1 ;done
 
