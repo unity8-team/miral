@@ -35,6 +35,7 @@ namespace
 struct TilingWindowManagerPolicyData
 {
     Rectangle tile;
+    Rectangle old_tile;
 };
 
 template<class Info>
@@ -48,6 +49,23 @@ inline Rectangle const& tile_for(Info const& info)
 {
     return std::static_pointer_cast<TilingWindowManagerPolicyData>(info.userdata())->tile;
 }
+}
+
+void TilingWindowManagerPolicy::MRUTileList::push(std::shared_ptr<void> const& tile)
+{
+    tiles.erase(remove(begin(tiles), end(tiles), tile), end(tiles));
+    tiles.push_back(tile);
+}
+
+void TilingWindowManagerPolicy::MRUTileList::erase(std::shared_ptr<void> const& tile)
+{
+    tiles.erase(remove(begin(tiles), end(tiles), tile), end(tiles));
+}
+
+void TilingWindowManagerPolicy::MRUTileList::enumerate(Enumerator const& enumerator) const
+{
+    for (auto i = tiles.rbegin(); i != tiles.rend(); ++i)
+        enumerator(const_cast<std::shared_ptr<void> const&>(*i));
 }
 
 // Demonstrate implementing a simple tiling algorithm
@@ -129,9 +147,6 @@ auto TilingWindowManagerPolicy::place_new_surface(
 
 void TilingWindowManagerPolicy::advise_new_window(WindowInfo const& window_info)
 {
-    if (spinner.session() == window_info.window().application())
-        dirty_tiles = true;
-
     if (window_info.type() == mir_surface_type_normal &&
         !window_info.parent() &&
         window_info.state() == mir_surface_state_restored)
@@ -149,6 +164,12 @@ void TilingWindowManagerPolicy::advise_new_window(WindowInfo const& window_info)
 void TilingWindowManagerPolicy::handle_window_ready(WindowInfo& window_info)
 {
     tools.select_active_window(window_info.window());
+
+    if (spinner.session() != window_info.window().application())
+    {
+        tiles.push(window_info.userdata());
+        dirty_tiles = true;
+    }
 }
 
 namespace
@@ -442,24 +463,25 @@ void TilingWindowManagerPolicy::update_tiles(Rectangles const& displays)
 
     auto index = 0;
 
-    tools.for_each_application([&](ApplicationInfo& info)
+    tiles.enumerate([&](std::shared_ptr<void> const& userdata)
         {
-            if (spinner.session() == info.application())
-                return;
-
-            auto& tile = tile_for(info);
+            auto const tile_data = std::static_pointer_cast<TilingWindowManagerPolicyData>(userdata);
+            tile_data->old_tile = tile_data->tile;
 
             auto const x = (total_width * index) / applications;
             ++index;
             auto const dx = (total_width * index) / applications - x;
 
-            auto const old_tile = tile;
-            Rectangle const new_tile{{x,  0},
-                                     {dx, total_height}};
+            tile_data->tile = Rectangle{{x,  0}, {dx, total_height}};
+        });
 
-            update_surfaces(info, old_tile, new_tile);
+    tools.for_each_application([&](ApplicationInfo& info)
+        {
+            if (spinner.session() == info.application())
+                return;
 
-            tile = new_tile;
+            auto const tile_data = std::static_pointer_cast<TilingWindowManagerPolicyData>(info.userdata());
+            update_surfaces(info, tile_data->old_tile, tile_data->tile);
         });
 }
 
@@ -540,6 +562,11 @@ void TilingWindowManagerPolicy::advise_focus_gained(WindowInfo const& info)
         if (spinner_info.windows().size() > 0)
             tools.raise_tree(spinner_info.windows()[0]);
     }
+    else
+    {
+        tiles.push(info.userdata());
+        dirty_tiles = true;
+    }
 }
 
 void TilingWindowManagerPolicy::advise_new_app(miral::ApplicationInfo& application)
@@ -548,6 +575,7 @@ void TilingWindowManagerPolicy::advise_new_app(miral::ApplicationInfo& applicati
         return;
 
     application.userdata(std::make_shared<TilingWindowManagerPolicyData>());
+    tiles.push(application.userdata());
     dirty_tiles = true;
 }
 
@@ -556,6 +584,7 @@ void TilingWindowManagerPolicy::advise_delete_app(miral::ApplicationInfo const& 
     if (spinner.session() == application.application())
         return;
 
+    tiles.erase(application.userdata());
     dirty_tiles = true;
 }
 void TilingWindowManagerPolicy::advise_end()
