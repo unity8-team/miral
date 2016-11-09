@@ -26,7 +26,8 @@ while [ ! -e "${socket}" ]; do echo "waiting for ${socket}"; sleep 1 ;done
 mkfifo ${fifofile}
 mirscreencast -n -1 -m ${socket} -f ${fifofile}& mirscreencast_pid=$!
 
-read -rsp $'Press enter when recording complete...\n'
+sleep 1; # don't lose the next message in the spew from mirscreencast
+read -rsp $'\n\nPress enter when recording complete...'
 kill ${mirscreencast_pid}
 
 mencoder -demuxer rawvideo -rawvideo fps=60:w=${width}:h=${height}:format=bgra -ovc x264 -o ${output} ${fifofile}
