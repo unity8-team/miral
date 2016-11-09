@@ -37,14 +37,16 @@ struct TilingWindowManagerPolicyData
     Rectangle tile;
 };
 
-inline Rectangle& tile_for(miral::ApplicationInfo& app_info)
+template<class Info>
+inline Rectangle& tile_for(Info& info)
 {
-    return std::static_pointer_cast<TilingWindowManagerPolicyData>(app_info.userdata())->tile;
+    return std::static_pointer_cast<TilingWindowManagerPolicyData>(info.userdata())->tile;
 }
 
-inline Rectangle const& tile_for(miral::ApplicationInfo const& app_info)
+template<class Info>
+inline Rectangle const& tile_for(Info const& info)
 {
-    return std::static_pointer_cast<TilingWindowManagerPolicyData>(app_info.userdata())->tile;
+    return std::static_pointer_cast<TilingWindowManagerPolicyData>(info.userdata())->tile;
 }
 }
 
@@ -95,6 +97,7 @@ auto TilingWindowManagerPolicy::place_new_surface(
 {
     auto parameters = request_parameters;
 
+    parameters.userdata() = app_info.userdata();
     parameters.state() = parameters.state().is_set() ?
                          transform_set_state(parameters.state().value()) : mir_surface_state_restored;
 
@@ -128,6 +131,19 @@ void TilingWindowManagerPolicy::advise_new_window(WindowInfo const& window_info)
 {
     if (spinner.session() == window_info.window().application())
         dirty_tiles = true;
+
+    if (window_info.type() == mir_surface_type_normal &&
+        !window_info.parent() &&
+        window_info.state() == mir_surface_state_restored)
+    {
+        WindowSpecification specification;
+
+        specification.state() = mir_surface_state_maximized;
+
+        tools.place_and_size_for_state(specification, window_info);
+        constrain_size_and_place(specification, window_info.window(), tile_for(window_info));
+        tools.modify_window(window_info.window(), specification);
+    }
 }
 
 void TilingWindowManagerPolicy::handle_window_ready(WindowInfo& window_info)
@@ -149,7 +165,7 @@ void TilingWindowManagerPolicy::handle_modify_window(
     miral::WindowSpecification const& modifications)
 {
     auto const window = window_info.window();
-    auto const tile = tile_for(tools.info_for(window.application()));
+    auto const tile = tile_for(window_info);
     auto mods = modifications;
 
     constrain_size_and_place(mods, window, tile);
