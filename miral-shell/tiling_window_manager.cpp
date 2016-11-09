@@ -463,17 +463,43 @@ void TilingWindowManagerPolicy::update_tiles(Rectangles const& displays)
 
     auto index = 0;
 
-    tiles.enumerate([&](std::shared_ptr<void> const& userdata)
-        {
-            auto const tile_data = std::static_pointer_cast<TilingWindowManagerPolicyData>(userdata);
-            tile_data->old_tile = tile_data->tile;
+    if (applications < 3)
+    {
+        tiles.enumerate([&](std::shared_ptr<void> const& userdata)
+            {
+                auto const tile_data = std::static_pointer_cast<TilingWindowManagerPolicyData>(userdata);
+                tile_data->old_tile = tile_data->tile;
 
-            auto const x = (total_width * index) / applications;
-            ++index;
-            auto const dx = (total_width * index) / applications - x;
+                auto const x = (total_width * index) / applications;
+                ++index;
+                auto const dx = (total_width * index) / applications - x;
 
-            tile_data->tile = Rectangle{{x,  0}, {dx, total_height}};
-        });
+                tile_data->tile = Rectangle{{x,  0}, {dx, total_height}};
+            });
+    }
+    else
+    {
+        tiles.enumerate([&](std::shared_ptr<void> const& userdata)
+            {
+                auto const tile_data = std::static_pointer_cast<TilingWindowManagerPolicyData>(userdata);
+                tile_data->old_tile = tile_data->tile;
+
+                auto const dx = total_width/2;
+                if (!index)
+                {
+                    tile_data->tile = Rectangle{{0,  0}, {dx, total_height}};
+                }
+                else
+                {
+                    auto const x = dx;
+                    auto const y = total_height*(index-1) / (applications-1);
+                    auto const dy = total_height / (applications-1);
+                    tile_data->tile = Rectangle{{x,  y}, {dx, dy}};
+                }
+
+                ++index;
+            });
+    }
 
     tools.for_each_application([&](ApplicationInfo& info)
         {

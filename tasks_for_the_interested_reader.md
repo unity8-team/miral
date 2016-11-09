@@ -81,20 +81,6 @@ for a better approach:
 
  - top level windows ought to fill the tile when created
  
- - the tiling algorithm ought to lay windows out as follows:
- 
-    - Single window: takes up the whole screen
-    
-    - Two windows: The screen is split in two tiles of equal width (half the
-      screen’s width) and full height. Each window is placed in a tile (left
-      or right), with the newest window occupying the left tile.
-      
-    - Three or more windows: The screen is split in two tiles of equal width
-      and full height, as in the previous case. The newest window occupies
-      the left tile. The right part is now further divided vertically into
-      smaller tiles having equal height, to host the remaining windows, with
-      older windows being closer to the bottom.
-
  - Add a titlebar to the top of the screen. The titlebar should be split evenly
    into horizontal blocks, one per tile. Each block containing the title of the
    top-level window. The focussed tile is highlighted. Clicking on a title
