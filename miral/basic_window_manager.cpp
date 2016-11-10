@@ -837,7 +837,6 @@ void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirSur
 
     if (value != mir_surface_state_fullscreen)
     {
-        window_info.output_id({});
         fullscreen_surfaces.erase(window);
     }
     else

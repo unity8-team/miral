@@ -82,9 +82,6 @@ TEST_F(DisplayConfiguration, given_fullscreen_windows_reconfiguring_displays_doe
     mods.state() = mir_surface_state_fullscreen;
     window_manager_tools.modify_window(window, mods);
 
-    auto const& info = window_manager_tools.info_for(window);
-    EXPECT_THAT(info.has_output_id(), Eq(false));
-
     Rectangle const new_display{display_area.top_left+as_displacement({display_width, Height{0}}), display_area.size};
 
     basic_window_manager.add_display(new_display);
