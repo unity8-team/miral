@@ -39,7 +39,7 @@ add_executable(miral-test
     drag_active_window.cpp
     test_server.cpp         test_server.h
     test_window_manager_tools.h
-)
+        display_reconfiguration.cpp)
 
 target_link_libraries(miral-test
     ${MIRTEST_LDFLAGS}
