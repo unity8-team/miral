@@ -305,3 +305,12 @@ libmiral.so.1 libmiral1 #MINVER#
  (c++)"miral::apply_lifecycle_state_to(std::shared_ptr<mir::scene::Session> const&, MirLifecycleState)@MIRAL_0.4" 0.4.0
  (c++)"miral::pid_of(std::shared_ptr<mir::scene::Session> const&)@MIRAL_0.4" 0.4.0
  (c++)"miral::name_of[abi:cxx11](std::shared_ptr<mir::scene::Session> const&)@MIRAL_0.4" 0.4.0
+ MIRAL_0.5@MIRAL_0.5 0.5.0
+ (c++)"miral::DebugExtensions::enable()@MIRAL_0.5" 0.5.0
+ (c++)"miral::DebugExtensions::disable()@MIRAL_0.5" 0.5.0
+ (c++)"miral::DebugExtensions::DebugExtensions(miral::DebugExtensions const&)@MIRAL_0.5" 0.5.0
+ (c++)"miral::DebugExtensions::DebugExtensions()@MIRAL_0.5" 0.5.0
+ (c++)"miral::DebugExtensions::DebugExtensions(miral::DebugExtensions const&)@MIRAL_0.5" 0.5.0
+ (c++)"miral::DebugExtensions::DebugExtensions()@MIRAL_0.5" 0.5.0
+ (c++)"miral::DebugExtensions::operator=(miral::DebugExtensions const&)@MIRAL_0.5" 0.5.0
+ (c++)"miral::DebugExtensions::operator()(mir::Server&) const@MIRAL_0.5" 0.5.0

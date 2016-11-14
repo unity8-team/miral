@@ -53,7 +53,7 @@ add_library(miral SHARED
                                         ${CMAKE_SOURCE_DIR}/include/miral/toolkit/connection.h
                                         ${CMAKE_SOURCE_DIR}/include/miral/toolkit/surface.h
                                         ${CMAKE_SOURCE_DIR}/include/miral/detail/mir_forward_compatibility.h
-)
+        coordinate_translator.cpp coordinate_translator.h debugextensions.cpp ../include/miral/debugextensions.h)
 
 target_link_libraries(miral
     PUBLIC

@@ -329,3 +329,15 @@ global:
     vtable?for?miral::CommandLineOption;
   };
 } MIRAL_0.3;
+
+MIRAL_0.5 {
+global:
+  extern "C++" {
+    miral::DebugExtensions::DebugExtensions*;
+    miral::DebugExtensions::disable*;
+    miral::DebugExtensions::enable*;
+    miral::DebugExtensions::operator*;
+    typeinfo?for?miral::DebugExtensions;
+    vtable?for?miral::DebugExtensions;
+  };
+} MIRAL_0.4;
