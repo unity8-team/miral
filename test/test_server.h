@@ -33,8 +33,11 @@
 #include <list>
 #include <mutex>
 
+namespace mir { namespace shell { class WindowManager; }}
+
 namespace miral
 {
+class WindowManagementPolicy;
 class TestRuntimeEnvironment
 {
 public:
@@ -54,13 +57,18 @@ struct TestServer : testing::Test, private TestRuntimeEnvironment
     auto connect_client(std::string name) -> toolkit::Connection;
 
     using TestRuntimeEnvironment::add_to_environment;
-    WindowManagerTools tools{nullptr};
 
     MirRunner runner;
+
+    void invoke_tools(std::function<void(WindowManagerTools& tools)> const& f);
+    void invoke_window_manager(std::function<void(mir::shell::WindowManager& wm)> const& f);
 
 private:
     struct TestWindowManagerPolicy;
 
+    WindowManagerTools tools{nullptr};
+    WindowManagementPolicy* policy{nullptr};
+    std::weak_ptr<mir::shell::WindowManager> window_manager;
     mir::test::AutoJoinThread server_thread;
     std::mutex mutex;
     std::condition_variable started;
