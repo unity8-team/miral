@@ -17,6 +17,7 @@
  */
 
 #include "test_server.h"
+#include "FocusChangeSync.h"
 
 #include <miral/toolkit/surface.h>
 #include <miral/toolkit/surface_spec.h>
@@ -27,45 +28,50 @@
 #include <mir/test/signal.h>
 
 #include <gtest/gtest.h>
-#include <gmock/gmock.h>
 
 using namespace testing;
 using namespace miral::toolkit;
 
 namespace
 {
-void raise_signal_on_focus_change(MirSurface* /*surface*/, MirEvent const* event, void* context)
+class FocusChangeSync
 {
-    if (mir_event_get_type(event) == mir_event_type_surface)
-    {
-        auto const surface_event = mir_event_get_surface_event(event);
-
-        if (mir_surface_event_get_attribute(surface_event) == mir_surface_attrib_focus)
-            ((mir::test::Signal*)context)->raise();
-    }
-}
-
-struct ActiveWindow : public miral::TestServer
-{
-    mir::test::Signal signal;
-
-    void do_and_wait_for_signal(std::function<void()> const& f)
+public:
+    void exec(std::function<void()> const& f)
     {
         signal.reset();
         f();
         signal.wait_for(std::chrono::milliseconds(100));
     }
 
+    static void raise_signal_on_focus_change(MirSurface* /*surface*/, MirEvent const* event, void* context)
+    {
+        if (mir_event_get_type(event) == mir_event_type_surface)
+        {
+            auto const surface_event = mir_event_get_surface_event(event);
+
+            if (mir_surface_event_get_attribute(surface_event) == mir_surface_attrib_focus)
+                ((FocusChangeSync*)context)->signal.raise();
+        }
+    }
+private:
+    mir::test::Signal signal;
+};
+
+struct ActiveWindow : public miral::TestServer
+{
+    FocusChangeSync sync;
+    
     auto create_surface(Connection const& connection, char const* name) -> Surface
     {
         auto const spec = SurfaceSpec::for_normal_surface(connection, 50, 50, mir_pixel_format_argb_8888)
             .set_buffer_usage(mir_buffer_usage_software)
-            .set_event_handler(&raise_signal_on_focus_change, &signal)
+            .set_event_handler(&FocusChangeSync::raise_signal_on_focus_change, &sync)
             .set_name(name);
 
         Surface const surface{spec.create_surface()};
 
-        do_and_wait_for_signal([&]{ mir_buffer_stream_swap_buffers_sync(mir_surface_get_buffer_stream(surface)); });
+        sync.exec([&]{ mir_buffer_stream_swap_buffers_sync(mir_surface_get_buffer_stream(surface)); });
 
         return surface;
     }
@@ -94,7 +100,7 @@ TEST_F(ActiveWindow, a_single_window_when_hiding_becomes_inactive)
     auto const connection = connect_client(test_name);
     auto const surface = create_surface(connection, test_name);
 
-    do_and_wait_for_signal([&]{ mir_surface_set_state(surface, mir_surface_state_hidden); });
+    sync.exec([&]{ mir_surface_set_state(surface, mir_surface_state_hidden); });
 
     invoke_tools([&](miral::WindowManagerTools& tools)
         {
@@ -108,9 +114,9 @@ TEST_F(ActiveWindow, a_single_window_when_unhiding_becomes_active)
     char const* const test_name = __PRETTY_FUNCTION__;
     auto const connection = connect_client(test_name);
     auto const surface = create_surface(connection, test_name);
-    do_and_wait_for_signal([&]{ mir_surface_set_state(surface, mir_surface_state_hidden); });
+    sync.exec([&]{ mir_surface_set_state(surface, mir_surface_state_hidden); });
 
-    do_and_wait_for_signal([&]{ mir_surface_set_state(surface, mir_surface_state_restored); });
+    sync.exec([&]{ mir_surface_set_state(surface, mir_surface_state_restored); });
 
     invoke_tools([&](miral::WindowManagerTools& tools)
         {
