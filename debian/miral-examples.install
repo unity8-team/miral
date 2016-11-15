@@ -2,5 +2,6 @@ usr/bin/miral-shell
 usr/bin/miral-run
 usr/bin/miral-kiosk
 usr/bin/miral-xrun
+usr/bin/miral-screencast
 usr/share/applications/miral-shell.desktop
 usr/share/icons/hicolor/scalable/apps/ubuntu-logo.svg
