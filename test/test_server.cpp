@@ -17,6 +17,7 @@
  */
 
 #include "test_server.h"
+#include "../miral/basic_window_manager.h"
 
 #include <miral/canonical_window_manager.h>
 #include <miral/set_window_managment_policy.h>
@@ -39,12 +40,27 @@
 using namespace miral;
 using namespace testing;
 namespace mtf = mir_test_framework;
+namespace msh = mir::shell;
 
 namespace
 {
 std::chrono::seconds const timeout{20};
 char const* dummy_args[2] = { "TestServer", nullptr };
 }
+
+struct miral::TestServer::TestWindowManagerPolicy : CanonicalWindowManagerPolicy
+{
+    TestWindowManagerPolicy(WindowManagerTools const& tools, TestServer& test_fixture) :
+        CanonicalWindowManagerPolicy{tools}
+    {
+        test_fixture.tools = tools;
+        test_fixture.policy = this;
+    }
+
+    bool handle_keyboard_event(MirKeyboardEvent const*) override { return false; }
+    bool handle_pointer_event(MirPointerEvent const*) override { return false; }
+    bool handle_touch_event(MirTouchEvent const*) override { return false; }
+};
 
 miral::TestServer::TestServer() :
     runner{1, dummy_args}
@@ -84,11 +100,32 @@ void miral::TestServer::SetUp()
                             return std::make_shared<mtf::HeadlessDisplayBufferCompositorFactory>();
                         });
 #endif
+
+                    server.override_the_window_manager_builder([this, &server](msh::FocusController* focus_controller)
+                        -> std::shared_ptr<msh::WindowManager>
+                        {
+                            auto const display_layout = server.the_shell_display_layout();
+
+#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 24, 0)
+                            auto const persistent_surface_store = server.the_persistent_surface_store();
+#else
+                            std::shared_ptr<mir::shell::PersistentSurfaceStore> const persistent_surface_store;
+#endif
+
+                            auto builder = [this](WindowManagerTools const& tools) -> std::unique_ptr<miral::WindowManagementPolicy>
+                                {
+                                    return std::make_unique<TestWindowManagerPolicy>(tools, *this);
+                                };
+
+                            auto wm = std::make_shared<miral::BasicWindowManager>(focus_controller, display_layout, persistent_surface_store, builder);
+                            window_manager = wm;
+                            return wm;
+                        });
                 };
 
             try
             {
-                runner.run_with({init, set_window_managment_policy<TestWindowManagerPolicy>(*this)});
+                runner.run_with({init});
             }
             catch (std::exception const& e)
             {
@@ -136,23 +173,24 @@ auto miral::TestServer::connect_client(std::string name) -> toolkit::Connection
     return toolkit::Connection{mir_connect_sync(connect_string, name.c_str())};
 }
 
+void miral::TestServer::invoke_tools(std::function<void(WindowManagerTools& tools)> const& f)
+{
+    tools.invoke_under_lock([&]{f(tools); });
+}
+
+void miral::TestServer::invoke_window_manager(std::function<void(mir::shell::WindowManager& wm)> const& f)
+{
+    if (auto const wm = window_manager.lock())
+        f(*wm);
+    else
+        BOOST_THROW_EXCEPTION(std::runtime_error{"Server not running"});
+
+}
+
 void miral::TestRuntimeEnvironment::add_to_environment(char const* key, char const* value)
 {
     env.emplace_back(key, value);
 }
-
-struct miral::TestServer::TestWindowManagerPolicy : CanonicalWindowManagerPolicy
-{
-    TestWindowManagerPolicy(WindowManagerTools const& tools, TestServer& test_fixture) :
-        CanonicalWindowManagerPolicy{tools}
-    {
-        test_fixture.tools = tools;
-    }
-
-    bool handle_keyboard_event(MirKeyboardEvent const*) override { return false; }
-    bool handle_pointer_event(MirPointerEvent const*) override { return false; }
-    bool handle_touch_event(MirTouchEvent const*) override { return false; }
-};
 
 using miral::TestServer;
 
