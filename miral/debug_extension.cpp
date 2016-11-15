@@ -16,29 +16,29 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#include "miral/debugextensions.h"
+#include "miral/debug_extension.h"
 
 #include "coordinate_translator.h"
 
 #include <mir/server.h>
 #include <mir/options/option.h>
 
-class miral::DebugExtensions::Self : public CoordinateTranslator
+class miral::DebugExtension::Self : public CoordinateTranslator
 {
 };
 
-miral::DebugExtensions::DebugExtensions() :
+miral::DebugExtension::DebugExtension() :
     self{std::make_shared<Self>()}
 {
 }
 
-miral::DebugExtensions::DebugExtensions(DebugExtensions const&) = default;
-auto miral::DebugExtensions::operator=(DebugExtensions const&) -> DebugExtensions& = default;
+miral::DebugExtension::DebugExtension(DebugExtension const&) = default;
+auto miral::DebugExtension::operator=(DebugExtension const&) -> DebugExtension& = default;
 
-void miral::DebugExtensions::enable() { self->enable_debug_api(); }
-void miral::DebugExtensions::disable() { self->disable_debug_api(); }
+void miral::DebugExtension::enable() { self->enable_debug_api(); }
+void miral::DebugExtension::disable() { self->disable_debug_api(); }
 
-void miral::DebugExtensions::operator()(mir::Server& server) const
+void miral::DebugExtension::operator()(mir::Server& server) const
 {
     server.override_the_coordinate_translator([&server, this]
           {

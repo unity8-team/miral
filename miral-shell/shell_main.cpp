@@ -25,7 +25,7 @@
 #include <miral/runner.h>
 #include <miral/window_management_options.h>
 #include <miral/append_event_filter.h>
-#include <miral/debugextensions.h>
+#include <miral/debug_extension.h>
 #include <miral/internal_client.h>
 #include <miral/command_line_option.h>
 #include <miral/cursor_theme.h>
@@ -73,7 +73,7 @@ int main(int argc, char const* argv[])
         };
 
     Keymap config_keymap;
-    DebugExtensions debug_extensions;
+    DebugExtension debug_extensions;
 
     return runner.run_with(
         {

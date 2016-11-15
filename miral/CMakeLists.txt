@@ -34,7 +34,7 @@ add_library(miral SHARED
     canonical_window_manager.cpp        ${CMAKE_SOURCE_DIR}/include/miral/canonical_window_manager.h
     command_line_option.cpp             ${CMAKE_SOURCE_DIR}/include/miral/command_line_option.h
     cursor_theme.cpp                    ${CMAKE_SOURCE_DIR}/include/miral/cursor_theme.h
-    debugextensions.cpp                 ${CMAKE_SOURCE_DIR}/include/miral/debugextensions.h
+    debug_extension.cpp                 ${CMAKE_SOURCE_DIR}/include/miral/debug_extension.h
     keymap.cpp                          ${CMAKE_SOURCE_DIR}/include/miral/keymap.h
     runner.cpp                          ${CMAKE_SOURCE_DIR}/include/miral/runner.h
     display_configuration_option.cpp    ${CMAKE_SOURCE_DIR}/include/miral/display_configuration_option.h

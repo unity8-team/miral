@@ -25,13 +25,13 @@ namespace mir { class Server; }
 
 namespace miral
 {
-/// Allow debug extensions to be enabled and disabled
-class DebugExtensions
+/// Allow debug extension APIs to be enabled and disabled
+class DebugExtension
 {
 public:
-    DebugExtensions();
-    DebugExtensions(DebugExtensions const&);
-    DebugExtensions& operator=(DebugExtensions const&);
+    DebugExtension();
+    DebugExtension(DebugExtension const&);
+    DebugExtension& operator=(DebugExtension const&);
 
     void enable();
     void disable();
