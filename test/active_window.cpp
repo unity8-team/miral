@@ -17,7 +17,6 @@
  */
 
 #include "test_server.h"
-#include "FocusChangeSync.h"
 
 #include <miral/toolkit/surface.h>
 #include <miral/toolkit/surface_spec.h>
