@@ -224,10 +224,7 @@ void miral::BasicWindowManager::add_display(geometry::Rectangle const& area)
         if (window)
         {
             auto& info = info_for(window);
-            Rectangle rect{window.top_left(), window.size()};
-
-            graphics::DisplayConfigurationOutputId id{info.output_id()};
-            display_layout->place_in_output(id, rect);
+            auto const rect = fullscreen_rect_for(info);
             place_and_size(info, rect.top_left, rect.size);
         }
     }
@@ -242,10 +239,7 @@ void miral::BasicWindowManager::remove_display(geometry::Rectangle const& area)
         if (window)
         {
             auto& info = info_for(window);
-            Rectangle rect{window.top_left(), window.size()};
-
-            graphics::DisplayConfigurationOutputId id{info.output_id()};
-            display_layout->place_in_output(id, rect);
+            auto const rect = fullscreen_rect_for(info);
             place_and_size(info, rect.top_left, rect.size);
         }
     }
@@ -804,17 +798,7 @@ void miral::BasicWindowManager::place_and_size_for_state(
 
     case mir_surface_state_fullscreen:
     {
-        rect = {(window.top_left()), window.size()};
-
-        if (window_info.has_output_id())
-        {
-            graphics::DisplayConfigurationOutputId id{window_info.output_id()};
-            display_layout->place_in_output(id, rect);
-        }
-        else
-        {
-            display_layout->size_to_output(rect);
-        }
+        rect = fullscreen_rect_for(window_info);
 
         break;
     }
@@ -829,6 +813,24 @@ void miral::BasicWindowManager::place_and_size_for_state(
     modifications.size() = rect.size;
 }
 
+auto miral::BasicWindowManager::fullscreen_rect_for(miral::WindowInfo const& window_info) const -> Rectangle
+{
+    auto const w = window_info.window();
+    Rectangle r = {(w.top_left()), w.size()};
+
+    if (window_info.has_output_id())
+    {
+        graphics::DisplayConfigurationOutputId id{window_info.output_id()};
+        display_layout->place_in_output(id, r);
+    }
+    else
+    {
+        display_layout->size_to_output(r);
+    }
+
+    return r;
+}
+
 void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirSurfaceState value)
 {
     auto const window = window_info.window();
@@ -836,7 +838,6 @@ void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirSur
 
     if (value != mir_surface_state_fullscreen)
     {
-        window_info.output_id({});
         fullscreen_surfaces.erase(window);
     }
     else
