@@ -45,12 +45,10 @@ public:
 
     static void raise_signal_on_focus_change(MirSurface* /*surface*/, MirEvent const* event, void* context)
     {
-        if (mir_event_get_type(event) == mir_event_type_surface)
+        if (mir_event_get_type(event) == mir_event_type_surface &&
+            mir_surface_event_get_attribute(mir_event_get_surface_event(event)) == mir_surface_attrib_focus)
         {
-            auto const surface_event = mir_event_get_surface_event(event);
-
-            if (mir_surface_event_get_attribute(surface_event) == mir_surface_attrib_focus)
-                ((FocusChangeSync*)context)->signal.raise();
+            ((FocusChangeSync*)context)->signal.raise();
         }
     }
 private:
