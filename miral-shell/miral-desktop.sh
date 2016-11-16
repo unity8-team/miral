@@ -32,10 +32,12 @@ done
 if [ -e "${socket}" ]; then echo "Error: '${socket}' already exists"; exit 1 ;fi
 
 sudo ls >> /dev/null
-sudo LD_LIBRARY_PATH=${LD_LIBRARY_PATH} ${bindir}${miral_server} --vt ${vt} --arw-file --file ${socket} $* &
+oldvt=$(sudo fgconsole)
+(sudo LD_LIBRARY_PATH=${LD_LIBRARY_PATH} ${bindir}${miral_server} --vt ${vt} --arw-file --file ${socket} $*; sudo chvt ${oldvt})&
 
 while [ ! -e "${socket}" ]; do echo "waiting for ${socket}"; sleep 1 ;done
 
 unset QT_QPA_PLATFORMTHEME
 MIR_SOCKET=${socket} GDK_BACKEND=mir QT_QPA_PLATFORM=ubuntumirclient SDL_VIDEODRIVER=mir dbus-run-session -- ${launcher}
 sudo killall ${bindir}${miral_server}
+
