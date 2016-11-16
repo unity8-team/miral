@@ -15,11 +15,10 @@ do
     echo "Options are:"
     echo "    -kiosk               use miral-kiosk instead of ${miral_server}"
     echo "    -launcher <launcher> use <launcher> instead of '${launcher}'"
-    echo "    -bindir   <bindir>   directory to find the miral executables"
     echo "    -vt       <termid>   set the virtual terminal [${vt}]"
     echo "    -socket   <socket>   set the mir socket [${socket}]"
+    echo "    -bindir   <bindir>   path to the miral executable"
     exit 0
-    elif [ "${1:0:1}" != "-" -a -d "$1" ];  then builddir=$1/
     elif [ "$1" == "-kiosk" ];              then miral_server=miral-kiosk
     elif [ "$1" == "-launcher" ];           then shift; launcher=$1
     elif [ "$1" == "-vt" ];                 then shift; vt=$1
