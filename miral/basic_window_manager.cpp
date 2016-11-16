@@ -884,8 +884,6 @@ void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirSur
                 {
                     if (candidate == window)
                         return true;
-                    if (!std::shared_ptr<scene::Surface>(candidate)->visible())
-                        return true;
                     auto const w = candidate;
                     return !(select_active_window(w));
                 });
