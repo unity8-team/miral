@@ -890,6 +890,9 @@ void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirSur
                     return !(select_active_window(w));
                 });
 
+            if (window == active_window())
+                select_active_window({});
+
             mru_active_windows.erase(window);
         }
         break;
