@@ -1,3 +1,9 @@
+miral (0.5.0) UNRELEASED; urgency=medium
+
+  *
+
+ -- Alan Griffiths <alan.griffiths@canonical.com>  Mon, 14 Nov 2016 10:44:50 +0000
+
 miral (0.4.0+17.04.20161104-0ubuntu1) zesty; urgency=medium
 
   * New upstream release 0.4.0 (https://launchpad.net/miral/+milestone/0.4)

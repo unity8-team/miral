@@ -25,6 +25,7 @@
 #include <miral/runner.h>
 #include <miral/window_management_options.h>
 #include <miral/append_event_filter.h>
+#include <miral/debug_extension.h>
 #include <miral/internal_client.h>
 #include <miral/command_line_option.h>
 #include <miral/cursor_theme.h>
@@ -72,6 +73,7 @@ int main(int argc, char const* argv[])
         };
 
     Keymap config_keymap;
+    DebugExtension debug_extensions;
 
     return runner.run_with(
         {
@@ -81,6 +83,7 @@ int main(int argc, char const* argv[])
             launcher,
             outputs_monitor,
             config_keymap,
+            debug_extensions,
             AppendEventFilter{quit_on_ctrl_alt_bksp},
             StartupInternalClient{"Intro", spinner},
             CommandLineOption{[&](std::string const& typeface) { ::titlebar::font_file(typeface); },
