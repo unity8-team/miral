@@ -167,7 +167,7 @@ public:
      *  and form a single tree rooted at the first element.
      *
      * @param windows   the windows
-     * \note ordering isn't significant to the resulting Z order - the existing Z-order will be maintained
+     * \note The relative Z-order of these windows will be maintained, they will be raised en bloc.
      */
     virtual void advise_raise(std::vector<Window> const& windows);
 /** @} */
