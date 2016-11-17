@@ -604,7 +604,7 @@ void TilingWindowManagerPolicy::advise_new_app(miral::ApplicationInfo& applicati
     auto& tile = tile_for(application);
     tile = displays.bounding_rectangle();
     if (tiles.count() > 0)
-        tile.size = 0.5*tile.size;
+        tile.size.width = 0.5*tile.size.width;
 }
 
 void TilingWindowManagerPolicy::advise_delete_app(miral::ApplicationInfo const& application)
