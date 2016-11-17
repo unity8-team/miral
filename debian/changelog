@@ -7,11 +7,17 @@ miral (0.5.0) UNRELEASED; urgency=medium
       . Add miral::DebugExtension allowing shells to enable & disable support
         for debug extension API(s) dynamically
       . Improve handling of fullscreen surfaces when switching outputs, or
-        specified output doesn't exist (any more).
+        specified output doesn't exist (any more)
+      . Initial tests and some fixes for tracking of active window.
+      . Document the order of windows passed to
+        WindowManagementPolicy::advise_raise() so clients can rely on it.
+      . [examples] Add miral-desktop script for launching a pseudo-desktop
       . [examples] Add miral-screencast - a utility script to assist with
         creating a screencast
       . [examples: miral-shell --window-manager tiling] implement the layout
         suggested in "Tasks for the interested reader"
+      . [examples: miral-shell --window-manager tiling] Don't place a tile
+        until the first window is ready
       . [examples: miral-kiosk] Provide configuration options for kiosk:
         --keymap --kiosk-maximize-root-windows & --kiosk-startup-apps-only
     - Bugs fixed:
