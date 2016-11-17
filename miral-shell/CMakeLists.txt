@@ -25,6 +25,14 @@ install(PROGRAMS ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/miral-screencast
     DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
 )
 
+add_custom_target(miral-desktop ALL
+    cp ${CMAKE_CURRENT_SOURCE_DIR}/miral-desktop.sh ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/miral-desktop
+)
+
+install(PROGRAMS ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/miral-desktop
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
+)
+
 add_executable(miral-shell
     shell_main.cpp
     tiling_window_manager.cpp   tiling_window_manager.h
