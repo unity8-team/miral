@@ -122,6 +122,7 @@ private:
         using Enumerator = std::function<void(std::shared_ptr<void> const& tile)>;
 
         void enumerate(Enumerator const& enumerator) const;
+        auto count() -> size_t { return tiles.size(); }
 
     private:
         std::vector<std::shared_ptr<void>> tiles;

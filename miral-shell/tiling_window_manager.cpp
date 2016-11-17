@@ -450,11 +450,9 @@ auto TilingWindowManagerPolicy::application_under(Point position)
 
 void TilingWindowManagerPolicy::update_tiles(Rectangles const& displays)
 {
-    auto applications = tools.count_applications();
+    auto const tile_count = tiles.count();
 
-    if (spinner.session()) --applications;
-
-    if (applications < 1 || displays.size() < 1) return;
+    if (tile_count < 1 || displays.size() < 1) return;
 
     auto const bounding_rect = displays.bounding_rectangle();
 
@@ -463,16 +461,16 @@ void TilingWindowManagerPolicy::update_tiles(Rectangles const& displays)
 
     auto index = 0;
 
-    if (applications < 3)
+    if (tile_count < 3)
     {
         tiles.enumerate([&](std::shared_ptr<void> const& userdata)
             {
                 auto const tile_data = std::static_pointer_cast<TilingWindowManagerPolicyData>(userdata);
                 tile_data->old_tile = tile_data->tile;
 
-                auto const x = (total_width * index) / applications;
+                auto const x = (total_width * index) / tile_count;
                 ++index;
-                auto const dx = (total_width * index) / applications - x;
+                auto const dx = (total_width * index) / tile_count - x;
 
                 tile_data->tile = Rectangle{{x,  0}, {dx, total_height}};
             });
@@ -492,8 +490,8 @@ void TilingWindowManagerPolicy::update_tiles(Rectangles const& displays)
                 else
                 {
                     auto const x = dx;
-                    auto const y = total_height*(index-1) / (applications-1);
-                    auto const dy = total_height / (applications-1);
+                    auto const y = total_height*(index-1) / (tile_count-1);
+                    auto const dy = total_height / (tile_count-1);
                     tile_data->tile = Rectangle{{x,  y}, {dx, dy}};
                 }
 
@@ -601,8 +599,12 @@ void TilingWindowManagerPolicy::advise_new_app(miral::ApplicationInfo& applicati
         return;
 
     application.userdata(std::make_shared<TilingWindowManagerPolicyData>());
-    tiles.push(application.userdata());
-    dirty_tiles = true;
+
+    // An educated guess of where the tile will be placed when the first window gets painted
+    auto& tile = tile_for(application);
+    tile = displays.bounding_rectangle();
+    if (tiles.count() > 0)
+        tile.size.width = 0.5*tile.size.width;
 }
 
 void TilingWindowManagerPolicy::advise_delete_app(miral::ApplicationInfo const& application)
