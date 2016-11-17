@@ -1,6 +1,22 @@
 miral (0.5.0) UNRELEASED; urgency=medium
 
-  *
+  * New upstream release 0.5.0 (https://launchpad.net/miral/+milestone/0.5)
+    - ABI summary:
+      . miral ABI unchanged at 1
+    - Enhancements:
+      . Add miral::DebugExtension allowing shells to enable & disable support
+        for debug extension API(s) dynamically
+      . Improve handling of fullscreen surfaces when switching outputs, or
+        specified output doesn't exist (any more).
+      . [examples] Add miral-screencast - a utility script to assist with
+        creating a screencast
+      . [examples: miral-shell --window-manager tiling] implement the layout
+        suggested in "Tasks for the interested reader"
+      . [examples: miral-kiosk] Provide configuration options for kiosk:
+        --keymap --kiosk-maximize-root-windows & --kiosk-startup-apps-only
+    - Bugs fixed:
+      . Display configuration changes may cause "fatal errors" when there are
+        fullscreen windows (LP: #1640557)
 
  -- Alan Griffiths <alan.griffiths@canonical.com>  Mon, 14 Nov 2016 10:44:50 +0000
 
