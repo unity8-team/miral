@@ -42,8 +42,6 @@ struct PersistentSurfaceId : public miral::TestServer
     }
 };
 
-#include <mir/scene/surface.h>
-
 #if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 24, 0)
 TEST_F(PersistentSurfaceId, server_can_identify_window_specified_by_client)
 {
