@@ -68,6 +68,8 @@ struct miral::ActiveOutputsMonitor::Self : mir::graphics::DisplayConfigurationOb
     {
     }
 
+    void base_configuration_updated(std::shared_ptr<mir::graphics::DisplayConfiguration const> const& ) override {}
+
     std::mutex mutex;
     std::vector<ActiveOutputsListener*> listeners;
     std::vector<Output> outputs;
