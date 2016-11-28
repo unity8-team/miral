@@ -28,7 +28,6 @@
 #else
 #include <mir/graphics/display_configuration_observer.h>
 #include <mir/observer_registrar.h>
-#include <mir/main_loop.h>
 #endif
 
 #include <algorithm>
