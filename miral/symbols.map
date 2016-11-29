@@ -333,6 +333,7 @@ global:
 MIRAL_0.5 {
 global:
   extern "C++" {
+    miral::ActiveOutputsMonitor::process_outputs*;
     miral::DebugExtension::DebugExtension*;
     miral::DebugExtension::disable*;
     miral::DebugExtension::enable*;
