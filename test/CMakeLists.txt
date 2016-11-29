@@ -21,6 +21,15 @@ if (MIRTEST_VERSION VERSION_LESS 0.25)
     endif()
 endif()
 
+# We can't tell which version of gtest we're building against and INSTANTIATE_TEST_CASE_P changed in
+# a way that relies on a gcc extension to support backward-compatible code, So...
+check_cxx_compiler_flag(-Wgnu-zero-variadic-macro-arguments HAS_W_GNU_ZERO_VARIADIC_MACRO_ARGUMENTS)
+if (HAS_W_GNU_ZERO_VARIADIC_MACRO_ARGUMENTS)
+    # Or, as someone put it in lp:mir...
+    # INSTANTIATE_TEST_CASE_P hits this like a slice of lemon wrapped around a large gold brick.
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-gnu-zero-variadic-macro-arguments")
+endif()
+
 include_directories(
         ${MIRTEST_INCLUDE_DIRS}
         ${GMOCK_INCLUDE_DIR}
