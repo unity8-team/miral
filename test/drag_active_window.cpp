@@ -67,7 +67,6 @@ struct DragActiveWindow : TestWindowManagerTools, WithParamInterface<MirSurfaceT
         Mock::VerifyAndClearExpectations(window_manager_policy);
     }
 };
-}
 
 using ForMoveableTypes = DragActiveWindow;
 using ForUnmoveableTypes = DragActiveWindow;
@@ -101,6 +100,7 @@ TEST_P(ForUnmoveableTypes, doesnt_move)
 
     EXPECT_THAT(window.top_left(), Eq(expected_position))
                 << "Type: " << GetParam();
+}
 }
 
 // When a surface is moved interactively

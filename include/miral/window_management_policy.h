@@ -162,10 +162,12 @@ public:
      */
     virtual void advise_delete_window(WindowInfo const& window_info);
 
-    /** Notification that windows are being raised to the top
+    /** Notification that windows are being raised to the top.
+     *  These windows are ordered with parents before children,
+     *  and form a single tree rooted at the first element.
      *
      * @param windows   the windows
-     * \note ordering isn't significant - the existing Z-order will be maintained
+     * \note The relative Z-order of these windows will be maintained, they will be raised en bloc.
      */
     virtual void advise_raise(std::vector<Window> const& windows);
 /** @} */

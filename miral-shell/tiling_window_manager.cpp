@@ -35,17 +35,37 @@ namespace
 struct TilingWindowManagerPolicyData
 {
     Rectangle tile;
+    Rectangle old_tile;
 };
 
-inline Rectangle& tile_for(miral::ApplicationInfo& app_info)
+template<class Info>
+inline Rectangle& tile_for(Info& info)
 {
-    return std::static_pointer_cast<TilingWindowManagerPolicyData>(app_info.userdata())->tile;
+    return std::static_pointer_cast<TilingWindowManagerPolicyData>(info.userdata())->tile;
 }
 
-inline Rectangle const& tile_for(miral::ApplicationInfo const& app_info)
+template<class Info>
+inline Rectangle const& tile_for(Info const& info)
 {
-    return std::static_pointer_cast<TilingWindowManagerPolicyData>(app_info.userdata())->tile;
+    return std::static_pointer_cast<TilingWindowManagerPolicyData>(info.userdata())->tile;
 }
+}
+
+void TilingWindowManagerPolicy::MRUTileList::push(std::shared_ptr<void> const& tile)
+{
+    tiles.erase(remove(begin(tiles), end(tiles), tile), end(tiles));
+    tiles.push_back(tile);
+}
+
+void TilingWindowManagerPolicy::MRUTileList::erase(std::shared_ptr<void> const& tile)
+{
+    tiles.erase(remove(begin(tiles), end(tiles), tile), end(tiles));
+}
+
+void TilingWindowManagerPolicy::MRUTileList::enumerate(Enumerator const& enumerator) const
+{
+    for (auto i = tiles.rbegin(); i != tiles.rend(); ++i)
+        enumerator(const_cast<std::shared_ptr<void> const&>(*i));
 }
 
 // Demonstrate implementing a simple tiling algorithm
@@ -95,6 +115,7 @@ auto TilingWindowManagerPolicy::place_new_surface(
 {
     auto parameters = request_parameters;
 
+    parameters.userdata() = app_info.userdata();
     parameters.state() = parameters.state().is_set() ?
                          transform_set_state(parameters.state().value()) : mir_surface_state_restored;
 
@@ -126,13 +147,29 @@ auto TilingWindowManagerPolicy::place_new_surface(
 
 void TilingWindowManagerPolicy::advise_new_window(WindowInfo const& window_info)
 {
-    if (spinner.session() == window_info.window().application())
-        dirty_tiles = true;
+    if (window_info.type() == mir_surface_type_normal &&
+        !window_info.parent() &&
+        window_info.state() == mir_surface_state_restored)
+    {
+        WindowSpecification specification;
+
+        specification.state() = mir_surface_state_maximized;
+
+        tools.place_and_size_for_state(specification, window_info);
+        constrain_size_and_place(specification, window_info.window(), tile_for(window_info));
+        tools.modify_window(window_info.window(), specification);
+    }
 }
 
 void TilingWindowManagerPolicy::handle_window_ready(WindowInfo& window_info)
 {
     tools.select_active_window(window_info.window());
+
+    if (spinner.session() != window_info.window().application())
+    {
+        tiles.push(window_info.userdata());
+        dirty_tiles = true;
+    }
 }
 
 namespace
@@ -149,7 +186,7 @@ void TilingWindowManagerPolicy::handle_modify_window(
     miral::WindowSpecification const& modifications)
 {
     auto const window = window_info.window();
-    auto const tile = tile_for(tools.info_for(window.application()));
+    auto const tile = tile_for(window_info);
     auto mods = modifications;
 
     constrain_size_and_place(mods, window, tile);
@@ -413,11 +450,9 @@ auto TilingWindowManagerPolicy::application_under(Point position)
 
 void TilingWindowManagerPolicy::update_tiles(Rectangles const& displays)
 {
-    auto applications = tools.count_applications();
+    auto const tile_count = tiles.count();
 
-    if (spinner.session()) --applications;
-
-    if (applications < 1 || displays.size() < 1) return;
+    if (tile_count < 1 || displays.size() < 1) return;
 
     auto const bounding_rect = displays.bounding_rectangle();
 
@@ -426,24 +461,51 @@ void TilingWindowManagerPolicy::update_tiles(Rectangles const& displays)
 
     auto index = 0;
 
+    if (tile_count < 3)
+    {
+        tiles.enumerate([&](std::shared_ptr<void> const& userdata)
+            {
+                auto const tile_data = std::static_pointer_cast<TilingWindowManagerPolicyData>(userdata);
+                tile_data->old_tile = tile_data->tile;
+
+                auto const x = (total_width * index) / tile_count;
+                ++index;
+                auto const dx = (total_width * index) / tile_count - x;
+
+                tile_data->tile = Rectangle{{x,  0}, {dx, total_height}};
+            });
+    }
+    else
+    {
+        tiles.enumerate([&](std::shared_ptr<void> const& userdata)
+            {
+                auto const tile_data = std::static_pointer_cast<TilingWindowManagerPolicyData>(userdata);
+                tile_data->old_tile = tile_data->tile;
+
+                auto const dx = total_width/2;
+                if (!index)
+                {
+                    tile_data->tile = Rectangle{{0,  0}, {dx, total_height}};
+                }
+                else
+                {
+                    auto const x = dx;
+                    auto const y = total_height*(index-1) / (tile_count-1);
+                    auto const dy = total_height / (tile_count-1);
+                    tile_data->tile = Rectangle{{x,  y}, {dx, dy}};
+                }
+
+                ++index;
+            });
+    }
+
     tools.for_each_application([&](ApplicationInfo& info)
         {
             if (spinner.session() == info.application())
                 return;
 
-            auto& tile = tile_for(info);
-
-            auto const x = (total_width * index) / applications;
-            ++index;
-            auto const dx = (total_width * index) / applications - x;
-
-            auto const old_tile = tile;
-            Rectangle const new_tile{{x,  0},
-                                     {dx, total_height}};
-
-            update_surfaces(info, old_tile, new_tile);
-
-            tile = new_tile;
+            auto const tile_data = std::static_pointer_cast<TilingWindowManagerPolicyData>(info.userdata());
+            update_surfaces(info, tile_data->old_tile, tile_data->tile);
         });
 }
 
@@ -524,6 +586,11 @@ void TilingWindowManagerPolicy::advise_focus_gained(WindowInfo const& info)
         if (spinner_info.windows().size() > 0)
             tools.raise_tree(spinner_info.windows()[0]);
     }
+    else
+    {
+        tiles.push(info.userdata());
+        dirty_tiles = true;
+    }
 }
 
 void TilingWindowManagerPolicy::advise_new_app(miral::ApplicationInfo& application)
@@ -532,7 +599,12 @@ void TilingWindowManagerPolicy::advise_new_app(miral::ApplicationInfo& applicati
         return;
 
     application.userdata(std::make_shared<TilingWindowManagerPolicyData>());
-    dirty_tiles = true;
+
+    // An educated guess of where the tile will be placed when the first window gets painted
+    auto& tile = tile_for(application);
+    tile = displays.bounding_rectangle();
+    if (tiles.count() > 0)
+        tile.size.width = 0.5*tile.size.width;
 }
 
 void TilingWindowManagerPolicy::advise_delete_app(miral::ApplicationInfo const& application)
@@ -540,6 +612,7 @@ void TilingWindowManagerPolicy::advise_delete_app(miral::ApplicationInfo const& 
     if (spinner.session() == application.application())
         return;
 
+    tiles.erase(application.userdata());
     dirty_tiles = true;
 }
 void TilingWindowManagerPolicy::advise_end()

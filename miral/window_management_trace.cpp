@@ -32,9 +32,11 @@
 
 using mir::operator<<;
 
-namespace 
+namespace
 {
 std::string const null_ptr{"(null)"};
+
+auto operator<< (std::ostream& out, miral::WindowSpecification::AspectRatio const& ratio) -> std::ostream&;
 
 struct BracedItemStream
 {

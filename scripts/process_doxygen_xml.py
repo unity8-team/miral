@@ -399,10 +399,26 @@ global:
 
 MIRAL_0.4 {
 global:
+  extern "C++" {
+    miral::ApplicationInfo::name*;
+    miral::CommandLineOption::?CommandLineOption*;
+    miral::CommandLineOption::CommandLineOption*;
+    miral::CommandLineOption::operator*;
+    miral::WindowManagerTools::force_close*;
+    miral::apply_lifecycle_state_to*;
+    miral::name_of*;
+    miral::pid_of*;
+    typeinfo?for?miral::CommandLineOption;
+    vtable?for?miral::CommandLineOption;
+  };
+} MIRAL_0.3;
+
+MIRAL_0.5 {
+global:
   extern "C++" {'''
 
 END_NEW_STANZA = '''  };
-} MIRAL_0.3;'''
+} MIRAL_0.4;'''
 
 def _print_report():
     print OLD_STANZAS
