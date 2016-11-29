@@ -23,7 +23,7 @@
 #include <mir/server.h>
 #include <mir/options/option.h>
 
-class miral::DebugExtension::Self : public CoordinateTranslator
+struct miral::DebugExtension::Self : CoordinateTranslator
 {
 };
 
