@@ -97,6 +97,21 @@ struct ActiveWindow : public TestServer
         return surface;
     }
 
+    auto create_dialog(Connection const& connection, char const* name, Surface const& parent, FocusChangeSync& sync) -> Surface
+    {
+        auto const spec = SurfaceSpec::for_dialog(connection, 50, 50, mir_pixel_format_argb_8888, parent)
+            .set_buffer_usage(mir_buffer_usage_software)
+            .set_event_handler(&FocusChangeSync::raise_signal_on_focus_change, &sync)
+            .set_name(name);
+
+        Surface const surface{spec.create_surface()};
+
+        sync.exec([&]{ mir_buffer_stream_swap_buffers_sync(mir_surface_get_buffer_stream(surface)); });
+        EXPECT_TRUE(sync.signal_raised());
+
+        return surface;
+    }
+
     void assert_no_active_window()
     {
         invoke_tools([&](WindowManagerTools& tools)
@@ -264,4 +279,26 @@ TEST_F(ActiveWindow, selecting_a_tip_makes_parent_active)
     EXPECT_TRUE(sync1.signal_raised());
 
     assert_active_window_is(test_name);
+}
+
+TEST_F(ActiveWindow, selecting_a_parent_makes_dialog_active)
+{
+    char const* const test_name = __PRETTY_FUNCTION__;
+    auto const connection = connect_client(test_name);
+
+    auto const parent = create_surface(connection, test_name, sync1);
+
+    Window parent_window;
+    invoke_tools([&](WindowManagerTools& tools){ parent_window = tools.active_window(); });
+
+    auto const dialog = create_dialog(connection, "dialog", parent, sync2);
+
+    // Steal the focus
+    auto second_connection = connect_client("second");
+    auto second_surface = create_surface(second_connection, "second", sync1);
+
+    sync2.exec([&]{ invoke_tools([&](WindowManagerTools& tools){ tools.select_active_window(parent_window); }); });
+
+    EXPECT_TRUE(sync2.signal_raised());
+    assert_active_window_is("dialog");
 }

@@ -64,6 +64,23 @@ public:
         return SurfaceSpec{mir_connection_create_spec_for_tip(connection, width, height, format, parent, rect, edge)};
     }
 
+    static auto for_dialog(MirConnection* connection,
+                           int width,
+                           int height,
+                           MirPixelFormat format)-> SurfaceSpec
+    {
+        return SurfaceSpec{mir_connection_create_spec_for_dialog(connection, width, height, format)};
+    }
+
+    static auto for_dialog(MirConnection* connection,
+                        int width,
+                        int height,
+                        MirPixelFormat format,
+                        MirSurface* parent) -> SurfaceSpec
+    {
+        return for_dialog(connection, width, height, format).set_parent(parent);
+    }
+
     static auto for_changes(MirConnection* connection) -> SurfaceSpec
     {
         return SurfaceSpec{mir_connection_create_spec_for_changes(connection)};
@@ -133,6 +150,12 @@ public:
         return *this;
     }
 #endif
+
+    auto set_parent(MirSurface* parent) -> SurfaceSpec&
+    {
+        mir_surface_spec_set_parent(*this, parent);
+        return *this;
+    }
 
     template<typename Context>
     void create_surface(void (*callback)(MirSurface*, Context*), Context* context) const
