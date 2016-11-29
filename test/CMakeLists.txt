@@ -23,11 +23,12 @@ endif()
 
 # We can't tell which version of gtest we're building against and INSTANTIATE_TEST_CASE_P changed in
 # a way that relies on a gcc extension to support backward-compatible code, So...
-check_cxx_compiler_flag(-Wgnu-zero-variadic-macro-arguments HAS_W_GNU_ZERO_VARIADIC_MACRO_ARGUMENTS)
-if (HAS_W_GNU_ZERO_VARIADIC_MACRO_ARGUMENTS)
-    # Or, as someone put it in lp:mir...
-    # INSTANTIATE_TEST_CASE_P hits this like a slice of lemon wrapped around a large gold brick.
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-gnu-zero-variadic-macro-arguments")
+check_cxx_compiler_flag(-Wno-gnu-zero-variadic-macro-arguments MIRAL_COMPILE_WITH_W_NO_GNU_ZERO_VARIADIC_MACRO_ARGUMENTS)
+check_cxx_compiler_flag(-Wno-pedantic MIRAL_COMPILE_WITH_W_NO_PEDANTIC)
+if (MIRAL_COMPILE_WITH_W_NO_GNU_ZERO_VARIADIC_MACRO_ARGUMENTS)
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-gnu-zero-variadic-macro-arguments") # clang
+elseif(MIRAL_COMPILE_WITH_W_NO_PEDANTIC)
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-pedantic") #gcc
 endif()
 
 include_directories(
