@@ -53,6 +53,17 @@ public:
         return SurfaceSpec{mir_connection_create_spec_for_menu(connection, width, height, format, parent, rect, edge)};
     }
 
+    static auto for_tip(MirConnection* connection,
+                         int width,
+                         int height,
+                         MirPixelFormat format,
+                         MirSurface* parent,
+                         MirRectangle* rect,
+                         MirEdgeAttachment edge) -> SurfaceSpec
+    {
+        return SurfaceSpec{mir_connection_create_spec_for_tip(connection, width, height, format, parent, rect, edge)};
+    }
+
     static auto for_changes(MirConnection* connection) -> SurfaceSpec
     {
         return SurfaceSpec{mir_connection_create_spec_for_changes(connection)};
