@@ -54,12 +54,12 @@ public:
     }
 
     static auto for_tip(MirConnection* connection,
-                         int width,
-                         int height,
-                         MirPixelFormat format,
-                         MirSurface* parent,
-                         MirRectangle* rect,
-                         MirEdgeAttachment edge) -> SurfaceSpec
+                        int width,
+                        int height,
+                        MirPixelFormat format,
+                        MirSurface* parent,
+                        MirRectangle* rect,
+                        MirEdgeAttachment edge) -> SurfaceSpec
     {
         return SurfaceSpec{mir_connection_create_spec_for_tip(connection, width, height, format, parent, rect, edge)};
     }
@@ -73,10 +73,10 @@ public:
     }
 
     static auto for_dialog(MirConnection* connection,
-                        int width,
-                        int height,
-                        MirPixelFormat format,
-                        MirSurface* parent) -> SurfaceSpec
+                           int width,
+                           int height,
+                           MirPixelFormat format,
+                           MirSurface* parent) -> SurfaceSpec
     {
         return for_dialog(connection, width, height, format).set_parent(parent);
     }
