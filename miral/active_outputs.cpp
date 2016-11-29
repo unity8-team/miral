@@ -107,7 +107,8 @@ void miral::ActiveOutputsMonitor::operator()(mir::Server& server)
 #if MIR_SERVER_VERSION < MIR_VERSION_NUMBER(0, 26, 0)
     server.override_the_display_configuration_report([this]{ return self; });
 #else
-    server.the_display_configuration_observer_registrar()->register_interest(self);
+    server.add_pre_init_callback([this, &server]
+        { server.the_display_configuration_observer_registrar()->register_interest(self); });
 #endif
 }
 
