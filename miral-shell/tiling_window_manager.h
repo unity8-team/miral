@@ -29,6 +29,10 @@
 #include <mir/geometry/displacement.h>
 #include <miral/internal_client.h>
 
+
+#include <functional>
+#include <vector>
+
 using namespace mir::geometry;
 
 // Demonstrate implementing a simple tiling algorithm
@@ -106,6 +110,25 @@ private:
     miral::ActiveOutputsMonitor& outputs_monitor;
     Rectangles displays;
     bool dirty_tiles = false;
+
+    class MRUTileList
+    {
+    public:
+
+        void push(std::shared_ptr<void> const& tile);
+        void erase(std::shared_ptr<void> const& tile);
+        auto top() const -> std::shared_ptr<void> const&;
+
+        using Enumerator = std::function<void(std::shared_ptr<void> const& tile)>;
+
+        void enumerate(Enumerator const& enumerator) const;
+        auto count() -> size_t { return tiles.size(); }
+
+    private:
+        std::vector<std::shared_ptr<void>> tiles;
+    };
+
+    MRUTileList tiles;
 
     // These two variables are used by the advise_display methods which are
     // NOT guarded by the usual WM mutex

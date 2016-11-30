@@ -46,11 +46,11 @@ To run independently of X11 you need to grant access to the graphics hardware
 
     $ sudo bin/miral-shell --vt 4 --arw-file --file $XDG_RUNTIME_DIR/mir_socket
     
-For convenient testing there's a "testrun" script that wraps this command to
-start the server (as root) and then launches the gnome-terminal (as the current
-user):
+For convenient testing there's a "miral-desktop" script that wraps this command
+to start the server (as root) and then launches the gnome-terminal (as the 
+current user):
  
-    $ ../scripts/testrun
+    $ bin/miral-desktop -bindir bin 
 
 Support for X11 applications
 ----------------------------

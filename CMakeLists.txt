@@ -37,7 +37,7 @@ pkg_check_modules(MIRCLIENT mirclient>=0.20 REQUIRED)
 include_directories(include SYSTEM ${MIRCLIENT_INCLUDE_DIRS})
 
 set(MIRAL_VERSION_MAJOR 0)
-set(MIRAL_VERSION_MINOR 4)
+set(MIRAL_VERSION_MINOR 5)
 set(MIRAL_VERSION_PATCH 0)
 
 set(MIRAL_VERSION ${MIRAL_VERSION_MAJOR}.${MIRAL_VERSION_MINOR}.${MIRAL_VERSION_PATCH})
@@ -63,11 +63,6 @@ if (MIRAL_ENABLE_TESTS)
     find_package(GMock REQUIRED)
     add_subdirectory(test)
 endif()
-endif()
-
-option(MIRAL_ENABLE_QT "Build Qt integration" OFF)
-if (MIRAL_ENABLE_QT)
-    add_subdirectory(miral-qt)
 endif()
 
 include (cmake/Doxygen.cmake)

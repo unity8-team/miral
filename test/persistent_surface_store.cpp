@@ -34,15 +34,13 @@ using namespace testing;
 
 struct PersistentSurfaceId : public miral::TestServer
 {
-    auto get_first_window() -> miral::Window
+    auto get_first_window(miral::WindowManagerTools& tools) -> miral::Window
     {
         auto app = tools.find_application([&](miral::ApplicationInfo const& /*info*/){return true;});
         auto app_info = tools.info_for(app);
         return app_info.windows().at(0);
     }
 };
-
-#include <mir/scene/surface.h>
 
 #if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 24, 0)
 TEST_F(PersistentSurfaceId, server_can_identify_window_specified_by_client)
@@ -58,7 +56,7 @@ TEST_F(PersistentSurfaceId, server_can_identify_window_specified_by_client)
 
     miral::toolkit::PersistentId client_surface_id{surface};
 
-    tools.invoke_under_lock([&]
+    invoke_tools([&](miral::WindowManagerTools& tools)
         {
             auto const& window_info = tools.info_for_window_id(client_surface_id.c_str());
 
@@ -80,9 +78,9 @@ TEST_F(PersistentSurfaceId, server_returns_correct_id_for_window)
 
     miral::toolkit::PersistentId client_surface_id{surface};
 
-    tools.invoke_under_lock([&]
+    invoke_tools([&](miral::WindowManagerTools& tools)
         {
-            auto window = get_first_window();
+            auto window = get_first_window(tools);
             auto id = tools.id_for_window(window);
 
             ASSERT_THAT(client_surface_id.c_str(), Eq(id));
@@ -102,7 +100,7 @@ TEST_F(PersistentSurfaceId, server_fails_gracefully_to_identify_window_specified
 
     miral::toolkit::PersistentId client_surface_id{surface};
 
-    tools.invoke_under_lock([&]
+    invoke_tools([&](miral::WindowManagerTools& tools)
         {
             EXPECT_THROW(tools.info_for_window_id(client_surface_id.c_str()), std::runtime_error);
         });
@@ -121,9 +119,9 @@ TEST_F(PersistentSurfaceId, server_fails_gracefully_to_return_id_for_window)
 
     miral::toolkit::PersistentId client_surface_id{surface};
 
-    tools.invoke_under_lock([&]
+    invoke_tools([](miral::WindowManagerTools& tools)
         {
-            auto window = get_first_window();
+            auto window = get_first_window(tools);
             EXPECT_THROW(tools.id_for_window(window), std::runtime_error);
         });
 }
@@ -142,7 +140,7 @@ TEST_F(PersistentSurfaceId, server_fails_gracefully_to_identify_window_from_garb
 
     miral::toolkit::PersistentId client_surface_id{surface};
 
-    tools.invoke_under_lock([&]
+    invoke_tools([](miral::WindowManagerTools& tools)
         {
             EXPECT_THROW(tools.info_for_window_id("garbage"), std::exception);
         });
@@ -150,7 +148,7 @@ TEST_F(PersistentSurfaceId, server_fails_gracefully_to_identify_window_from_garb
 
 TEST_F(PersistentSurfaceId, server_fails_gracefully_when_id_for_null_window_requested)
 {
-    tools.invoke_under_lock([&]
+    invoke_tools([](miral::WindowManagerTools& tools)
         {
             miral::Window window;
             EXPECT_THROW(tools.id_for_window(window), std::runtime_error);

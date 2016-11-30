@@ -20,16 +20,16 @@
 
 #include <miral/runner.h>
 #include <miral/application_authorizer.h>
+#include <miral/command_line_option.h>
+#include <miral/keymap.h>
 #include <miral/set_window_managment_policy.h>
 #include <miral/internal_client.h>
 
 #include <unistd.h>
-#include <cstdlib>
+#include <atomic>
 
 namespace
 {
-bool const startup_only = getenv("MIRAL_KIOSK_STARTUP_ONLY");
-
 struct KioskAuthorizer : miral::ApplicationAuthorizer
 {
     KioskAuthorizer(SwSplash const& splash) : splash{splash}{}
@@ -61,8 +61,12 @@ struct KioskAuthorizer : miral::ApplicationAuthorizer
         return false;
     }
 
+    static std::atomic<bool> startup_only;
+
     SwSplash splash;
 };
+
+std::atomic<bool> KioskAuthorizer::startup_only{false};
 }
 
 int main(int argc, char const* argv[])
@@ -71,10 +75,25 @@ int main(int argc, char const* argv[])
 
     SwSplash splash;
 
+    CommandLineOption maximise_roots{
+        [&](bool maximize_root_windows) {KioskWindowManagerPolicy::maximize_root_windows = maximize_root_windows; },
+        "kiosk-maximize-root-windows",
+        "Force root windows to maximized",
+        KioskWindowManagerPolicy::maximize_root_windows};
+
+    CommandLineOption startup_only{
+        [&](bool startup_only) {KioskAuthorizer::startup_only = startup_only; },
+        "kiosk-startup-apps-only",
+        "Only allow applications to connect during startup",
+        KioskAuthorizer::startup_only};
+
     return MirRunner{argc, argv}.run_with(
         {
             set_window_managment_policy<KioskWindowManagerPolicy>(splash),
             SetApplicationAuthorizer<KioskAuthorizer>{splash},
+            Keymap{},
+            maximise_roots,
+            startup_only,
             StartupInternalClient{"Intro", splash}
         });
 }
