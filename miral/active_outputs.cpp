@@ -115,9 +115,16 @@ void miral::ActiveOutputsMonitor::operator()(mir::Server& server)
 void miral::ActiveOutputsMonitor::for_each_output(
     std::function<void(std::vector<Output> const& outputs)> const& functor) const
 {
+    process_outputs(functor);
+}
+
+void miral::ActiveOutputsMonitor::process_outputs(
+    std::function<void(std::vector<Output> const& outputs)> const& functor) const
+{
     std::lock_guard<decltype(self->mutex)> lock{self->mutex};
     functor(self->outputs);
 }
+
 
 #if MIR_SERVER_VERSION < MIR_VERSION_NUMBER(0, 26, 0)
 void miral::ActiveOutputsMonitor::Self::initial_configuration(mir::graphics::DisplayConfiguration const& configuration)

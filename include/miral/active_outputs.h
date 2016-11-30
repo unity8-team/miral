@@ -62,7 +62,9 @@ public:
 
     void operator()(mir::Server& server);
 
-    void for_each_output(std::function<void(std::vector<Output> const& outputs)> const& functor) const;
+    ///\deprecated use the better name: process_outputs()
+    void for_each_output(std::function<void(std::vector<Output> const& outputs)> const& functor) const __attribute__ ((deprecated));
+    void process_outputs(std::function<void(std::vector<Output> const& outputs)> const& functor) const;
 
 private:
     struct Self;
