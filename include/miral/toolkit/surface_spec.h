@@ -53,6 +53,7 @@ public:
         return SurfaceSpec{mir_connection_create_spec_for_menu(connection, width, height, format, parent, rect, edge)};
     }
 
+#if MIR_CLIENT_VERSION >= MIR_VERSION_NUMBER(3, 4, 0)
     static auto for_tip(MirConnection* connection,
                         int width,
                         int height,
@@ -63,6 +64,7 @@ public:
     {
         return SurfaceSpec{mir_connection_create_spec_for_tip(connection, width, height, format, parent, rect, edge)};
     }
+#endif
 
     static auto for_dialog(MirConnection* connection,
                            int width,
