@@ -135,6 +135,8 @@ struct ActiveWindow : public TestServer
             });
     }
 };
+
+auto const another_name = "second";
 }
 
 TEST_F(ActiveWindow, a_single_window_when_ready_becomes_active)
@@ -189,7 +191,7 @@ TEST_F(ActiveWindow, a_second_window_hiding_makes_first_active)
     auto const connection = connect_client(test_name);
 
     auto const first_surface = create_surface(connection, test_name, sync1);
-    auto const surface = create_surface(connection, "second", sync2);
+    auto const surface = create_surface(connection, another_name, sync2);
 
     sync2.exec([&]{ mir_surface_set_state(surface, mir_surface_state_hidden); });
 
@@ -203,7 +205,7 @@ TEST_F(ActiveWindow, a_second_window_unhiding_leaves_first_active)
     auto const connection = connect_client(test_name);
 
     auto const first_surface = create_surface(connection, test_name, sync1);
-    auto const surface = create_surface(connection, "second", sync2);
+    auto const surface = create_surface(connection, another_name, sync2);
 
     sync1.exec([&]{ mir_surface_set_state(surface, mir_surface_state_hidden); });
 
@@ -220,7 +222,7 @@ TEST_F(ActiveWindow, switching_from_a_second_window_makes_first_active)
     auto const connection = connect_client(test_name);
 
     auto const first_surface = create_surface(connection, test_name, sync1);
-    auto const surface = create_surface(connection, "second", sync2);
+    auto const surface = create_surface(connection, another_name, sync2);
 
     sync1.exec([&]{ invoke_tools([](WindowManagerTools& tools){ tools.focus_next_within_application(); }); });
 
@@ -232,10 +234,10 @@ TEST_F(ActiveWindow, switching_from_a_second_application_makes_first_active)
 {
     char const* const test_name = __PRETTY_FUNCTION__;
     auto const connection = connect_client(test_name);
-    auto const second_connection = connect_client("second");
+    auto const second_connection = connect_client(another_name);
 
     auto const first_surface = create_surface(connection, test_name, sync1);
-    auto const surface = create_surface(second_connection, "second", sync2);
+    auto const surface = create_surface(second_connection, another_name, sync2);
 
     sync1.exec([&]{ invoke_tools([](WindowManagerTools& tools){ tools.focus_next_application(); }); });
 
@@ -247,12 +249,15 @@ TEST_F(ActiveWindow, closing_a_second_application_makes_first_active)
 {
     char const* const test_name = __PRETTY_FUNCTION__;
     auto const connection = connect_client(test_name);
-    auto second_connection = connect_client("second");
 
     auto const first_surface = create_surface(connection, test_name, sync1);
-    auto surface = create_surface(second_connection, "second", sync2);
 
-    sync1.exec([&]{ surface.reset(); second_connection.reset(); });
+    sync1.exec([&]
+        {
+            auto const second_connection = connect_client(another_name);
+            auto const surface = create_surface(second_connection, another_name, sync2);
+            assert_active_window_is(another_name);
+        });
 
     EXPECT_TRUE(sync1.signal_raised());
     assert_active_window_is(test_name);
@@ -270,8 +275,8 @@ TEST_F(ActiveWindow, selecting_a_tip_makes_parent_active)
     invoke_tools([&](WindowManagerTools& tools){ parent_window = tools.active_window(); });
 
     // Steal the focus
-    auto second_connection = connect_client("second");
-    auto second_surface = create_surface(second_connection, "second", sync2);
+    auto second_connection = connect_client(another_name);
+    auto second_surface = create_surface(second_connection, another_name, sync2);
 
     auto const tip = create_tip(connection, "tip", parent, sync2);
 
@@ -289,6 +294,7 @@ TEST_F(ActiveWindow, selecting_a_tip_makes_parent_active)
 TEST_F(ActiveWindow, selecting_a_parent_makes_dialog_active)
 {
     char const* const test_name = __PRETTY_FUNCTION__;
+    auto const dialog_name = "dialog";
     auto const connection = connect_client(test_name);
 
     auto const parent = create_surface(connection, test_name, sync1);
@@ -296,14 +302,14 @@ TEST_F(ActiveWindow, selecting_a_parent_makes_dialog_active)
     Window parent_window;
     invoke_tools([&](WindowManagerTools& tools){ parent_window = tools.active_window(); });
 
-    auto const dialog = create_dialog(connection, "dialog", parent, sync2);
+    auto const dialog = create_dialog(connection, dialog_name, parent, sync2);
 
     // Steal the focus
-    auto second_connection = connect_client("second");
-    auto second_surface = create_surface(second_connection, "second", sync1);
+    auto second_connection = connect_client(another_name);
+    auto second_surface = create_surface(second_connection, another_name, sync1);
 
     sync2.exec([&]{ invoke_tools([&](WindowManagerTools& tools){ tools.select_active_window(parent_window); }); });
 
     EXPECT_TRUE(sync2.signal_raised());
-    assert_active_window_is("dialog");
+    assert_active_window_is(dialog_name);
 }
