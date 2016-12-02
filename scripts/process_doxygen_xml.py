@@ -415,10 +415,23 @@ global:
 
 MIRAL_0.5 {
 global:
+  extern "C++" {
+    miral::ActiveOutputsMonitor::process_outputs*;
+    miral::DebugExtension::DebugExtension*;
+    miral::DebugExtension::disable*;
+    miral::DebugExtension::enable*;
+    miral::DebugExtension::operator*;
+    typeinfo?for?miral::DebugExtension;
+    vtable?for?miral::DebugExtension;
+  };
+} MIRAL_0.4;
+
+MIRAL_0.6 {
+global:
   extern "C++" {'''
 
 END_NEW_STANZA = '''  };
-} MIRAL_0.4;'''
+} MIRAL_0.5;'''
 
 def _print_report():
     print OLD_STANZAS
