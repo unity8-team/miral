@@ -1,4 +1,10 @@
-miral (0.5.0) UNRELEASED; urgency=medium
+miral (0.6.0) UNRELEASED; urgency=medium
+
+  * 
+
+ -- Alan Griffiths <alan.griffiths@canonical.com>  Fri, 02 Dec 2016 13:40:35 +0000
+
+miral (0.5.0+17.04.20161130-0ubuntu1) zesty; urgency=medium
 
   * New upstream release 0.5.0 (https://launchpad.net/miral/+milestone/0.5)
     - ABI summary:
@@ -24,7 +30,7 @@ miral (0.5.0) UNRELEASED; urgency=medium
       . Display configuration changes may cause "fatal errors" when there are
         fullscreen windows (LP: #1640557)
 
- -- Alan Griffiths <alan.griffiths@canonical.com>  Mon, 14 Nov 2016 10:44:50 +0000
+ -- Alan Griffiths <alan.griffiths@canonical.com>  Wed, 30 Nov 2016 08:40:24 +0000
 
 miral (0.4.0+17.04.20161104-0ubuntu1) zesty; urgency=medium
 
