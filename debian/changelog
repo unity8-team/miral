@@ -1,3 +1,9 @@
+miral (0.5.0+17.04.20161203-0ubuntu1) zesty; urgency=medium
+
+  * no change rebuild
+
+ -- Brandon Schaefer <brandon.schaefer@canonical.com>  Sat, 03 Dec 2016 12:38:23 +0000
+
 miral (0.5.0+17.04.20161130-0ubuntu1) zesty; urgency=medium
 
   * New upstream release 0.5.0 (https://launchpad.net/miral/+milestone/0.5)
