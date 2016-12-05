@@ -73,6 +73,8 @@ public:
     void advise_new_app(miral::ApplicationInfo& application) override;
     void advise_delete_app(miral::ApplicationInfo const& application) override;
 
+    auto confirm_inherited_move(miral::WindowInfo const& window_info, Displacement movement) -> Rectangle override;
+
 private:
     void advise_output_create(miral::Output const& output) override;
     void advise_output_update(miral::Output const& updated, miral::Output const& original) override;
