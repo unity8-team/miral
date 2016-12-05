@@ -59,3 +59,9 @@ void miral::CanonicalWindowManagerPolicy::advise_focus_gained(WindowInfo const& 
 {
     tools.raise_tree(info.window());
 }
+
+auto miral::CanonicalWindowManagerPolicy::confirm_inherited_move(WindowInfo const& window_info, Displacement movement)
+-> Rectangle
+{
+    return {window_info.window().top_left()+movement, window_info.window().size()};
+}

@@ -19,6 +19,7 @@
 #ifndef MIRAL_WINDOW_MANAGEMENT_POLICY_H
 #define MIRAL_WINDOW_MANAGEMENT_POLICY_H
 
+#include <mir/geometry/displacement.h>
 #include <mir/geometry/rectangles.h>
 #include <mir_toolkit/event.h>
 
@@ -171,6 +172,15 @@ public:
      */
     virtual void advise_raise(std::vector<Window> const& windows);
 /** @} */
+
+    /** Confirm (and optionally adjust) the motion of a child window when the parent is moved.
+     *
+     * @param window_info   the window
+     * @param movement      the movement of the parent
+     *
+     * @return the confirmed placement of the window
+     */
+    virtual auto confirm_inherited_move(WindowInfo const& window_info, Displacement movement) -> Rectangle = 0;
 
     virtual ~WindowManagementPolicy() = default;
     WindowManagementPolicy() = default;

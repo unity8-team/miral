@@ -49,6 +49,9 @@ public:
     /// Raises the window (and any children)
     void advise_focus_gained(WindowInfo const& info) override;
 
+    /// Move the child window with the parent
+    auto confirm_inherited_move(WindowInfo const& window_info, Displacement movement) -> Rectangle override;
+
 protected:
     WindowManagerTools tools;
 };

@@ -615,6 +615,19 @@ void TilingWindowManagerPolicy::advise_delete_app(miral::ApplicationInfo const& 
     tiles.erase(application.userdata());
     dirty_tiles = true;
 }
+
+auto TilingWindowManagerPolicy::confirm_inherited_move(miral::WindowInfo const& window_info, Displacement movement)
+-> Rectangle
+{
+    auto const& window = window_info.window();
+    WindowSpecification mods;
+    mods.top_left() = window.top_left() + movement;
+    constrain_size_and_place(mods, window, tile_for(window_info));
+    auto pos  = mods.top_left().is_set() ? mods.top_left().value() : window.top_left();
+    auto size = mods.size().is_set()     ? mods.size().value()     : window.size();
+    return {pos, size};
+}
+
 void TilingWindowManagerPolicy::advise_end()
 {
     if (dirty_tiles)

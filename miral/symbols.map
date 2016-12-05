@@ -342,3 +342,11 @@ global:
     vtable?for?miral::DebugExtension;
   };
 } MIRAL_0.4;
+
+MIRAL_0.6 {
+global:
+  extern "C++" {
+    miral::CanonicalWindowManagerPolicy::confirm_inherited_move*;
+    non-virtual?thunk?to?miral::CanonicalWindowManagerPolicy::confirm_inherited_move*;
+  };
+} MIRAL_0.5;
