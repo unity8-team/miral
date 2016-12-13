@@ -555,11 +555,6 @@ void miral::WindowInfo::confine_pointer(MirPointerConfinementState confinement)
     self->confine_pointer = confinement;
 }
 
-bool miral::WindowInfo::has_name() const
-{
-    return true;
-}
-
 auto miral::WindowInfo::name() const -> std::string
 {
     return self->name;

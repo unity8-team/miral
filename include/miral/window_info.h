@@ -55,8 +55,6 @@ struct WindowInfo
 
     auto window() const -> Window&;
 
-    /// \deprecated all windows have names (even if it is an empty string)
-    bool has_name() const __attribute__((deprecated));
     auto name() const -> std::string;
     void name(std::string const& name);
 
