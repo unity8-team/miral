@@ -8,7 +8,7 @@ miral (1.0.0) UNRELEASED; urgency=medium
       . Remove deprecated APIs
       . add miral-app script to launch examples hosted by an existing desktop
     - Bugs fixed:
-      .  Examples fail to start under Unity8 (LP: #1646431)
+      . Examples fail to start under Unity8 (LP: #1646431)
       . [miral-shell --window-manager tiling] windows are not correctly
         constrained to tiles (LP:  #1646735)
 
