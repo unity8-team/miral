@@ -33,11 +33,11 @@ install(PROGRAMS ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/miral-desktop
     DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
 )
 
-add_custom_target(miral-hosted ALL
-    cp ${CMAKE_CURRENT_SOURCE_DIR}/miral-hosted.sh ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/miral-hosted
+add_custom_target(miral-app ALL
+    cp ${CMAKE_CURRENT_SOURCE_DIR}/miral-app.sh ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/miral-app
 )
 
-install(PROGRAMS ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/miral-hosted
+install(PROGRAMS ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/miral-app
     DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
 )
 
