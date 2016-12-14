@@ -33,6 +33,14 @@ install(PROGRAMS ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/miral-desktop
     DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
 )
 
+add_custom_target(miral-hosted ALL
+    cp ${CMAKE_CURRENT_SOURCE_DIR}/miral-hosted.sh ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/miral-hosted
+)
+
+install(PROGRAMS ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/miral-hosted
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
+)
+
 add_executable(miral-shell
     shell_main.cpp
     tiling_window_manager.cpp   tiling_window_manager.h
