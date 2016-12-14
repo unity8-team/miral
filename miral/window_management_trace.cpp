@@ -552,6 +552,16 @@ bool miral::WindowManagementTrace::handle_pointer_event(MirPointerEvent const* e
     return policy->handle_pointer_event(event);
 }
 
+auto miral::WindowManagementTrace::confirm_inherited_move(WindowInfo const& window_info, Displacement movement)
+-> Rectangle
+{
+    std::stringstream out;
+    out << movement;
+    mir::log_info("%s window_info=%s, movement=%s", __func__, dump_of(window_info).c_str(), out.str().c_str());
+
+    return policy->confirm_inherited_move(window_info, movement);
+}
+
 void miral::WindowManagementTrace::advise_begin()
 {
     log_input = []{};

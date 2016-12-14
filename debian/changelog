@@ -1,3 +1,19 @@
+miral (1.0.0) UNRELEASED; urgency=medium
+
+  * New upstream release 1.0.0 (https://launchpad.net/miral/+milestone/1.0)
+    - ABI summary:
+      . miral ABI bumped to 2
+    - Enhancements:
+      . Allow the WM policy a say in inherited moves of child windows
+      . Remove deprecated APIs
+      . add miral-app script to launch examples hosted by an existing desktop
+    - Bugs fixed:
+      . Examples fail to start under Unity8 (LP: #1646431)
+      . [miral-shell --window-manager tiling] windows are not correctly
+        constrained to tiles (LP:  #1646735)
+
+ -- Alan Griffiths <alan.griffiths@canonical.com>  Fri, 02 Dec 2016 13:40:35 +0000
+
 miral (0.5.0+17.04.20161130-0ubuntu1) zesty; urgency=medium
 
   * New upstream release 0.5.0 (https://launchpad.net/miral/+milestone/0.5)

@@ -86,6 +86,8 @@ private:
 
     virtual bool handle_pointer_event(MirPointerEvent const* event) override;
 
+    auto confirm_inherited_move(WindowInfo const& window_info, Displacement movement) -> Rectangle override;
+
 public:
     virtual void advise_begin() override;
 

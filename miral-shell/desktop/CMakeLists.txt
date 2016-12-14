@@ -1,5 +1,5 @@
 set(ICON_NAME ubuntu-logo)
-set(PROGRAM_NAME miral-shell)
+set(PROGRAM_NAME miral-app)
 
 configure_file(miral-shell.desktop.in ${CMAKE_CURRENT_BINARY_DIR}/miral-shell.desktop @ONLY)
 
