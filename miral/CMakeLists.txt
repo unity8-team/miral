@@ -9,7 +9,7 @@ if(${CMAKE_COMPILER_IS_GNUCXX})
     set(CMAKE_RANLIB "gcc-ranlib")
 endif()
 
-set(MIRAL_ABI 1)
+set(MIRAL_ABI 2)
 set(symbol_map ${CMAKE_CURRENT_SOURCE_DIR}/symbols.map)
 
 include_directories(include SYSTEM ${MIRSERVER_INCLUDE_DIRS})
@@ -75,8 +75,8 @@ set_target_properties(miral
 
 
 add_custom_target(check-symbols ALL
-        DEPENDS miral ${PROJECT_SOURCE_DIR}/debian/libmiral1.symbols
-        COMMAND dpkg-gensymbols -e${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libmiral.so.1 -plibmiral1 | scripts/filter_symbols_diff.sh
+        DEPENDS miral ${PROJECT_SOURCE_DIR}/debian/libmiral${MIRAL_ABI}.symbols
+        COMMAND dpkg-gensymbols -e${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libmiral.so.${MIRAL_ABI} -plibmiral${MIRAL_ABI} | scripts/filter_symbols_diff.sh
         WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
         VERBATIM
 )

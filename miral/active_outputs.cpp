@@ -112,12 +112,6 @@ void miral::ActiveOutputsMonitor::operator()(mir::Server& server)
 #endif
 }
 
-void miral::ActiveOutputsMonitor::for_each_output(
-    std::function<void(std::vector<Output> const& outputs)> const& functor) const
-{
-    process_outputs(functor);
-}
-
 void miral::ActiveOutputsMonitor::process_outputs(
     std::function<void(std::vector<Output> const& outputs)> const& functor) const
 {

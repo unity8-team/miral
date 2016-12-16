@@ -1,8 +1,5 @@
-MIRAL_0.1 {
+MIRAL_1.0 {
 global:
-    # We need to specify the overload of miral::WindowManagerTools::modify_window
-    _ZN5miral18WindowManagerTools13modify_windowERNS_10WindowInfoERKNS_19WindowSpecificationE;
-
   extern "C++" {
     miral::ActiveOutputsListener::?ActiveOutputsListener*;
     miral::ActiveOutputsListener::ActiveOutputsListener*;
@@ -16,8 +13,8 @@ global:
     miral::ActiveOutputsMonitor::ActiveOutputsMonitor*;
     miral::ActiveOutputsMonitor::add_listener*;
     miral::ActiveOutputsMonitor::delete_listener*;
-    miral::ActiveOutputsMonitor::for_each_output*;
     miral::ActiveOutputsMonitor::operator*;
+    miral::ActiveOutputsMonitor::process_outputs*;
     miral::AddInitCallback::?AddInitCallback*;
     miral::AddInitCallback::AddInitCallback*;
     miral::AddInitCallback::operator*;
@@ -34,6 +31,7 @@ global:
     miral::ApplicationInfo::ApplicationInfo*;
     miral::ApplicationInfo::add_window*;
     miral::ApplicationInfo::application*;
+    miral::ApplicationInfo::name*;
     miral::ApplicationInfo::operator*;
     miral::ApplicationInfo::remove_window*;
     miral::ApplicationInfo::userdata*;
@@ -44,14 +42,29 @@ global:
     miral::BasicSetApplicationAuthorizer::the_application_authorizer*;
     miral::CanonicalWindowManagerPolicy::CanonicalWindowManagerPolicy*;
     miral::CanonicalWindowManagerPolicy::advise_focus_gained*;
+    miral::CanonicalWindowManagerPolicy::confirm_inherited_move*;
     miral::CanonicalWindowManagerPolicy::handle_modify_window*;
     miral::CanonicalWindowManagerPolicy::handle_raise_window*;
     miral::CanonicalWindowManagerPolicy::handle_window_ready*;
     miral::CanonicalWindowManagerPolicy::place_new_surface*;
+    miral::CommandLineOption::?CommandLineOption*;
+    miral::CommandLineOption::CommandLineOption*;
+    miral::CommandLineOption::operator*;
+    miral::CursorTheme::?CursorTheme*;
+    miral::CursorTheme::CursorTheme*;
+    miral::CursorTheme::operator*;
+    miral::DebugExtension::DebugExtension*;
+    miral::DebugExtension::disable*;
+    miral::DebugExtension::enable*;
+    miral::DebugExtension::operator*;
     miral::InternalClientLauncher::?InternalClientLauncher*;
     miral::InternalClientLauncher::InternalClientLauncher*;
     miral::InternalClientLauncher::launch*;
     miral::InternalClientLauncher::operator*;
+    miral::Keymap::?Keymap*;
+    miral::Keymap::Keymap*;
+    miral::Keymap::operator*;
+    miral::Keymap::set_keymap*;
     miral::MirRunner::?MirRunner*;
     miral::MirRunner::MirRunner*;
     miral::MirRunner::add_start_callback*;
@@ -101,8 +114,8 @@ global:
     miral::WindowInfo::can_be_active*;
     miral::WindowInfo::can_morph_to*;
     miral::WindowInfo::children*;
+    miral::WindowInfo::confine_pointer*;
     miral::WindowInfo::constrain_resize*;
-    miral::WindowInfo::has_name*;
     miral::WindowInfo::has_output_id*;
     miral::WindowInfo::height_inc*;
     miral::WindowInfo::is_visible*;
@@ -155,12 +168,14 @@ global:
     miral::WindowManagerTools::focus_next_application*;
     miral::WindowManagerTools::focus_next_within_application*;
     miral::WindowManagerTools::for_each_application*;
+    miral::WindowManagerTools::force_close*;
     miral::WindowManagerTools::id_for_window*;
     miral::WindowManagerTools::info_for*;
     miral::WindowManagerTools::info_for_window_id*;
     miral::WindowManagerTools::invoke_under_lock*;
-#    miral::WindowManagerTools::modify_window*;
+    miral::WindowManagerTools::modify_window*;
     miral::WindowManagerTools::operator*;
+    miral::WindowManagerTools::place_and_size_for_state*;
     miral::WindowManagerTools::raise_tree*;
     miral::WindowManagerTools::select_active_window*;
     miral::WindowManagerTools::window_at*;
@@ -169,6 +184,7 @@ global:
     miral::WindowSpecification::aux_rect*;
     miral::WindowSpecification::aux_rect_placement_gravity*;
     miral::WindowSpecification::aux_rect_placement_offset*;
+    miral::WindowSpecification::confine_pointer*;
     miral::WindowSpecification::height_inc*;
     miral::WindowSpecification::input_mode*;
     miral::WindowSpecification::input_shape*;
@@ -190,12 +206,16 @@ global:
     miral::WindowSpecification::top_left*;
     miral::WindowSpecification::type*;
     miral::WindowSpecification::update*;
+    miral::WindowSpecification::userdata*;
     miral::WindowSpecification::width_inc*;
     miral::WindowSpecification::window_placement_gravity*;
+    miral::apply_lifecycle_state_to*;
     miral::display_configuration_options*;
     miral::equivalent_display_area*;
     miral::kill*;
+    miral::name_of*;
     miral::operator*;
+    miral::pid_of*;
     miral::toolkit::Connection::Connection*;
     miral::toolkit::Surface::Surface*;
     non-virtual?thunk?to?miral::ActiveOutputsListener::?ActiveOutputsListener*;
@@ -206,6 +226,7 @@ global:
     non-virtual?thunk?to?miral::ActiveOutputsListener::advise_output_update*;
     non-virtual?thunk?to?miral::ApplicationAuthorizer::?ApplicationAuthorizer*;
     non-virtual?thunk?to?miral::CanonicalWindowManagerPolicy::advise_focus_gained*;
+    non-virtual?thunk?to?miral::CanonicalWindowManagerPolicy::confirm_inherited_move*;
     non-virtual?thunk?to?miral::CanonicalWindowManagerPolicy::handle_modify_window*;
     non-virtual?thunk?to?miral::CanonicalWindowManagerPolicy::handle_raise_window*;
     non-virtual?thunk?to?miral::CanonicalWindowManagerPolicy::handle_window_ready*;
@@ -232,7 +253,11 @@ global:
     typeinfo?for?miral::ApplicationInfo;
     typeinfo?for?miral::BasicSetApplicationAuthorizer;
     typeinfo?for?miral::CanonicalWindowManagerPolicy;
+    typeinfo?for?miral::CommandLineOption;
+    typeinfo?for?miral::CursorTheme;
+    typeinfo?for?miral::DebugExtension;
     typeinfo?for?miral::InternalClientLauncher;
+    typeinfo?for?miral::Keymap;
     typeinfo?for?miral::MirRunner;
     typeinfo?for?miral::Output;
     typeinfo?for?miral::Output::PhysicalSizeMM;
@@ -261,7 +286,11 @@ global:
     vtable?for?miral::ApplicationInfo;
     vtable?for?miral::BasicSetApplicationAuthorizer;
     vtable?for?miral::CanonicalWindowManagerPolicy;
+    vtable?for?miral::CommandLineOption;
+    vtable?for?miral::CursorTheme;
+    vtable?for?miral::DebugExtension;
     vtable?for?miral::InternalClientLauncher;
+    vtable?for?miral::Keymap;
     vtable?for?miral::MirRunner;
     vtable?for?miral::Output;
     vtable?for?miral::Output::PhysicalSizeMM;
@@ -284,61 +313,3 @@ global:
   };
 local: *;
 };
-
-MIRAL_0.2 {
-global:
-  extern "C++" {
-    miral::CursorTheme::?CursorTheme*;
-    miral::CursorTheme::CursorTheme*;
-    miral::CursorTheme::operator*;
-    miral::WindowInfo::confine_pointer*;
-    miral::WindowManagerTools::place_and_size_for_state*;
-    miral::WindowSpecification::confine_pointer*;
-    typeinfo?for?miral::CursorTheme;
-    vtable?for?miral::CursorTheme;
-  };
-} MIRAL_0.1;
-
-MIRAL_0.3 {
-global:
-   # We need to specify the overload of miral::WindowManagerTools::modify_window
-  _ZN5miral18WindowManagerTools13modify_windowERKNS_6WindowERKNS_19WindowSpecificationE;
-  extern "C++" {
-    miral::Keymap::?Keymap*;
-    miral::Keymap::Keymap*;
-    miral::Keymap::operator*;
-    miral::Keymap::set_keymap*;
-    miral::WindowSpecification::userdata*;
-    typeinfo?for?miral::Keymap;
-    vtable?for?miral::Keymap;
-  };
-} MIRAL_0.2;
-
-MIRAL_0.4 {
-global:
-  extern "C++" {
-    miral::ApplicationInfo::name*;
-    miral::CommandLineOption::?CommandLineOption*;
-    miral::CommandLineOption::CommandLineOption*;
-    miral::CommandLineOption::operator*;
-    miral::WindowManagerTools::force_close*;
-    miral::apply_lifecycle_state_to*;
-    miral::name_of*;
-    miral::pid_of*;
-    typeinfo?for?miral::CommandLineOption;
-    vtable?for?miral::CommandLineOption;
-  };
-} MIRAL_0.3;
-
-MIRAL_0.5 {
-global:
-  extern "C++" {
-    miral::ActiveOutputsMonitor::process_outputs*;
-    miral::DebugExtension::DebugExtension*;
-    miral::DebugExtension::disable*;
-    miral::DebugExtension::enable*;
-    miral::DebugExtension::operator*;
-    typeinfo?for?miral::DebugExtension;
-    vtable?for?miral::DebugExtension;
-  };
-} MIRAL_0.4;

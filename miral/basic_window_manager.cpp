@@ -528,7 +528,10 @@ void miral::BasicWindowManager::move_tree(miral::WindowInfo& root, mir::geometry
     root.window().move_to(top_left);
 
     for (auto const& child: root.children())
-        move_tree(info_for(child), movement);
+    {
+        auto const& pos = policy->confirm_inherited_move(info_for(child), movement);
+        place_and_size(info_for(child), pos.top_left, pos.size);
+    }
 }
 
 void miral::BasicWindowManager::modify_window(WindowInfo& window_info, WindowSpecification const& modifications)

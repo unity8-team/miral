@@ -98,6 +98,7 @@ void launch_startup_app(std::string socket_file, std::string app)
         }
         while (std::chrono::steady_clock::now() < time_limit);
 
+        setenv("MIR_SOCKET", socket_file.c_str(),  true);   // configure Mir socket
         setenv("GDK_BACKEND", "mir", true);                 // configure GTK to use Mir
         setenv("QT_QPA_PLATFORM", "ubuntumirclient", true); // configure Qt to use Mir
         unsetenv("QT_QPA_PLATFORMTHEME");                   // Discourage Qt from unsupported theme
