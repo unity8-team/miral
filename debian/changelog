@@ -1,5 +1,6 @@
-miral (1.0.0) UNRELEASED; urgency=medium
+miral (1.0.0+17.04.20161216-0ubuntu1) zesty; urgency=medium
 
+  [ Alan Griffiths ]
   * New upstream release 1.0.0 (https://launchpad.net/miral/+milestone/1.0)
     - ABI summary:
       . miral ABI bumped to 2
@@ -12,7 +13,13 @@ miral (1.0.0) UNRELEASED; urgency=medium
       . [miral-shell --window-manager tiling] windows are not correctly
         constrained to tiles (LP:  #1646735)
 
- -- Alan Griffiths <alan.griffiths@canonical.com>  Fri, 02 Dec 2016 13:40:35 +0000
+ -- Brandon Schaefer <brandon.schaefer@canonical.com>  Fri, 16 Dec 2016 00:36:20 +0000
+
+miral (0.5.0+17.04.20161203-0ubuntu1) zesty; urgency=medium
+
+  * no change rebuild
+
+ -- Brandon Schaefer <brandon.schaefer@canonical.com>  Sat, 03 Dec 2016 12:38:23 +0000
 
 miral (0.5.0+17.04.20161130-0ubuntu1) zesty; urgency=medium
 
