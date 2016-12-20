@@ -157,19 +157,20 @@ void miral::BasicWindowManager::remove_surface(
     std::weak_ptr<scene::Surface> const& surface)
 {
     Locker lock{mutex, policy};
-    auto& info = info_for(surface);
+    remove_window(session, info_for(surface));
+}
 
+void miral::BasicWindowManager::remove_window(Application const& application, miral::WindowInfo const& info)
+{
     policy->advise_delete_window(info);
 
     bool const is_active_window{mru_active_windows.top() == info.window()};
 
-    auto& session_info = info_for(session);
-
-    session_info.remove_window(info.window());
+    info_for(application).remove_window(info.window());
     mru_active_windows.erase(info.window());
     fullscreen_surfaces.erase(info.window());
 
-    session->destroy_surface(surface);
+    application->destroy_surface(info.window());
 
     // NB erase() invalidates info, but we want to keep access to "parent".
     auto const parent = info.parent();
@@ -181,14 +182,14 @@ void miral::BasicWindowManager::remove_surface(
         if (parent && select_active_window(parent))
             return;
 
-        if (can_activate_window_for_session(session))
+        if (can_activate_window_for_session(application))
             return;
 
         // Try to activate to recently active window of any application
         {
-            Window new_focus;
+            miral::Window new_focus;
 
-            mru_active_windows.enumerate([&](Window& window)
+            mru_active_windows.enumerate([&](miral::Window& window)
                 {
                     // select_active_window() calls set_focus_to() which updates mru_active_windows and changes window
                     auto const w = window;
@@ -399,7 +400,7 @@ void miral::BasicWindowManager::force_close(Window const& window)
     auto application = window.application();
 
     if (application && window)
-        remove_surface(application, window);
+        remove_window(application, info_for(window));
 }
 
 auto miral::BasicWindowManager::active_window() const -> Window
