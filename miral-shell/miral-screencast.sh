@@ -16,11 +16,13 @@ do
     echo "    --height  set the capture height  [${height}]"
     echo "    --output  set the output filename [${output}]"
     echo "    --socket  set the mir socket      [${socket}]"
+    echo "    --tmpfile specify the temporary work file"
     exit 0
   elif [ "$1" == "--socket" ]; then shift; socket=$1
   elif [ "$1" == "--output" ]; then shift; output=$1
   elif [ "$1" == "--width"  ]; then shift; width=$1
   elif [ "$1" == "--height" ]; then shift; height=$1
+  elif [ "$1" == "--tmpfile" ]; then shift; tempfile=$1
   fi
   shift
 done
@@ -36,7 +38,7 @@ if ! which mencoder >> /dev/null ;      then echo "Need mencoder - run \"sudo ap
 if [ -e ${output} ]; then echo "Output exists, moving to ${output}~"; mv ${output} ${output}~ ;fi
 while [ ! -e "${socket}" ]; do echo "waiting for ${socket}"; sleep 1 ;done
 
-tempfile=$(mktemp)
+if [ ! -v tempfile ]; then tempfile=$(mktemp); fi
 mirscreencast --size ${width} ${height} -m ${socket} -f ${tempfile}& mirscreencast_pid=$!
 trap 'kill ${mirscreencast_pid}; rm -f -- "${tempfile}"; exit 0' INT TERM HUP EXIT
 
