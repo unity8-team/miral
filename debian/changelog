@@ -1,3 +1,17 @@
+miral (1.0.1+17.04.20161220-0ubuntu1) zesty; urgency=medium
+
+  * New upstream release 1.0.1 (https://launchpad.net/miral/+milestone/1.0)
+    - ABI summary:
+      . miral ABI unchanged at 2
+    - Enhancements:
+      . None
+    - Bugs fixed:
+      . Workaround for a missing dependency in Mir packaging (LP: #1651391)
+      . Avoid double lock in WindowManagerTools::force_close() (LP:  #1646735)
+      . Fix typo in miral-app script
+
+ -- Alan Griffiths <alan.griffiths@canonical.com>  Tue, 20 Dec 2016 16:00:02 +0000
+
 miral (1.0.0+17.04.20161216-0ubuntu1) zesty; urgency=medium
 
   [ Alan Griffiths ]
