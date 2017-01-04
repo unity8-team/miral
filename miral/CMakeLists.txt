@@ -23,7 +23,7 @@ add_library(miral-internal STATIC
     xcursor.c                           xcursor.h
 )
 
-set_source_files_properties(xcursor.c PROPERTIES COMPILE_FLAGS "${CMAKE_C_FLAGS} -std=c99 -D_GNU_SOURCE")
+set_source_files_properties(xcursor.c PROPERTIES COMPILE_DEFINITIONS _GNU_SOURCE)
 
 add_library(miral SHARED
     active_outputs.cpp                  ${CMAKE_SOURCE_DIR}/include/miral/active_outputs.h
