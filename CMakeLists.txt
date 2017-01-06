@@ -22,6 +22,7 @@ set(CMAKE_CXX_EXTENSIONS off)
 
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED on)
+set(CMAKE_C_EXTENSIONS off)
 
 set(MIRAL_COMPILER_FLAGS "-pthread -g -Werror -Wall -pedantic -Wextra -fPIC")
 set(MIRAL_LINKER_FLAGS   "-Wl,-z,defs")
