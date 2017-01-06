@@ -27,11 +27,6 @@ set(CMAKE_C_EXTENSIONS off)
 set(MIRAL_COMPILER_FLAGS "-pthread -g -Werror -Wall -pedantic -Wextra -fPIC")
 set(MIRAL_LINKER_FLAGS   "-Wl,-z,defs")
 
-check_cxx_compiler_flag(-Wno-mismatched-tags MIRAL_COMPILE_WITH_W_NO_MISMATCHED_TAGS)
-if (MIRAL_COMPILE_WITH_W_NO_MISMATCHED_TAGS)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-mismatched-tags")
-endif()
-
 set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} ${MIRAL_COMPILER_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MIRAL_COMPILER_FLAGS} -Wnon-virtual-dtor")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-long-long") # fix spurious FTBFS on X+O
