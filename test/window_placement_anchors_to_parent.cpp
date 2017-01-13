@@ -71,7 +71,7 @@ struct WindowPlacementAnchorsToParent : TestWindowManagerTools
         creation_parameters.size = parent_size;
         basic_window_manager.add_surface(session, creation_parameters, &create_surface);
 
-        creation_parameters.type = mir_surface_type_tip;
+        creation_parameters.type = mir_window_type_tip;
         creation_parameters.parent = parent;
         creation_parameters.size = initial_child_size;
         basic_window_manager.add_surface(session, creation_parameters, &create_surface);

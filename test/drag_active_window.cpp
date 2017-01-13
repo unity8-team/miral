@@ -36,7 +36,7 @@ Rectangle const display_area{{display_left,  display_top},
 
 auto const null_window = Window{};
 
-struct DragActiveWindow : TestWindowManagerTools, WithParamInterface<MirSurfaceType>
+struct DragActiveWindow : TestWindowManagerTools, WithParamInterface<MirWindowType>
 {
     Size const initial_parent_size{600, 400};
 
@@ -48,7 +48,7 @@ struct DragActiveWindow : TestWindowManagerTools, WithParamInterface<MirSurfaceT
         basic_window_manager.add_session(session);
     }
 
-    void create_window_of_type(MirSurfaceType type)
+    void create_window_of_type(MirWindowType type)
     {
         mir::scene::SurfaceCreationParameters creation_parameters;
         creation_parameters.type = type;
