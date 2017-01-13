@@ -41,7 +41,7 @@ struct WindowInfo
 
     bool can_be_active() const;
 
-    bool can_morph_to(MirSurfaceType new_type) const;
+    bool can_morph_to(MirWindowType new_type) const;
 
     bool must_have_parent() const;
 
@@ -49,7 +49,7 @@ struct WindowInfo
 
     bool is_visible() const;
 
-    static bool needs_titlebar(MirSurfaceType type);
+    static bool needs_titlebar(MirWindowType type);
 
     void constrain_resize(mir::geometry::Point& requested_pos, mir::geometry::Size& requested_size) const;
 
@@ -58,11 +58,11 @@ struct WindowInfo
     auto name() const -> std::string;
     void name(std::string const& name);
 
-    auto type() const -> MirSurfaceType;
-    void type(MirSurfaceType type);
+    auto type() const -> MirWindowType;
+    void type(MirWindowType type);
 
-    auto state() const -> MirSurfaceState;
-    void state(MirSurfaceState state);
+    auto state() const -> MirWindowState;
+    void state(MirWindowState state);
 
     auto restore_rect() const -> mir::geometry::Rectangle;
     void restore_rect(mir::geometry::Rectangle const& restore_rect);

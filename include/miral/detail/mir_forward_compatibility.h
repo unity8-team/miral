@@ -20,7 +20,44 @@
 #define MIRAL_MIR_FORWARD_COMPATIBILITY_H
 
 #include <mir_toolkit/version.h>
+#include <mir_toolkit/common.h>
 #include <miral/detail/mir_features.h>
+
+#if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
+using MirWindowAttrib = MirSurfaceAttrib;
+using mir_window_attrib_type                    = mir_surface_attrib_type;
+using mir_window_attrib_state                   = mir_surface_attrib_state;
+using mir_window_attrib_swapinterval            = mir_surface_attrib_swapinterval;
+using mir_window_attrib_focus                   = mir_surface_attrib_focus;
+using mir_window_attrib_dpi                     = mir_surface_attrib_dpi;
+using mir_window_attrib_visibility              = mir_surface_attrib_visibility;
+using mir_window_attrib_preferred_orientation   = mir_surface_attrib_preferred_orientation
+using mir_window_attribs                        = mir_surface_attribs;
+
+using MirWindowType = MirSurfaceType;
+using mir_window_type_normal        = mir_surface_type_normal;
+using mir_window_type_utility       = mir_surface_type_utility;
+using mir_window_type_dialog        = mir_surface_type_dialog;
+using mir_window_type_gloss         = mir_surface_type_gloss;
+using mir_window_type_freestyle     = mir_surface_type_freestyle;
+using mir_window_type_menu          = mir_surface_type_menu;
+using mir_window_type_inputmethod   = mir_surface_type_inputmethod;
+using mir_window_type_satellite     = mir_surface_type_satellite;
+using mir_window_type_tip           = mir_surface_type_tip;
+using mir_window_types              = mir_surface_types;
+
+using MirWindowState = MirSurfaceState;
+using mir_window_state_unknown          = mir_surface_state_unknown;
+using mir_window_state_restored         = mir_surface_state_restored;
+using mir_window_state_minimized        = mir_surface_state_minimized;
+using mir_window_state_maximized        = mir_surface_state_maximized;
+using mir_window_state_vertmaximized    = mir_surface_state_vertmaximized;
+using mir_window_state_fullscreen       = mir_surface_state_fullscreen;
+using mir_window_state_horizmaximized   = mir_surface_state_horizmaximized;
+using mir_window_state_hidden           = mir_surface_state_hidden;
+using mir_window_states                 = mir_surface_states;
+#endif
+
 
 // Types that don't exist in earlier versions of Mir's toolkit
 #if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 4, 0)

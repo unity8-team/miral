@@ -76,8 +76,8 @@ public:
     auto size() const -> mir::optional_value<Size> const&;
     auto name() const -> mir::optional_value<std::string> const&;
     auto output_id() const -> mir::optional_value<int> const&;
-    auto type() const -> mir::optional_value<MirSurfaceType> const&;
-    auto state() const -> mir::optional_value<MirSurfaceState> const&;
+    auto type() const -> mir::optional_value<MirWindowType> const&;
+    auto state() const -> mir::optional_value<MirWindowState> const&;
     auto preferred_orientation() const -> mir::optional_value<MirOrientationMode> const&;
     auto aux_rect() const -> mir::optional_value<Rectangle> const&;
     auto placement_hints() const -> mir::optional_value<MirPlacementHints> const&;
@@ -104,8 +104,8 @@ public:
     auto size() -> mir::optional_value<Size>&;
     auto name() -> mir::optional_value<std::string>&;
     auto output_id() -> mir::optional_value<int>&;
-    auto type() -> mir::optional_value<MirSurfaceType>&;
-    auto state() -> mir::optional_value<MirSurfaceState>&;
+    auto type() -> mir::optional_value<MirWindowType>&;
+    auto state() -> mir::optional_value<MirWindowState>&;
     auto preferred_orientation() -> mir::optional_value<MirOrientationMode>&;
     auto aux_rect() -> mir::optional_value<Rectangle>&;
     auto placement_hints() -> mir::optional_value<MirPlacementHints>&;
