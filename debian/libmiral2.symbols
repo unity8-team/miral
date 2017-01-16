@@ -355,3 +355,11 @@ libmiral.so.2 libmiral2 #MINVER#
  (c++)"vtable for miral::ActiveOutputsListener@MIRAL_1.0" 1.0.0
  (c++)"vtable for miral::WindowManagementPolicy@MIRAL_1.0" 1.0.0
  (c++)"vtable for miral::CanonicalWindowManagerPolicy@MIRAL_1.0" 1.0.0
+ MIRAL_1.1@MIRAL_1.1 1.1.0
+ (c++)"miral::WindowInfo::needs_titlebar(MirWindowType)@MIRAL_1.1" 1.1.0
+ (c++)"miral::WindowInfo::type(MirWindowType)@MIRAL_1.1" 1.1.0
+ (c++)"miral::WindowInfo::type() const@MIRAL_1.1" 1.1.0
+ (c++)"miral::WindowInfo::state() const@MIRAL_1.1" 1.1.0
+ (c++)"miral::WindowInfo::state(MirWindowState)@MIRAL_1.1" 1.1.0
+ (c++)"miral::WindowManagementPolicy::advise_state_change(miral::WindowInfo const&, MirWindowState)@MIRAL_1.1" 1.1.0
+ (c++)"miral::WindowInfo::can_morph_to(MirWindowType) const@MIRAL_1.1" 1.1.0
