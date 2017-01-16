@@ -345,6 +345,5 @@ global:
     _ZN5miral22WindowManagementPolicy19advise_state_changeERKNS_10WindowInfoE14MirWindowState;
 
 #  extern "C++" {
-
 #  };
 } MIRAL_1.0;

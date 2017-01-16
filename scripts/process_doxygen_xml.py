@@ -195,7 +195,6 @@ global:
     miral::WindowInfo::WindowInfo*;
     miral::WindowInfo::add_child*;
     miral::WindowInfo::can_be_active*;
-    miral::WindowInfo::can_morph_to*;
     miral::WindowInfo::children*;
     miral::WindowInfo::confine_pointer*;
     miral::WindowInfo::constrain_resize*;
@@ -211,15 +210,12 @@ global:
     miral::WindowInfo::must_have_parent*;
     miral::WindowInfo::must_not_have_parent*;
     miral::WindowInfo::name*;
-    miral::WindowInfo::needs_titlebar*;
     miral::WindowInfo::operator*;
     miral::WindowInfo::output_id*;
     miral::WindowInfo::parent*;
     miral::WindowInfo::preferred_orientation*;
     miral::WindowInfo::remove_child*;
     miral::WindowInfo::restore_rect*;
-    miral::WindowInfo::state*;
-    miral::WindowInfo::type*;
     miral::WindowInfo::userdata*;
     miral::WindowInfo::width_inc*;
     miral::WindowInfo::window*;
@@ -236,7 +232,6 @@ global:
     miral::WindowManagementPolicy::advise_new_window*;
     miral::WindowManagementPolicy::advise_raise*;
     miral::WindowManagementPolicy::advise_resize*;
-    miral::WindowManagementPolicy::advise_state_change*;
     miral::WindowManagementPolicy::operator*;
     miral::WindowManagerOptions::WindowManagerOptions*;
     miral::WindowManagerOptions::operator*;
@@ -394,14 +389,47 @@ global:
     vtable?for?miral::toolkit::Surface;
     vtable?for?miral::toolkit::SurfaceSpec;
   };
+#    miral::WindowInfo::can_morph_to*;
+    _ZNK5miral10WindowInfo12can_morph_toE14MirSurfaceType;
+
+#    miral::WindowInfo::needs_titlebar*;
+    _ZN5miral10WindowInfo14needs_titlebarE14MirSurfaceType;
+
+#    miral::WindowInfo::state*;
+    _ZNK5miral10WindowInfo5stateEv;
+    _ZN5miral10WindowInfo5stateE15MirSurfaceState;
+
+#    miral::WindowInfo::type*;
+    _ZN5miral10WindowInfo4typeE14MirSurfaceType;
+    _ZNK5miral10WindowInfo4typeEv;
+
+#    miral::WindowManagementPolicy::advise_state_change*;
+    _ZN5miral22WindowManagementPolicy19advise_state_changeERKNS_10WindowInfoE15MirSurfaceState;
 local: *;
 };
 
 MIRAL_1.1 {
 global:
-  extern "C++" {'''
+    # miral::WindowInfo::can_morph_to*
+    _ZNK5miral10WindowInfo12can_morph_toE13MirWindowType;
 
-END_NEW_STANZA = '''  };
+    #miral::WindowInfo::needs_titlebar*;
+    _ZN5miral10WindowInfo14needs_titlebarE13MirWindowType;
+
+    # miral::WindowInfo::state*;
+    _ZNK5miral10WindowInfo5stateEv;
+    _ZN5miral10WindowInfo5stateE14MirWindowState;
+
+    miral::WindowInfo::type*;
+    _ZN5miral10WindowInfo4typeE13MirWindowType;
+    _ZNK5miral10WindowInfo4typeEv;
+
+    # miral::WindowManagementPolicy::advise_state_change*;
+    _ZN5miral22WindowManagementPolicy19advise_state_changeERKNS_10WindowInfoE14MirWindowState;
+
+#  extern "C++" {'''
+
+END_NEW_STANZA = '''#  };
 } MIRAL_1.0;'''
 
 def _print_report():
