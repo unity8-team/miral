@@ -88,6 +88,7 @@ MirWindow* create_surface(MirConnection* const connection, MirWindowParameters c
         parameters.width,
         parameters.height);
 
+    mir_window_spec_set_pixel_format(spec, parameters.pixel_format);
     mir_window_spec_set_name(spec, parameters.name);
     mir_window_spec_set_buffer_usage(spec, parameters.buffer_usage);
 
