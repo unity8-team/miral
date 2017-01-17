@@ -17,7 +17,7 @@
 #ifndef UNITYSYSTEMCOMPOSITOR_MIREGL_H
 #define UNITYSYSTEMCOMPOSITOR_MIREGL_H
 
-#include <mir_toolkit/common.h>
+#include <miral/detail/mir_forward_compatibility.h>
 #include <mir_toolkit/client_types.h>
 #include "mir_toolkit/mir_client_library.h"
 

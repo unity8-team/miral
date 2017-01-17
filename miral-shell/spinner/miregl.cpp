@@ -15,6 +15,7 @@
  */
 
 #include "miregl.h"
+#include <mir_toolkit/version.h>
 
 #include <cstring>
 
@@ -60,6 +61,28 @@ namespace
 {
 MirWindow* create_surface(MirConnection* const connection, MirWindowParameters const& parameters)
 {
+#if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
+    auto const spec = mir_connection_create_spec_for_normal_surface(
+        connection,
+        parameters.width,
+        parameters.height,
+        parameters.pixel_format);
+
+    mir_surface_spec_set_name(spec, parameters.name);
+    mir_surface_spec_set_buffer_usage(spec, parameters.buffer_usage);
+
+    if (!parameters.width && !parameters.height)
+        mir_surface_spec_set_fullscreen_on_output(spec, parameters.output_id);
+
+    auto const surface = mir_surface_create_sync(spec);
+    mir_surface_spec_release(spec);
+
+    if (!mir_surface_is_valid(surface))
+        throw std::runtime_error(std::string("Can't create a surface ") + mir_surface_get_error_message(surface));
+
+    if (parameters.output_id != mir_display_output_id_invalid)
+        mir_surface_set_state(surface, mir_surface_state_fullscreen);
+#else
     auto const spec = mir_create_normal_window_spec(
         connection,
         parameters.width,
@@ -79,7 +102,7 @@ MirWindow* create_surface(MirConnection* const connection, MirWindowParameters c
 
     if (parameters.output_id != mir_display_output_id_invalid)
         mir_window_set_state(surface, mir_window_state_fullscreen);
-
+#endif
     return surface;
 }
 }
@@ -98,7 +121,11 @@ MirEglSurface::MirEglSurface(
 MirEglSurface::~MirEglSurface()
 {
     mir_egl_app->destroy_surface(eglsurface);
+#if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
+    mir_surface_release_sync(window);
+#else
     mir_window_release_sync(window);
+#endif
 }
 
 void MirEglSurface::egl_make_current()
@@ -184,10 +211,17 @@ MirEglApp::MirEglApp(MirConnection* const connection, MirPixelFormat pixel_forma
 
 EGLSurface MirEglApp::create_surface(MirWindow* window)
 {
+#if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
+    auto const eglsurface = eglCreateWindowSurface(
+        egldisplay,
+        eglconfig,
+        (EGLNativeWindowType) mir_buffer_stream_get_egl_native_window(mir_surface_get_buffer_stream(window)), NULL);
+#else
     auto const eglsurface = eglCreateWindowSurface(
         egldisplay,
         eglconfig,
         (EGLNativeWindowType) mir_buffer_stream_get_egl_native_window(mir_window_get_buffer_stream(window)), NULL);
+#endif
 
     if (eglsurface == EGL_NO_SURFACE)
         throw std::runtime_error("eglCreateWindowSurface failed");

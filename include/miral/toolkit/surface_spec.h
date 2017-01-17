@@ -20,6 +20,7 @@
 #define MIRAL_TOOLKIT_SURFACE_SPEC_H
 
 #include <miral/toolkit/surface.h>
+#include <miral/detail/mir_forward_compatibility.h>
 
 #include <mir_toolkit/mir_surface.h>
 #include <mir_toolkit/mir_connection.h>
@@ -40,7 +41,7 @@ public:
     static auto for_normal_surface(MirConnection* connection, int width, int height, MirPixelFormat format) -> SurfaceSpec
     {
 #if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
-        return SurfaceSpec{mir_create_normal_window_spec(connection, width, height)}, format);
+        return SurfaceSpec{mir_connection_create_spec_for_normal_surface(connection, width, height, format)};
 #else
         auto spec = SurfaceSpec{mir_create_normal_window_spec(connection, width, height)};
         mir_window_spec_set_pixel_format(spec, format);

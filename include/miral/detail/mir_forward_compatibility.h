@@ -56,6 +56,11 @@ auto const mir_window_state_fullscreen       = mir_surface_state_fullscreen;
 auto const mir_window_state_horizmaximized   = mir_surface_state_horizmaximized;
 auto const mir_window_state_hidden           = mir_surface_state_hidden;
 auto const mir_window_states                 = mir_surface_states;
+
+typedef struct MirSurface MirWindow;
+typedef struct MirSurfaceParameters MirWindowParameters;
+typedef struct MirSurfacePlacementEvent MirWindowPlacementEvent;
+typedef struct MirSurfaceSpec MirWindowSpec;
 #endif
 
 

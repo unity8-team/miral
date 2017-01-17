@@ -22,6 +22,7 @@
 #include <mir_toolkit/events/surface_placement.h>
 #endif
 
+#include <miral/detail/mir_forward_compatibility.h>
 #include <miral/toolkit/surface_spec.h>
 #include <miral/toolkit/surface.h>
 

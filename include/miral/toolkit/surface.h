@@ -19,6 +19,8 @@
 #ifndef MIRAL_TOOLKIT_SURFACE_H
 #define MIRAL_TOOLKIT_SURFACE_H
 
+#include <miral/detail/mir_forward_compatibility.h>
+
 #include <mir_toolkit/mir_surface.h>
 
 #include <memory>
@@ -40,7 +42,11 @@ public:
     void reset() { self.reset(); }
 
 private:
+#if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
+    static void deleter(MirWindow* window) { mir_surface_release_sync(window); }
+#else
     static void deleter(MirWindow* window) { mir_window_release_sync(window); }
+#endif
     std::shared_ptr<MirWindow> self;
 };
 }

@@ -18,6 +18,8 @@
 
 #include "sw_splash.h"
 
+#include <miral/detail/mir_forward_compatibility.h>
+
 #include <mir_toolkit/mir_connection.h>
 #include <mir_toolkit/mir_surface.h>
 #include <mir_toolkit/mir_buffer_stream.h>
@@ -61,7 +63,16 @@ MirPixelFormat find_8888_format(MirConnection* connection)
 
 auto create_window(MirConnection* connection, MirPixelFormat pixel_format) -> MirWindow*
 {
+#if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
+    auto* spec = mir_connection_create_spec_for_normal_surface(connection, 42, 42, pixel_format);
 
+    mir_surface_spec_set_name(spec, "splash");
+    mir_surface_spec_set_buffer_usage(spec, mir_buffer_usage_software);
+    mir_surface_spec_set_fullscreen_on_output(spec, 0);
+
+    auto const surface = mir_surface_create_sync(spec);
+    mir_surface_spec_release(spec);
+#else
     auto* spec = mir_create_normal_window_spec(connection, 42, 42);
 
     mir_window_spec_set_name(spec, "splash");
@@ -71,6 +82,7 @@ auto create_window(MirConnection* connection, MirPixelFormat pixel_format) -> Mi
 
     auto const surface = mir_create_window_sync(spec);
     mir_window_spec_release(spec);
+#endif
 
     return surface;
 }
@@ -137,7 +149,11 @@ void SwSplash::operator()(MirConnection* connection)
     auto const surface = create_window(connection, pixel_format);
 
     MirGraphicsRegion graphics_region;
+#if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
+    MirBufferStream* buffer_stream = mir_surface_get_buffer_stream(surface);
+#else
     MirBufferStream* buffer_stream = mir_window_get_buffer_stream(surface);
+#endif
 
     auto const time_limit = std::chrono::steady_clock::now() + std::chrono::seconds(2);
 
@@ -155,5 +171,9 @@ void SwSplash::operator()(MirConnection* connection)
     }
     while (std::chrono::steady_clock::now() < time_limit);
 
+#if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
+    mir_surface_release_sync(surface);
+#else
     mir_window_release_sync(surface);
+#endif
 }
