@@ -23,6 +23,8 @@
 #include <mir/geometry/rectangles.h>
 #include <mir_toolkit/event.h>
 
+#include <miral/detail/mir_forward_compatibility.h>
+
 namespace miral
 {
 class Window;
@@ -141,7 +143,7 @@ public:
      * @param window_info   the window
      * @param state         the new state
      */
-    virtual void advise_state_change(WindowInfo const& window_info, MirSurfaceState state);
+    virtual void advise_state_change(WindowInfo const& window_info, MirWindowState state);
 
     /** Notification that a window is about to move
      *

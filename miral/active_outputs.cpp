@@ -70,6 +70,11 @@ struct miral::ActiveOutputsMonitor::Self : mir::graphics::DisplayConfigurationOb
 
     void base_configuration_updated(std::shared_ptr<mir::graphics::DisplayConfiguration const> const& ) override {}
 
+    void session_configuration_applied(std::shared_ptr<mir::frontend::Session> const&,
+                                               std::shared_ptr<mir::graphics::DisplayConfiguration> const&) override {}
+
+    void session_configuration_removed(std::shared_ptr<mir::frontend::Session> const&) override {}
+
     std::mutex mutex;
     std::vector<ActiveOutputsListener*> listeners;
     std::vector<Output> outputs;

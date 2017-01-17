@@ -36,7 +36,7 @@ Rectangle const display_area{{display_left,  display_top},
 
 auto const null_window = Window{};
 
-struct ModifyWindowState : TestWindowManagerTools, WithParamInterface<MirSurfaceType>
+struct ModifyWindowState : TestWindowManagerTools, WithParamInterface<MirWindowType>
 {
     Size const initial_parent_size{600, 400};
 
@@ -48,7 +48,7 @@ struct ModifyWindowState : TestWindowManagerTools, WithParamInterface<MirSurface
         basic_window_manager.add_session(session);
     }
 
-    void create_window_of_type(MirSurfaceType type)
+    void create_window_of_type(MirWindowType type)
     {
         mir::scene::SurfaceCreationParameters creation_parameters;
         creation_parameters.type = type;
@@ -72,11 +72,11 @@ using ForNormalSurface = ModifyWindowState;
 
 TEST_P(ForNormalSurface, state)
 {
-    auto const original_state = mir_surface_state_restored;
-    auto const new_state = MirSurfaceState(GetParam());
-    auto const state_is_visible = (new_state != mir_surface_state_minimized) && (new_state != mir_surface_state_hidden);
+    auto const original_state = mir_window_state_restored;
+    auto const new_state = MirWindowState(GetParam());
+    auto const state_is_visible = (new_state != mir_window_state_minimized) && (new_state != mir_window_state_hidden);
 
-    create_window_of_type(mir_surface_type_normal);
+    create_window_of_type(mir_window_type_normal);
     auto const& info = window_manager_tools.info_for(window);
 
     WindowSpecification mods;
@@ -95,13 +95,13 @@ TEST_P(ForNormalSurface, state)
 }
 
 INSTANTIATE_TEST_CASE_P(ModifyWindowState, ForNormalSurface, ::testing::Values(
-//    mir_surface_state_unknown,
-    mir_surface_state_restored,
-    mir_surface_state_minimized,
-    mir_surface_state_maximized,
-    mir_surface_state_vertmaximized,
-    mir_surface_state_fullscreen,
-    mir_surface_state_horizmaximized,
-    mir_surface_state_hidden
-//    mir_surface_states
+//    mir_window_state_unknown,
+    mir_window_state_restored,
+    mir_window_state_minimized,
+    mir_window_state_maximized,
+    mir_window_state_vertmaximized,
+    mir_window_state_fullscreen,
+    mir_window_state_horizmaximized,
+    mir_window_state_hidden
+//    mir_window_states
 ));

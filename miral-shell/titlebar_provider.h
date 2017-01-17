@@ -71,7 +71,7 @@ public:
     void destroy_titlebar_for(miral::Window const& window);
     void resize_titlebar_for(miral::WindowInfo const& window_info, mir::geometry::Size const& size);
     void advise_new_titlebar(miral::WindowInfo const& window_info);
-    void advise_state_change(miral::WindowInfo const& window_info, MirSurfaceState state);
+    void advise_state_change(miral::WindowInfo const& window_info, MirWindowState state);
 
     void stop();
 

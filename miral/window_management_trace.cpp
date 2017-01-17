@@ -273,7 +273,7 @@ auto dump_of(MirPointerEvent const* event) -> std::string
     return out.str();
 }
 
-auto dump_of(MirSurfaceState state) -> std::string
+auto dump_of(MirWindowState state) -> std::string
 {
     std::stringstream out;
     out << state;
@@ -606,7 +606,7 @@ void miral::WindowManagementTrace::advise_focus_gained(miral::WindowInfo const& 
     policy->advise_focus_gained(window_info);
 }
 
-void miral::WindowManagementTrace::advise_state_change(miral::WindowInfo const& window_info, MirSurfaceState state)
+void miral::WindowManagementTrace::advise_state_change(miral::WindowInfo const& window_info, MirWindowState state)
 {
     mir::log_info("%s window_info=%s, state=%s", __func__, dump_of(window_info).c_str(), dump_of(state).c_str());
     policy->advise_state_change(window_info, state);

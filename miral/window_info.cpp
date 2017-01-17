@@ -19,6 +19,7 @@
 #include "miral/window_info.h"
 
 #include <mir/scene/surface.h>
+#include <mir/version.h>
 
 #include <limits>
 
@@ -41,8 +42,8 @@ struct miral::WindowInfo::Self
 
     Window window;
     std::string name;
-    MirSurfaceType type;
-    MirSurfaceState state;
+    MirWindowType type;
+    MirWindowState state;
     mir::geometry::Rectangle restore_rect;
     Window parent;
     std::vector <Window> children;
@@ -64,8 +65,8 @@ struct miral::WindowInfo::Self
 miral::WindowInfo::Self::Self(Window window, WindowSpecification const& params) :
     window{window},
     name{params.name().value()},
-    type{optional_value_or_default(params.type(), mir_surface_type_normal)},
-    state{optional_value_or_default(params.state(), mir_surface_state_restored)},
+    type{optional_value_or_default(params.type(), mir_window_type_normal)},
+    state{optional_value_or_default(params.state(), mir_window_state_restored)},
     restore_rect{params.top_left().value(), params.size().value()},
     min_width{optional_value_or_default(params.min_width())},
     min_height{optional_value_or_default(params.min_height())},
@@ -86,8 +87,8 @@ miral::WindowInfo::Self::Self(Window window, WindowSpecification const& params) 
 }
 
 miral::WindowInfo::Self::Self() :
-    type{mir_surface_type_normal},
-    state{mir_surface_state_unknown},
+    type{mir_window_type_normal},
+    state{mir_window_state_unknown},
     preferred_orientation{mir_orientation_mode_any}
 {
 }
@@ -123,17 +124,17 @@ bool miral::WindowInfo::can_be_active() const
 {
     switch (type())
     {
-    case mir_surface_type_normal:       /**< AKA "regular"                       */
-    case mir_surface_type_utility:      /**< AKA "floating"                      */
-    case mir_surface_type_dialog:
-    case mir_surface_type_satellite:    /**< AKA "toolbox"/"toolbar"             */
-    case mir_surface_type_freestyle:
-    case mir_surface_type_menu:
-    case mir_surface_type_inputmethod:  /**< AKA "OSK" or handwriting etc.       */
+    case mir_window_type_normal:       /**< AKA "regular"                       */
+    case mir_window_type_utility:      /**< AKA "floating"                      */
+    case mir_window_type_dialog:
+    case mir_window_type_satellite:    /**< AKA "toolbox"/"toolbar"             */
+    case mir_window_type_freestyle:
+    case mir_window_type_menu:
+    case mir_window_type_inputmethod:  /**< AKA "OSK" or handwriting etc.       */
         return true;
 
-    case mir_surface_type_gloss:
-    case mir_surface_type_tip:          /**< AKA "tooltip"                       */
+    case mir_window_type_gloss:
+    case mir_window_type_tip:          /**< AKA "tooltip"                       */
     default:
         // Cannot have input focus
         return false;
@@ -144,10 +145,10 @@ bool miral::WindowInfo::must_have_parent() const
 {
     switch (type())
     {
-    case mir_surface_type_overlay:;
-    case mir_surface_type_inputmethod:
-    case mir_surface_type_satellite:
-    case mir_surface_type_tip:
+    case mir_window_type_gloss:;
+    case mir_window_type_inputmethod:
+    case mir_window_type_satellite:
+    case mir_window_type_tip:
         return true;
 
     default:
@@ -155,19 +156,24 @@ bool miral::WindowInfo::must_have_parent() const
     }
 }
 
-bool miral::WindowInfo::can_morph_to(MirSurfaceType new_type) const
+#if (MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 26, 0)) && (MIR_SERVER_VERSION < MIR_VERSION_NUMBER(1, 0, 0))
+extern "C" __attribute__((alias("_ZNK5miral10WindowInfo12can_morph_toE13MirWindowType"))) void _ZNK5miral10WindowInfo12can_morph_toE14MirSurfaceType();
+__asm__(".symver _ZNK5miral10WindowInfo12can_morph_toE14MirSurfaceType,_ZNK5miral10WindowInfo12can_morph_toE14MirSurfaceType@MIRAL_1.0");
+__asm__(".symver _ZNK5miral10WindowInfo12can_morph_toE13MirWindowType,_ZNK5miral10WindowInfo12can_morph_toE13MirWindowType@@MIRAL_1.1");
+#endif
+bool miral::WindowInfo::can_morph_to(MirWindowType new_type) const
 {
     switch (new_type)
     {
-    case mir_surface_type_normal:
-    case mir_surface_type_utility:
-    case mir_surface_type_satellite:
+    case mir_window_type_normal:
+    case mir_window_type_utility:
+    case mir_window_type_satellite:
         switch (type())
         {
-        case mir_surface_type_normal:
-        case mir_surface_type_utility:
-        case mir_surface_type_dialog:
-        case mir_surface_type_satellite:
+        case mir_window_type_normal:
+        case mir_window_type_utility:
+        case mir_window_type_dialog:
+        case mir_window_type_satellite:
             return true;
 
         default:
@@ -175,14 +181,14 @@ bool miral::WindowInfo::can_morph_to(MirSurfaceType new_type) const
         }
         break;
 
-    case mir_surface_type_dialog:
+    case mir_window_type_dialog:
         switch (type())
         {
-        case mir_surface_type_normal:
-        case mir_surface_type_utility:
-        case mir_surface_type_dialog:
-        case mir_surface_type_popover:
-        case mir_surface_type_satellite:
+        case mir_window_type_normal:
+        case mir_window_type_utility:
+        case mir_window_type_dialog:
+        case mir_window_type_menu:
+        case mir_window_type_satellite:
             return true;
 
         default:
@@ -201,8 +207,8 @@ bool miral::WindowInfo::must_not_have_parent() const
 {
     switch (type())
     {
-    case mir_surface_type_normal:
-    case mir_surface_type_utility:
+    case mir_window_type_normal:
+    case mir_window_type_utility:
         return true;
 
     default:
@@ -214,8 +220,8 @@ bool miral::WindowInfo::is_visible() const
 {
     switch (state())
     {
-    case mir_surface_state_hidden:
-    case mir_surface_state_minimized:
+    case mir_window_state_hidden:
+    case mir_window_state_minimized:
         return false;
     default:
         if (std::shared_ptr<mir::scene::Surface> surface = window())
@@ -312,19 +318,19 @@ void miral::WindowInfo::constrain_resize(Point& requested_pos, Size& requested_s
 
     switch (state())
     {
-    case mir_surface_state_restored:
+    case mir_window_state_restored:
         break;
 
         // "A vertically maximised window is anchored to the top and bottom of
         // the available workspace and can have any width."
-    case mir_surface_state_vertmaximized:
+    case mir_window_state_vertmaximized:
         new_pos.y = self->window.top_left().y;
         new_size.height = self->window.size().height;
         break;
 
         // "A horizontally maximised window is anchored to the left and right of
         // the available workspace and can have any height"
-    case mir_surface_state_horizmaximized:
+    case mir_window_state_horizmaximized:
         new_pos.x = self->window.top_left().x;
         new_size.width = self->window.size().width;
         break;
@@ -332,7 +338,7 @@ void miral::WindowInfo::constrain_resize(Point& requested_pos, Size& requested_s
         // "A maximised window is anchored to the top, bottom, left and right of the
         // available workspace. For example, if the launcher is always-visible then
         // the left-edge of the window is anchored to the right-edge of the launcher."
-    case mir_surface_state_maximized:
+    case mir_window_state_maximized:
     default:
         new_pos.x = self->window.top_left().x;
         new_pos.y = self->window.top_left().y;
@@ -345,15 +351,20 @@ void miral::WindowInfo::constrain_resize(Point& requested_pos, Size& requested_s
     requested_size = new_size;
 }
 
-bool miral::WindowInfo::needs_titlebar(MirSurfaceType type)
+#if (MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 26, 0)) && (MIR_SERVER_VERSION < MIR_VERSION_NUMBER(1, 0, 0))
+extern "C" __attribute__((alias("_ZN5miral10WindowInfo14needs_titlebarE13MirWindowType"))) void _ZN5miral10WindowInfo14needs_titlebarE14MirSurfaceType();
+__asm__(".symver _ZN5miral10WindowInfo14needs_titlebarE14MirSurfaceType,_ZN5miral10WindowInfo14needs_titlebarE14MirSurfaceType@MIRAL_1.0");
+__asm__(".symver _ZN5miral10WindowInfo14needs_titlebarE13MirWindowType,_ZN5miral10WindowInfo14needs_titlebarE13MirWindowType@@MIRAL_1.1");
+#endif
+bool miral::WindowInfo::needs_titlebar(MirWindowType type)
 {
     switch (type)
     {
-    case mir_surface_type_freestyle:
-    case mir_surface_type_menu:
-    case mir_surface_type_inputmethod:
-    case mir_surface_type_gloss:
-    case mir_surface_type_tip:
+    case mir_window_type_freestyle:
+    case mir_window_type_menu:
+    case mir_window_type_inputmethod:
+    case mir_window_type_gloss:
+    case mir_window_type_tip:
         // No decorations for these surface types
         return false;
     default:
@@ -361,22 +372,32 @@ bool miral::WindowInfo::needs_titlebar(MirSurfaceType type)
     }
 }
 
-auto miral::WindowInfo::type() const -> MirSurfaceType
+auto miral::WindowInfo::type() const -> MirWindowType
 {
     return self->type;
 }
 
-void miral::WindowInfo::type(MirSurfaceType type)
+#if (MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 26, 0)) && (MIR_SERVER_VERSION < MIR_VERSION_NUMBER(1, 0, 0))
+extern "C" __attribute__((alias("_ZN5miral10WindowInfo4typeE13MirWindowType"))) void _ZN5miral10WindowInfo4typeE14MirSurfaceType();
+__asm__(".symver _ZN5miral10WindowInfo4typeE14MirSurfaceType,_ZN5miral10WindowInfo4typeE14MirSurfaceType@MIRAL_1.0");
+__asm__(".symver _ZN5miral10WindowInfo4typeE13MirWindowType,_ZN5miral10WindowInfo4typeE13MirWindowType@@MIRAL_1.1");
+#endif
+void miral::WindowInfo::type(MirWindowType type)
 {
     self->type = type;
 }
 
-auto miral::WindowInfo::state() const -> MirSurfaceState
+auto miral::WindowInfo::state() const -> MirWindowState
 {
     return self->state;
 }
 
-void miral::WindowInfo::state(MirSurfaceState state)
+#if (MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 26, 0)) && (MIR_SERVER_VERSION < MIR_VERSION_NUMBER(1, 0, 0))
+extern "C" __attribute__((alias("_ZN5miral10WindowInfo5stateE14MirWindowState"))) void _ZN5miral10WindowInfo5stateE15MirSurfaceState();
+__asm__(".symver _ZN5miral10WindowInfo5stateE15MirSurfaceState,_ZN5miral10WindowInfo5stateE15MirSurfaceState@MIRAL_1.0");
+__asm__(".symver _ZN5miral10WindowInfo5stateE14MirWindowState,_ZN5miral10WindowInfo5stateE14MirWindowState@@MIRAL_1.1");
+#endif
+void miral::WindowInfo::state(MirWindowState state)
 {
     self->state = state;
 }
