@@ -4,7 +4,11 @@ miral (1.1.0) UNRELEASED; urgency=medium
     - ABI summary:
       . miral ABI unchanged at 2
     - Enhancements:
+      . Compatibility with Mir 0.26 and update API to use the new Mir types and
+        enums.
     - Bugs fixed:
+      . Let the policy decide how to handle "ready" for windows that can't have
+        focus (LP: #1652109)
 
  -- Alan Griffiths <alan.griffiths@canonical.com>  Wed, 14 Dec 2016 16:31:08 +0000
 
