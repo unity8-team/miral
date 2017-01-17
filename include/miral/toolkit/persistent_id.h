@@ -32,7 +32,7 @@ class PersistentId
 {
 public:
     explicit PersistentId(MirPersistentId* id) : self{id, deleter} {}
-    explicit PersistentId(MirSurface* surface) : PersistentId{mir_surface_request_persistent_id_sync(surface)} {}
+    explicit PersistentId(MirWindow* surface) : PersistentId{mir_window_request_persistent_id_sync(surface)} {}
 
     auto c_str() const -> char const* { return mir_persistent_id_as_string(self.get()); }
 

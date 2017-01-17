@@ -78,8 +78,8 @@ public:
 private:
     struct Data
     {
-        std::atomic<MirSurface*> titlebar{nullptr};
-        std::function<void(MirSurface* surface)> on_create{[](MirSurface*){}};
+        std::atomic<MirWindow*> titlebar{nullptr};
+        std::function<void(MirWindow* surface)> on_create{[](MirWindow*){}};
         miral::Window window;
 
         ~Data();
@@ -97,7 +97,7 @@ private:
     SurfaceMap window_to_titlebar;
     TitleMap windows_awaiting_titlebar;
 
-    static void insert(MirSurface* surface, Data* data);
+    static void insert(MirWindow* surface, Data* data);
     Data* find_titlebar_data(miral::Window const& window);
     miral::Window find_titlebar_window(miral::Window const& window) const;
     void repaint_titlebar_for(miral::WindowInfo const& window_info);

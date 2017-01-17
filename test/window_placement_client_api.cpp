@@ -80,7 +80,7 @@ struct CheckPlacement
     CheckPlacement(int left, int top, unsigned int width, unsigned int height) :
         expected{left, top, width, height} {}
 
-    void check(MirSurfacePlacementEvent const* placement_event)
+    void check(MirWindowPlacementEvent const* placement_event)
     {
         EXPECT_THAT(mir_surface_placement_get_relative_position(placement_event).top, Eq(expected.top));
         EXPECT_THAT(mir_surface_placement_get_relative_position(placement_event).left, Eq(expected.left));
@@ -90,11 +90,15 @@ struct CheckPlacement
         received.raise();
     }
 
-    static void callback(MirSurface* /*surface*/, MirEvent const* event, void* context)
+    static void callback(MirWindow* /*surface*/, MirEvent const* event, void* context)
     {
         if (mir_event_get_type(event) == mir_event_type_surface_placement)
         {
+#if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
             auto const placement_event = mir_event_get_surface_placement_event(event);
+#else
+            auto const placement_event = mir_event_get_window_placement_event(event);
+#endif
             static_cast<CheckPlacement*>(context)->check(placement_event);
         }
     }

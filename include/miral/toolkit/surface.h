@@ -27,21 +27,21 @@ namespace miral
 {
 namespace toolkit
 {
-/// Handle class for MirSurface - provides automatic reference counting.
+/// Handle class for MirWindow - provides automatic reference counting.
 class Surface
 {
 public:
     Surface() = default;
-    explicit Surface(MirSurface* spec) : self{spec, deleter} {}
+    explicit Surface(MirWindow* spec) : self{spec, deleter} {}
 
 
-    operator MirSurface*() const { return self.get(); }
+    operator MirWindow*() const { return self.get(); }
 
     void reset() { self.reset(); }
 
 private:
-    static void deleter(MirSurface* surface) { mir_surface_release_sync(surface); }
-    std::shared_ptr<MirSurface> self;
+    static void deleter(MirWindow* window) { mir_window_release_sync(window); }
+    std::shared_ptr<MirWindow> self;
 };
 }
 }

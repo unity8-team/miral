@@ -59,17 +59,18 @@ MirPixelFormat find_8888_format(MirConnection* connection)
     return *pixel_formats;
 }
 
-auto create_surface(MirConnection* connection, MirPixelFormat pixel_format) -> MirSurface*
+auto create_window(MirConnection* connection, MirPixelFormat pixel_format) -> MirWindow*
 {
 
-    auto* spec = mir_connection_create_spec_for_normal_surface(connection, 42, 42, pixel_format);
+    auto* spec = mir_create_normal_window_spec(connection, 42, 42);
 
-    mir_surface_spec_set_name(spec, "splash");
-    mir_surface_spec_set_buffer_usage(spec, mir_buffer_usage_software);
-    mir_surface_spec_set_fullscreen_on_output(spec, 0);
+    mir_window_spec_set_name(spec, "splash");
+    mir_window_spec_set_buffer_usage(spec, mir_buffer_usage_software);
+    mir_window_spec_set_fullscreen_on_output(spec, 0);
+    mir_window_spec_set_pixel_format(spec, pixel_format);
 
-    auto const surface = mir_surface_create_sync(spec);
-    mir_surface_spec_release(spec);
+    auto const surface = mir_create_window_sync(spec);
+    mir_window_spec_release(spec);
 
     return surface;
 }
@@ -133,10 +134,10 @@ void SwSplash::operator()(MirConnection* connection)
         return;
     };
 
-    auto const surface = create_surface(connection, pixel_format);
+    auto const surface = create_window(connection, pixel_format);
 
     MirGraphicsRegion graphics_region;
-    MirBufferStream* buffer_stream = mir_surface_get_buffer_stream(surface);
+    MirBufferStream* buffer_stream = mir_window_get_buffer_stream(surface);
 
     auto const time_limit = std::chrono::steady_clock::now() + std::chrono::seconds(2);
 
@@ -154,5 +155,5 @@ void SwSplash::operator()(MirConnection* connection)
     }
     while (std::chrono::steady_clock::now() < time_limit);
 
-    mir_surface_release_sync(surface);
+    mir_window_release_sync(surface);
 }

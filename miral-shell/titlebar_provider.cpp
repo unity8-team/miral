@@ -38,7 +38,7 @@ namespace
 {
 int const title_bar_height = 12;
 
-void null_surface_callback(MirSurface*, void*) {}
+void null_surface_callback(MirWindow*, void*) {}
 
 struct Printer
 {
@@ -57,9 +57,13 @@ private:
     FT_Face face;
 };
 
-void paint_surface(MirSurface* surface, std::string const& title, int const intensity)
+void paint_surface(MirWindow* surface, std::string const& title, int const intensity)
 {
+#if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
     MirBufferStream* buffer_stream = mir_surface_get_buffer_stream(surface);
+#else
+    MirBufferStream* buffer_stream = mir_window_get_buffer_stream(surface);
+#endif
 
     // TODO sometimes buffer_stream is nullptr - find out why (and fix).
     // (Only observed when creating a lot of clients at once)
@@ -207,7 +211,7 @@ void TitlebarProvider::create_titlebar_for(miral::Window const& window)
             auto const spec = SurfaceSpec::for_normal_surface(
                 connection, window.size().width.as_int(), title_bar_height, mir_pixel_format_xrgb_8888)
                 .set_buffer_usage(mir_buffer_usage_software)
-                .set_type(mir_surface_type_gloss)
+                .set_type(mir_window_type_gloss)
                 .set_name(buffer.str().c_str());
 
             std::lock_guard<decltype(mutex)> lock{mutex};
@@ -230,7 +234,7 @@ void TitlebarProvider::paint_titlebar_for(miral::WindowInfo const& info, int int
         }
         else
         {
-            data->on_create = [this, title, intensity](MirSurface* surface)
+            data->on_create = [this, title, intensity](MirWindow* surface)
                 { enqueue_work([this, surface, title, intensity]{ paint_surface(surface, title, intensity); }); };
         }
     }
@@ -244,7 +248,11 @@ void TitlebarProvider::destroy_titlebar_for(miral::Window const& window)
         {
             enqueue_work([surface]
                  {
+#if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
                      mir_surface_release(surface, &null_surface_callback, nullptr);
+#else
+                     mir_window_release(surface, &null_surface_callback, nullptr);
+#endif
                  });
         }
 
@@ -338,10 +346,14 @@ void TitlebarProvider::repaint_titlebar_for(miral::WindowInfo const& window_info
 TitlebarProvider::Data::~Data()
 {
     if (auto surface = titlebar.exchange(nullptr))
+#if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
         mir_surface_release(surface, &null_surface_callback, nullptr);
+#else
+        mir_window_release(surface, &null_surface_callback, nullptr);
+#endif
 }
 
-void TitlebarProvider::insert(MirSurface* surface, Data* data)
+void TitlebarProvider::insert(MirWindow* surface, Data* data)
 {
     data->on_create(surface);
     data->titlebar = surface;
