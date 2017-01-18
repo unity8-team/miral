@@ -103,7 +103,7 @@ public:
 
     virtual void advise_focus_gained(WindowInfo const& window_info) override;
 
-    virtual void advise_state_change(WindowInfo const& window_info, MirSurfaceState state) override;
+    virtual void advise_state_change(WindowInfo const& window_info, MirWindowState state) override;
 
     virtual void advise_move_to(WindowInfo const& window_info, Point top_left) override;
 

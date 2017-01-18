@@ -37,8 +37,8 @@ struct miral::WindowSpecification::Self
     mir::optional_value<BufferUsage> buffer_usage;
     mir::optional_value<std::string> name;
     mir::optional_value<int> output_id;
-    mir::optional_value<MirSurfaceType> type;
-    mir::optional_value<MirSurfaceState> state;
+    mir::optional_value<MirWindowType> type;
+    mir::optional_value<MirWindowState> state;
     mir::optional_value<MirOrientationMode> preferred_orientation;
     mir::optional_value<BufferStreamId> content_id;
     mir::optional_value<Rectangle> aux_rect;
@@ -403,12 +403,12 @@ auto miral::WindowSpecification::output_id() const -> mir::optional_value<int> c
     return self->output_id;
 }
 
-auto miral::WindowSpecification::type() const -> mir::optional_value<MirSurfaceType> const&
+auto miral::WindowSpecification::type() const -> mir::optional_value<MirWindowType> const&
 {
     return self->type;
 }
 
-auto miral::WindowSpecification::state() const -> mir::optional_value<MirSurfaceState> const&
+auto miral::WindowSpecification::state() const -> mir::optional_value<MirWindowState> const&
 {
     return self->state;
 }
@@ -533,12 +533,12 @@ auto miral::WindowSpecification::output_id() -> mir::optional_value<int>&
     return self->output_id;
 }
 
-auto miral::WindowSpecification::type() -> mir::optional_value<MirSurfaceType>&
+auto miral::WindowSpecification::type() -> mir::optional_value<MirWindowType>&
 {
     return self->type;
 }
 
-auto miral::WindowSpecification::state() -> mir::optional_value<MirSurfaceState>&
+auto miral::WindowSpecification::state() -> mir::optional_value<MirWindowState>&
 {
     return self->state;
 }

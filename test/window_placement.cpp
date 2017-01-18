@@ -73,7 +73,7 @@ struct WindowPlacement : TestWindowManagerTools
         creation_parameters.size = initial_parent_size;
         basic_window_manager.add_surface(session, creation_parameters, &create_surface);
 
-        creation_parameters.type = mir_surface_type_menu;
+        creation_parameters.type = mir_window_type_menu;
         creation_parameters.parent = parent;
         creation_parameters.size = initial_child_size;
         basic_window_manager.add_surface(session, creation_parameters, &create_surface);
@@ -121,12 +121,12 @@ TEST_F(WindowPlacement, fixture_sets_up_parent_and_child)
     ASSERT_THAT(parent, Ne(null_window));
     ASSERT_THAT(parent.size(), Eq(initial_parent_size));
     ASSERT_THAT(basic_window_manager.info_for(parent).children(), ElementsAre(child));
-    ASSERT_THAT(basic_window_manager.info_for(parent).type(), Eq(mir_surface_type_normal));
+    ASSERT_THAT(basic_window_manager.info_for(parent).type(), Eq(mir_window_type_normal));
 
     ASSERT_THAT(child, Ne(null_window));
     ASSERT_THAT(child.size(), Eq(initial_child_size));
     ASSERT_THAT(basic_window_manager.info_for(child).parent(), Eq(parent));
-    ASSERT_THAT(basic_window_manager.info_for(child).type(), Eq(mir_surface_type_menu));
+    ASSERT_THAT(basic_window_manager.info_for(child).type(), Eq(mir_window_type_menu));
 }
 
 
