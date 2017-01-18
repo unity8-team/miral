@@ -27,7 +27,7 @@
 
 #if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 26, 0)
 #include <mir/input/keymap.h>
-#include <mir/input/mir_keyboard_configuration.h>
+#include <mir/input/mir_keyboard_config.h>
 #elif MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 24, 1)
 #include <mir/input/keymap.h>
 #include <mir/input/keyboard_configuration.h>

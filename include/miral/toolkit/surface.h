@@ -19,6 +19,8 @@
 #ifndef MIRAL_TOOLKIT_SURFACE_H
 #define MIRAL_TOOLKIT_SURFACE_H
 
+#include <miral/detail/mir_forward_compatibility.h>
+
 #include <mir_toolkit/mir_surface.h>
 
 #include <memory>
@@ -27,21 +29,25 @@ namespace miral
 {
 namespace toolkit
 {
-/// Handle class for MirSurface - provides automatic reference counting.
+/// Handle class for MirWindow - provides automatic reference counting.
 class Surface
 {
 public:
     Surface() = default;
-    explicit Surface(MirSurface* spec) : self{spec, deleter} {}
+    explicit Surface(MirWindow* spec) : self{spec, deleter} {}
 
 
-    operator MirSurface*() const { return self.get(); }
+    operator MirWindow*() const { return self.get(); }
 
     void reset() { self.reset(); }
 
 private:
-    static void deleter(MirSurface* surface) { mir_surface_release_sync(surface); }
-    std::shared_ptr<MirSurface> self;
+#if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
+    static void deleter(MirWindow* window) { mir_surface_release_sync(window); }
+#else
+    static void deleter(MirWindow* window) { mir_window_release_sync(window); }
+#endif
+    std::shared_ptr<MirWindow> self;
 };
 }
 }

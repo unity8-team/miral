@@ -72,7 +72,7 @@ MirPixelFormat select_pixel_format(MirConnection* connection)
 
 std::vector<std::shared_ptr<MirEglSurface>> mir_eglapp_init(MirConnection* const connection)
 {
-    MirSurfaceParameters surfaceparm =
+    MirWindowParameters surfaceparm =
         {
             "eglappsurface",
             0, 0,
