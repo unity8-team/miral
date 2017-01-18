@@ -37,6 +37,8 @@ public:
 
 #if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 26, 0)
     bool translation_supported() const override;
+#else
+    bool translation_supported() const;
 #endif
 
 private:
