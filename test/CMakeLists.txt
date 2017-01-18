@@ -1,11 +1,11 @@
-if (MIRTEST_VERSION VERSION_LESS 0.25)
+if (MIRTEST_VERSION VERSION_LESS 0.26)
     # Mir used mix struct and class in public test headers (fixed -r 3606 in lp:mir)
     check_cxx_compiler_flag(-Wno-mismatched-tags MIRAL_COMPILE_WITH_W_NO_MISMATCHED_TAGS)
     if (MIRAL_COMPILE_WITH_W_NO_MISMATCHED_TAGS)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-mismatched-tags")
     endif()
 
-    if (NOT MIRTEST_VERSION VERSION_LESS 0.24)
+    if (MIRTEST_VERSION VERSION_EQUAL 0.24)
         # Mir 0.24 shipped with inconsistent override use in mirtest/mir/test/doubles/stub_session.h (lp:1609612)
         check_cxx_compiler_flag(-Wno-inconsistent-missing-override MIRAL_COMPILE_WITH_W_NO_INCONSISTENT_MISSING_OVERRIDE)
         if (MIRAL_COMPILE_WITH_W_NO_INCONSISTENT_MISSING_OVERRIDE)
