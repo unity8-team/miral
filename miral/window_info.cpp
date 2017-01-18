@@ -157,9 +157,14 @@ bool miral::WindowInfo::must_have_parent() const
 }
 
 #if (MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 26, 0)) && (MIR_SERVER_VERSION < MIR_VERSION_NUMBER(1, 0, 0))
+#ifndef __clang__
 extern "C" __attribute__((alias("_ZNK5miral10WindowInfo12can_morph_toE13MirWindowType"))) void _ZNK5miral10WindowInfo12can_morph_toE14MirSurfaceType();
 __asm__(".symver _ZNK5miral10WindowInfo12can_morph_toE14MirSurfaceType,_ZNK5miral10WindowInfo12can_morph_toE14MirSurfaceType@MIRAL_1.0");
 __asm__(".symver _ZNK5miral10WindowInfo12can_morph_toE13MirWindowType,_ZNK5miral10WindowInfo12can_morph_toE13MirWindowType@@MIRAL_1.1");
+#else
+__asm__(".symver _ZNK5miral10WindowInfo12can_morph_toE13MirWindowType,_ZNK5miral10WindowInfo12can_morph_toE14MirSurfaceType@MIRAL_1.0");
+__asm__(".symver _ZNK5miral10WindowInfo12can_morph_toE13MirWindowType,_ZNK5miral10WindowInfo12can_morph_toE13MirWindowType@@@MIRAL_1.1");
+#endif
 #endif
 bool miral::WindowInfo::can_morph_to(MirWindowType new_type) const
 {
@@ -352,9 +357,14 @@ void miral::WindowInfo::constrain_resize(Point& requested_pos, Size& requested_s
 }
 
 #if (MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 26, 0)) && (MIR_SERVER_VERSION < MIR_VERSION_NUMBER(1, 0, 0))
+#ifndef __clang__
 extern "C" __attribute__((alias("_ZN5miral10WindowInfo14needs_titlebarE13MirWindowType"))) void _ZN5miral10WindowInfo14needs_titlebarE14MirSurfaceType();
 __asm__(".symver _ZN5miral10WindowInfo14needs_titlebarE14MirSurfaceType,_ZN5miral10WindowInfo14needs_titlebarE14MirSurfaceType@MIRAL_1.0");
 __asm__(".symver _ZN5miral10WindowInfo14needs_titlebarE13MirWindowType,_ZN5miral10WindowInfo14needs_titlebarE13MirWindowType@@MIRAL_1.1");
+#else
+__asm__(".symver _ZN5miral10WindowInfo14needs_titlebarE13MirWindowType,_ZN5miral10WindowInfo14needs_titlebarE14MirSurfaceType@MIRAL_1.0");
+__asm__(".symver _ZN5miral10WindowInfo14needs_titlebarE13MirWindowType,_ZN5miral10WindowInfo14needs_titlebarE13MirWindowType@@@MIRAL_1.1");
+#endif
 #endif
 bool miral::WindowInfo::needs_titlebar(MirWindowType type)
 {
@@ -378,9 +388,14 @@ auto miral::WindowInfo::type() const -> MirWindowType
 }
 
 #if (MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 26, 0)) && (MIR_SERVER_VERSION < MIR_VERSION_NUMBER(1, 0, 0))
+#ifndef __clang__
 extern "C" __attribute__((alias("_ZN5miral10WindowInfo4typeE13MirWindowType"))) void _ZN5miral10WindowInfo4typeE14MirSurfaceType();
 __asm__(".symver _ZN5miral10WindowInfo4typeE14MirSurfaceType,_ZN5miral10WindowInfo4typeE14MirSurfaceType@MIRAL_1.0");
 __asm__(".symver _ZN5miral10WindowInfo4typeE13MirWindowType,_ZN5miral10WindowInfo4typeE13MirWindowType@@MIRAL_1.1");
+#else
+__asm__(".symver _ZN5miral10WindowInfo4typeE13MirWindowType,_ZN5miral10WindowInfo4typeE14MirSurfaceType@MIRAL_1.0");
+__asm__(".symver _ZN5miral10WindowInfo4typeE13MirWindowType,_ZN5miral10WindowInfo4typeE13MirWindowType@@@MIRAL_1.1");
+#endif
 #endif
 void miral::WindowInfo::type(MirWindowType type)
 {
@@ -393,9 +408,14 @@ auto miral::WindowInfo::state() const -> MirWindowState
 }
 
 #if (MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 26, 0)) && (MIR_SERVER_VERSION < MIR_VERSION_NUMBER(1, 0, 0))
+#ifndef __clang__
 extern "C" __attribute__((alias("_ZN5miral10WindowInfo5stateE14MirWindowState"))) void _ZN5miral10WindowInfo5stateE15MirSurfaceState();
 __asm__(".symver _ZN5miral10WindowInfo5stateE15MirSurfaceState,_ZN5miral10WindowInfo5stateE15MirSurfaceState@MIRAL_1.0");
 __asm__(".symver _ZN5miral10WindowInfo5stateE14MirWindowState,_ZN5miral10WindowInfo5stateE14MirWindowState@@MIRAL_1.1");
+#else
+__asm__(".symver _ZN5miral10WindowInfo5stateE14MirWindowState,_ZN5miral10WindowInfo5stateE15MirSurfaceState@MIRAL_1.0");
+__asm__(".symver _ZN5miral10WindowInfo5stateE14MirWindowState,_ZN5miral10WindowInfo5stateE14MirWindowState@@@MIRAL_1.1");
+#endif
 #endif
 void miral::WindowInfo::state(MirWindowState state)
 {
