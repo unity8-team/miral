@@ -133,9 +133,9 @@ struct MockWindowManagerPolicy : miral::CanonicalWindowManagerPolicy
 {
     using miral::CanonicalWindowManagerPolicy::CanonicalWindowManagerPolicy;
 
-    bool handle_touch_event(MirTouchEvent const* /*event*/) override { return false; }
-    bool handle_pointer_event(MirPointerEvent const* /*event*/) override { return false; }
-    bool handle_keyboard_event(MirKeyboardEvent const* /*event*/) override { return false; }
+    bool handle_touch_event(MirTouchEvent const* /*event*/) { return false; }
+    bool handle_pointer_event(MirPointerEvent const* /*event*/) { return false; }
+    bool handle_keyboard_event(MirKeyboardEvent const* /*event*/) { return false; }
 
     MOCK_METHOD1(advise_new_window, void (miral::WindowInfo const& window_info));
     MOCK_METHOD2(advise_move_to, void(miral::WindowInfo const& window_info, mir::geometry::Point top_left));

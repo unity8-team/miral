@@ -20,9 +20,13 @@
 #define MIRAL_COORDINATE_TRANSLATOR_H
 
 #include <mir/scene/coordinate_translator.h>
-#include <mir/version.h>
 
 #include <atomic>
+
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Winconsistent-missing-override"
+#endif
 
 namespace miral
 {
@@ -35,15 +39,14 @@ public:
     auto surface_to_screen(std::shared_ptr<mir::frontend::Surface> surface, int32_t x, int32_t y)
         -> mir::geometry::Point override;
 
-#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 26, 0)
-    bool translation_supported() const override;
-#else
     bool translation_supported() const;
-#endif
 
 private:
     std::atomic<bool> enabled{false};
 };
 }
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 
 #endif //MIRAL_COORDINATE_TRANSLATOR_H
