@@ -34,7 +34,7 @@ public:
     auto surface_to_screen(std::shared_ptr<mir::frontend::Surface> surface, int32_t x, int32_t y)
         -> mir::geometry::Point override;
 
-    bool translation_supported() const;
+    bool translation_supported() const override;
 
 private:
     std::atomic<bool> enabled{false};
