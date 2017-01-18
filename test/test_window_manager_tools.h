@@ -78,7 +78,7 @@ struct StubSurface : mir::test::doubles::StubSurface
         name_{name}, type_{type}, top_left_{top_left}, size_{size} {}
 
     std::string name() const override { return name_; };
-    MirWindowType type() const { return type_; }
+    MirWindowType type() const override { return type_; }
 
     mir::geometry::Point top_left() const override { return top_left_; }
     void move_to(mir::geometry::Point const& top_left) override { top_left_ = top_left; }
@@ -133,9 +133,9 @@ struct MockWindowManagerPolicy : miral::CanonicalWindowManagerPolicy
 {
     using miral::CanonicalWindowManagerPolicy::CanonicalWindowManagerPolicy;
 
-    bool handle_touch_event(MirTouchEvent const* /*event*/) override { return false; }
-    bool handle_pointer_event(MirPointerEvent const* /*event*/) override { return false; }
-    bool handle_keyboard_event(MirKeyboardEvent const* /*event*/) override { return false; }
+    bool handle_touch_event(MirTouchEvent const* /*event*/) { return false; }
+    bool handle_pointer_event(MirPointerEvent const* /*event*/) { return false; }
+    bool handle_keyboard_event(MirKeyboardEvent const* /*event*/) { return false; }
 
     MOCK_METHOD1(advise_new_window, void (miral::WindowInfo const& window_info));
     MOCK_METHOD2(advise_move_to, void(miral::WindowInfo const& window_info, mir::geometry::Point top_left));
