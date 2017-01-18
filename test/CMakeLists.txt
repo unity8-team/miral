@@ -13,11 +13,13 @@ if (MIRTEST_VERSION VERSION_LESS 0.26)
         endif()
     endif()
 
-    # Mir uses "C" linkage to avoid name-mangling some functions that are not
-    # intended not for C compatibility (lp:1615587) (fixed -r 3668 in lp:mir)
-    check_cxx_compiler_flag(-Wno-return-type-c-linkage MIRAL_COMPILE_WITH_W_RETURN_TYPE_C_LINKAGE)
-    if (MIRAL_COMPILE_WITH_W_RETURN_TYPE_C_LINKAGE)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-return-type-c-linkage")
+    if (MIRTEST_VERSION VERSION_LESS 0.25)
+        # Mir uses "C" linkage to avoid name-mangling some functions that are not
+        # intended not for C compatibility (lp:1615587) (fixed -r 3668 in lp:mir)
+        check_cxx_compiler_flag(-Wno-return-type-c-linkage MIRAL_COMPILE_WITH_W_RETURN_TYPE_C_LINKAGE)
+        if (MIRAL_COMPILE_WITH_W_RETURN_TYPE_C_LINKAGE)
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-return-type-c-linkage")
+        endif()
     endif()
 endif()
 
