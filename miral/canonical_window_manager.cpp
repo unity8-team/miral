@@ -40,7 +40,10 @@ auto miral::CanonicalWindowManagerPolicy::place_new_surface(
 
 void miral::CanonicalWindowManagerPolicy::handle_window_ready(WindowInfo& window_info)
 {
-    tools.select_active_window(window_info.window());
+    if (window_info.can_be_active())
+    {
+        tools.select_active_window(window_info.window());
+    }
 }
 
 void miral::CanonicalWindowManagerPolicy::handle_modify_window(

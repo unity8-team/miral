@@ -163,7 +163,8 @@ void TilingWindowManagerPolicy::advise_new_window(WindowInfo const& window_info)
 
 void TilingWindowManagerPolicy::handle_window_ready(WindowInfo& window_info)
 {
-    tools.select_active_window(window_info.window());
+    if (window_info.can_be_active())
+        tools.select_active_window(window_info.window());
 
     if (spinner.session() != window_info.window().application())
     {

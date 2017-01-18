@@ -117,15 +117,12 @@ auto miral::BasicWindowManager::add_surface(
 
     policy->advise_new_window(window_info);
 
-    if (window_info.can_be_active())
-    {
-        std::shared_ptr<scene::Surface> const scene_surface = window_info.window();
-        scene_surface->add_observer(std::make_shared<shell::SurfaceReadyObserver>(
-            [this, &window_info](std::shared_ptr<scene::Session> const&, std::shared_ptr<scene::Surface> const&)
-                { Locker lock{mutex, policy}; policy->handle_window_ready(window_info); },
-            session,
-            scene_surface));
-    }
+    std::shared_ptr<scene::Surface> const scene_surface = window_info.window();
+    scene_surface->add_observer(std::make_shared<shell::SurfaceReadyObserver>(
+        [this, &window_info](std::shared_ptr<scene::Session> const&, std::shared_ptr<scene::Surface> const&)
+            { Locker lock{mutex, policy}; policy->handle_window_ready(window_info); },
+        session,
+        scene_surface));
 
 #if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 25, 0)
     if (parent && spec.aux_rect().is_set() && spec.placement_hints().is_set())
