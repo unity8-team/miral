@@ -78,7 +78,7 @@ struct StubSurface : mir::test::doubles::StubSurface
         name_{name}, type_{type}, top_left_{top_left}, size_{size} {}
 
     std::string name() const override { return name_; };
-    MirWindowType type() const { return type_; }
+    MirWindowType type() const override { return type_; }
 
     mir::geometry::Point top_left() const override { return top_left_; }
     void move_to(mir::geometry::Point const& top_left) override { top_left_ = top_left; }

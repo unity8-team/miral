@@ -45,7 +45,9 @@ auto miral::CoordinateTranslator::surface_to_screen(std::shared_ptr<mir::fronten
     return scene_surface->top_left() + mir::geometry::Displacement{x, y};
 }
 
+#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 26, 0)
 bool miral::CoordinateTranslator::translation_supported() const
 {
     return enabled;
 }
+#endif

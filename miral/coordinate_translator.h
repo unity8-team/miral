@@ -20,6 +20,7 @@
 #define MIRAL_COORDINATE_TRANSLATOR_H
 
 #include <mir/scene/coordinate_translator.h>
+#include <mir/version.h>
 
 #include <atomic>
 
@@ -34,7 +35,9 @@ public:
     auto surface_to_screen(std::shared_ptr<mir::frontend::Surface> surface, int32_t x, int32_t y)
         -> mir::geometry::Point override;
 
+#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 26, 0)
     bool translation_supported() const override;
+#endif
 
 private:
     std::atomic<bool> enabled{false};
