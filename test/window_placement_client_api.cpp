@@ -17,9 +17,14 @@
  */
 
 #include <mir/version.h>
+#include <mir_toolkit/version.h>
 
 #if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 25, 0)
+#if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
 #include <mir_toolkit/events/surface_placement.h>
+#else
+#include <mir_toolkit/events/window_placement.h>
+#endif
 #endif
 
 #include <miral/detail/mir_forward_compatibility.h>
@@ -83,10 +88,15 @@ struct CheckPlacement
 
     void check(MirWindowPlacementEvent const* placement_event)
     {
-        EXPECT_THAT(mir_surface_placement_get_relative_position(placement_event).top, Eq(expected.top));
-        EXPECT_THAT(mir_surface_placement_get_relative_position(placement_event).left, Eq(expected.left));
-        EXPECT_THAT(mir_surface_placement_get_relative_position(placement_event).height, Eq(expected.height));
-        EXPECT_THAT(mir_surface_placement_get_relative_position(placement_event).width, Eq(expected.width));
+#if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
+        auto relative_position = mir_surface_placement_get_relative_position(placement_event);
+#else
+        auto relative_position = mir_window_placement_get_relative_position(placement_event);
+#endif
+        EXPECT_THAT(relative_position.top, Eq(expected.top));
+        EXPECT_THAT(relative_position.left, Eq(expected.left));
+        EXPECT_THAT(relative_position.height, Eq(expected.height));
+        EXPECT_THAT(relative_position.width, Eq(expected.width));
 
         received.raise();
     }
