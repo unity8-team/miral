@@ -29,8 +29,19 @@
 
 #define MIR_LOG_COMPONENT "miral::Window Management"
 #include <mir/log.h>
+#include <mir/report_exception.h>
 
 using mir::operator<<;
+
+#define MIRAL_TRACE_EXCEPTION \
+catch (std::exception const& x)\
+{\
+    std::stringstream out;\
+    mir::report_exception(out);\
+    mir::log_warning("%s throws %s", __func__, out.str().c_str());\
+    throw;\
+}
+
 
 namespace
 {
@@ -304,95 +315,105 @@ miral::WindowManagementTrace::WindowManagementTrace(
 }
 
 auto miral::WindowManagementTrace::count_applications() const -> unsigned int
-{
+try {
     log_input();
     auto const result = wrapped.count_applications();
     mir::log_info("%s -> %d", __func__, result);
     trace_count++;
     return result;
 }
+MIRAL_TRACE_EXCEPTION
 
 void miral::WindowManagementTrace::for_each_application(std::function<void(miral::ApplicationInfo&)> const& functor)
-{
+try {
     log_input();
     mir::log_info("%s", __func__);
     trace_count++;
     wrapped.for_each_application(functor);
 }
+MIRAL_TRACE_EXCEPTION
 
 auto miral::WindowManagementTrace::find_application(std::function<bool(ApplicationInfo const& info)> const& predicate)
 -> Application
-{
+try {
     log_input();
     auto result = wrapped.find_application(predicate);
     mir::log_info("%s -> %s", __func__, dump_of(result).c_str());
     trace_count++;
     return result;
 }
+MIRAL_TRACE_EXCEPTION
 
 auto miral::WindowManagementTrace::info_for(std::weak_ptr<mir::scene::Session> const& session) const -> ApplicationInfo&
-{
+try {
     log_input();
     auto& result = wrapped.info_for(session);
     mir::log_info("%s -> %s", __func__, result.application()->name().c_str());
     trace_count++;
     return result;
 }
+MIRAL_TRACE_EXCEPTION
 
 auto miral::WindowManagementTrace::info_for(std::weak_ptr<mir::scene::Surface> const& surface) const -> WindowInfo&
-{
+try {
     log_input();
     auto& result = wrapped.info_for(surface);
     mir::log_info("%s -> %s", __func__, result.name().c_str());
     trace_count++;
     return result;
 }
+MIRAL_TRACE_EXCEPTION
 
 auto miral::WindowManagementTrace::info_for(Window const& window) const -> WindowInfo&
-{
+try {
     log_input();
     auto& result = wrapped.info_for(window);
     mir::log_info("%s -> %s", __func__, result.name().c_str());
     trace_count++;
     return result;
 }
+MIRAL_TRACE_EXCEPTION
 
 void miral::WindowManagementTrace::ask_client_to_close(miral::Window const& window)
-{
+try {
     log_input();
     mir::log_info("%s -> %s", __func__, dump_of(window).c_str());
     trace_count++;
     wrapped.ask_client_to_close(window);
 }
+MIRAL_TRACE_EXCEPTION
 
 void miral::WindowManagementTrace::force_close(miral::Window const& window)
-{
+try {
     log_input();
     mir::log_info("%s -> %s", __func__, dump_of(window).c_str());
     trace_count++;
     wrapped.force_close(window);
 }
+MIRAL_TRACE_EXCEPTION
 
 auto miral::WindowManagementTrace::active_window() const -> Window
-{
+try {
     log_input();
     auto result = wrapped.active_window();
     mir::log_info("%s -> %s", __func__, dump_of(result).c_str());
     trace_count++;
     return result;
 }
+MIRAL_TRACE_EXCEPTION
 
 auto miral::WindowManagementTrace::select_active_window(Window const& hint) -> Window
-{
+try {
     log_input();
     auto result = wrapped.select_active_window(hint);
     mir::log_info("%s hint=%s -> %s", __func__, dump_of(hint).c_str(), dump_of(result).c_str());
     trace_count++;
     return result;
 }
+MIRAL_TRACE_EXCEPTION
 
 auto miral::WindowManagementTrace::window_at(mir::geometry::Point cursor) const -> Window
-{
+try {
     log_input();
     auto result = wrapped.window_at(cursor);
     std::stringstream out;
@@ -401,9 +422,10 @@ auto miral::WindowManagementTrace::window_at(mir::geometry::Point cursor) const 
     trace_count++;
     return result;
 }
+MIRAL_TRACE_EXCEPTION
 
 auto miral::WindowManagementTrace::active_display() -> mir::geometry::Rectangle const
-{
+try {
     log_input();
     auto result = wrapped.active_display();
     std::stringstream out;
@@ -412,35 +434,39 @@ auto miral::WindowManagementTrace::active_display() -> mir::geometry::Rectangle 
     trace_count++;
     return result;
 }
+MIRAL_TRACE_EXCEPTION
 
 auto miral::WindowManagementTrace::info_for_window_id(std::string const& id) const -> WindowInfo&
-{
+try {
     log_input();
     auto& result = wrapped.info_for_window_id(id);
     mir::log_info("%s id=%s -> %s", __func__, id.c_str(), dump_of(result).c_str());
     trace_count++;
     return result;
 }
+MIRAL_TRACE_EXCEPTION
 
 auto miral::WindowManagementTrace::id_for_window(Window const& window) const -> std::string
-{
+try {
     log_input();
     auto result = wrapped.id_for_window(window);
     mir::log_info("%s window=%s -> %s", __func__, dump_of(window).c_str(), result.c_str());
     trace_count++;
     return result;
 }
+MIRAL_TRACE_EXCEPTION
 
 void miral::WindowManagementTrace::place_and_size_for_state(
     WindowSpecification& modifications, WindowInfo const& window_info) const
-{
+try {
     log_input();
     mir::log_info("%s modifications=%s window_info=%s", __func__, dump_of(modifications).c_str(), dump_of(window_info).c_str());
     wrapped.place_and_size_for_state(modifications, window_info);
 }
+MIRAL_TRACE_EXCEPTION
 
 void miral::WindowManagementTrace::drag_active_window(mir::geometry::Displacement movement)
-{
+try {
     log_input();
     std::stringstream out;
     out << movement;
@@ -448,79 +474,89 @@ void miral::WindowManagementTrace::drag_active_window(mir::geometry::Displacemen
     trace_count++;
     wrapped.drag_active_window(movement);
 }
+MIRAL_TRACE_EXCEPTION
 
 void miral::WindowManagementTrace::focus_next_application()
-{
+try {
     log_input();
     mir::log_info("%s", __func__);
     trace_count++;
     wrapped.focus_next_application();
 }
+MIRAL_TRACE_EXCEPTION
 
 void miral::WindowManagementTrace::focus_next_within_application()
-{
+try {
     log_input();
     mir::log_info("%s", __func__);
     trace_count++;
     wrapped.focus_next_within_application();
 }
+MIRAL_TRACE_EXCEPTION
 
 void miral::WindowManagementTrace::raise_tree(miral::Window const& root)
-{
+try {
     log_input();
     mir::log_info("%s root=%s", __func__, dump_of(root).c_str());
     trace_count++;
     wrapped.raise_tree(root);
 }
+MIRAL_TRACE_EXCEPTION
 
 void miral::WindowManagementTrace::modify_window(
     miral::WindowInfo& window_info, miral::WindowSpecification const& modifications)
-{
+try {
     log_input();
     mir::log_info("%s window_info=%s, modifications=%s",
                   __func__, dump_of(window_info).c_str(), dump_of(modifications).c_str());
     trace_count++;
     wrapped.modify_window(window_info, modifications);
 }
+MIRAL_TRACE_EXCEPTION
 
 void miral::WindowManagementTrace::invoke_under_lock(std::function<void()> const& callback)
-{
+try {
     mir::log_info("%s", __func__);
     wrapped.invoke_under_lock(callback);
 }
+MIRAL_TRACE_EXCEPTION
 
 auto miral::WindowManagementTrace::place_new_surface(
     ApplicationInfo const& app_info,
     WindowSpecification const& requested_specification) -> WindowSpecification
-{
+try {
     auto const result = policy->place_new_surface(app_info, requested_specification);
     mir::log_info("%s app_info=%s, requested_specification=%s -> %s",
               __func__, dump_of(app_info).c_str(), dump_of(requested_specification).c_str(), dump_of(result).c_str());
     return result;
 }
+MIRAL_TRACE_EXCEPTION
 
 void miral::WindowManagementTrace::handle_window_ready(miral::WindowInfo& window_info)
-{
+try {
     mir::log_info("%s window_info=%s", __func__, dump_of(window_info).c_str());
     policy->handle_window_ready(window_info);
 }
+MIRAL_TRACE_EXCEPTION
 
 void miral::WindowManagementTrace::handle_modify_window(
     miral::WindowInfo& window_info, miral::WindowSpecification const& modifications)
-{
+try {
     mir::log_info("%s window_info=%s, modifications=%s",
                   __func__, dump_of(window_info).c_str(), dump_of(modifications).c_str());
     policy->handle_modify_window(window_info, modifications);
 }
+MIRAL_TRACE_EXCEPTION
 
 void miral::WindowManagementTrace::handle_raise_window(miral::WindowInfo& window_info)
-{
+try {
     mir::log_info("%s window_info=%s", __func__, dump_of(window_info).c_str());
     policy->handle_raise_window(window_info);
 }
+MIRAL_TRACE_EXCEPTION
 
 bool miral::WindowManagementTrace::handle_keyboard_event(MirKeyboardEvent const* event)
-{
+try {
     log_input = [event, this]
         {
             mir::log_info("handle_keyboard_event event=%s", dump_of(event).c_str());
@@ -529,9 +565,10 @@ bool miral::WindowManagementTrace::handle_keyboard_event(MirKeyboardEvent const*
 
     return policy->handle_keyboard_event(event);
 }
+MIRAL_TRACE_EXCEPTION
 
 bool miral::WindowManagementTrace::handle_touch_event(MirTouchEvent const* event)
-{
+try {
     log_input = [event, this]
         {
             mir::log_info("handle_touch_event event=%s", dump_of(event).c_str());
@@ -540,9 +577,10 @@ bool miral::WindowManagementTrace::handle_touch_event(MirTouchEvent const* event
 
     return policy->handle_touch_event(event);
 }
+MIRAL_TRACE_EXCEPTION
 
 bool miral::WindowManagementTrace::handle_pointer_event(MirPointerEvent const* event)
-{
+try {
     log_input = [event, this]
         {
             mir::log_info("handle_pointer_event event=%s", dump_of(event).c_str());
@@ -551,87 +589,101 @@ bool miral::WindowManagementTrace::handle_pointer_event(MirPointerEvent const* e
 
     return policy->handle_pointer_event(event);
 }
+MIRAL_TRACE_EXCEPTION
 
 auto miral::WindowManagementTrace::confirm_inherited_move(WindowInfo const& window_info, Displacement movement)
 -> Rectangle
-{
+try {
     std::stringstream out;
     out << movement;
     mir::log_info("%s window_info=%s, movement=%s", __func__, dump_of(window_info).c_str(), out.str().c_str());
 
     return policy->confirm_inherited_move(window_info, movement);
 }
+MIRAL_TRACE_EXCEPTION
 
 void miral::WindowManagementTrace::advise_begin()
-{
+try {
     log_input = []{};
     trace_count.store(0);
     policy->advise_begin();
 }
+MIRAL_TRACE_EXCEPTION
 
 void miral::WindowManagementTrace::advise_end()
-{
+try {
     if (trace_count.load() > 0)
         mir::log_info("====");
     policy->advise_end();
 }
+MIRAL_TRACE_EXCEPTION
 
 void miral::WindowManagementTrace::advise_new_app(miral::ApplicationInfo& application)
-{
+try {
     mir::log_info("%s application=%s", __func__, dump_of(application).c_str());
     policy->advise_new_app(application);
 }
+MIRAL_TRACE_EXCEPTION
 
 void miral::WindowManagementTrace::advise_delete_app(miral::ApplicationInfo const& application)
-{
+try {
     mir::log_info("%s application=%s", __func__, dump_of(application).c_str());
     policy->advise_delete_app(application);
 }
+MIRAL_TRACE_EXCEPTION
 
 void miral::WindowManagementTrace::advise_new_window(miral::WindowInfo const& window_info)
-{
+try {
     mir::log_info("%s window_info=%s", __func__, dump_of(window_info).c_str());
     policy->advise_new_window(window_info);
 }
+MIRAL_TRACE_EXCEPTION
 
 void miral::WindowManagementTrace::advise_focus_lost(miral::WindowInfo const& window_info)
-{
+try {
     mir::log_info("%s window_info=%s", __func__, dump_of(window_info).c_str());
     policy->advise_focus_lost(window_info);
 }
+MIRAL_TRACE_EXCEPTION
 
 void miral::WindowManagementTrace::advise_focus_gained(miral::WindowInfo const& window_info)
-{
+try {
     mir::log_info("%s window_info=%s", __func__, dump_of(window_info).c_str());
     policy->advise_focus_gained(window_info);
 }
+MIRAL_TRACE_EXCEPTION
 
 void miral::WindowManagementTrace::advise_state_change(miral::WindowInfo const& window_info, MirWindowState state)
-{
+try {
     mir::log_info("%s window_info=%s, state=%s", __func__, dump_of(window_info).c_str(), dump_of(state).c_str());
     policy->advise_state_change(window_info, state);
 }
+MIRAL_TRACE_EXCEPTION
 
 void miral::WindowManagementTrace::advise_move_to(miral::WindowInfo const& window_info, mir::geometry::Point top_left)
-{
+try {
     mir::log_info("%s window_info=%s, top_left=%s", __func__, dump_of(window_info).c_str(), dump_of(top_left).c_str());
     policy->advise_move_to(window_info, top_left);
 }
+MIRAL_TRACE_EXCEPTION
 
 void miral::WindowManagementTrace::advise_resize(miral::WindowInfo const& window_info, mir::geometry::Size const& new_size)
-{
+try {
     mir::log_info("%s window_info=%s, new_size=%s", __func__, dump_of(window_info).c_str(), dump_of(new_size).c_str());
     policy->advise_resize(window_info, new_size);
 }
+MIRAL_TRACE_EXCEPTION
 
 void miral::WindowManagementTrace::advise_delete_window(miral::WindowInfo const& window_info)
-{
+try {
     mir::log_info("%s window_info=%s", __func__, dump_of(window_info).c_str());
     policy->advise_delete_window(window_info);
 }
+MIRAL_TRACE_EXCEPTION
 
 void miral::WindowManagementTrace::advise_raise(std::vector<miral::Window> const& windows)
-{
+try {
     mir::log_info("%s window_info=%s", __func__, dump_of(windows).c_str());
     policy->advise_raise(windows);
 }
+MIRAL_TRACE_EXCEPTION

@@ -6,6 +6,7 @@ miral (1.1.0) UNRELEASED; urgency=medium
     - Enhancements:
       . Compatibility with Mir 0.26 and update API to use the new Mir types and
         enums.
+      . Logging of exceptions added to --window-management-trace
     - Bugs fixed:
       . Let the policy decide how to handle "ready" for windows that can't have
         focus (LP: #1652109)
