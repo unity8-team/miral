@@ -48,8 +48,13 @@ public:
 
     static void raise_signal_on_focus_change(MirWindow* /*surface*/, MirEvent const* event, void* context)
     {
+#if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
         if (mir_event_get_type(event) == mir_event_type_surface &&
             mir_surface_event_get_attribute(mir_event_get_surface_event(event)) == mir_surface_attrib_focus)
+#else
+        if (mir_event_get_type(event) == mir_event_type_window &&
+            mir_window_event_get_attribute(mir_event_get_window_event(event)) == mir_window_attrib_focus)
+#endif
         {
             ((FocusChangeSync*)context)->signal.raise();
         }
