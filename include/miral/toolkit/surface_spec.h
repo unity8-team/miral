@@ -202,7 +202,7 @@ public:
         return *this;
     }
 #else
-    auto set_event_handler(mir_window_event_callback callback, void* context) -> SurfaceSpec&
+    auto set_event_handler(MirWindowEventCallback callback, void* context) -> SurfaceSpec&
     {
         mir_window_spec_set_event_handler(*this, callback, context);
         return *this;
@@ -242,7 +242,7 @@ public:
 #if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
         mir_surface_create(*this, reinterpret_cast<mir_surface_callback>(callback), context);
 #else
-        mir_create_window(*this, reinterpret_cast<mir_window_callback>(callback), context);
+        mir_create_window(*this, reinterpret_cast<MirWindowCallback>(callback), context);
 #endif
     }
 
