@@ -54,6 +54,7 @@ add_executable(miral-test
     test_window_manager_tools.h
     display_reconfiguration.cpp
     active_window.cpp
+    raise_tree.cpp
 )
 
 target_link_libraries(miral-test
