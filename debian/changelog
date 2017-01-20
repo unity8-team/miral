@@ -8,10 +8,20 @@ miral (1.1.0) UNRELEASED; urgency=medium
         enums.
       . Logging of exceptions added to --window-management-trace
     - Bugs fixed:
+
+ -- Alan Griffiths <alan.griffiths@canonical.com>  Wed, 14 Dec 2016 16:31:08 +0000
+
+miral (1.0.2+17.04.20170118.1-0ubuntu1) zesty; urgency=medium
+
+  * New upstream release 1.0.1 (https://launchpad.net/miral/+milestone/1.0)
+    - ABI summary:
+      . miral ABI unchanged at 2
+    - Enhancements:
+    - Bugs fixed:
       . Let the policy decide how to handle "ready" for windows that can't have
         focus (LP: #1652109)
 
- -- Alan Griffiths <alan.griffiths@canonical.com>  Wed, 14 Dec 2016 16:31:08 +0000
+ -- Alan Griffiths <alan.griffiths@canonical.com>  Wed, 18 Jan 2017 18:17:47 +0000
 
 miral (1.0.1+17.04.20161220-0ubuntu1) zesty; urgency=medium
 
