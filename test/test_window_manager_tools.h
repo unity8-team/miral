@@ -140,6 +140,7 @@ struct MockWindowManagerPolicy : miral::CanonicalWindowManagerPolicy
     MOCK_METHOD1(advise_new_window, void (miral::WindowInfo const& window_info));
     MOCK_METHOD2(advise_move_to, void(miral::WindowInfo const& window_info, mir::geometry::Point top_left));
     MOCK_METHOD2(advise_resize, void(miral::WindowInfo const& window_info, mir::geometry::Size const& new_size));
+    MOCK_METHOD1(advise_raise, void(std::vector<miral::Window> const&));
 };
 
 struct TestWindowManagerTools : testing::Test
@@ -158,7 +159,7 @@ struct TestWindowManagerTools : testing::Test
         mir::test::fake_shared(persistent_surface_store),
         [this](miral::WindowManagerTools const& tools) -> std::unique_ptr<miral::WindowManagementPolicy>
             {
-                auto policy = std::make_unique<MockWindowManagerPolicy>(tools);
+                auto policy = std::make_unique<testing::NiceMock<MockWindowManagerPolicy>>(tools);
                 window_manager_policy = policy.get();
                 window_manager_tools = tools;
                 return std::move(policy);

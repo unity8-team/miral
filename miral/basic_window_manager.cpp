@@ -496,6 +496,11 @@ auto miral::BasicWindowManager::active_display()
 
 void miral::BasicWindowManager::raise_tree(Window const& root)
 {
+    auto const& info = info_for(root);
+
+    if (auto parent = info.parent())
+        raise_tree(parent);
+
     std::vector<Window> windows;
 
     std::function<void(WindowInfo const& info)> const add_children =
@@ -509,7 +514,7 @@ void miral::BasicWindowManager::raise_tree(Window const& root)
             };
 
     windows.push_back(root);
-    add_children(info_for(root));
+    add_children(info);
 
     policy->advise_raise(windows);
     focus_controller->raise({begin(windows), end(windows)});
