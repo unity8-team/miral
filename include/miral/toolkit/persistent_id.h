@@ -39,7 +39,7 @@ class PersistentId
 public:
     explicit PersistentId(MirPersistentId* id) : self{id, deleter} {}
 #if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
-    explicit PersistentId(MirSurface* surface) : PersistentId{mir_surface_request_persistent_id_sync(surface)} {}
+    explicit PersistentId(MirWindow* surface) : PersistentId{mir_surface_request_persistent_id_sync(surface)} {}
 #else
     explicit PersistentId(MirWindow* surface) : PersistentId{mir_window_request_persistent_id_sync(surface)} {}
 #endif
