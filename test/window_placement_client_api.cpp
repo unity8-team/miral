@@ -103,11 +103,13 @@ struct CheckPlacement
 
     static void callback(MirWindow* /*surface*/, MirEvent const* event, void* context)
     {
+#if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
         if (mir_event_get_type(event) == mir_event_type_surface_placement)
         {
-#if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
             auto const placement_event = mir_event_get_surface_placement_event(event);
 #else
+        if (mir_event_get_type(event) == mir_event_type_window_placement)
+        {
             auto const placement_event = mir_event_get_window_placement_event(event);
 #endif
             static_cast<CheckPlacement*>(context)->check(placement_event);
