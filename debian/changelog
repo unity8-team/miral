@@ -9,6 +9,8 @@ miral (1.1.0) UNRELEASED; urgency=medium
       . Logging of exceptions added to --window-management-trace
     - Bugs fixed:
       . top-level window is not raised along with its child (LP: #1658085)
+      . miral-shell depends on default cursor theme being installed
+        (LP: #1658159)
 
  -- Alan Griffiths <alan.griffiths@canonical.com>  Wed, 14 Dec 2016 16:31:08 +0000
 
