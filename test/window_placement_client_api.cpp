@@ -79,6 +79,10 @@ struct WindowPlacementClientAPI : miral::TestServer
 
 #if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 25, 0)
 
+#if MIR_CLIENT_VERSION == MIR_VERSION_NUMBER(3, 4, 0)
+auto const mir_event_type_window_placement   = mir_event_type_surface_placement;
+#endif
+
 namespace
 {
 struct CheckPlacement
@@ -103,7 +107,7 @@ struct CheckPlacement
 
     static void callback(MirWindow* /*surface*/, MirEvent const* event, void* context)
     {
-        if (mir_event_get_type(event) == mir_event_type_surface_placement)
+        if (mir_event_get_type(event) == mir_event_type_window_placement)
         {
 #if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
             auto const placement_event = mir_event_get_surface_placement_event(event);

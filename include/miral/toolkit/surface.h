@@ -21,7 +21,11 @@
 
 #include <miral/detail/mir_forward_compatibility.h>
 
+#if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
 #include <mir_toolkit/mir_surface.h>
+#else
+#include <mir_toolkit/mir_window.h>
+#endif
 
 #include <memory>
 
