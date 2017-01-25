@@ -21,7 +21,6 @@
 
 #include <mir_toolkit/version.h>
 #include <mir_toolkit/common.h>
-#include <mir_toolkit/events/event.h>
 #include <miral/detail/mir_features.h>
 
 #if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
@@ -57,8 +56,6 @@ auto const mir_window_state_fullscreen       = mir_surface_state_fullscreen;
 auto const mir_window_state_horizmaximized   = mir_surface_state_horizmaximized;
 auto const mir_window_state_hidden           = mir_surface_state_hidden;
 auto const mir_window_states                 = mir_surface_states;
-
-auto const mir_event_type_window_placement   = mir_event_type_surface_placement;
 
 typedef struct MirSurface MirWindow;
 typedef struct MirSurfaceParameters MirWindowParameters;

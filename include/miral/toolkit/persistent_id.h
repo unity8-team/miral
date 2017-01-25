@@ -24,8 +24,8 @@
 #include <mir_toolkit/mir_surface.h>
 #else
 #include <mir_toolkit/mir_window.h>
-#endif
 #include <mir_toolkit/mir_persistent_id.h>
+#endif
 
 #include <memory>
 
