@@ -31,8 +31,7 @@ public:
 
     explicit CanonicalWindowManagerPolicy(WindowManagerTools const& tools);
 
-    /// places the surfaces as requested
-    auto place_new_surface(
+    auto place_new_window(
         ApplicationInfo const& app_info,
         WindowSpecification const& request_parameters)
         -> WindowSpecification override;

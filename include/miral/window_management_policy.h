@@ -46,11 +46,11 @@ public:
 
     /** Customize initial window placement
      *
-     * @param app_info                the application requesting a new surface
+     * @param app_info                the application requesting a new window
      * @param requested_specification the requested specification (updated with default placement)
      * @return                        the customized specification
      */
-    virtual auto place_new_surface(
+    virtual auto place_new_window(
         ApplicationInfo const& app_info,
         WindowSpecification const& requested_specification) -> WindowSpecification = 0;
 

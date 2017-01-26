@@ -558,10 +558,10 @@ void TitlebarWindowManagerPolicy::keep_size_within_limits(
     }
 }
 
-WindowSpecification TitlebarWindowManagerPolicy::place_new_surface(
+WindowSpecification TitlebarWindowManagerPolicy::place_new_window(
     ApplicationInfo const& app_info, WindowSpecification const& request_parameters)
 {
-    auto parameters = CanonicalWindowManagerPolicy::place_new_surface(app_info, request_parameters);
+    auto parameters = CanonicalWindowManagerPolicy::place_new_window(app_info, request_parameters);
 
     bool const needs_titlebar = WindowInfo::needs_titlebar(parameters.type().value());
 

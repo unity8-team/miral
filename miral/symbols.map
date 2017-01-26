@@ -344,6 +344,8 @@ global:
     # miral::WindowManagementPolicy::advise_state_change*;
     _ZN5miral22WindowManagementPolicy19advise_state_changeERKNS_10WindowInfoE14MirWindowState;
 
-#  extern "C++" {
-#  };
+  extern "C++" {
+    miral::CanonicalWindowManagerPolicy::place_new_window*;
+    non-virtual?thunk?to?miral::CanonicalWindowManagerPolicy::place_new_window*;
+  };
 } MIRAL_1.0;

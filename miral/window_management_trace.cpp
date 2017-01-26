@@ -521,11 +521,11 @@ try {
 }
 MIRAL_TRACE_EXCEPTION
 
-auto miral::WindowManagementTrace::place_new_surface(
+auto miral::WindowManagementTrace::place_new_window(
     ApplicationInfo const& app_info,
     WindowSpecification const& requested_specification) -> WindowSpecification
 try {
-    auto const result = policy->place_new_surface(app_info, requested_specification);
+    auto const result = policy->place_new_window(app_info, requested_specification);
     mir::log_info("%s app_info=%s, requested_specification=%s -> %s",
               __func__, dump_of(app_info).c_str(), dump_of(requested_specification).c_str(), dump_of(result).c_str());
     return result;
