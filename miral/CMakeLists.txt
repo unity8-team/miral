@@ -51,10 +51,10 @@ add_library(miral SHARED
     set_window_managment_policy.cpp     ${CMAKE_SOURCE_DIR}/include/miral/set_window_managment_policy.h
     window_management_policy.cpp        ${CMAKE_SOURCE_DIR}/include/miral/window_management_policy.h
     window_manager_tools.cpp            ${CMAKE_SOURCE_DIR}/include/miral/window_manager_tools.h
-                                        ${CMAKE_SOURCE_DIR}/include/miral/toolkit/surface_spec.h
+                                        ${CMAKE_SOURCE_DIR}/include/miral/toolkit/window_spec.h
                                         ${CMAKE_SOURCE_DIR}/include/miral/toolkit/persistent_id.h
                                         ${CMAKE_SOURCE_DIR}/include/miral/toolkit/connection.h
-                                        ${CMAKE_SOURCE_DIR}/include/miral/toolkit/surface.h
+                                        ${CMAKE_SOURCE_DIR}/include/miral/toolkit/window.h
                                         ${CMAKE_SOURCE_DIR}/include/miral/detail/mir_forward_compatibility.h
 )
 

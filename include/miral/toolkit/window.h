@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016 Canonical Ltd.
+ * Copyright © 2016-2017 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3,
@@ -16,13 +16,14 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#ifndef MIRAL_TOOLKIT_SURFACE_H
-#define MIRAL_TOOLKIT_SURFACE_H
+#ifndef MIRAL_TOOLKIT_WINDOW_H
+#define MIRAL_TOOLKIT_WINDOW_H
 
 #include <miral/detail/mir_forward_compatibility.h>
 
 #if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
 #include <mir_toolkit/mir_surface.h>
+auto const mir_window_release_sync = mir_surface_release_sync;
 #else
 #include <mir_toolkit/mir_window.h>
 #endif
@@ -34,11 +35,11 @@ namespace miral
 namespace toolkit
 {
 /// Handle class for MirWindow - provides automatic reference counting.
-class Surface
+class Window
 {
 public:
-    Surface() = default;
-    explicit Surface(MirWindow* spec) : self{spec, deleter} {}
+    Window() = default;
+    explicit Window(MirWindow* spec) : self{spec, deleter} {}
 
 
     operator MirWindow*() const { return self.get(); }
@@ -46,14 +47,10 @@ public:
     void reset() { self.reset(); }
 
 private:
-#if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
-    static void deleter(MirWindow* window) { mir_surface_release_sync(window); }
-#else
     static void deleter(MirWindow* window) { mir_window_release_sync(window); }
-#endif
     std::shared_ptr<MirWindow> self;
 };
 }
 }
 
-#endif //MIRAL_TOOLKIT_SURFACE_H
+#endif //MIRAL_TOOLKIT_WINDOW_H

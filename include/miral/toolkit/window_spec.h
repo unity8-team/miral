@@ -16,10 +16,10 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#ifndef MIRAL_TOOLKIT_SURFACE_SPEC_H
-#define MIRAL_TOOLKIT_SURFACE_SPEC_H
+#ifndef MIRAL_TOOLKIT_WINDOW_SPEC_H
+#define MIRAL_TOOLKIT_WINDOW_SPEC_H
 
-#include <miral/toolkit/surface.h>
+#include <miral/toolkit/window.h>
 #include <miral/detail/mir_forward_compatibility.h>
 
 #include <mir_toolkit/mir_surface.h>
@@ -33,17 +33,17 @@ namespace miral
 namespace toolkit
 {
 /// Handle class for MirWindowSpec - provides automatic reference counting, method chaining.
-class SurfaceSpec
+class WindowSpec
 {
 public:
-    explicit SurfaceSpec(MirWindowSpec* spec) : self{spec, deleter} {}
+    explicit WindowSpec(MirWindowSpec* spec) : self{spec, deleter} {}
 
-    static auto for_normal_surface(MirConnection* connection, int width, int height, MirPixelFormat format) -> SurfaceSpec
+    static auto for_normal_surface(MirConnection* connection, int width, int height, MirPixelFormat format) -> WindowSpec
     {
 #if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
-        return SurfaceSpec{mir_connection_create_spec_for_normal_surface(connection, width, height, format)};
+        return WindowSpec{mir_connection_create_spec_for_normal_surface(connection, width, height, format)};
 #else
-        auto spec = SurfaceSpec{mir_create_normal_window_spec(connection, width, height)};
+        auto spec = WindowSpec{mir_create_normal_window_spec(connection, width, height)};
         mir_window_spec_set_pixel_format(spec, format);
         return spec;
 #endif
@@ -55,12 +55,12 @@ public:
                          MirPixelFormat format,
                          MirWindow* parent,
                          MirRectangle* rect,
-                         MirEdgeAttachment edge) -> SurfaceSpec
+                         MirEdgeAttachment edge) -> WindowSpec
     {
 #if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
-        return SurfaceSpec{mir_connection_create_spec_for_menu(connection, width, height, format, parent, rect, edge)};
+        return WindowSpec{mir_connection_create_spec_for_menu(connection, width, height, format, parent, rect, edge)};
 #else
-        auto spec = SurfaceSpec{mir_create_menu_window_spec(connection, width, height, parent, rect, edge)};
+        auto spec = WindowSpec{mir_create_menu_window_spec(connection, width, height, parent, rect, edge)};
         mir_window_spec_set_pixel_format(spec, format);
         return spec;
 #endif
@@ -73,12 +73,12 @@ public:
                         MirPixelFormat format,
                         MirWindow* parent,
                         MirRectangle* rect,
-                        MirEdgeAttachment edge) -> SurfaceSpec
+                        MirEdgeAttachment edge) -> WindowSpec
     {
 #if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
-        return SurfaceSpec{mir_connection_create_spec_for_tip(connection, width, height, format, parent, rect, edge)};
+        return WindowSpec{mir_connection_create_spec_for_tip(connection, width, height, format, parent, rect, edge)};
 #else
-        auto spec = SurfaceSpec{mir_create_tip_window_spec(connection, width, height, parent, rect, edge)};
+        auto spec = WindowSpec{mir_create_tip_window_spec(connection, width, height, parent, rect, edge)};
         mir_window_spec_set_pixel_format(spec, format);
         return spec;
 #endif
@@ -88,12 +88,12 @@ public:
     static auto for_dialog(MirConnection* connection,
                            int width,
                            int height,
-                           MirPixelFormat format)-> SurfaceSpec
+                           MirPixelFormat format)-> WindowSpec
     {
 #if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
-        return SurfaceSpec{mir_connection_create_spec_for_dialog(connection, width, height, format)};
+        return WindowSpec{mir_connection_create_spec_for_dialog(connection, width, height, format)};
 #else
-        auto spec = SurfaceSpec{mir_create_dialog_window_spec(connection, width, height)};
+        auto spec = WindowSpec{mir_create_dialog_window_spec(connection, width, height)};
         mir_window_spec_set_pixel_format(spec, format);
         return spec;
 #endif
@@ -103,21 +103,21 @@ public:
                            int width,
                            int height,
                            MirPixelFormat format,
-                           MirWindow* parent) -> SurfaceSpec
+                           MirWindow* parent) -> WindowSpec
     {
         return for_dialog(connection, width, height, format).set_parent(parent);
     }
 
-    static auto for_changes(MirConnection* connection) -> SurfaceSpec
+    static auto for_changes(MirConnection* connection) -> WindowSpec
     {
 #if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
-        return SurfaceSpec{mir_connection_create_spec_for_changes(connection)};
+        return WindowSpec{mir_connection_create_spec_for_changes(connection)};
 #else
-        return SurfaceSpec{mir_create_window_spec(connection)};
+        return WindowSpec{mir_create_window_spec(connection)};
 #endif
     }
 
-    auto set_buffer_usage(MirBufferUsage usage) -> SurfaceSpec&
+    auto set_buffer_usage(MirBufferUsage usage) -> WindowSpec&
     {
 #if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
         mir_surface_spec_set_buffer_usage(*this, usage);
@@ -127,7 +127,7 @@ public:
         return *this;
     }
 
-    auto set_type(MirWindowType type) -> SurfaceSpec&
+    auto set_type(MirWindowType type) -> WindowSpec&
     {
 #if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
         mir_surface_spec_set_type(*this, type);
@@ -137,7 +137,7 @@ public:
         return *this;
     }
 
-    auto set_min_size(int min_width, int min_height) -> SurfaceSpec&
+    auto set_min_size(int min_width, int min_height) -> WindowSpec&
     {
 #if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
         mir_surface_spec_set_min_width(*this, min_width);
@@ -149,7 +149,7 @@ public:
         return *this;
     }
 
-    auto set_max_size(int max_width, int max_height) -> SurfaceSpec&
+    auto set_max_size(int max_width, int max_height) -> WindowSpec&
     {
 #if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
         mir_surface_spec_set_max_width(*this, max_width);
@@ -161,7 +161,7 @@ public:
         return *this;
     }
 
-    auto set_size_inc(int width_inc, int height_inc) -> SurfaceSpec&
+    auto set_size_inc(int width_inc, int height_inc) -> WindowSpec&
     {
 #if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
         mir_surface_spec_set_width_increment(*this, width_inc);
@@ -173,7 +173,7 @@ public:
         return *this;
     }
 
-    auto set_size(int width, int height) -> SurfaceSpec&
+    auto set_size(int width, int height) -> WindowSpec&
     {
 #if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
         mir_surface_spec_set_width(*this, width);
@@ -185,7 +185,7 @@ public:
         return *this;
     }
 
-    auto set_name(char const* name) -> SurfaceSpec&
+    auto set_name(char const* name) -> WindowSpec&
     {
 #if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
         mir_surface_spec_set_name(*this, name);
@@ -196,13 +196,13 @@ public:
     }
 
 #if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
-    auto set_event_handler(mir_surface_event_callback callback, void* context) -> SurfaceSpec&
+    auto set_event_handler(mir_surface_event_callback callback, void* context) -> WindowSpec&
     {
         mir_surface_spec_set_event_handler(*this, callback, context);
         return *this;
     }
 #else
-    auto set_event_handler(MirWindowEventCallback callback, void* context) -> SurfaceSpec&
+    auto set_event_handler(MirWindowEventCallback callback, void* context) -> WindowSpec&
     {
         mir_window_spec_set_event_handler(*this, callback, context);
         return *this;
@@ -215,7 +215,7 @@ public:
                        MirPlacementGravity surface_gravity,
                        MirPlacementHints   placement_hints,
                        int                 offset_dx,
-                       int                 offset_dy) -> SurfaceSpec&
+                       int                 offset_dy) -> WindowSpec&
     {
 #if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
         mir_surface_spec_set_placement(*this, rect, rect_gravity, surface_gravity, placement_hints, offset_dx, offset_dy);
@@ -226,7 +226,7 @@ public:
     }
 #endif
 
-    auto set_parent(MirWindow* parent) -> SurfaceSpec&
+    auto set_parent(MirWindow* parent) -> WindowSpec&
     {
 #if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
         mir_surface_spec_set_parent(*this, parent);
@@ -246,12 +246,12 @@ public:
 #endif
     }
 
-    auto create_surface() const -> Surface
+    auto create_surface() const -> Window
     {
 #if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
-        return Surface{mir_surface_create_sync(*this)};
+        return Window{mir_surface_create_sync(*this)};
 #else
-        return Surface{mir_create_window_sync(*this)};
+        return Window{mir_create_window_sync(*this)};
 #endif
     }
 
@@ -277,4 +277,4 @@ private:
 }
 }
 
-#endif //MIRAL_TOOLKIT_SURFACE_SPEC_H_H
+#endif //MIRAL_TOOLKIT_WINDOW_SPEC_H_H

@@ -18,8 +18,8 @@
 
 #include "test_server.h"
 
-#include <miral/toolkit/surface.h>
-#include <miral/toolkit/surface_spec.h>
+#include <miral/toolkit/window.h>
+#include <miral/toolkit/window_spec.h>
 #include <mir_toolkit/mir_buffer_stream.h>
 #include <mir_toolkit/version.h>
 
@@ -30,9 +30,9 @@
 #include <gtest/gtest.h>
 
 using namespace testing;
-using namespace miral;
 using namespace miral::toolkit;
 using namespace std::chrono_literals;
+using miral::WindowManagerTools;
 
 namespace
 {
@@ -66,19 +66,19 @@ private:
     mir::test::Signal signal;
 };
 
-struct ActiveWindow : public TestServer
+struct ActiveWindow : public miral::TestServer
 {
     FocusChangeSync sync1;
     FocusChangeSync sync2;
 
-    auto create_surface(Connection const& connection, char const* name, FocusChangeSync& sync) -> Surface
+    auto create_surface(Connection const& connection, char const* name, FocusChangeSync& sync) -> Window
     {
-        auto const spec = SurfaceSpec::for_normal_surface(connection, 50, 50, mir_pixel_format_argb_8888)
+        auto const spec = WindowSpec::for_normal_surface(connection, 50, 50, mir_pixel_format_argb_8888)
             .set_buffer_usage(mir_buffer_usage_software)
             .set_event_handler(&FocusChangeSync::raise_signal_on_focus_change, &sync)
             .set_name(name);
 
-        Surface const surface{spec.create_surface()};
+        Window const surface{spec.create_surface()};
 
 #if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
         sync.exec([&]{ mir_buffer_stream_swap_buffers_sync(mir_surface_get_buffer_stream(surface)); });
@@ -91,15 +91,15 @@ struct ActiveWindow : public TestServer
     }
 
 #if MIR_CLIENT_VERSION >= MIR_VERSION_NUMBER(3, 4, 0)
-    auto create_tip(Connection const& connection, char const* name, Surface const& parent, FocusChangeSync& sync) -> Surface
+    auto create_tip(Connection const& connection, char const* name, Window const& parent, FocusChangeSync& sync) -> Window
     {
         MirRectangle aux_rect{10, 10, 10, 10};
-        auto const spec = SurfaceSpec::for_tip(connection, 50, 50, mir_pixel_format_argb_8888, parent, &aux_rect, mir_edge_attachment_any)
+        auto const spec = WindowSpec::for_tip(connection, 50, 50, mir_pixel_format_argb_8888, parent, &aux_rect, mir_edge_attachment_any)
             .set_buffer_usage(mir_buffer_usage_software)
             .set_event_handler(&FocusChangeSync::raise_signal_on_focus_change, &sync)
             .set_name(name);
 
-        Surface const surface{spec.create_surface()};
+        Window const surface{spec.create_surface()};
 
         // Expect this to timeout: A tip should not receive focus
 #if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
@@ -113,14 +113,14 @@ struct ActiveWindow : public TestServer
     }
 #endif
 
-    auto create_dialog(Connection const& connection, char const* name, Surface const& parent, FocusChangeSync& sync) -> Surface
+    auto create_dialog(Connection const& connection, char const* name, Window const& parent, FocusChangeSync& sync) -> Window
     {
-        auto const spec = SurfaceSpec::for_dialog(connection, 50, 50, mir_pixel_format_argb_8888, parent)
+        auto const spec = WindowSpec::for_dialog(connection, 50, 50, mir_pixel_format_argb_8888, parent)
             .set_buffer_usage(mir_buffer_usage_software)
             .set_event_handler(&FocusChangeSync::raise_signal_on_focus_change, &sync)
             .set_name(name);
 
-        Surface const surface{spec.create_surface()};
+        Window const surface{spec.create_surface()};
 
 #if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
         sync.exec([&]{ mir_buffer_stream_swap_buffers_sync(mir_surface_get_buffer_stream(surface)); });
@@ -308,7 +308,7 @@ TEST_F(ActiveWindow, selecting_a_tip_makes_parent_active)
 
     auto const parent = create_surface(connection, test_name, sync1);
 
-    Window parent_window;
+    miral::Window parent_window;
     invoke_tools([&](WindowManagerTools& tools){ parent_window = tools.active_window(); });
 
     // Steal the focus
@@ -336,7 +336,7 @@ TEST_F(ActiveWindow, selecting_a_parent_makes_dialog_active)
 
     auto const parent = create_surface(connection, test_name, sync1);
 
-    Window parent_window;
+    miral::Window parent_window;
     invoke_tools([&](WindowManagerTools& tools){ parent_window = tools.active_window(); });
 
     auto const dialog = create_dialog(connection, dialog_name, parent, sync2);
