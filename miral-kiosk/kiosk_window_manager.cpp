@@ -125,7 +125,7 @@ void KioskWindowManagerPolicy::advise_focus_gained(WindowInfo const& info)
 
 void KioskWindowManagerPolicy::advise_new_window(WindowInfo const& window_info)
 {
-    // We do this here, not in place_new_surface() so that clients get a resize event.
+    // We do this here, not in place_new_window() so that clients get a resize event.
     // This shouldn't be necessary, but works better with the gtk-mir backend.
     if (maximize_root_windows &&
         window_info.type() == mir_window_type_normal &&

@@ -37,7 +37,7 @@ public:
     TitlebarWindowManagerPolicy(miral::WindowManagerTools const& tools, SpinnerSplash const& spinner, miral::InternalClientLauncher const& launcher);
     ~TitlebarWindowManagerPolicy();
 
-    virtual miral::WindowSpecification place_new_surface(
+    virtual miral::WindowSpecification place_new_window(
         miral::ApplicationInfo const& app_info, miral::WindowSpecification const& request_parameters) override;
 
     /** @name example event handling:

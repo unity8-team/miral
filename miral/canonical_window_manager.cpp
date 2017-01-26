@@ -30,7 +30,14 @@ miral::CanonicalWindowManagerPolicy::CanonicalWindowManagerPolicy(WindowManagerT
 {
 }
 
-auto miral::CanonicalWindowManagerPolicy::place_new_surface(
+#ifndef __clang__
+extern "C" __attribute__((alias("_ZN5miral28CanonicalWindowManagerPolicy16place_new_windowERKNS_15ApplicationInfoERKNS_19WindowSpecificationE"))) void _ZN5miral28CanonicalWindowManagerPolicy17place_new_surfaceERKNS_15ApplicationInfoERKNS_19WindowSpecificationE();
+__asm__(".symver _ZN5miral28CanonicalWindowManagerPolicy17place_new_surfaceERKNS_15ApplicationInfoERKNS_19WindowSpecificationE,_ZN5miral28CanonicalWindowManagerPolicy17place_new_surfaceERKNS_15ApplicationInfoERKNS_19WindowSpecificationE@MIRAL_1.0");
+#else
+__asm__(".symver _ZN5miral28CanonicalWindowManagerPolicy16place_new_windowERKNS_15ApplicationInfoERKNS_19WindowSpecificationE,_ZN5miral28CanonicalWindowManagerPolicy17place_new_surfaceERKNS_15ApplicationInfoERKNS_19WindowSpecificationE@MIRAL_1.0");
+__asm__(".symver _ZN5miral28CanonicalWindowManagerPolicy16place_new_windowERKNS_15ApplicationInfoERKNS_19WindowSpecificationE,_ZN5miral28CanonicalWindowManagerPolicy16place_new_windowERKNS_15ApplicationInfoERKNS_19WindowSpecificationE@@@MIRAL_1.1");
+#endif
+auto miral::CanonicalWindowManagerPolicy::place_new_window(
     miral::ApplicationInfo const& /*app_info*/,
     miral::WindowSpecification const& request_parameters)
     -> miral::WindowSpecification

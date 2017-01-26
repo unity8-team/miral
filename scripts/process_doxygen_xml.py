@@ -427,9 +427,9 @@ global:
     # miral::WindowManagementPolicy::advise_state_change*;
     _ZN5miral22WindowManagementPolicy19advise_state_changeERKNS_10WindowInfoE14MirWindowState;
 
-#  extern "C++" {'''
+  extern "C++" {'''
 
-END_NEW_STANZA = '''#  };
+END_NEW_STANZA = '''  };
 } MIRAL_1.0;'''
 
 def _print_report():

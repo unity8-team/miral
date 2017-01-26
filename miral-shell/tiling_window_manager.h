@@ -54,7 +54,7 @@ public:
 
     ~TilingWindowManagerPolicy();
 
-    auto place_new_surface(
+    auto place_new_window(
         miral::ApplicationInfo const& app_info,
         miral::WindowSpecification const& request_parameters)
         -> miral::WindowSpecification override;

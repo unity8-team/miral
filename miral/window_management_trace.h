@@ -71,7 +71,7 @@ private:
 
     virtual void invoke_under_lock(std::function<void()> const& callback) override;
 
-    virtual auto place_new_surface(
+    virtual auto place_new_window(
         ApplicationInfo const& app_info,
         WindowSpecification const& requested_specification) -> WindowSpecification override;
     virtual void handle_window_ready(WindowInfo& window_info) override;

@@ -108,7 +108,7 @@ void TilingWindowManagerPolicy::resize(Point cursor)
     }
 }
 
-auto TilingWindowManagerPolicy::place_new_surface(
+auto TilingWindowManagerPolicy::place_new_window(
     ApplicationInfo const& app_info,
     WindowSpecification const& request_parameters)
     -> WindowSpecification
