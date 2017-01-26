@@ -21,6 +21,7 @@ add_library(miral-internal STATIC
     window_management_trace.cpp         window_management_trace.h
     xcursor_loader.cpp                  xcursor_loader.h
     xcursor.c                           xcursor.h
+    both_versions.h
 )
 
 set_source_files_properties(xcursor.c PROPERTIES COMPILE_DEFINITIONS _GNU_SOURCE)
