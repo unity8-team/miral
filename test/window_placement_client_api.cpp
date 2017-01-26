@@ -28,8 +28,8 @@
 #endif
 
 #include <miral/detail/mir_forward_compatibility.h>
-#include <miral/toolkit/surface_spec.h>
-#include <miral/toolkit/surface.h>
+#include <miral/toolkit/window_spec.h>
+#include <miral/toolkit/window.h>
 
 #include <mir/test/signal.h>
 #include "test_server.h"
@@ -56,7 +56,7 @@ struct WindowPlacementClientAPI : miral::TestServer
         char const* const test_name = __PRETTY_FUNCTION__;
 
         connection = connect_client(test_name);
-        auto spec = SurfaceSpec::for_normal_surface(connection, 400, 400, mir_pixel_format_argb_8888)
+        auto spec = WindowSpec::for_normal_surface(connection, 400, 400, mir_pixel_format_argb_8888)
             .set_name(test_name);
 
         parent = spec.create_surface();
@@ -72,8 +72,8 @@ struct WindowPlacementClientAPI : miral::TestServer
     }
 
     Connection connection;
-    Surface parent;
-    Surface child;
+    Window parent;
+    Window child;
 };
 }
 
@@ -142,7 +142,7 @@ TEST_F(WindowPlacementClientAPI, given_menu_placements_away_from_edges_when_noti
         MirRectangle aux_rect{10, 20, 3, 4};
         CheckPlacement expected{aux_rect.left+(int)aux_rect.width, aux_rect.top, dx, dy};
 
-        auto const spec = SurfaceSpec::
+        auto const spec = WindowSpec::
             for_menu(connection, dx, dy, mir_pixel_format_argb_8888, parent, &aux_rect, mir_edge_attachment_any)
             .set_event_handler(&CheckPlacement::callback, &expected)
             .set_name(test_name);
@@ -155,7 +155,7 @@ TEST_F(WindowPlacementClientAPI, given_menu_placements_away_from_edges_when_noti
         MirRectangle aux_rect{50, 60, 5, 7};
         CheckPlacement expected{aux_rect.left-dx, aux_rect.top, dx, dy};
 
-        auto const spec = SurfaceSpec::for_changes(connection)
+        auto const spec = WindowSpec::for_changes(connection)
             .set_event_handler(&CheckPlacement::callback, &expected)
             .set_placement(&aux_rect, mir_placement_gravity_northwest, mir_placement_gravity_northeast, mir_placement_hints_flip_x, 0, 0);
 

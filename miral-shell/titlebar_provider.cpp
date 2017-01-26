@@ -19,7 +19,7 @@
 #include "titlebar_provider.h"
 #include "titlebar_config.h"
 
-#include <miral/toolkit/surface_spec.h>
+#include <miral/toolkit/window_spec.h>
 
 #include <mir_toolkit/mir_buffer_stream.h>
 
@@ -208,7 +208,7 @@ void TitlebarProvider::create_titlebar_for(miral::Window const& window)
 
             buffer << std::shared_ptr<mir::scene::Surface>(window).get();
 
-            auto const spec = SurfaceSpec::for_normal_surface(
+            auto const spec = WindowSpec::for_normal_surface(
                 connection, window.size().width.as_int(), title_bar_height, mir_pixel_format_xrgb_8888)
                 .set_buffer_usage(mir_buffer_usage_software)
                 .set_type(mir_window_type_gloss)

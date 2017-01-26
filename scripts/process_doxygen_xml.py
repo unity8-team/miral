@@ -436,7 +436,7 @@ def _print_report():
     print OLD_STANZAS
     for symbol in sorted(SYMBOLS['public']):
         formatted_symbol = '    {};'.format(symbol)
-        if formatted_symbol not in OLD_STANZAS:
+        if formatted_symbol not in OLD_STANZAS and 'miral::toolkit::' not in formatted_symbol:
             print formatted_symbol
     print END_NEW_STANZA
 
