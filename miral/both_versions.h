@@ -24,6 +24,7 @@
 #if (MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 26, 0))
     #ifndef __clang__
         #define MIRAL_BOTH_VERSIONS(old_sym, old_version, new_sym, new_version)\
+        extern "C" __attribute__((alias(#new_sym))) void old_sym();\
         __asm__(".symver old_sym,old_sym@" #old_version);\
         __asm__(".symver new_sym,new_sym@@" #new_version);
     #else
