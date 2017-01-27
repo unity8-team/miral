@@ -44,3 +44,8 @@ auto miral::CoordinateTranslator::surface_to_screen(std::shared_ptr<mir::fronten
     auto const& scene_surface = std::dynamic_pointer_cast<mir::scene::Surface>(surface);
     return scene_surface->top_left() + mir::geometry::Displacement{x, y};
 }
+
+bool miral::CoordinateTranslator::translation_supported() const
+{
+    return enabled;
+}

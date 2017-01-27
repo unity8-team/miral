@@ -18,6 +18,7 @@
 
 #include "miregl.h"
 
+#include <mir_toolkit/version.h>
 
 
 float mir_eglapp_background_opacity = 1.0f;
@@ -31,6 +32,7 @@ void for_each_active_output(
 {
     /* eglapps are interested in the screen size, so
     use mir_connection_create_display_config */
+#if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
     MirDisplayConfiguration* display_config =
         mir_connection_create_display_config(connection);
 
@@ -48,6 +50,25 @@ void for_each_active_output(
     }
 
     mir_display_config_destroy(display_config);
+#else
+    MirDisplayConfig* display_config =
+        mir_connection_create_display_configuration(connection);
+
+    int const n = mir_display_config_get_num_outputs(display_config);
+
+    for (int i = 0; i != n; ++i)
+    {
+        MirOutput const *const output = mir_display_config_get_output(display_config, i);
+        if (mir_output_is_enabled(output) &&
+            mir_output_get_connection_state(output) == mir_output_connection_state_connected &&
+            mir_output_get_num_modes(output) &&
+            mir_output_get_current_mode_index(output) < (size_t)mir_output_get_num_modes(output))
+        {
+            handler(output);
+        }
+    }
+    mir_display_config_release(display_config);
+#endif
 }
 
 MirPixelFormat select_pixel_format(MirConnection* connection)
@@ -72,7 +93,7 @@ MirPixelFormat select_pixel_format(MirConnection* connection)
 
 std::vector<std::shared_ptr<MirEglSurface>> mir_eglapp_init(MirConnection* const connection)
 {
-    MirSurfaceParameters surfaceparm =
+    MirWindowParameters surfaceparm =
         {
             "eglappsurface",
             0, 0,
@@ -108,6 +129,7 @@ std::vector<std::shared_ptr<MirEglSurface>> mir_eglapp_init(MirConnection* const
     }
 
     // but normally, we're fullscreen on every active output
+#if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
     for_each_active_output(connection, [&](MirDisplayOutput const* output)
         {
             auto const& mode = output->modes[output->current_mode];
@@ -120,6 +142,20 @@ std::vector<std::shared_ptr<MirEglSurface>> mir_eglapp_init(MirConnection* const
             surfaceparm.output_id = output->output_id;
             result.push_back(std::make_shared<MirEglSurface>(mir_egl_app, surfaceparm, swapinterval));
         });
+#else
+    for_each_active_output(connection, [&](MirOutput const* output)
+        {
+            auto const& mode = mir_output_get_current_mode(output);
+
+            printf("Active output [%u] at (%d, %d) is %dx%d\n",
+                   mir_output_get_id(output),
+                   mir_output_get_position_x(output), mir_output_get_position_y(output),
+                   mir_output_mode_get_width(mode), mir_output_mode_get_height(mode));
+
+            surfaceparm.output_id = mir_output_get_id(output);
+            result.push_back(std::make_shared<MirEglSurface>(mir_egl_app, surfaceparm, swapinterval));
+        });
+#endif
 
     if (result.empty())
         throw std::runtime_error("No active outputs found.");

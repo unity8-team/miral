@@ -94,7 +94,7 @@ public:
     int set_surface_attribute(
         std::shared_ptr<mir::scene::Session> const& /*application*/,
         std::shared_ptr<mir::scene::Surface> const& surface,
-        MirSurfaceAttrib attrib,
+        MirWindowAttrib attrib,
         int value) override;
 
     auto count_applications() const -> unsigned int override;
@@ -172,7 +172,7 @@ private:
     void erase(miral::WindowInfo const& info);
     void validate_modification_request(WindowSpecification const& modifications, WindowInfo const& window_info) const;
     void place_and_size(WindowInfo& root, Point const& new_pos, Size const& new_size);
-    void set_state(miral::WindowInfo& window_info, MirSurfaceState value);
+    void set_state(miral::WindowInfo& window_info, MirWindowState value);
     auto fullscreen_rect_for(WindowInfo const& window_info) const -> Rectangle;
     void remove_window(Application const& application, miral::WindowInfo const& info);
 };

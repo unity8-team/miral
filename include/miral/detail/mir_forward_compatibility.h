@@ -20,7 +20,49 @@
 #define MIRAL_MIR_FORWARD_COMPATIBILITY_H
 
 #include <mir_toolkit/version.h>
+#include <mir_toolkit/common.h>
 #include <miral/detail/mir_features.h>
+
+#if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
+using MirWindowAttrib = MirSurfaceAttrib;
+auto const mir_window_attrib_type                    = mir_surface_attrib_type;
+auto const mir_window_attrib_state                   = mir_surface_attrib_state;
+auto const mir_window_attrib_swapinterval            = mir_surface_attrib_swapinterval;
+auto const mir_window_attrib_focus                   = mir_surface_attrib_focus;
+auto const mir_window_attrib_dpi                     = mir_surface_attrib_dpi;
+auto const mir_window_attrib_visibility              = mir_surface_attrib_visibility;
+auto const mir_window_attrib_preferred_orientation   = mir_surface_attrib_preferred_orientation;
+auto const mir_window_attribs                        = mir_surface_attribs;
+
+using MirWindowType = MirSurfaceType;
+auto const mir_window_type_normal        = mir_surface_type_normal;
+auto const mir_window_type_utility       = mir_surface_type_utility;
+auto const mir_window_type_dialog        = mir_surface_type_dialog;
+auto const mir_window_type_gloss         = mir_surface_type_gloss;
+auto const mir_window_type_freestyle     = mir_surface_type_freestyle;
+auto const mir_window_type_menu          = mir_surface_type_menu;
+auto const mir_window_type_inputmethod   = mir_surface_type_inputmethod;
+auto const mir_window_type_satellite     = mir_surface_type_satellite;
+auto const mir_window_type_tip           = mir_surface_type_tip;
+auto const mir_window_types              = mir_surface_types;
+
+using MirWindowState = MirSurfaceState;
+auto const mir_window_state_unknown          = mir_surface_state_unknown;
+auto const mir_window_state_restored         = mir_surface_state_restored;
+auto const mir_window_state_minimized        = mir_surface_state_minimized;
+auto const mir_window_state_maximized        = mir_surface_state_maximized;
+auto const mir_window_state_vertmaximized    = mir_surface_state_vertmaximized;
+auto const mir_window_state_fullscreen       = mir_surface_state_fullscreen;
+auto const mir_window_state_horizmaximized   = mir_surface_state_horizmaximized;
+auto const mir_window_state_hidden           = mir_surface_state_hidden;
+auto const mir_window_states                 = mir_surface_states;
+
+typedef struct MirSurface MirWindow;
+typedef struct MirSurfaceParameters MirWindowParameters;
+typedef struct MirSurfacePlacementEvent MirWindowPlacementEvent;
+typedef struct MirSurfaceSpec MirWindowSpec;
+#endif
+
 
 // Types that don't exist in earlier versions of Mir's toolkit
 #if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 4, 0)

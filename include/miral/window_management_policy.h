@@ -23,6 +23,8 @@
 #include <mir/geometry/rectangles.h>
 #include <mir_toolkit/event.h>
 
+#include <miral/detail/mir_forward_compatibility.h>
+
 namespace miral
 {
 class Window;
@@ -44,11 +46,11 @@ public:
 
     /** Customize initial window placement
      *
-     * @param app_info                the application requesting a new surface
+     * @param app_info                the application requesting a new window
      * @param requested_specification the requested specification (updated with default placement)
      * @return                        the customized specification
      */
-    virtual auto place_new_surface(
+    virtual auto place_new_window(
         ApplicationInfo const& app_info,
         WindowSpecification const& requested_specification) -> WindowSpecification = 0;
 
@@ -141,7 +143,7 @@ public:
      * @param window_info   the window
      * @param state         the new state
      */
-    virtual void advise_state_change(WindowInfo const& window_info, MirSurfaceState state);
+    virtual void advise_state_change(WindowInfo const& window_info, MirWindowState state);
 
     /** Notification that a window is about to move
      *

@@ -17,13 +17,19 @@
  */
 
 #include <mir/version.h>
+#include <mir_toolkit/version.h>
 
 #if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 25, 0)
+#if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
 #include <mir_toolkit/events/surface_placement.h>
+#else
+#include <mir_toolkit/events/window_placement.h>
+#endif
 #endif
 
-#include <miral/toolkit/surface_spec.h>
-#include <miral/toolkit/surface.h>
+#include <miral/detail/mir_forward_compatibility.h>
+#include <miral/toolkit/window_spec.h>
+#include <miral/toolkit/window.h>
 
 #include <mir/test/signal.h>
 #include "test_server.h"
@@ -50,7 +56,7 @@ struct WindowPlacementClientAPI : miral::TestServer
         char const* const test_name = __PRETTY_FUNCTION__;
 
         connection = connect_client(test_name);
-        auto spec = SurfaceSpec::for_normal_surface(connection, 400, 400, mir_pixel_format_argb_8888)
+        auto spec = WindowSpec::for_normal_surface(connection, 400, 400, mir_pixel_format_argb_8888)
             .set_name(test_name);
 
         parent = spec.create_surface();
@@ -66,12 +72,16 @@ struct WindowPlacementClientAPI : miral::TestServer
     }
 
     Connection connection;
-    Surface parent;
-    Surface child;
+    Window parent;
+    Window child;
 };
 }
 
 #if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 25, 0)
+
+#if MIR_CLIENT_VERSION == MIR_VERSION_NUMBER(3, 4, 0)
+auto const mir_event_type_window_placement   = mir_event_type_surface_placement;
+#endif
 
 namespace
 {
@@ -80,21 +90,30 @@ struct CheckPlacement
     CheckPlacement(int left, int top, unsigned int width, unsigned int height) :
         expected{left, top, width, height} {}
 
-    void check(MirSurfacePlacementEvent const* placement_event)
+    void check(MirWindowPlacementEvent const* placement_event)
     {
-        EXPECT_THAT(mir_surface_placement_get_relative_position(placement_event).top, Eq(expected.top));
-        EXPECT_THAT(mir_surface_placement_get_relative_position(placement_event).left, Eq(expected.left));
-        EXPECT_THAT(mir_surface_placement_get_relative_position(placement_event).height, Eq(expected.height));
-        EXPECT_THAT(mir_surface_placement_get_relative_position(placement_event).width, Eq(expected.width));
+#if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
+        auto relative_position = mir_surface_placement_get_relative_position(placement_event);
+#else
+        auto relative_position = mir_window_placement_get_relative_position(placement_event);
+#endif
+        EXPECT_THAT(relative_position.top, Eq(expected.top));
+        EXPECT_THAT(relative_position.left, Eq(expected.left));
+        EXPECT_THAT(relative_position.height, Eq(expected.height));
+        EXPECT_THAT(relative_position.width, Eq(expected.width));
 
         received.raise();
     }
 
-    static void callback(MirSurface* /*surface*/, MirEvent const* event, void* context)
+    static void callback(MirWindow* /*surface*/, MirEvent const* event, void* context)
     {
-        if (mir_event_get_type(event) == mir_event_type_surface_placement)
+        if (mir_event_get_type(event) == mir_event_type_window_placement)
         {
+#if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
             auto const placement_event = mir_event_get_surface_placement_event(event);
+#else
+            auto const placement_event = mir_event_get_window_placement_event(event);
+#endif
             static_cast<CheckPlacement*>(context)->check(placement_event);
         }
     }
@@ -123,7 +142,7 @@ TEST_F(WindowPlacementClientAPI, given_menu_placements_away_from_edges_when_noti
         MirRectangle aux_rect{10, 20, 3, 4};
         CheckPlacement expected{aux_rect.left+(int)aux_rect.width, aux_rect.top, dx, dy};
 
-        auto const spec = SurfaceSpec::
+        auto const spec = WindowSpec::
             for_menu(connection, dx, dy, mir_pixel_format_argb_8888, parent, &aux_rect, mir_edge_attachment_any)
             .set_event_handler(&CheckPlacement::callback, &expected)
             .set_name(test_name);
@@ -136,7 +155,7 @@ TEST_F(WindowPlacementClientAPI, given_menu_placements_away_from_edges_when_noti
         MirRectangle aux_rect{50, 60, 5, 7};
         CheckPlacement expected{aux_rect.left-dx, aux_rect.top, dx, dy};
 
-        auto const spec = SurfaceSpec::for_changes(connection)
+        auto const spec = WindowSpec::for_changes(connection)
             .set_event_handler(&CheckPlacement::callback, &expected)
             .set_placement(&aux_rect, mir_placement_gravity_northwest, mir_placement_gravity_northeast, mir_placement_hints_flip_x, 0, 0);
 

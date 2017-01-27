@@ -109,7 +109,7 @@ bool TitlebarWindowManagerPolicy::handle_pointer_event(MirPointerEvent const* ev
             }
         }
     }
-    
+
     if (resizing && !is_resize_event)
         end_resize();
 
@@ -312,7 +312,7 @@ void TitlebarWindowManagerPolicy::advise_focus_gained(WindowInfo const& info)
     }
 }
 
-void TitlebarWindowManagerPolicy::advise_state_change(WindowInfo const& window_info, MirSurfaceState state)
+void TitlebarWindowManagerPolicy::advise_state_change(WindowInfo const& window_info, MirWindowState state)
 {
     CanonicalWindowManagerPolicy::advise_state_change(window_info, state);
 
@@ -347,15 +347,15 @@ bool TitlebarWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* 
         switch (modifiers)
         {
         case mir_input_event_modifier_alt:
-            toggle(mir_surface_state_maximized);
+            toggle(mir_window_state_maximized);
             return true;
 
         case mir_input_event_modifier_shift:
-            toggle(mir_surface_state_vertmaximized);
+            toggle(mir_window_state_vertmaximized);
             return true;
 
         case mir_input_event_modifier_ctrl:
-            toggle(mir_surface_state_horizmaximized);
+            toggle(mir_window_state_horizmaximized);
             return true;
 
         default:
@@ -418,8 +418,8 @@ bool TitlebarWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* 
                 break;
 
             case KEY_UP:
-                if (window_info.state() != mir_surface_state_vertmaximized &&
-                    window_info.state() != mir_surface_state_maximized)
+                if (window_info.state() != mir_window_state_vertmaximized &&
+                    window_info.state() != mir_window_state_maximized)
                 {
                     modifications.top_left() =
                         Point{active_window.top_left().x, active_display.top_left.y} + DeltaY{title_bar_height};
@@ -455,7 +455,7 @@ bool TitlebarWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* 
     return false;
 }
 
-void TitlebarWindowManagerPolicy::toggle(MirSurfaceState state)
+void TitlebarWindowManagerPolicy::toggle(MirWindowState state)
 {
     if (auto const window = tools.active_window())
     {
@@ -463,7 +463,7 @@ void TitlebarWindowManagerPolicy::toggle(MirSurfaceState state)
 
         WindowSpecification modifications;
 
-        modifications.state() = (info.state() == state) ? mir_surface_state_restored : state;
+        modifications.state() = (info.state() == state) ? mir_window_state_restored : state;
         tools.place_and_size_for_state(modifications, info);
         tools.modify_window(info, modifications);
     }
@@ -558,14 +558,14 @@ void TitlebarWindowManagerPolicy::keep_size_within_limits(
     }
 }
 
-WindowSpecification TitlebarWindowManagerPolicy::place_new_surface(
+WindowSpecification TitlebarWindowManagerPolicy::place_new_window(
     ApplicationInfo const& app_info, WindowSpecification const& request_parameters)
 {
-    auto parameters = CanonicalWindowManagerPolicy::place_new_surface(app_info, request_parameters);
+    auto parameters = CanonicalWindowManagerPolicy::place_new_window(app_info, request_parameters);
 
     bool const needs_titlebar = WindowInfo::needs_titlebar(parameters.type().value());
 
-    if (parameters.state().value() != mir_surface_state_fullscreen && needs_titlebar)
+    if (parameters.state().value() != mir_window_state_fullscreen && needs_titlebar)
         parameters.top_left() = Point{parameters.top_left().value().x, parameters.top_left().value().y + DeltaY{title_bar_height}};
 
     if (app_info.application() == titlebar_provider->session())

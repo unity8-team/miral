@@ -18,8 +18,8 @@
 
 #include "test_server.h"
 
-#include <miral/toolkit/surface.h>
-#include <miral/toolkit/surface_spec.h>
+#include <miral/toolkit/window.h>
+#include <miral/toolkit/window_spec.h>
 #include <mir_toolkit/mir_buffer_stream.h>
 #include <mir_toolkit/version.h>
 
@@ -30,9 +30,9 @@
 #include <gtest/gtest.h>
 
 using namespace testing;
-using namespace miral;
 using namespace miral::toolkit;
 using namespace std::chrono_literals;
+using miral::WindowManagerTools;
 
 namespace
 {
@@ -46,10 +46,15 @@ public:
         signal.wait_for(100ms);
     }
 
-    static void raise_signal_on_focus_change(MirSurface* /*surface*/, MirEvent const* event, void* context)
+    static void raise_signal_on_focus_change(MirWindow* /*surface*/, MirEvent const* event, void* context)
     {
+#if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
         if (mir_event_get_type(event) == mir_event_type_surface &&
             mir_surface_event_get_attribute(mir_event_get_surface_event(event)) == mir_surface_attrib_focus)
+#else
+        if (mir_event_get_type(event) == mir_event_type_window &&
+            mir_window_event_get_attribute(mir_event_get_window_event(event)) == mir_window_attrib_focus)
+#endif
         {
             ((FocusChangeSync*)context)->signal.raise();
         }
@@ -61,55 +66,67 @@ private:
     mir::test::Signal signal;
 };
 
-struct ActiveWindow : public TestServer
+struct ActiveWindow : public miral::TestServer
 {
     FocusChangeSync sync1;
     FocusChangeSync sync2;
 
-    auto create_surface(Connection const& connection, char const* name, FocusChangeSync& sync) -> Surface
+    auto create_surface(Connection const& connection, char const* name, FocusChangeSync& sync) -> Window
     {
-        auto const spec = SurfaceSpec::for_normal_surface(connection, 50, 50, mir_pixel_format_argb_8888)
+        auto const spec = WindowSpec::for_normal_surface(connection, 50, 50, mir_pixel_format_argb_8888)
             .set_buffer_usage(mir_buffer_usage_software)
             .set_event_handler(&FocusChangeSync::raise_signal_on_focus_change, &sync)
             .set_name(name);
 
-        Surface const surface{spec.create_surface()};
+        Window const surface{spec.create_surface()};
 
+#if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
         sync.exec([&]{ mir_buffer_stream_swap_buffers_sync(mir_surface_get_buffer_stream(surface)); });
+#else
+        sync.exec([&]{ mir_buffer_stream_swap_buffers_sync(mir_window_get_buffer_stream(surface)); });
+#endif
         EXPECT_TRUE(sync.signal_raised());
 
         return surface;
     }
 
 #if MIR_CLIENT_VERSION >= MIR_VERSION_NUMBER(3, 4, 0)
-    auto create_tip(Connection const& connection, char const* name, Surface const& parent, FocusChangeSync& sync) -> Surface
+    auto create_tip(Connection const& connection, char const* name, Window const& parent, FocusChangeSync& sync) -> Window
     {
         MirRectangle aux_rect{10, 10, 10, 10};
-        auto const spec = SurfaceSpec::for_tip(connection, 50, 50, mir_pixel_format_argb_8888, parent, &aux_rect, mir_edge_attachment_any)
+        auto const spec = WindowSpec::for_tip(connection, 50, 50, mir_pixel_format_argb_8888, parent, &aux_rect, mir_edge_attachment_any)
             .set_buffer_usage(mir_buffer_usage_software)
             .set_event_handler(&FocusChangeSync::raise_signal_on_focus_change, &sync)
             .set_name(name);
 
-        Surface const surface{spec.create_surface()};
+        Window const surface{spec.create_surface()};
 
         // Expect this to timeout: A tip should not receive focus
+#if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
         sync.exec([&]{ mir_buffer_stream_swap_buffers_sync(mir_surface_get_buffer_stream(surface)); });
+#else
+        sync.exec([&]{ mir_buffer_stream_swap_buffers_sync(mir_window_get_buffer_stream(surface)); });
+#endif
         EXPECT_FALSE(sync.signal_raised());
 
         return surface;
     }
 #endif
 
-    auto create_dialog(Connection const& connection, char const* name, Surface const& parent, FocusChangeSync& sync) -> Surface
+    auto create_dialog(Connection const& connection, char const* name, Window const& parent, FocusChangeSync& sync) -> Window
     {
-        auto const spec = SurfaceSpec::for_dialog(connection, 50, 50, mir_pixel_format_argb_8888, parent)
+        auto const spec = WindowSpec::for_dialog(connection, 50, 50, mir_pixel_format_argb_8888, parent)
             .set_buffer_usage(mir_buffer_usage_software)
             .set_event_handler(&FocusChangeSync::raise_signal_on_focus_change, &sync)
             .set_name(name);
 
-        Surface const surface{spec.create_surface()};
+        Window const surface{spec.create_surface()};
 
+#if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
         sync.exec([&]{ mir_buffer_stream_swap_buffers_sync(mir_surface_get_buffer_stream(surface)); });
+#else
+        sync.exec([&]{ mir_buffer_stream_swap_buffers_sync(mir_window_get_buffer_stream(surface)); });
+#endif
         EXPECT_TRUE(sync.signal_raised());
 
         return surface;
@@ -155,7 +172,11 @@ TEST_F(ActiveWindow, a_single_window_when_hiding_becomes_inactive)
     auto const connection = connect_client(test_name);
     auto const surface = create_surface(connection, test_name, sync1);
 
+#if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
     sync1.exec([&]{ mir_surface_set_state(surface, mir_surface_state_hidden); });
+#else
+    sync1.exec([&]{ mir_window_set_state(surface, mir_window_state_hidden); });
+#endif
 
     EXPECT_TRUE(sync1.signal_raised());
     assert_no_active_window();
@@ -166,9 +187,15 @@ TEST_F(ActiveWindow, a_single_window_when_unhiding_becomes_active)
     char const* const test_name = __PRETTY_FUNCTION__;
     auto const connection = connect_client(test_name);
     auto const surface = create_surface(connection, test_name, sync1);
+#if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
     sync1.exec([&]{ mir_surface_set_state(surface, mir_surface_state_hidden); });
 
     sync1.exec([&]{ mir_surface_set_state(surface, mir_surface_state_restored); });
+#else
+    sync1.exec([&]{ mir_window_set_state(surface, mir_window_state_hidden); });
+
+    sync1.exec([&]{ mir_window_set_state(surface, mir_window_state_restored); });
+#endif
     EXPECT_TRUE(sync1.signal_raised());
 
     assert_active_window_is(test_name);
@@ -193,7 +220,11 @@ TEST_F(ActiveWindow, a_second_window_hiding_makes_first_active)
     auto const first_surface = create_surface(connection, test_name, sync1);
     auto const surface = create_surface(connection, another_name, sync2);
 
+#if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
     sync2.exec([&]{ mir_surface_set_state(surface, mir_surface_state_hidden); });
+#else
+    sync2.exec([&]{ mir_window_set_state(surface, mir_window_state_hidden); });
+#endif
 
     EXPECT_TRUE(sync2.signal_raised());
     assert_active_window_is(test_name);
@@ -207,11 +238,17 @@ TEST_F(ActiveWindow, a_second_window_unhiding_leaves_first_active)
     auto const first_surface = create_surface(connection, test_name, sync1);
     auto const surface = create_surface(connection, another_name, sync2);
 
+#if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
     sync1.exec([&]{ mir_surface_set_state(surface, mir_surface_state_hidden); });
 
     // Expect this to timeout
     sync2.exec([&]{ mir_surface_set_state(surface, mir_surface_state_restored); });
+#else
+    sync1.exec([&]{ mir_window_set_state(surface, mir_window_state_hidden); });
 
+    // Expect this to timeout
+    sync2.exec([&]{ mir_window_set_state(surface, mir_window_state_restored); });
+#endif
     EXPECT_THAT(sync2.signal_raised(), Eq(false));
     assert_active_window_is(test_name);
 }
@@ -271,7 +308,7 @@ TEST_F(ActiveWindow, selecting_a_tip_makes_parent_active)
 
     auto const parent = create_surface(connection, test_name, sync1);
 
-    Window parent_window;
+    miral::Window parent_window;
     invoke_tools([&](WindowManagerTools& tools){ parent_window = tools.active_window(); });
 
     // Steal the focus
@@ -299,7 +336,7 @@ TEST_F(ActiveWindow, selecting_a_parent_makes_dialog_active)
 
     auto const parent = create_surface(connection, test_name, sync1);
 
-    Window parent_window;
+    miral::Window parent_window;
     invoke_tools([&](WindowManagerTools& tools){ parent_window = tools.active_window(); });
 
     auto const dialog = create_dialog(connection, dialog_name, parent, sync2);

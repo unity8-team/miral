@@ -37,7 +37,7 @@ public:
     TitlebarWindowManagerPolicy(miral::WindowManagerTools const& tools, SpinnerSplash const& spinner, miral::InternalClientLauncher const& launcher);
     ~TitlebarWindowManagerPolicy();
 
-    virtual miral::WindowSpecification place_new_surface(
+    virtual miral::WindowSpecification place_new_window(
         miral::ApplicationInfo const& app_info, miral::WindowSpecification const& request_parameters) override;
 
     /** @name example event handling:
@@ -60,7 +60,7 @@ public:
     void handle_window_ready(miral::WindowInfo& window_info) override;
     void advise_focus_lost(miral::WindowInfo const& info) override;
     void advise_focus_gained(miral::WindowInfo const& info) override;
-    void advise_state_change(miral::WindowInfo const& window_info, MirSurfaceState state) override;
+    void advise_state_change(miral::WindowInfo const& window_info, MirWindowState state) override;
     void advise_resize(miral::WindowInfo const& window_info, Size const& new_size) override;
     void advise_delete_window(miral::WindowInfo const& window_info) override;
     /** @} */
@@ -74,7 +74,7 @@ protected:
         mir_input_event_modifier_meta;
 
 private:
-    void toggle(MirSurfaceState state);
+    void toggle(MirWindowState state);
 
     bool resize(miral::Window const& window, Point cursor, Point old_cursor);
 

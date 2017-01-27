@@ -19,7 +19,13 @@
 #ifndef MIRAL_TOOLKIT_PERSISTENT_ID_H
 #define MIRAL_TOOLKIT_PERSISTENT_ID_H
 
+#include <miral/detail/mir_forward_compatibility.h>
+#if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
 #include <mir_toolkit/mir_surface.h>
+#else
+#include <mir_toolkit/mir_window.h>
+#include <mir_toolkit/mir_persistent_id.h>
+#endif
 
 #include <memory>
 
@@ -32,7 +38,11 @@ class PersistentId
 {
 public:
     explicit PersistentId(MirPersistentId* id) : self{id, deleter} {}
-    explicit PersistentId(MirSurface* surface) : PersistentId{mir_surface_request_persistent_id_sync(surface)} {}
+#if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
+    explicit PersistentId(MirWindow* surface) : PersistentId{mir_surface_request_persistent_id_sync(surface)} {}
+#else
+    explicit PersistentId(MirWindow* surface) : PersistentId{mir_window_request_persistent_id_sync(surface)} {}
+#endif
 
     auto c_str() const -> char const* { return mir_persistent_id_as_string(self.get()); }
 

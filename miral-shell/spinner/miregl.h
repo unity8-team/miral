@@ -17,7 +17,7 @@
 #ifndef UNITYSYSTEMCOMPOSITOR_MIREGL_H
 #define UNITYSYSTEMCOMPOSITOR_MIREGL_H
 
-#include <mir_toolkit/common.h>
+#include <miral/detail/mir_forward_compatibility.h>
 #include <mir_toolkit/client_types.h>
 #include "mir_toolkit/mir_client_library.h"
 
@@ -37,7 +37,7 @@ class MirEglSurface
 public:
     MirEglSurface(
         std::shared_ptr<MirEglApp> const& mir_egl_app,
-        MirSurfaceParameters const& surfaceparm,
+        MirWindowParameters const& parm,
         int swapinterval);
 
     ~MirEglSurface();
@@ -50,7 +50,7 @@ public:
         swap_buffers();
     }
 
-    MirSurface* mir_surface() { return surface; }
+    MirWindow* mir_window() { return window; }
 
 private:
     void egl_make_current();
@@ -60,7 +60,7 @@ private:
     unsigned int height() const;
 
     std::shared_ptr<MirEglApp> const mir_egl_app;
-    MirSurface* const surface;
+    MirWindow* const window;
     EGLSurface const eglsurface;
     int width_;
     int height_;

@@ -92,7 +92,7 @@ auto miral::BasicWindowManager::add_surface(
 
     auto& session_info = info_for(session);
 
-    WindowSpecification const& spec = policy->place_new_surface(session_info, place_new_surface(session_info, params));
+    WindowSpecification const& spec = policy->place_new_window(session_info, place_new_surface(session_info, params));
     scene::SurfaceCreationParameters parameters;
     spec.update(parameters);
     auto const surface_id = build(session, parameters);
@@ -112,7 +112,7 @@ auto miral::BasicWindowManager::add_surface(
     if (parent)
         info_for(parent).add_child(window);
 
-    if (window_info.state() == mir_surface_state_fullscreen)
+    if (window_info.state() == mir_window_state_fullscreen)
         fullscreen_surfaces.insert(window_info.window());
 
     policy->advise_new_window(window_info);
@@ -282,35 +282,35 @@ void miral::BasicWindowManager::handle_raise_surface(
 int miral::BasicWindowManager::set_surface_attribute(
     std::shared_ptr<scene::Session> const& /*application*/,
     std::shared_ptr<scene::Surface> const& surface,
-    MirSurfaceAttrib attrib,
+    MirWindowAttrib attrib,
     int value)
 {
     WindowSpecification modification;
     switch (attrib)
     {
-    case mir_surface_attrib_type:
-        modification.type() = MirSurfaceType(value);
+    case mir_window_attrib_type:
+        modification.type() = MirWindowType(value);
         break;
-    case mir_surface_attrib_state:
-        modification.state() = MirSurfaceState(value);
+    case mir_window_attrib_state:
+        modification.state() = MirWindowState(value);
         break;
 
-    case mir_surface_attrib_preferred_orientation:
+    case mir_window_attrib_preferred_orientation:
         modification.preferred_orientation() = MirOrientationMode(value);
         break;
 
-    case mir_surface_attrib_visibility:
+    case mir_window_attrib_visibility:
         // The client really shouldn't be trying to set this.
         // But, as the legacy API exists, we treat it as a query
-        return surface->query(mir_surface_attrib_visibility);
+        return surface->query(mir_window_attrib_visibility);
 
-    case mir_surface_attrib_focus:
+    case mir_window_attrib_focus:
         // The client really shouldn't be trying to set this.
         // But, as the legacy API exists, we treat it as a query
-        return surface->query(mir_surface_attrib_focus);
+        return surface->query(mir_window_attrib_focus);
 
-    case mir_surface_attrib_swapinterval:
-    case mir_surface_attrib_dpi:
+    case mir_window_attrib_swapinterval:
+    case mir_window_attrib_dpi:
     default:
         return surface->configure(attrib, value);
     }
@@ -324,13 +324,13 @@ int miral::BasicWindowManager::set_surface_attribute(
 
     switch (attrib)
     {
-    case mir_surface_attrib_type:
+    case mir_window_attrib_type:
         return info.type();
 
-    case mir_surface_attrib_state:
+    case mir_window_attrib_state:
         return info.state();
 
-    case mir_surface_attrib_preferred_orientation:
+    case mir_window_attrib_preferred_orientation:
         return info.preferred_orientation();
         break;
 
@@ -496,6 +496,11 @@ auto miral::BasicWindowManager::active_display()
 
 void miral::BasicWindowManager::raise_tree(Window const& root)
 {
+    auto const& info = info_for(root);
+
+    if (auto parent = info.parent())
+        raise_tree(parent);
+
     std::vector<Window> windows;
 
     std::function<void(WindowInfo const& info)> const add_children =
@@ -509,7 +514,7 @@ void miral::BasicWindowManager::raise_tree(Window const& root)
             };
 
     windows.push_back(root);
-    add_children(info_for(root));
+    add_children(info);
 
     policy->advise_raise(windows);
     focus_controller->raise({begin(windows), end(windows)});
@@ -589,7 +594,7 @@ void miral::BasicWindowManager::modify_window(WindowInfo& window_info, WindowSpe
     auto& window = window_info.window();
 
     if (window_info.type() != window_info_tmp.type())
-        std::shared_ptr<scene::Surface>(window)->configure(mir_surface_attrib_type, window_info.type());
+        std::shared_ptr<scene::Surface>(window)->configure(mir_window_attrib_type, window_info.type());
 
     if (window_info.parent() != window_info_tmp.parent())
     {
@@ -616,12 +621,12 @@ void miral::BasicWindowManager::modify_window(WindowInfo& window_info, WindowSpe
     {
         switch (window_info.state())
         {
-        case mir_surface_state_restored:
-        case mir_surface_state_hidden:
+        case mir_window_state_restored:
+        case mir_window_state_hidden:
             window_info.restore_rect({window.top_left(), window.size()});
             break;
 
-        case mir_surface_state_vertmaximized:
+        case mir_window_state_vertmaximized:
         {
             auto restore_rect = window_info.restore_rect();
             restore_rect.top_left.x = window.top_left().x;
@@ -630,7 +635,7 @@ void miral::BasicWindowManager::modify_window(WindowInfo& window_info, WindowSpe
             break;
         }
 
-        case mir_surface_state_horizmaximized:
+        case mir_window_state_horizmaximized:
         {
             auto restore_rect = window_info.restore_rect();
             restore_rect.top_left.y = window.top_left().y;
@@ -740,7 +745,7 @@ void miral::BasicWindowManager::place_and_size_for_state(
 
     switch (new_state)
     {
-    case mir_surface_state_fullscreen:
+    case mir_window_state_fullscreen:
         if (modifications.output_id().is_set() &&
            (!window_info.has_output_id() || modifications.output_id().value() != window_info.output_id()))
                 break;
@@ -758,19 +763,19 @@ void miral::BasicWindowManager::place_and_size_for_state(
     // window_info.restore_rect() was cached on last state change, update to reflect current window position
     switch (window_info.state())
     {
-    case mir_surface_state_restored:
-    case mir_surface_state_hidden:
+    case mir_window_state_restored:
+    case mir_window_state_hidden:
         restore_rect = {window.top_left(), window.size()};
         break;
 
-    case mir_surface_state_vertmaximized:
+    case mir_window_state_vertmaximized:
     {
         restore_rect.top_left.x = window.top_left().x;
         restore_rect.size.width = window.size().width;
         break;
     }
 
-    case mir_surface_state_horizmaximized:
+    case mir_window_state_horizmaximized:
     {
         restore_rect.top_left.y = window.top_left().y;
         restore_rect.size.height= window.size().height;
@@ -793,33 +798,33 @@ void miral::BasicWindowManager::place_and_size_for_state(
 
     switch (new_state)
     {
-    case mir_surface_state_restored:
+    case mir_window_state_restored:
         rect = restore_rect;
         break;
 
-    case mir_surface_state_maximized:
+    case mir_window_state_maximized:
         rect = display_area;
         break;
 
-    case mir_surface_state_horizmaximized:
+    case mir_window_state_horizmaximized:
         rect.top_left = {display_area.top_left.x, restore_rect.top_left.y};
         rect.size = {display_area.size.width, restore_rect.size.height};
         break;
 
-    case mir_surface_state_vertmaximized:
+    case mir_window_state_vertmaximized:
         rect.top_left = {restore_rect.top_left.x, display_area.top_left.y};
         rect.size = {restore_rect.size.width, display_area.size.height};
         break;
 
-    case mir_surface_state_fullscreen:
+    case mir_window_state_fullscreen:
     {
         rect = fullscreen_rect_for(window_info);
 
         break;
     }
 
-    case mir_surface_state_hidden:
-    case mir_surface_state_minimized:
+    case mir_window_state_hidden:
+    case mir_window_state_minimized:
     default:
         return;
     }
@@ -845,12 +850,12 @@ auto miral::BasicWindowManager::fullscreen_rect_for(miral::WindowInfo const& win
     return r;
 }
 
-void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirSurfaceState value)
+void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirWindowState value)
 {
     auto const window = window_info.window();
     auto const mir_surface = std::shared_ptr<scene::Surface>(window);
 
-    if (value != mir_surface_state_fullscreen)
+    if (value != mir_window_state_fullscreen)
     {
         fullscreen_surfaces.erase(window);
     }
@@ -864,18 +869,18 @@ void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirSur
         return;
     }
 
-    bool const was_hidden = window_info.state() == mir_surface_state_hidden ||
-                            window_info.state() == mir_surface_state_minimized;
+    bool const was_hidden = window_info.state() == mir_window_state_hidden ||
+                            window_info.state() == mir_window_state_minimized;
 
     policy->advise_state_change(window_info, value);
     window_info.state(value);
 
-    mir_surface->configure(mir_surface_attrib_state, value);
+    mir_surface->configure(mir_window_attrib_state, value);
 
     switch (value)
     {
-    case mir_surface_state_hidden:
-    case mir_surface_state_minimized:
+    case mir_window_state_hidden:
+    case mir_window_state_minimized:
         mir_surface->hide();
 
         if (window == active_window())
@@ -884,8 +889,6 @@ void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirSur
             mru_active_windows.enumerate([&](Window& candidate)
                 {
                     if (candidate == window)
-                        return true;
-                    if (!std::shared_ptr<scene::Surface>(candidate)->visible())
                         return true;
                     auto const w = candidate;
                     return !(select_active_window(w));
@@ -966,7 +969,7 @@ auto miral::BasicWindowManager::select_active_window(Window const& hint) -> mira
     {
         if (std::shared_ptr<mir::scene::Surface> surface = child)
         {
-            if (surface->type() == mir_surface_type_dialog && surface->visible())
+            if (surface->type() == mir_window_type_dialog && surface->visible())
                 return select_active_window(child);
         }
     }
@@ -1009,43 +1012,43 @@ void miral::BasicWindowManager::drag_active_window(mir::geometry::Displacement m
     //                              Mir and Unity: Surfaces, input, and displays (v0.3)
     switch (window_info.type())
     {
-    case mir_surface_type_normal:   // regular
-    case mir_surface_type_utility:  // floating regular
-    case mir_surface_type_dialog:   // dialog
-    case mir_surface_type_satellite:// satellite
-    case mir_surface_type_freestyle:// freestyle
+    case mir_window_type_normal:   // regular
+    case mir_window_type_utility:  // floating regular
+    case mir_window_type_dialog:   // dialog
+    case mir_window_type_satellite:// satellite
+    case mir_window_type_freestyle:// freestyle
         break;
 
-    case mir_surface_type_gloss:
-    case mir_surface_type_menu:
-    case mir_surface_type_inputmethod:
-    case mir_surface_type_tip:
-    case mir_surface_types:
+    case mir_window_type_gloss:
+    case mir_window_type_menu:
+    case mir_window_type_inputmethod:
+    case mir_window_type_tip:
+    case mir_window_types:
         return;
     }
 
     switch (window_info.state())
     {
-    case mir_surface_state_restored:
+    case mir_window_state_restored:
         break;
 
         // "A vertically maximised window is anchored to the top and bottom of
         // the available workspace and can have any width."
-    case mir_surface_state_vertmaximized:
+    case mir_window_state_vertmaximized:
         movement.dy = DeltaY(0);
         break;
 
         // "A horizontally maximised window is anchored to the left and right of
         // the available workspace and can have any height"
-    case mir_surface_state_horizmaximized:
+    case mir_window_state_horizmaximized:
         movement.dx = DeltaX(0);
         break;
 
         // "A maximised window is anchored to the top, bottom, left and right of the
         // available workspace. For example, if the launcher is always-visible then
         // the left-edge of the window is anchored to the right-edge of the launcher."
-    case mir_surface_state_maximized:
-    case mir_surface_state_fullscreen:
+    case mir_window_state_maximized:
+    case mir_window_state_fullscreen:
     default:
         return;
     }
@@ -1071,10 +1074,10 @@ auto miral::BasicWindowManager::place_new_surface(ApplicationInfo const& app_inf
 -> WindowSpecification
 {
     if (!parameters.type().is_set())
-        parameters.type() = mir_surface_type_normal;
+        parameters.type() = mir_window_type_normal;
 
     if (!parameters.state().is_set())
-        parameters.state() = mir_surface_state_restored;
+        parameters.state() = mir_window_state_restored;
 
     auto const active_display_area = active_display();
     auto const height = parameters.size().value().height.as_int();
@@ -1090,7 +1093,7 @@ auto miral::BasicWindowManager::place_new_surface(ApplicationInfo const& app_inf
         display_layout->place_in_output(id, rect);
         parameters.top_left() = rect.top_left;
         parameters.size() = rect.size;
-        parameters.state() = mir_surface_state_fullscreen;
+        parameters.state() = mir_window_state_fullscreen;
         positioned = true;
     }
     else if (!has_parent) // No parent => client can't suggest positioning
@@ -1157,19 +1160,19 @@ auto miral::BasicWindowManager::place_new_surface(ApplicationInfo const& app_inf
 
         switch (parameters.state().value())
         {
-        case mir_surface_state_fullscreen:
-        case mir_surface_state_maximized:
+        case mir_window_state_fullscreen:
+        case mir_window_state_maximized:
             parameters.top_left() = active_display_area.top_left;
             parameters.size() = active_display_area.size;
             break;
 
-        case mir_surface_state_vertmaximized:
+        case mir_window_state_vertmaximized:
             centred.y = active_display_area.top_left.y;
             parameters.top_left() = centred;
             parameters.size() = Size{parameters.size().value().width, active_display_area.size.height};
             break;
 
-        case mir_surface_state_horizmaximized:
+        case mir_window_state_horizmaximized:
             centred.x = active_display_area.top_left.x;
             parameters.top_left() = centred;
             parameters.size() = Size{active_display_area.size.width, parameters.size().value().height};
@@ -1525,37 +1528,37 @@ void miral::BasicWindowManager::validate_modification_request(WindowSpecificatio
 
         switch (original_type)
         {
-        case mir_surface_type_normal:
-        case mir_surface_type_utility:
-        case mir_surface_type_dialog:
-        case mir_surface_type_satellite:
+        case mir_window_type_normal:
+        case mir_window_type_utility:
+        case mir_window_type_dialog:
+        case mir_window_type_satellite:
             switch (target_type)
             {
-            case mir_surface_type_normal:
-            case mir_surface_type_utility:
-            case mir_surface_type_dialog:
-            case mir_surface_type_satellite:
+            case mir_window_type_normal:
+            case mir_window_type_utility:
+            case mir_window_type_dialog:
+            case mir_window_type_satellite:
                 break;
 
             default:
                 BOOST_THROW_EXCEPTION(std::runtime_error("Invalid surface type change"));
             }
 
-        case mir_surface_type_menu:
+        case mir_window_type_menu:
             switch (target_type)
             {
-            case mir_surface_type_menu:
-            case mir_surface_type_satellite:
+            case mir_window_type_menu:
+            case mir_window_type_satellite:
                 break;
 
             default:
                 BOOST_THROW_EXCEPTION(std::runtime_error("Invalid surface type change"));
             }
 
-        case mir_surface_type_gloss:
-        case mir_surface_type_freestyle:
-        case mir_surface_type_inputmethod:
-        case mir_surface_type_tip:
+        case mir_window_type_gloss:
+        case mir_window_type_freestyle:
+        case mir_window_type_inputmethod:
+        case mir_window_type_tip:
             if (target_type != original_type)
                 BOOST_THROW_EXCEPTION(std::runtime_error("Invalid surface type change"));
             break;
@@ -1567,23 +1570,23 @@ void miral::BasicWindowManager::validate_modification_request(WindowSpecificatio
 
     switch (target_type)
     {
-    case mir_surface_type_normal:
-    case mir_surface_type_utility:
+    case mir_window_type_normal:
+    case mir_window_type_utility:
         if (modifications.parent().is_set() ? modifications.parent().value().lock() : window_info.parent())
-            BOOST_THROW_EXCEPTION(std::runtime_error("Surface type must not have a parent"));
+            BOOST_THROW_EXCEPTION(std::runtime_error("Window type must not have a parent"));
         break;
 
-    case mir_surface_type_satellite:
-    case mir_surface_type_gloss:
-    case mir_surface_type_tip:
+    case mir_window_type_satellite:
+    case mir_window_type_gloss:
+    case mir_window_type_tip:
         if (modifications.parent().is_set() ? !modifications.parent().value().lock() : !window_info.parent())
-            BOOST_THROW_EXCEPTION(std::runtime_error("Surface type must have a parent"));
+            BOOST_THROW_EXCEPTION(std::runtime_error("Window type must have a parent"));
         break;
 
-    case mir_surface_type_inputmethod:
-    case mir_surface_type_dialog:
-    case mir_surface_type_menu:
-    case mir_surface_type_freestyle:
+    case mir_window_type_inputmethod:
+    case mir_window_type_dialog:
+    case mir_window_type_menu:
+    case mir_window_type_freestyle:
         break;
 
     default:

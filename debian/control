@@ -63,6 +63,7 @@ Package: miral-examples
 Architecture: linux-any
 Depends: ${misc:Depends},
          ${shlibs:Depends},
+Recommends: dmz-cursor-theme,
 Description: Display server for Ubuntu - demonstration programs
  MirAL provides an ABI-stable abstraction layer for Mir based shells,
  insulating them from mirserver ABI breaks.

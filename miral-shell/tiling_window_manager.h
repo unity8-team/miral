@@ -54,7 +54,7 @@ public:
 
     ~TilingWindowManagerPolicy();
 
-    auto place_new_surface(
+    auto place_new_window(
         miral::ApplicationInfo const& app_info,
         miral::WindowSpecification const& request_parameters)
         -> miral::WindowSpecification override;
@@ -91,14 +91,14 @@ private:
     void click(Point cursor);
     void resize(Point cursor);
     void drag(Point cursor);
-    void toggle(MirSurfaceState state);
+    void toggle(MirWindowState state);
 
     miral::Application application_under(Point position);
 
     void update_tiles(Rectangles const& displays);
     void update_surfaces(miral::ApplicationInfo& info, Rectangle const& old_tile, Rectangle const& new_tile);
 
-    auto transform_set_state(MirSurfaceState value) -> MirSurfaceState;
+    auto transform_set_state(MirWindowState value) -> MirWindowState;
 
     static void clip_to_tile(miral::WindowSpecification& parameters, Rectangle const& tile);
     static void resize(miral::Window window, Point cursor, Point old_cursor, Rectangle bounds);

@@ -17,6 +17,7 @@
  */
 
 #include "miral/window_management_policy.h"
+#include "both_versions.h"
 
 void miral::WindowManagementPolicy::advise_begin() {}
 void miral::WindowManagementPolicy::advise_end() {}
@@ -25,7 +26,11 @@ void miral::WindowManagementPolicy::advise_delete_app(ApplicationInfo const& /*a
 void miral::WindowManagementPolicy::advise_new_window(WindowInfo const& /*window_info*/) {}
 void miral::WindowManagementPolicy::advise_focus_lost(WindowInfo const& /*info*/) {}
 void miral::WindowManagementPolicy::advise_focus_gained(WindowInfo const& /*info*/) {}
-void miral::WindowManagementPolicy::advise_state_change(WindowInfo const& /*window_info*/, MirSurfaceState /*state*/) {}
+
+MIRAL_BOTH_VERSIONS(
+    _ZN5miral22WindowManagementPolicy19advise_state_changeERKNS_10WindowInfoE15MirSurfaceState, MIRAL_1.0,
+    _ZN5miral22WindowManagementPolicy19advise_state_changeERKNS_10WindowInfoE14MirWindowState,  MIRAL_1.1)
+void miral::WindowManagementPolicy::advise_state_change(WindowInfo const& /*window_info*/, MirWindowState /*state*/) {}
 void miral::WindowManagementPolicy::advise_move_to(WindowInfo const& /*window_info*/, Point /*top_left*/) {}
 void miral::WindowManagementPolicy::advise_resize(WindowInfo const& /*window_info*/, Size const& /*new_size*/) {}
 void miral::WindowManagementPolicy::advise_delete_window(WindowInfo const& /*window_info*/) {}

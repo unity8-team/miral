@@ -108,7 +108,7 @@ void TilingWindowManagerPolicy::resize(Point cursor)
     }
 }
 
-auto TilingWindowManagerPolicy::place_new_surface(
+auto TilingWindowManagerPolicy::place_new_window(
     ApplicationInfo const& app_info,
     WindowSpecification const& request_parameters)
     -> WindowSpecification
@@ -117,7 +117,7 @@ auto TilingWindowManagerPolicy::place_new_surface(
 
     parameters.userdata() = app_info.userdata();
     parameters.state() = parameters.state().is_set() ?
-                         transform_set_state(parameters.state().value()) : mir_surface_state_restored;
+                         transform_set_state(parameters.state().value()) : mir_window_state_restored;
 
     if (app_info.application() != spinner.session())
     {
@@ -147,13 +147,13 @@ auto TilingWindowManagerPolicy::place_new_surface(
 
 void TilingWindowManagerPolicy::advise_new_window(WindowInfo const& window_info)
 {
-    if (window_info.type() == mir_surface_type_normal &&
+    if (window_info.type() == mir_window_type_normal &&
         !window_info.parent() &&
-        window_info.state() == mir_surface_state_restored)
+        window_info.state() == mir_window_state_restored)
     {
         WindowSpecification specification;
 
-        specification.state() = mir_surface_state_maximized;
+        specification.state() = mir_window_state_maximized;
 
         tools.place_and_size_for_state(specification, window_info);
         constrain_size_and_place(specification, window_info.window(), tile_for(window_info));
@@ -229,17 +229,17 @@ void TilingWindowManagerPolicy::constrain_size_and_place(
         reset(mods.top_left());
 }
 
-auto TilingWindowManagerPolicy::transform_set_state(MirSurfaceState value)
--> MirSurfaceState
+auto TilingWindowManagerPolicy::transform_set_state(MirWindowState value)
+-> MirWindowState
 {
     switch (value)
     {
     default:
-        return mir_surface_state_restored;
+        return mir_window_state_restored;
 
-    case mir_surface_state_hidden:
-    case mir_surface_state_minimized:
-        return mir_surface_state_hidden;
+    case mir_window_state_hidden:
+    case mir_window_state_minimized:
+        return mir_window_state_hidden;
     }
 }
 
@@ -285,15 +285,15 @@ bool TilingWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* ev
         switch (modifiers & modifier_mask)
         {
         case mir_input_event_modifier_alt:
-            toggle(mir_surface_state_maximized);
+            toggle(mir_window_state_maximized);
             return true;
 
         case mir_input_event_modifier_shift:
-            toggle(mir_surface_state_vertmaximized);
+            toggle(mir_window_state_vertmaximized);
             return true;
 
         case mir_input_event_modifier_ctrl:
-            toggle(mir_surface_state_horizmaximized);
+            toggle(mir_window_state_horizmaximized);
             return true;
 
         default:
@@ -427,14 +427,14 @@ bool TilingWindowManagerPolicy::handle_pointer_event(MirPointerEvent const* even
     return consumes_event;
 }
 
-void TilingWindowManagerPolicy::toggle(MirSurfaceState state)
+void TilingWindowManagerPolicy::toggle(MirWindowState state)
 {
     if (auto window = tools.active_window())
     {
         auto& window_info = tools.info_for(window);
 
         if (window_info.state() == state)
-            state = mir_surface_state_restored;
+            state = mir_window_state_restored;
 
         WindowSpecification mods;
         mods.state() = transform_set_state(state);

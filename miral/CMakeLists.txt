@@ -21,9 +21,10 @@ add_library(miral-internal STATIC
     window_management_trace.cpp         window_management_trace.h
     xcursor_loader.cpp                  xcursor_loader.h
     xcursor.c                           xcursor.h
+    both_versions.h
 )
 
-set_source_files_properties(xcursor.c PROPERTIES COMPILE_FLAGS "${CMAKE_C_FLAGS} -std=c99 -D_GNU_SOURCE")
+set_source_files_properties(xcursor.c PROPERTIES COMPILE_DEFINITIONS _GNU_SOURCE)
 
 add_library(miral SHARED
     active_outputs.cpp                  ${CMAKE_SOURCE_DIR}/include/miral/active_outputs.h
@@ -50,10 +51,10 @@ add_library(miral SHARED
     set_window_managment_policy.cpp     ${CMAKE_SOURCE_DIR}/include/miral/set_window_managment_policy.h
     window_management_policy.cpp        ${CMAKE_SOURCE_DIR}/include/miral/window_management_policy.h
     window_manager_tools.cpp            ${CMAKE_SOURCE_DIR}/include/miral/window_manager_tools.h
-                                        ${CMAKE_SOURCE_DIR}/include/miral/toolkit/surface_spec.h
+                                        ${CMAKE_SOURCE_DIR}/include/miral/toolkit/window_spec.h
                                         ${CMAKE_SOURCE_DIR}/include/miral/toolkit/persistent_id.h
                                         ${CMAKE_SOURCE_DIR}/include/miral/toolkit/connection.h
-                                        ${CMAKE_SOURCE_DIR}/include/miral/toolkit/surface.h
+                                        ${CMAKE_SOURCE_DIR}/include/miral/toolkit/window.h
                                         ${CMAKE_SOURCE_DIR}/include/miral/detail/mir_forward_compatibility.h
 )
 

@@ -74,11 +74,11 @@ struct StubPersistentSurfaceStore : mir::shell::PersistentSurfaceStore
 
 struct StubSurface : mir::test::doubles::StubSurface
 {
-    StubSurface(std::string name, MirSurfaceType type, mir::geometry::Point top_left, mir::geometry::Size size) :
+    StubSurface(std::string name, MirWindowType type, mir::geometry::Point top_left, mir::geometry::Size size) :
         name_{name}, type_{type}, top_left_{top_left}, size_{size} {}
 
     std::string name() const override { return name_; };
-    MirSurfaceType type() const { return type_; }
+    MirWindowType type() const override { return type_; }
 
     mir::geometry::Point top_left() const override { return top_left_; }
     void move_to(mir::geometry::Point const& top_left) override { top_left_ = top_left; }
@@ -86,25 +86,25 @@ struct StubSurface : mir::test::doubles::StubSurface
     mir::geometry::Size size() const override { return  size_; }
     void resize(mir::geometry::Size const& size) override { size_ = size; }
 
-    auto state() const -> MirSurfaceState override { return state_; }
-    auto configure(MirSurfaceAttrib attrib, int value) -> int override {
+    auto state() const -> MirWindowState override { return state_; }
+    auto configure(MirWindowAttrib attrib, int value) -> int override {
         switch (attrib)
         {
-        case mir_surface_attrib_state:
-            state_ = MirSurfaceState(value);
+        case mir_window_attrib_state:
+            state_ = MirWindowState(value);
             return state_;
         default:
             return value;
         }
     }
 
-    bool visible() const override { return  state() != mir_surface_state_hidden; }
+    bool visible() const override { return  state() != mir_window_state_hidden; }
 
     std::string name_;
-    MirSurfaceType type_;
+    MirWindowType type_;
     mir::geometry::Point top_left_;
     mir::geometry::Size size_;
-    MirSurfaceState state_ = mir_surface_state_restored;
+    MirWindowState state_ = mir_window_state_restored;
 };
 
 struct StubStubSession : mir::test::doubles::StubSession
@@ -133,13 +133,14 @@ struct MockWindowManagerPolicy : miral::CanonicalWindowManagerPolicy
 {
     using miral::CanonicalWindowManagerPolicy::CanonicalWindowManagerPolicy;
 
-    bool handle_touch_event(MirTouchEvent const* /*event*/) override { return false; }
-    bool handle_pointer_event(MirPointerEvent const* /*event*/) override { return false; }
-    bool handle_keyboard_event(MirKeyboardEvent const* /*event*/) override { return false; }
+    bool handle_touch_event(MirTouchEvent const* /*event*/) { return false; }
+    bool handle_pointer_event(MirPointerEvent const* /*event*/) { return false; }
+    bool handle_keyboard_event(MirKeyboardEvent const* /*event*/) { return false; }
 
     MOCK_METHOD1(advise_new_window, void (miral::WindowInfo const& window_info));
     MOCK_METHOD2(advise_move_to, void(miral::WindowInfo const& window_info, mir::geometry::Point top_left));
     MOCK_METHOD2(advise_resize, void(miral::WindowInfo const& window_info, mir::geometry::Size const& new_size));
+    MOCK_METHOD1(advise_raise, void(std::vector<miral::Window> const&));
 };
 
 struct TestWindowManagerTools : testing::Test
@@ -158,7 +159,7 @@ struct TestWindowManagerTools : testing::Test
         mir::test::fake_shared(persistent_surface_store),
         [this](miral::WindowManagerTools const& tools) -> std::unique_ptr<miral::WindowManagementPolicy>
             {
-                auto policy = std::make_unique<MockWindowManagerPolicy>(tools);
+                auto policy = std::make_unique<testing::NiceMock<MockWindowManagerPolicy>>(tools);
                 window_manager_policy = policy.get();
                 window_manager_tools = tools;
                 return std::move(policy);

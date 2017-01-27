@@ -71,7 +71,7 @@ private:
 
     virtual void invoke_under_lock(std::function<void()> const& callback) override;
 
-    virtual auto place_new_surface(
+    virtual auto place_new_window(
         ApplicationInfo const& app_info,
         WindowSpecification const& requested_specification) -> WindowSpecification override;
     virtual void handle_window_ready(WindowInfo& window_info) override;
@@ -103,7 +103,7 @@ public:
 
     virtual void advise_focus_gained(WindowInfo const& window_info) override;
 
-    virtual void advise_state_change(WindowInfo const& window_info, MirSurfaceState state) override;
+    virtual void advise_state_change(WindowInfo const& window_info, MirWindowState state) override;
 
     virtual void advise_move_to(WindowInfo const& window_info, Point top_left) override;
 
