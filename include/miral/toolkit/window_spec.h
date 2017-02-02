@@ -58,12 +58,6 @@ public:
     {
         return WindowSpec{mir_create_normal_window_spec(connection, width, height)};
     }
-
-    auto set_pixel_format(MirPixelFormat format) -> WindowSpec&
-    {
-        mir_window_spec_set_pixel_format(*this, format);
-        return *this;
-    }
 #endif
 
     static auto for_menu(MirConnection* connection,

@@ -357,7 +357,7 @@ TEST_F(ActiveWindow, input_methods_are_not_focussed)
     auto const connection = connect_client(test_name);
 
     auto const parent = create_surface(connection, test_name, sync1);
-    auto const input_method = WindowSpec::for_input_method(connection, 50, 50, parent).create_surface();
+    auto const input_method = WindowSpec::for_input_method(connection, 50, 50, parent).create_window();
 
     assert_active_window_is(test_name);
 
@@ -376,7 +376,7 @@ TEST_F(ActiveWindow, satellites_are_not_focussed)
     auto const connection = connect_client(test_name);
 
     auto const parent = create_surface(connection, test_name, sync1);
-    auto const satellite = WindowSpec::for_satellite(connection, 50, 50, parent).create_surface();
+    auto const satellite = WindowSpec::for_satellite(connection, 50, 50, parent).create_window();
 
     assert_active_window_is(test_name);
 
