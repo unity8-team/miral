@@ -216,7 +216,7 @@ void TitlebarProvider::create_titlebar_for(miral::Window const& window)
 
             std::lock_guard<decltype(mutex)> lock{mutex};
             windows_awaiting_titlebar[buffer.str()] = window;
-            spec.create_surface(insert, &window_to_titlebar[window]);
+                     spec.create_window(insert, &window_to_titlebar[window]);
         });
 }
 

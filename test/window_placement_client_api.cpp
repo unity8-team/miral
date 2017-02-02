@@ -59,7 +59,7 @@ struct WindowPlacementClientAPI : miral::TestServer
         auto spec = WindowSpec::for_normal_window(connection, 400, 400, mir_pixel_format_argb_8888)
             .set_name(test_name);
 
-        parent = spec.create_surface();
+        parent = spec.create_window();
     }
 
     void TearDown() override
@@ -147,7 +147,7 @@ TEST_F(WindowPlacementClientAPI, given_menu_placements_away_from_edges_when_noti
             .set_event_handler(&CheckPlacement::callback, &expected)
             .set_name(test_name);
 
-        child = spec.create_surface();
+        child = spec.create_window();
     }
 
     // subsequent movement

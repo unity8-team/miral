@@ -52,7 +52,7 @@ TEST_F(PersistentSurfaceId, server_can_identify_window_specified_by_client)
     auto const spec = WindowSpec::for_normal_window(connection, 50, 50, mir_pixel_format_argb_8888)
         .set_name(test_name);
 
-    Window const surface{spec.create_surface()};
+    Window const surface{spec.create_window()};
 
     miral::toolkit::PersistentId client_surface_id{surface};
 
@@ -74,7 +74,7 @@ TEST_F(PersistentSurfaceId, server_returns_correct_id_for_window)
     auto const spec = WindowSpec::for_normal_window(connection, 50, 50, mir_pixel_format_argb_8888)
         .set_name(test_name);
 
-    Window const surface{spec.create_surface()};
+    Window const surface{spec.create_window()};
 
     miral::toolkit::PersistentId client_surface_id{surface};
 
@@ -136,7 +136,7 @@ TEST_F(PersistentSurfaceId, server_fails_gracefully_to_identify_window_from_garb
     auto const spec = WindowSpec::for_normal_window(connection, 50, 50, mir_pixel_format_argb_8888)
         .set_name(test_name);
 
-    Window const surface{spec.create_surface()};
+    Window const surface{spec.create_window()};
 
     miral::toolkit::PersistentId client_surface_id{surface};
 
