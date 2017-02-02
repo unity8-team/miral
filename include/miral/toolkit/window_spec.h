@@ -175,7 +175,6 @@ public:
         return *this;
     }
 
-
     auto set_type(MirWindowType type) -> WindowSpec&
     {
 #if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
