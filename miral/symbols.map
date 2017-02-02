@@ -346,6 +346,7 @@ global:
 
   extern "C++" {
     miral::CanonicalWindowManagerPolicy::place_new_window*;
+    miral::WindowManagerTools::drag_window*;
     non-virtual?thunk?to?miral::CanonicalWindowManagerPolicy::place_new_window*;
   };
 } MIRAL_1.0;
