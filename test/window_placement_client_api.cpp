@@ -56,7 +56,7 @@ struct WindowPlacementClientAPI : miral::TestServer
         char const* const test_name = __PRETTY_FUNCTION__;
 
         connection = connect_client(test_name);
-        auto spec = WindowSpec::for_normal_surface(connection, 400, 400, mir_pixel_format_argb_8888)
+        auto spec = WindowSpec::for_normal_window(connection, 400, 400, mir_pixel_format_argb_8888)
             .set_name(test_name);
 
         parent = spec.create_surface();

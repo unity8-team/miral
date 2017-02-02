@@ -73,7 +73,7 @@ struct ActiveWindow : public miral::TestServer
 
     auto create_surface(Connection const& connection, char const* name, FocusChangeSync& sync) -> Window
     {
-        auto const spec = WindowSpec::for_normal_surface(connection, 50, 50, mir_pixel_format_argb_8888)
+        auto const spec = WindowSpec::for_normal_window(connection, 50, 50, mir_pixel_format_argb_8888)
             .set_buffer_usage(mir_buffer_usage_software)
             .set_event_handler(&FocusChangeSync::raise_signal_on_focus_change, &sync)
             .set_name(name);

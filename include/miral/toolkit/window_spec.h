@@ -38,7 +38,7 @@ class WindowSpec
 public:
     explicit WindowSpec(MirWindowSpec* spec) : self{spec, deleter} {}
 
-    static auto for_normal_surface(MirConnection* connection, int width, int height, MirPixelFormat format) -> WindowSpec
+    static auto for_normal_window(MirConnection* connection, int width, int height, MirPixelFormat format) -> WindowSpec
     {
 #if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
         return WindowSpec{mir_connection_create_spec_for_normal_surface(connection, width, height, format)};
@@ -48,6 +48,19 @@ public:
         return spec;
 #endif
     }
+
+#if MIR_CLIENT_VERSION > MIR_VERSION_NUMBER(3, 4, 0)
+    static auto for_normal_window(MirConnection* connection, int width, int height) -> WindowSpec
+    {
+        return WindowSpec{mir_create_normal_window_spec(connection, width, height)};
+    }
+
+    auto set_pixel_format(MirPixelFormat format) -> WindowSpec&
+    {
+        mir_window_spec_set_pixel_format(*this, format);
+        return *this;
+    }
+#endif
 
     static auto for_menu(MirConnection* connection,
                          int width,
