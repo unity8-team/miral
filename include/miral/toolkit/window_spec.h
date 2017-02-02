@@ -108,6 +108,33 @@ public:
         return for_dialog(connection, width, height, format).set_parent(parent);
     }
 
+    static auto for_input_method(MirConnection* connection, int width, int height, MirWindow* parent)
+    {
+#if MIR_CLIENT_VERSION > MIR_VERSION_NUMBER(3, 4, 0)
+        auto spec = WindowSpec{mir_create_input_method_window_spec(connection, width, height)}
+#else
+        auto spec = WindowSpec{mir_create_surface_spec(connection)}
+            .set_buffer_usage(mir_buffer_usage_hardware) // Required protobuf field for create_window()
+            .set_pixel_format(mir_pixel_format_invalid)  // Required protobuf field for create_window()
+            .set_size(width, height)
+            .set_type(mir_window_type_input_method)
+#endif
+            .set_parent(parent);
+        return spec;
+    }
+
+    static auto for_satellite(MirConnection* connection, int width, int height, MirWindow* parent)
+    {
+        // There's no mir_create_satellite_window_spec()
+        auto spec = WindowSpec{mir_create_window_spec(connection)}
+            .set_buffer_usage(mir_buffer_usage_hardware) // Required protobuf field for create_window()
+            .set_pixel_format(mir_pixel_format_invalid)  // Required protobuf field for create_window()
+            .set_size(width, height)
+            .set_type(mir_window_type_satellite)
+            .set_parent(parent);
+        return spec;
+    }
+
     static auto for_changes(MirConnection* connection) -> WindowSpec
     {
 #if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
@@ -126,6 +153,17 @@ public:
 #endif
         return *this;
     }
+
+    auto set_pixel_format(MirPixelFormat format) -> WindowSpec&
+    {
+#if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
+        mir_surface_spec_set_pixel_format(*this, format);
+#else
+        mir_window_spec_set_pixel_format(*this, format);
+#endif
+        return *this;
+    }
+
 
     auto set_type(MirWindowType type) -> WindowSpec&
     {

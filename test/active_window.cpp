@@ -350,3 +350,41 @@ TEST_F(ActiveWindow, selecting_a_parent_makes_dialog_active)
     EXPECT_TRUE(sync2.signal_raised());
     assert_active_window_is(dialog_name);
 }
+
+TEST_F(ActiveWindow, input_methods_are_not_focussed)
+{
+    char const* const test_name = __PRETTY_FUNCTION__;
+    auto const connection = connect_client(test_name);
+
+    auto const parent = create_surface(connection, test_name, sync1);
+    auto const input_method = WindowSpec::for_input_method(connection, 50, 50, parent).create_surface();
+
+    assert_active_window_is(test_name);
+
+    invoke_tools([&](WindowManagerTools& tools)
+        {
+            auto const& info = tools.info_for(tools.active_window());
+            tools.select_active_window(info.children().at(0));
+        });
+
+    assert_active_window_is(test_name);
+}
+
+TEST_F(ActiveWindow, satellites_are_not_focussed)
+{
+    char const* const test_name = __PRETTY_FUNCTION__;
+    auto const connection = connect_client(test_name);
+
+    auto const parent = create_surface(connection, test_name, sync1);
+    auto const satellite = WindowSpec::for_satellite(connection, 50, 50, parent).create_surface();
+
+    assert_active_window_is(test_name);
+
+    invoke_tools([&](WindowManagerTools& tools)
+    {
+        auto const& info = tools.info_for(tools.active_window());
+        tools.select_active_window(info.children().at(0));
+    });
+
+    assert_active_window_is(test_name);
+}
