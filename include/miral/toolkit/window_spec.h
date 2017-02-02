@@ -128,7 +128,7 @@ public:
             .set_buffer_usage(mir_buffer_usage_hardware) // Required protobuf field for create_window()
             .set_pixel_format(mir_pixel_format_invalid)  // Required protobuf field for create_window()
             .set_size(width, height)
-            .set_type(mir_window_type_input_method)
+            .set_type(mir_window_type_inputmethod)
 #endif
             .set_parent(parent);
         return spec;
@@ -136,8 +136,13 @@ public:
 
     static auto for_satellite(MirConnection* connection, int width, int height, MirWindow* parent)
     {
+#if MIR_CLIENT_VERSION > MIR_VERSION_NUMBER(3, 4, 0)
         // There's no mir_create_satellite_window_spec()
         auto spec = WindowSpec{mir_create_window_spec(connection)}
+#else
+        // There's no mir_create_satellite_window_spec()
+        auto spec = WindowSpec{mir_create_surface_spec(connection)}
+#endif
             .set_buffer_usage(mir_buffer_usage_hardware) // Required protobuf field for create_window()
             .set_pixel_format(mir_pixel_format_invalid)  // Required protobuf field for create_window()
             .set_size(width, height)
