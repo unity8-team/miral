@@ -22,9 +22,13 @@
 #include <miral/toolkit/window.h>
 #include <miral/detail/mir_forward_compatibility.h>
 
-#include <mir_toolkit/mir_surface.h>
 #include <mir_toolkit/mir_connection.h>
-#include <mir_toolkit/version.h>
+
+#if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
+#include <mir_toolkit/mir_surface.h>
+#else
+#include <mir_toolkit/mir_window.h>
+#endif
 
 #include <memory>
 
@@ -38,7 +42,7 @@ class WindowSpec
 public:
     explicit WindowSpec(MirWindowSpec* spec) : self{spec, deleter} {}
 
-    static auto for_normal_surface(MirConnection* connection, int width, int height, MirPixelFormat format) -> WindowSpec
+    static auto for_normal_window(MirConnection* connection, int width, int height, MirPixelFormat format) -> WindowSpec
     {
 #if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
         return WindowSpec{mir_connection_create_spec_for_normal_surface(connection, width, height, format)};
@@ -48,6 +52,19 @@ public:
         return spec;
 #endif
     }
+
+#if MIR_CLIENT_VERSION > MIR_VERSION_NUMBER(3, 4, 0)
+    static auto for_normal_window(MirConnection* connection, int width, int height) -> WindowSpec
+    {
+        return WindowSpec{mir_create_normal_window_spec(connection, width, height)};
+    }
+
+    auto set_pixel_format(MirPixelFormat format) -> WindowSpec&
+    {
+        mir_window_spec_set_pixel_format(*this, format);
+        return *this;
+    }
+#endif
 
     static auto for_menu(MirConnection* connection,
                          int width,
@@ -275,7 +292,7 @@ public:
     }
 
     template<typename Context>
-    void create_surface(void (*callback)(MirWindow*, Context*), Context* context) const
+    void create_window(void (* callback)(MirWindow*, Context*), Context* context) const
     {
 #if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
         mir_surface_create(*this, reinterpret_cast<mir_surface_callback>(callback), context);
@@ -284,7 +301,7 @@ public:
 #endif
     }
 
-    auto create_surface() const -> Window
+    auto create_window() const -> Window
     {
 #if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
         return Window{mir_surface_create_sync(*this)};
@@ -293,12 +310,12 @@ public:
 #endif
     }
 
-    void apply_to(MirWindow* surface) const
+    void apply_to(MirWindow* window) const
     {
 #if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
-        mir_surface_apply_spec(surface, *this);
+        mir_surface_apply_spec(window, *this);
 #else
-        mir_window_apply_spec(surface, *this);
+        mir_window_apply_spec(window, *this);
 #endif
     }
 

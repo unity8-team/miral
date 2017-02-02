@@ -73,12 +73,12 @@ struct ActiveWindow : public miral::TestServer
 
     auto create_surface(Connection const& connection, char const* name, FocusChangeSync& sync) -> Window
     {
-        auto const spec = WindowSpec::for_normal_surface(connection, 50, 50, mir_pixel_format_argb_8888)
+        auto const spec = WindowSpec::for_normal_window(connection, 50, 50, mir_pixel_format_argb_8888)
             .set_buffer_usage(mir_buffer_usage_software)
             .set_event_handler(&FocusChangeSync::raise_signal_on_focus_change, &sync)
             .set_name(name);
 
-        Window const surface{spec.create_surface()};
+        Window const surface{spec.create_window()};
 
 #if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
         sync.exec([&]{ mir_buffer_stream_swap_buffers_sync(mir_surface_get_buffer_stream(surface)); });
@@ -99,7 +99,7 @@ struct ActiveWindow : public miral::TestServer
             .set_event_handler(&FocusChangeSync::raise_signal_on_focus_change, &sync)
             .set_name(name);
 
-        Window const surface{spec.create_surface()};
+        Window const surface{spec.create_window()};
 
         // Expect this to timeout: A tip should not receive focus
 #if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
@@ -120,7 +120,7 @@ struct ActiveWindow : public miral::TestServer
             .set_event_handler(&FocusChangeSync::raise_signal_on_focus_change, &sync)
             .set_name(name);
 
-        Window const surface{spec.create_surface()};
+        Window const surface{spec.create_window()};
 
 #if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
         sync.exec([&]{ mir_buffer_stream_swap_buffers_sync(mir_surface_get_buffer_stream(surface)); });
