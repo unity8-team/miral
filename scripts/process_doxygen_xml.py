@@ -427,10 +427,18 @@ global:
     # miral::WindowManagementPolicy::advise_state_change*;
     _ZN5miral22WindowManagementPolicy19advise_state_changeERKNS_10WindowInfoE14MirWindowState;
 
+  extern "C++" {
+    miral::CanonicalWindowManagerPolicy::place_new_window*;
+    non-virtual?thunk?to?miral::CanonicalWindowManagerPolicy::place_new_window*;
+  };
+} MIRAL_1.0;
+
+MIRAL_1.2 {
+global:
   extern "C++" {'''
 
 END_NEW_STANZA = '''  };
-} MIRAL_1.0;'''
+} MIRAL_1.1;'''
 
 def _print_report():
     print OLD_STANZAS
