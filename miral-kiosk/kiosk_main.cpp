@@ -89,6 +89,8 @@ int main(int argc, char const* argv[])
 
     return MirRunner{argc, argv}.run_with(
         {
+            CommandLineOption{[&](std::string const& ) { },
+                              "desktop_file_hint", "Ignored for Unity8 compatability", "miral-shell.desktop"},
             set_window_managment_policy<KioskWindowManagerPolicy>(splash),
             SetApplicationAuthorizer<KioskAuthorizer>{splash},
             Keymap{},
