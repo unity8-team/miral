@@ -1634,15 +1634,16 @@ auto miral::BasicWindowManager::create_workspace() -> std::shared_ptr<Workspace>
 void miral::BasicWindowManager::add_tree_to_workspace(
     miral::Window const& window, std::shared_ptr<miral::Workspace> const& workspace)
 {
-    std::vector<Window> windows;
+    auto root = window;
+    auto const* info = &info_for(root);
 
-    auto const& info = info_for(window);
-
-    if (auto parent = info.parent())
+    while (auto const& parent = info->parent())
     {
-        add_tree_to_workspace(parent, workspace);
-        return;
+        root = parent;
+        info = &info_for(root);
     }
+
+    std::vector<Window> windows;
 
     std::function<void(WindowInfo const& info)> const add_children =
         [&,this](WindowInfo const& info)
@@ -1655,7 +1656,7 @@ void miral::BasicWindowManager::add_tree_to_workspace(
         };
 
     windows.push_back(window);
-    add_children(info);
+    add_children(*info);
 
     for (auto& w : windows)
         window_for_workspace.insert(std::make_pair(workspace, w));

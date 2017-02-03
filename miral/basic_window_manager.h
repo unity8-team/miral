@@ -31,9 +31,6 @@
 #include <mir/shell/abstract_shell.h>
 #include <mir/shell/window_manager.h>
 
-#include <boost/bimap.hpp>
-#include <boost/bimap/multiset_of.hpp>
-
 #include <map>
 #include <mutex>
 
@@ -44,9 +41,6 @@ namespace shell { class DisplayLayout; class PersistentSurfaceStore; }
 
 namespace miral
 {
-using boost::multi_index_container;
-using namespace boost::multi_index;
-
 using mir::shell::SurfaceSet;
 using WindowManagementPolicyBuilder =
     std::function<std::unique_ptr<miral::WindowManagementPolicy>(miral::WindowManagerTools const& tools)>;
@@ -180,11 +174,6 @@ private:
     FullscreenSurfaces fullscreen_surfaces;
 
     friend class Workspace;
-//    using bimap_t = boost::bimap<
-//        boost::bimaps::multiset_of<std::weak_ptr<Workspace>, std::owner_less<std::weak_ptr<Workspace>>>,
-//        boost::bimaps::multiset_of<Window>>;
-//    bimap_t bimap_window_workspace;
-
     using window_for_workspace_t = std::multimap<std::weak_ptr<Workspace>, Window, std::owner_less<std::weak_ptr<Workspace>>>;
     using workspace_for_window_t = std::multimap<Window, std::weak_ptr<Workspace>>;
     window_for_workspace_t window_for_workspace;
