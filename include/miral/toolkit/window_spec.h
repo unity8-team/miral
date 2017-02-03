@@ -236,6 +236,16 @@ public:
         return *this;
     }
 
+    auto set_state(MirWindowState state) -> WindowSpec&
+    {
+#if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
+        mir_surface_spec_set_state(*this, state);
+#else
+        mir_window_spec_set_state(*this, state);
+#endif
+        return *this;
+    }
+
     template<typename Context>
     void create_surface(void (*callback)(MirWindow*, Context*), Context* context) const
     {
