@@ -98,3 +98,36 @@ void miral::WindowManagerTools::invoke_under_lock(std::function<void()> const& c
 void miral::WindowManagerTools::place_and_size_for_state(
     WindowSpecification& modifications, WindowInfo const& window_info) const
 { tools->place_and_size_for_state(modifications, window_info); }
+
+auto miral::WindowManagerTools::create_workspace() -> std::shared_ptr<miral::Workspace>
+{
+    return std::shared_ptr<miral::Workspace>();
+}
+
+void miral::WindowManagerTools::add_tree_to_workspace(
+    miral::Window const& /*window*/,
+    std::shared_ptr<miral::Workspace> const& /*workspace*/)
+{
+
+}
+
+void miral::WindowManagerTools::remove_tree_from_workspace(
+    miral::Window const& /*window*/,
+    std::shared_ptr<miral::Workspace> const& /*workspace*/)
+{
+
+}
+
+void miral::WindowManagerTools::for_each_workspace_containing(
+    miral::Window const& /*window*/,
+    std::function<void(std::shared_ptr<miral::Workspace> const&)> const& /*callback*/)
+{
+
+}
+
+void miral::WindowManagerTools::for_each_window_in_workspace(
+    std::shared_ptr<miral::Workspace> const& /*workspace*/,
+    std::function<void(miral::Window const&)> const& /*callback*/)
+{
+
+}
