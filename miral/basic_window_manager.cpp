@@ -1609,3 +1609,77 @@ void miral::BasicWindowManager::validate_modification_request(WindowSpecificatio
             BOOST_THROW_EXCEPTION(std::runtime_error("height must be positive"));
     }
 }
+
+class miral::Workspace
+{
+public:
+    explicit Workspace(miral::BasicWindowManager::window_for_workspace_t& window_for_workspace) :
+        window_for_workspace{window_for_workspace} {}
+
+    std::weak_ptr<Workspace> self;
+
+    ~Workspace() { window_for_workspace.erase(self); }
+private:
+
+    miral::BasicWindowManager::window_for_workspace_t& window_for_workspace;
+};
+
+auto miral::BasicWindowManager::create_workspace() -> std::shared_ptr<Workspace>
+{
+    auto const result = std::make_shared<Workspace>(window_for_workspace);
+    result->self = result;
+    return result;
+}
+
+void miral::BasicWindowManager::add_tree_to_workspace(
+    miral::Window const& window, std::shared_ptr<miral::Workspace> const& workspace)
+{
+    std::vector<Window> windows;
+
+    auto const& info = info_for(window);
+
+    if (auto parent = info.parent())
+    {
+        add_tree_to_workspace(parent, workspace);
+        return;
+    }
+
+    std::function<void(WindowInfo const& info)> const add_children =
+        [&,this](WindowInfo const& info)
+        {
+            for (auto const& child : info.children())
+            {
+                windows.push_back(child);
+                add_children(info_for(child));
+            }
+        };
+
+    windows.push_back(window);
+    add_children(info);
+
+    for (auto& w : windows)
+        window_for_workspace.insert(std::make_pair(workspace, w));
+}
+
+void miral::BasicWindowManager::remove_tree_from_workspace(
+    miral::Window const& window, std::shared_ptr<miral::Workspace> const& workspace)
+{
+    (void)window;
+    (void)workspace;
+}
+
+void miral::BasicWindowManager::for_each_workspace_containing(
+    miral::Window const& window, std::function<void(std::shared_ptr<miral::Workspace> const&)> const& callback)
+{
+    (void)window;
+    (void)callback;
+    (void)workspace_for_window;
+}
+
+void miral::BasicWindowManager::for_each_window_in_workspace(
+    std::shared_ptr<miral::Workspace> const& workspace, std::function<void(miral::Window const&)> const& callback)
+{
+    auto const iter_pair = window_for_workspace.equal_range(workspace);
+    for (auto kv = iter_pair.first; kv != iter_pair.second; ++kv)
+        callback(kv->second);
+}

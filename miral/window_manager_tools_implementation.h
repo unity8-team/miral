@@ -35,6 +35,7 @@ class Window;
 struct WindowInfo;
 struct ApplicationInfo;
 class WindowSpecification;
+class Workspace;
 
 // The interface through which the policy instructs the controller.
 class WindowManagerToolsImplementation
@@ -68,6 +69,16 @@ public:
     virtual auto info_for_window_id(std::string const& id) const -> WindowInfo& = 0;
     virtual auto id_for_window(Window const& window) const -> std::string = 0;
     virtual void place_and_size_for_state(WindowSpecification& modifications, WindowInfo const& window_info) const= 0;
+
+    virtual auto create_workspace() -> std::shared_ptr<Workspace> = 0;
+    virtual void add_tree_to_workspace(Window const& window, std::shared_ptr<Workspace> const& workspace) = 0;
+    virtual void remove_tree_from_workspace(Window const& window, std::shared_ptr<Workspace> const& workspace) = 0;
+    virtual void for_each_workspace_containing(
+        Window const& window,
+        std::function<void(std::shared_ptr<Workspace> const& workspace)> const& callback) = 0;
+    virtual void for_each_window_in_workspace(
+        std::shared_ptr<Workspace> const& workspace,
+        std::function<void(Window const& window)> const& callback) = 0;
 
 /** @} */
 

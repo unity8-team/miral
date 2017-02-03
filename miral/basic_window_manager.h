@@ -31,6 +31,9 @@
 #include <mir/shell/abstract_shell.h>
 #include <mir/shell/window_manager.h>
 
+#include <boost/bimap.hpp>
+#include <boost/bimap/multiset_of.hpp>
+
 #include <map>
 #include <mutex>
 
@@ -41,6 +44,9 @@ namespace shell { class DisplayLayout; class PersistentSurfaceStore; }
 
 namespace miral
 {
+using boost::multi_index_container;
+using namespace boost::multi_index;
+
 using mir::shell::SurfaceSet;
 using WindowManagementPolicyBuilder =
     std::function<std::unique_ptr<miral::WindowManagementPolicy>(miral::WindowManagerTools const& tools)>;
@@ -96,6 +102,19 @@ public:
         std::shared_ptr<mir::scene::Surface> const& surface,
         MirWindowAttrib attrib,
         int value) override;
+
+    auto create_workspace() -> std::shared_ptr<Workspace> override;
+
+    void add_tree_to_workspace(Window const& window, std::shared_ptr<Workspace> const& workspace) override;
+
+    void remove_tree_from_workspace(Window const& window, std::shared_ptr<Workspace> const& workspace) override;
+
+    void for_each_workspace_containing(
+        Window const& window,
+        std::function<void(std::shared_ptr<Workspace> const& workspace)> const& callback) override;
+
+    void for_each_window_in_workspace(
+        std::shared_ptr<Workspace> const& workspace, std::function<void(Window const&)> const& callback) override;
 
     auto count_applications() const -> unsigned int override;
 
@@ -159,6 +178,17 @@ private:
     miral::MRUWindowList mru_active_windows;
     using FullscreenSurfaces = std::set<Window>;
     FullscreenSurfaces fullscreen_surfaces;
+
+    friend class Workspace;
+//    using bimap_t = boost::bimap<
+//        boost::bimaps::multiset_of<std::weak_ptr<Workspace>, std::owner_less<std::weak_ptr<Workspace>>>,
+//        boost::bimaps::multiset_of<Window>>;
+//    bimap_t bimap_window_workspace;
+
+    using window_for_workspace_t = std::multimap<std::weak_ptr<Workspace>, Window, std::owner_less<std::weak_ptr<Workspace>>>;
+    using workspace_for_window_t = std::multimap<Window, std::weak_ptr<Workspace>>;
+    window_for_workspace_t window_for_workspace;
+    workspace_for_window_t workspace_for_window;
 
     void update_event_timestamp(MirKeyboardEvent const* kev);
     void update_event_timestamp(MirPointerEvent const* pev);

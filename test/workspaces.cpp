@@ -109,6 +109,7 @@ struct Workspaces : public miral::TestServer
     {
         client_window.clear();
         client_connection.reset();
+        workspaces.clear();
         miral::TestServer::TearDown();
     }
 
