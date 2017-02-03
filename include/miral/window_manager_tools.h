@@ -138,6 +138,9 @@ public:
     /// move the active window
     void drag_active_window(mir::geometry::Displacement movement);
 
+    /// move the window
+    void drag_window(Window const& window, mir::geometry::Displacement movement);
+
     /// make the next application active
     void focus_next_application();
 

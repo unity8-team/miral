@@ -62,6 +62,9 @@ auto miral::WindowManagerTools::select_active_window(Window const& hint) -> Wind
 void miral::WindowManagerTools::drag_active_window(mir::geometry::Displacement movement)
 { tools->drag_active_window(movement); }
 
+void miral::WindowManagerTools::drag_window(Window const& window, mir::geometry::Displacement movement)
+{ tools->drag_window(window, movement); }
+
 void miral::WindowManagerTools::focus_next_application()
 { tools->focus_next_application(); }
 

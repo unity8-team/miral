@@ -120,6 +120,8 @@ public:
 
     void drag_active_window(mir::geometry::Displacement movement) override;
 
+    void drag_window(Window const& window, Displacement& movement) override;
+
     void focus_next_application() override;
 
     void focus_next_within_application() override;

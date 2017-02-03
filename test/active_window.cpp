@@ -73,12 +73,12 @@ struct ActiveWindow : public miral::TestServer
 
     auto create_surface(Connection const& connection, char const* name, FocusChangeSync& sync) -> Window
     {
-        auto const spec = WindowSpec::for_normal_surface(connection, 50, 50, mir_pixel_format_argb_8888)
+        auto const spec = WindowSpec::for_normal_window(connection, 50, 50, mir_pixel_format_argb_8888)
             .set_buffer_usage(mir_buffer_usage_software)
             .set_event_handler(&FocusChangeSync::raise_signal_on_focus_change, &sync)
             .set_name(name);
 
-        Window const surface{spec.create_surface()};
+        Window const surface{spec.create_window()};
 
 #if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
         sync.exec([&]{ mir_buffer_stream_swap_buffers_sync(mir_surface_get_buffer_stream(surface)); });
@@ -99,7 +99,7 @@ struct ActiveWindow : public miral::TestServer
             .set_event_handler(&FocusChangeSync::raise_signal_on_focus_change, &sync)
             .set_name(name);
 
-        Window const surface{spec.create_surface()};
+        Window const surface{spec.create_window()};
 
         // Expect this to timeout: A tip should not receive focus
 #if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
@@ -120,7 +120,7 @@ struct ActiveWindow : public miral::TestServer
             .set_event_handler(&FocusChangeSync::raise_signal_on_focus_change, &sync)
             .set_name(name);
 
-        Window const surface{spec.create_surface()};
+        Window const surface{spec.create_window()};
 
 #if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
         sync.exec([&]{ mir_buffer_stream_swap_buffers_sync(mir_surface_get_buffer_stream(surface)); });
@@ -349,4 +349,42 @@ TEST_F(ActiveWindow, selecting_a_parent_makes_dialog_active)
 
     EXPECT_TRUE(sync2.signal_raised());
     assert_active_window_is(dialog_name);
+}
+
+TEST_F(ActiveWindow, input_methods_are_not_focussed)
+{
+    char const* const test_name = __PRETTY_FUNCTION__;
+    auto const connection = connect_client(test_name);
+
+    auto const parent = create_surface(connection, test_name, sync1);
+    auto const input_method = WindowSpec::for_input_method(connection, 50, 50, parent).create_window();
+
+    assert_active_window_is(test_name);
+
+    invoke_tools([&](WindowManagerTools& tools)
+        {
+            auto const& info = tools.info_for(tools.active_window());
+            tools.select_active_window(info.children().at(0));
+        });
+
+    assert_active_window_is(test_name);
+}
+
+TEST_F(ActiveWindow, satellites_are_not_focussed)
+{
+    char const* const test_name = __PRETTY_FUNCTION__;
+    auto const connection = connect_client(test_name);
+
+    auto const parent = create_surface(connection, test_name, sync1);
+    auto const satellite = WindowSpec::for_satellite(connection, 50, 50, parent).create_window();
+
+    assert_active_window_is(test_name);
+
+    invoke_tools([&](WindowManagerTools& tools)
+    {
+        auto const& info = tools.info_for(tools.active_window());
+        tools.select_active_window(info.children().at(0));
+    });
+
+    assert_active_window_is(test_name);
 }

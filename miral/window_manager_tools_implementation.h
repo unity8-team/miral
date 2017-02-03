@@ -58,6 +58,7 @@ public:
     virtual auto active_window() const -> Window = 0;
     virtual auto select_active_window(Window const& hint) -> Window = 0;
     virtual void drag_active_window(mir::geometry::Displacement movement) = 0;
+    virtual void drag_window(Window const& window, mir::geometry::Displacement& movement) = 0;
     virtual void focus_next_application() = 0;
     virtual void focus_next_within_application() = 0;
     virtual auto window_at(mir::geometry::Point cursor) const -> Window = 0;
