@@ -362,3 +362,5 @@ libmiral.so.2 libmiral2 #MINVER#
  (c++)"miral::WindowManagementPolicy::advise_state_change(miral::WindowInfo const&, MirWindowState)@MIRAL_1.1" 1.1.0
  (c++)"miral::WindowInfo::can_morph_to(MirWindowType) const@MIRAL_1.1" 1.1.0
  (c++)"miral::CanonicalWindowManagerPolicy::place_new_window(miral::ApplicationInfo const&, miral::WindowSpecification const&)@MIRAL_1.1" 1.1.0
+ MIRAL_1.2@MIRAL_1.2 1.2.0
+ (c++)"miral::WindowManagerTools::drag_window(miral::Window const&, mir::geometry::Displacement)@MIRAL_1.2" 1.2.0

@@ -61,6 +61,8 @@ private:
 
     virtual void drag_active_window(mir::geometry::Displacement movement) override;
 
+    void drag_window(Window const& window, mir::geometry::Displacement& movement) override;
+
     virtual void focus_next_application() override;
 
     virtual void focus_next_within_application() override;

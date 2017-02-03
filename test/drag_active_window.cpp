@@ -110,32 +110,46 @@ TEST_P(ForUnmoveableTypes, doesnt_move)
 // Freestyle surfaces may or may not be, as specified by the app.
 //                              Mir and Unity: Surfaces, input, and displays (v0.3)
 INSTANTIATE_TEST_CASE_P(DragActiveWindow, ForMoveableTypes, ::testing::Values(
-    mir_surface_type_normal,
-    mir_surface_type_utility,
-    mir_surface_type_dialog,
-//    mir_surface_type_overlay,
-//    mir_surface_type_gloss,
-    mir_surface_type_freestyle,
-//    mir_surface_type_popover,
-//    mir_surface_type_menu,
-//    mir_surface_type_inputmethod,
-    mir_surface_type_satellite
-//    mir_surface_type_tip,
-//    mir_surface_types
+    mir_window_type_normal,
+    mir_window_type_utility,
+    mir_window_type_dialog,
+//    mir_window_type_gloss,
+    mir_window_type_freestyle
+//    mir_window_type_menu,
+//    mir_window_type_inputmethod,
+//    mir_window_type_satellite,
+//    mir_window_type_tip,
+//    mir_window_types
 ));
 
 
 INSTANTIATE_TEST_CASE_P(DragActiveWindow, ForUnmoveableTypes, ::testing::Values(
-//    mir_surface_type_normal,
-//    mir_surface_type_utility,
-//    mir_surface_type_dialog,
-    mir_surface_type_overlay,
-    mir_surface_type_gloss,
-//    mir_surface_type_freestyle,
-    mir_surface_type_popover,
-    mir_surface_type_menu,
-    mir_surface_type_inputmethod,
-//    mir_surface_type_satellite,
-    mir_surface_type_tip
-//    mir_surface_types
+//    mir_window_type_normal,
+//    mir_window_type_utility,
+//    mir_window_type_dialog,
+    mir_window_type_gloss,
+//    mir_window_type_freestyle,
+    mir_window_type_menu,
+    mir_window_type_inputmethod,
+//    mir_window_type_satellite,
+    mir_window_type_tip
+//    mir_window_types
 ));
+
+using DragWindow = DragActiveWindow;
+
+TEST_F(DragWindow, can_drag_satellite)
+{
+    create_window_of_type(mir_window_type_satellite);
+
+    Displacement const movement{10, 10};
+    auto const initial_position = window.top_left();
+    auto const expected_position = initial_position + movement;
+
+    EXPECT_CALL(*window_manager_policy, advise_move_to(_, expected_position));
+
+    window_manager_tools.drag_window(window, movement);
+
+    EXPECT_THAT(window.top_left(), Eq(expected_position))
+                << "Type: " << GetParam();
+}
