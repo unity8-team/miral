@@ -22,23 +22,23 @@
 
 void miral::MRUWindowList::push(Window const& window)
 {
-    surfaces.erase(remove(begin(surfaces), end(surfaces), window), end(surfaces));
-    surfaces.push_back(window);
+    windows.erase(remove(begin(windows), end(windows), window), end(windows));
+    windows.push_back(window);
 }
 
 void miral::MRUWindowList::erase(Window const& window)
 {
-    surfaces.erase(remove(begin(surfaces), end(surfaces), window), end(surfaces));
+    windows.erase(remove(begin(windows), end(windows), window), end(windows));
 }
 
 auto miral::MRUWindowList::top() const -> Window
 {
-    return (!surfaces.empty()) ? surfaces.back() : Window{};
+    return (!windows.empty()) ? windows.back() : Window{};
 }
 
 void miral::MRUWindowList::enumerate(Enumerator const& enumerator) const
 {
-    for (auto i = surfaces.rbegin(); i != surfaces.rend(); ++i)
+    for (auto i = windows.rbegin(); i != windows.rend(); ++i)
         if (!enumerator(const_cast<Window&>(*i)))
             break;
 }
