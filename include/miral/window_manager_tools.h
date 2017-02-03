@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016 Canonical Ltd.
+ * Copyright © 2016-2017 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3,
@@ -38,6 +38,12 @@ class Window;
 struct WindowInfo;
 struct ApplicationInfo;
 class WindowSpecification;
+
+/**
+ * Workspace is intentionally opaque in the miral API. Its only purpose is to
+ * provide a shared_ptr which is used as an identifier.
+ */
+class Workspace;
 
 class WindowManagerToolsImplementation;
 
@@ -155,6 +161,45 @@ public:
 
     /// Set a default size and position to reflect state change
     void place_and_size_for_state(WindowSpecification& modifications, WindowInfo const& window_info) const;
+
+    /** Create a workspace.
+     * \remark the tools hold only a weak_ptr<> to the workspace - there is no need for an explicit "destroy".
+     * @return a shared_ptr owning the workspace
+     */
+    auto create_workspace() -> std::shared_ptr<Workspace>;
+
+    /**
+     * Add the tree containing window to a workspace
+     * @param window    the window
+     * @param workspace the workspace;
+     */
+    void add_tree_to_workspace(Window const& window, std::shared_ptr<Workspace> const& workspace);
+
+    /**
+     * Remove the tree containing window from a workspace
+     * @param window    the window
+     * @param workspace the workspace;
+     */
+    void remove_tree_from_workspace(Window const& window, std::shared_ptr<Workspace> const& workspace);
+
+    /**
+     * invoke callback with each workspace containing window
+     * @param window
+     * @param callback
+     */
+    void for_each_workspace_containing(
+        Window const& window,
+        std::function<void(std::shared_ptr<Workspace> const& workspace)> const& callback);
+
+    /**
+     * invoke callback with each window contained in workspace
+     * @param workspace
+     * @param callback
+     */
+    void for_each_window_in_workspace(
+        std::shared_ptr<Workspace> const& workspace,
+        std::function<void(Window const& window)> const& callback);
+
 /** @} */
 
     /** Multi-thread support

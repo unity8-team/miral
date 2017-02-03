@@ -56,7 +56,7 @@ add_library(miral SHARED
                                         ${CMAKE_SOURCE_DIR}/include/miral/toolkit/connection.h
                                         ${CMAKE_SOURCE_DIR}/include/miral/toolkit/window.h
                                         ${CMAKE_SOURCE_DIR}/include/miral/detail/mir_forward_compatibility.h
-)
+                                        ${CMAKE_SOURCE_DIR}/include/miral/workspace_policy.h)
 
 target_link_libraries(miral
     PUBLIC

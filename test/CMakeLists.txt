@@ -55,7 +55,7 @@ add_executable(miral-test
     display_reconfiguration.cpp
     active_window.cpp
     raise_tree.cpp
-)
+    workspaces.cpp)
 
 target_link_libraries(miral-test
     ${MIRTEST_LDFLAGS}
