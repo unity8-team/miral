@@ -43,6 +43,24 @@ std::string const top_level{"top level"};
 std::string const dialog{"dialog"};
 std::string const tip{"tip"};
 
+struct Workspaces;
+
+struct WorkspacesWindowManagerPolicy : miral::TestServer::TestWindowManagerPolicy, miral::WorkspacePolicy
+{
+    WorkspacesWindowManagerPolicy(WindowManagerTools const& tools, Workspaces& test_fixture);
+    ~WorkspacesWindowManagerPolicy();
+
+    void advise_new_window(miral::WindowInfo const& window_info) override;
+
+    MOCK_METHOD2(advise_adding_to_workspace,
+                 void(std::shared_ptr<miral::Workspace> const&, std::vector<miral::Window> const&));
+
+    MOCK_METHOD2(advise_removing_from_workspace,
+                 void(std::shared_ptr<miral::Workspace> const&, std::vector<miral::Window> const&));
+
+    Workspaces& test_fixture;
+};
+
 struct Workspaces : public miral::TestServer
 {
     auto create_window(Connection const& connection, std::string const& name) -> Window
@@ -158,26 +176,19 @@ struct Workspaces : public miral::TestServer
         return result;
     }
 
+    auto policy() -> WorkspacesWindowManagerPolicy&
+    {
+        if (!the_policy) throw std::logic_error("the_policy isn't valid");
+        return *the_policy;
+    }
+
 private:
     std::mutex mutable mutex;
     std::map<std::string, Window> client_windows;
     std::map<std::string, miral::Window> server_windows;
+    WorkspacesWindowManagerPolicy* the_policy{nullptr};
 
-    struct WorkspacesWindowManagerPolicy : miral::TestServer::TestWindowManagerPolicy
-    {
-        WorkspacesWindowManagerPolicy(WindowManagerTools const& tools, Workspaces& test_fixture) :
-            TestWindowManagerPolicy(tools, test_fixture), test_fixture{test_fixture} {}
-
-        void advise_new_window(miral::WindowInfo const& window_info) override
-        {
-            miral::TestServer::TestWindowManagerPolicy::advise_new_window(window_info);
-
-            std::lock_guard<decltype(test_fixture.mutex)> lock{test_fixture.mutex};
-            test_fixture.server_windows[window_info.name()] = window_info.window();
-        }
-
-        Workspaces& test_fixture;
-    };
+    friend struct WorkspacesWindowManagerPolicy;
 
     auto build_window_manager_policy(WindowManagerTools const& tools)
     -> std::unique_ptr<TestWindowManagerPolicy> override
@@ -185,6 +196,26 @@ private:
         return std::make_unique<WorkspacesWindowManagerPolicy>(tools, *this);
     }
 };
+
+WorkspacesWindowManagerPolicy::WorkspacesWindowManagerPolicy(WindowManagerTools const& tools, Workspaces& test_fixture) :
+TestWindowManagerPolicy(tools, test_fixture), test_fixture{test_fixture}
+{
+    test_fixture.the_policy = this;
+}
+
+WorkspacesWindowManagerPolicy::~WorkspacesWindowManagerPolicy()
+{
+    test_fixture.the_policy = nullptr;
+}
+
+
+void WorkspacesWindowManagerPolicy::advise_new_window(miral::WindowInfo const& window_info)
+{
+    miral::TestServer::TestWindowManagerPolicy::advise_new_window(window_info);
+
+    std::lock_guard<decltype(test_fixture.mutex)> lock{test_fixture.mutex};
+    test_fixture.server_windows[window_info.name()] = window_info.window();
+}
 }
 
 TEST_F(Workspaces, before_a_tree_is_added_to_workspace_it_is_empty)
@@ -297,4 +328,15 @@ TEST_F(Workspaces, when_workspace_is_closed_surfaces_are_no_longer_contained_in_
     EXPECT_THAT(workspaces_containing_window(server_window(top_level)).size(), Eq(1u));
     EXPECT_THAT(workspaces_containing_window(server_window(dialog)).size(), Eq(1u));
     EXPECT_THAT(workspaces_containing_window(server_window(tip)).size(), Eq(1u));
+}
+
+TEST_F(Workspaces, when_a_tree_is_added_to_a_workspace_the_policy_is_notified)
+{
+    auto const workspace = create_workspace();
+
+    EXPECT_CALL(policy(), advise_adding_to_workspace(workspace,
+         ElementsAre(server_window(top_level), server_window(dialog), server_window(tip))));
+
+    invoke_tools([&, this](WindowManagerTools& tools)
+                     { tools.add_tree_to_workspace(server_window(dialog), workspace); });
 }

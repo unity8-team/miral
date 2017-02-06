@@ -18,6 +18,7 @@
 
 #include "basic_window_manager.h"
 #include "miral/window_manager_tools.h"
+#include "miral/workspace_policy.h"
 
 #include <mir/scene/session.h>
 #include <mir/scene/surface.h>
@@ -67,6 +68,35 @@ miral::BasicWindowManager::Locker::Locker(BasicWindowManager* self) :
         self->workspaces_to_windows.left.erase(workspace);
 }
 
+namespace
+{
+
+auto find_workspace_policy(std::unique_ptr<miral::WindowManagementPolicy> const& policy) -> miral::WorkspacePolicy*
+{
+    miral::WorkspacePolicy* result = dynamic_cast<miral::WorkspacePolicy*>(policy.get());
+
+    if (result)
+        return result;
+
+    struct NullWorkspacePolicy : miral::WorkspacePolicy
+    {
+        void advise_adding_to_workspace(
+            std::shared_ptr<miral::Workspace> const&, std::vector<miral::Window> const&) override
+        {
+        }
+
+        void advise_removing_from_workspace(
+            std::shared_ptr<miral::Workspace> const&, std::vector<miral::Window> const&) override
+        {
+        }
+    };
+
+    static NullWorkspacePolicy null_workspace_policy;
+
+    return &null_workspace_policy;
+}
+}
+
 
 miral::BasicWindowManager::BasicWindowManager(
     shell::FocusController* focus_controller,
@@ -76,7 +106,8 @@ miral::BasicWindowManager::BasicWindowManager(
     focus_controller(focus_controller),
     display_layout(display_layout),
     persistent_surface_store{persistent_surface_store},
-    policy(build(WindowManagerTools{this}))
+    policy(build(WindowManagerTools{this})),
+    workspace_policy{find_workspace_policy(policy)}
 {
 }
 
@@ -1683,6 +1714,8 @@ void miral::BasicWindowManager::add_tree_to_workspace(
             workspaces_to_windows.left.insert(wwbimap_t::left_value_type{workspace, w});
         }
     }
+
+    workspace_policy->advise_adding_to_workspace(workspace, windows);
 }
 
 void miral::BasicWindowManager::remove_tree_from_workspace(
