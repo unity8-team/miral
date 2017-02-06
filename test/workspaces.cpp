@@ -383,3 +383,14 @@ TEST_F(Workspaces, when_a_tree_is_removed_from_a_workspace_twice_the_policy_is_n
             tools.remove_tree_from_workspace(server_window(tip), workspace);
         });
 }
+
+TEST_F(Workspaces, a_child_window_is_added_to_workspace_of_parent)
+{
+    auto const workspace = create_workspace();
+    invoke_tools([&, this](WindowManagerTools& tools)
+        { tools.add_tree_to_workspace(server_window(dialog), workspace); });
+
+    EXPECT_CALL(policy(), advise_adding_to_workspace(workspace, ElementsAre(_)));
+
+    create_dialog(client_connection, "child", client_window(top_level));
+}

@@ -154,6 +154,9 @@ auto miral::BasicWindowManager::add_surface(
     if (parent)
         info_for(parent).add_child(window);
 
+    for_each_workspace_containing(parent,
+        [&](std::shared_ptr<miral::Workspace> const& workspace) { add_tree_to_workspace(window, workspace); });
+
     if (window_info.state() == mir_window_state_fullscreen)
         fullscreen_surfaces.insert(window_info.window());
 
