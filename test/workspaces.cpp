@@ -340,3 +340,18 @@ TEST_F(Workspaces, when_a_tree_is_added_to_a_workspace_the_policy_is_notified)
     invoke_tools([&, this](WindowManagerTools& tools)
                      { tools.add_tree_to_workspace(server_window(dialog), workspace); });
 }
+
+TEST_F(Workspaces, when_a_tree_is_added_to_a_workspaces_twice_the_policy_is_notified_once)
+{
+    auto const workspace = create_workspace();
+
+    EXPECT_CALL(policy(), advise_adding_to_workspace(workspace,
+         ElementsAre(server_window(top_level), server_window(dialog), server_window(tip))));
+
+    invoke_tools([&, this](WindowManagerTools& tools)
+        {
+            tools.add_tree_to_workspace(server_window(dialog), workspace);
+            tools.add_tree_to_workspace(server_window(dialog), workspace);
+        });
+}
+

@@ -1706,16 +1706,20 @@ void miral::BasicWindowManager::add_tree_to_workspace(
 
     auto const iter_pair = workspaces_to_windows.left.equal_range(workspace);
 
+    std::vector<Window> windows_added;
+
     for (auto& w : windows)
     {
         if (!std::count_if(iter_pair.first, iter_pair.second,
                            [&w](wwbimap_t::left_value_type const& kv) { return kv.second == w; }))
         {
             workspaces_to_windows.left.insert(wwbimap_t::left_value_type{workspace, w});
+            windows_added.push_back(w);
         }
     }
 
-    workspace_policy->advise_adding_to_workspace(workspace, windows);
+    if (!windows_added.empty())
+        workspace_policy->advise_adding_to_workspace(workspace, windows_added);
 }
 
 void miral::BasicWindowManager::remove_tree_from_workspace(
