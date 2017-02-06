@@ -187,6 +187,7 @@ public:
 
     /**
      * invoke callback with each workspace containing window
+     * \warning it is unsafe to add or remove windows from workspaces from the callback during enumeration
      * @param window
      * @param callback
      */
@@ -196,6 +197,7 @@ public:
 
     /**
      * invoke callback with each window contained in workspace
+     * \warning it is unsafe to add or remove windows from workspaces from the callback during enumeration
      * @param workspace
      * @param callback
      */
