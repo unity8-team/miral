@@ -87,10 +87,12 @@ struct Workspaces : public miral::TestServer
 
     auto create_workspace() -> std::shared_ptr<miral::Workspace>
     {
-        invoke_tools([this](WindowManagerTools& tools)
-            { workspaces.push_back(tools.create_workspace()); });
+        std::shared_ptr<miral::Workspace> result;
 
-        return workspaces.back();
+        invoke_tools([&](WindowManagerTools& tools)
+            { result = tools.create_workspace(); });
+
+        return result;
     }
 
     void SetUp() override
@@ -109,7 +111,6 @@ struct Workspaces : public miral::TestServer
     {
         client_windows.clear();
         client_connection.reset();
-        workspaces.clear();
         miral::TestServer::TearDown();
     }
 
@@ -160,7 +161,6 @@ struct Workspaces : public miral::TestServer
 private:
     std::mutex mutable mutex;
     std::map<std::string, Window> client_windows;
-    std::vector<std::shared_ptr<miral::Workspace>> workspaces;
     std::map<std::string, miral::Window> server_windows;
 
     struct WorkspacesWindowManagerPolicy : miral::TestServer::TestWindowManagerPolicy
@@ -198,7 +198,7 @@ TEST_F(Workspaces, when_a_tree_is_added_to_workspace_all_surfaces_in_tree_are_ad
 {
     auto const workspace = create_workspace();
     invoke_tools([&, this](WindowManagerTools& tools)
-                     { tools.add_tree_to_workspace(server_window(dialog), workspace); });
+        { tools.add_tree_to_workspace(server_window(dialog), workspace); });
 
     EXPECT_THAT(windows_in_workspace(workspace).size(), Eq(3u));
 }
@@ -207,10 +207,10 @@ TEST_F(Workspaces, when_a_tree_is_removed_from_workspace_all_surfaces_in_tree_ar
 {
     auto const workspace = create_workspace();
     invoke_tools([&, this](WindowManagerTools& tools)
-                     { tools.add_tree_to_workspace(server_window(dialog), workspace); });
+        { tools.add_tree_to_workspace(server_window(dialog), workspace); });
 
     invoke_tools([&, this](WindowManagerTools& tools)
-                     { tools.remove_tree_from_workspace(server_window(tip), workspace); });
+        { tools.remove_tree_from_workspace(server_window(tip), workspace); });
 
     EXPECT_THAT(windows_in_workspace(workspace).size(), Eq(0u));
 }
@@ -223,12 +223,12 @@ TEST_F(Workspaces, given_a_tree_in_a_workspace_when_another_tree_is_added_and_re
     auto const original_window= server_window(original_tree);
 
     invoke_tools([&, this](WindowManagerTools& tools)
-                     { tools.add_tree_to_workspace(original_window, workspace); });
+        { tools.add_tree_to_workspace(original_window, workspace); });
 
     invoke_tools([&, this](WindowManagerTools& tools)
-                     { tools.add_tree_to_workspace(server_window(top_level), workspace); });
+        { tools.add_tree_to_workspace(server_window(top_level), workspace); });
     invoke_tools([&, this](WindowManagerTools& tools)
-                     { tools.remove_tree_from_workspace(server_window(top_level), workspace); });
+        { tools.remove_tree_from_workspace(server_window(top_level), workspace); });
 
     EXPECT_THAT(windows_in_workspace(workspace), ElementsAre(original_window));
 }
@@ -237,10 +237,43 @@ TEST_F(Workspaces, when_a_tree_is_added_to_a_workspace_all_surfaces_are_containe
 {
     auto const workspace = create_workspace();
     invoke_tools([&, this](WindowManagerTools& tools)
-                     { tools.add_tree_to_workspace(server_window(dialog), workspace); });
+        { tools.add_tree_to_workspace(server_window(dialog), workspace); });
 
     EXPECT_THAT(workspaces_containing_window(server_window(top_level)), ElementsAre(workspace));
     EXPECT_THAT(workspaces_containing_window(server_window(dialog)), ElementsAre(workspace));
     EXPECT_THAT(workspaces_containing_window(server_window(tip)), ElementsAre(workspace));
 }
 
+
+TEST_F(Workspaces, when_a_tree_is_added_to_a_workspaces_twice_surfaces_are_contained_in_one_workspace)
+{
+    auto const workspace = create_workspace();
+    invoke_tools([&, this](WindowManagerTools& tools)
+        {
+            tools.add_tree_to_workspace(server_window(dialog), workspace);
+            tools.add_tree_to_workspace(server_window(dialog), workspace);
+        });
+
+    EXPECT_THAT(workspaces_containing_window(server_window(top_level)), ElementsAre(workspace));
+    EXPECT_THAT(workspaces_containing_window(server_window(dialog)), ElementsAre(workspace));
+    EXPECT_THAT(workspaces_containing_window(server_window(tip)), ElementsAre(workspace));
+
+    EXPECT_THAT(workspaces_containing_window(server_window(top_level)).size(), Eq(1u));
+    EXPECT_THAT(workspaces_containing_window(server_window(dialog)).size(), Eq(1u));
+    EXPECT_THAT(workspaces_containing_window(server_window(tip)).size(), Eq(1u));
+}
+
+TEST_F(Workspaces, when_a_tree_is_added_to_two_workspaces_all_surfaces_are_contained_in_two_workspaces)
+{
+    auto const workspace1 = create_workspace();
+    auto const workspace2 = create_workspace();
+    invoke_tools([&, this](WindowManagerTools& tools)
+        {
+            tools.add_tree_to_workspace(server_window(dialog), workspace1);
+            tools.add_tree_to_workspace(server_window(dialog), workspace2);
+        });
+
+    EXPECT_THAT(workspaces_containing_window(server_window(top_level)).size(), Eq(2u));
+    EXPECT_THAT(workspaces_containing_window(server_window(dialog)).size(), Eq(2u));
+    EXPECT_THAT(workspaces_containing_window(server_window(tip)).size(), Eq(2u));
+}

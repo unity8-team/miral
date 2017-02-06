@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015-2016 Canonical Ltd.
+ * Copyright © 2015-2017 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3,
@@ -1673,8 +1673,16 @@ void miral::BasicWindowManager::add_tree_to_workspace(
     windows.push_back(root);
     add_children(*info);
 
+    auto const iter_pair = workspaces_to_windows.left.equal_range(workspace);
+
     for (auto& w : windows)
-        workspaces_to_windows.left.insert(std::make_pair(workspace, w));
+    {
+        if (!std::count_if(iter_pair.first, iter_pair.second,
+                           [&w](wwbimap_t::left_value_type const& kv) { return kv.second == w; }))
+        {
+            workspaces_to_windows.left.insert(wwbimap_t::left_value_type{workspace, w});
+        }
+    }
 }
 
 void miral::BasicWindowManager::remove_tree_from_workspace(
