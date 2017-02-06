@@ -43,6 +43,7 @@ std::string const top_level{"top level"};
 std::string const dialog{"dialog"};
 std::string const tip{"tip"};
 std::string const a_window{"a window"};
+std::string const another_window{"another window"};
 
 struct Workspaces;
 
@@ -410,4 +411,30 @@ TEST_F(Workspaces, a_closing_window_is_removed_from_workspace)
     EXPECT_CALL(policy(), advise_removing_from_workspace(workspace, ElementsAre(server_window(a_window))));
 
     client_window(a_window).reset();
+}
+
+TEST_F(Workspaces, when_a_window_in_a_workspace_closes_focus_remains_in_workspace)
+{
+    auto const workspace = create_workspace();
+
+    create_window(a_window);
+    create_window(another_window);
+
+    invoke_tools([&, this](WindowManagerTools& tools)
+        {
+            tools.add_tree_to_workspace(server_window(a_window), workspace);
+            tools.add_tree_to_workspace(server_window(another_window), workspace);
+
+            tools.select_active_window(server_window(dialog));
+            tools.select_active_window(server_window(a_window));
+        });
+
+    client_window(a_window).reset();
+
+    invoke_tools([&, this](WindowManagerTools& tools)
+    {
+        EXPECT_THAT(tools.active_window(), Eq(server_window(another_window)))
+            << "tools.active_window() . . . .: " << tools.info_for(tools.active_window()).name() << "\n"
+            << "server_window(another_window): " << tools.info_for(server_window(another_window)).name();
+    });
 }
