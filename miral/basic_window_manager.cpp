@@ -204,6 +204,19 @@ void miral::BasicWindowManager::remove_surface(
 
 void miral::BasicWindowManager::remove_window(Application const& application, miral::WindowInfo const& info)
 {
+    {
+        std::vector<Window> const windows_removed{info.window()};
+
+        auto const iter_pair = workspaces_to_windows.right.equal_range(info.window());
+        for (auto kv = iter_pair.first; kv != iter_pair.second; ++kv)
+        {
+            if (auto const workspace = kv->second.lock())
+                workspace_policy->advise_removing_from_workspace(workspace, windows_removed);
+        }
+
+        workspaces_to_windows.right.erase(iter_pair.first, iter_pair.second);
+    }
+
     policy->advise_delete_window(info);
 
     bool const is_active_window{mru_active_windows.top() == info.window()};

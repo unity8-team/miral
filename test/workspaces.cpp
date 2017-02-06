@@ -42,6 +42,7 @@ auto const mir_window_get_buffer_stream = mir_surface_get_buffer_stream;
 std::string const top_level{"top level"};
 std::string const dialog{"dialog"};
 std::string const tip{"tip"};
+std::string const a_window{"a window"};
 
 struct Workspaces;
 
@@ -117,6 +118,9 @@ struct Workspaces : public miral::TestServer
     void SetUp() override
     {
         miral::TestServer::SetUp();
+        EXPECT_CALL(policy(), advise_adding_to_workspace(_, _)).Times(AnyNumber());
+        EXPECT_CALL(policy(), advise_removing_from_workspace(_, _)).Times(AnyNumber());
+
         client_connection  = connect_client("Workspaces");
         create_window(top_level);
         create_dialog(dialog, client_windows[top_level]);
@@ -392,5 +396,18 @@ TEST_F(Workspaces, a_child_window_is_added_to_workspace_of_parent)
 
     EXPECT_CALL(policy(), advise_adding_to_workspace(workspace, ElementsAre(_)));
 
-    create_dialog("child", client_window(top_level));
+    create_dialog(a_window, client_window(top_level));
+}
+
+TEST_F(Workspaces, a_closing_window_is_removed_from_workspace)
+{
+    auto const workspace = create_workspace();
+    invoke_tools([&, this](WindowManagerTools& tools)
+        { tools.add_tree_to_workspace(server_window(dialog), workspace); });
+
+    create_dialog(a_window, client_window(dialog));
+
+    EXPECT_CALL(policy(), advise_removing_from_workspace(workspace, ElementsAre(server_window(a_window))));
+
+    client_window(a_window).reset();
 }
