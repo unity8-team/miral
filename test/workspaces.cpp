@@ -199,3 +199,21 @@ TEST_F(Workspaces, when_a_tree_is_removed_from_workspace_all_surfaces_in_tree_ar
 
     EXPECT_THAT(windows_in_workspace(workspace).size(), Eq(0u));
 }
+
+TEST_F(Workspaces, given_a_tree_in_a_workspace_when_another_tree_is_added_and_removed_from_workspace_the_original_tree_remains)
+{
+    auto const workspace = create_workspace();
+    auto const original_tree = "original_tree";
+    auto const client_window = create_window(client_connection, original_tree);
+    auto const original_window= server_window(original_tree);
+
+    invoke_tools([&, this](WindowManagerTools& tools)
+                     { tools.add_tree_to_workspace(original_window, workspace); });
+
+    invoke_tools([&, this](WindowManagerTools& tools)
+                     { tools.add_tree_to_workspace(server_window(top_level), workspace); });
+    invoke_tools([&, this](WindowManagerTools& tools)
+                     { tools.remove_tree_from_workspace(server_window(top_level), workspace); });
+
+    EXPECT_THAT(windows_in_workspace(workspace), ElementsAre(original_window));
+}
