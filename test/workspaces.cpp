@@ -355,3 +355,31 @@ TEST_F(Workspaces, when_a_tree_is_added_to_a_workspaces_twice_the_policy_is_noti
         });
 }
 
+TEST_F(Workspaces, when_a_tree_is_removed_from_a_workspace_the_policy_is_notified)
+{
+    auto const workspace = create_workspace();
+    invoke_tools([&, this](WindowManagerTools& tools)
+        { tools.add_tree_to_workspace(server_window(dialog), workspace); });
+
+    EXPECT_CALL(policy(), advise_removing_from_workspace(workspace,
+         ElementsAre(server_window(top_level), server_window(dialog), server_window(tip))));
+
+    invoke_tools([&, this](WindowManagerTools& tools)
+        { tools.remove_tree_from_workspace(server_window(tip), workspace); });
+}
+
+TEST_F(Workspaces, when_a_tree_is_removed_from_a_workspace_twice_the_policy_is_notified_once)
+{
+    auto const workspace = create_workspace();
+    invoke_tools([&, this](WindowManagerTools& tools)
+        { tools.add_tree_to_workspace(server_window(dialog), workspace); });
+
+    EXPECT_CALL(policy(), advise_removing_from_workspace(workspace,
+         ElementsAre(server_window(top_level), server_window(dialog), server_window(tip))));
+
+    invoke_tools([&, this](WindowManagerTools& tools)
+        {
+            tools.remove_tree_from_workspace(server_window(top_level), workspace);
+            tools.remove_tree_from_workspace(server_window(tip), workspace);
+        });
+}
