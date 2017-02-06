@@ -183,6 +183,13 @@ private:
 
     wwbimap_t workspaces_to_windows;
 
+    // Workspaces may die without any sync with the BWM mutex
+    struct DeadWorkspaces
+    {
+        std::mutex mutable dead_workspaces_mutex;
+        std::vector<std::weak_ptr<Workspace>> workspaces;
+    } dead_workspaces;
+
     void update_event_timestamp(MirKeyboardEvent const* kev);
     void update_event_timestamp(MirPointerEvent const* pev);
     void update_event_timestamp(MirTouchEvent const* tev);

@@ -142,6 +142,21 @@ struct Workspaces : public miral::TestServer
         return result;
     }
 
+    auto workspaces_containing_window(miral::Window const& window) -> std::vector<std::shared_ptr<miral::Workspace>>
+    {
+        std::vector<std::shared_ptr<miral::Workspace>> result;
+
+        auto enumerate = [&result](std::shared_ptr<miral::Workspace> const& workspace)
+            {
+                result.push_back(workspace);
+            };
+
+        invoke_tools([&](WindowManagerTools& tools)
+            { tools.for_each_workspace_containing(window, enumerate); });
+
+        return result;
+    }
+
 private:
     std::mutex mutable mutex;
     std::map<std::string, Window> client_windows;
@@ -217,3 +232,15 @@ TEST_F(Workspaces, given_a_tree_in_a_workspace_when_another_tree_is_added_and_re
 
     EXPECT_THAT(windows_in_workspace(workspace), ElementsAre(original_window));
 }
+
+TEST_F(Workspaces, when_a_tree_is_added_to_a_workspace_all_surfaces_are_contained_in_the_workspace)
+{
+    auto const workspace = create_workspace();
+    invoke_tools([&, this](WindowManagerTools& tools)
+                     { tools.add_tree_to_workspace(server_window(dialog), workspace); });
+
+    EXPECT_THAT(workspaces_containing_window(server_window(top_level)), ElementsAre(workspace));
+    EXPECT_THAT(workspaces_containing_window(server_window(dialog)), ElementsAre(workspace));
+    EXPECT_THAT(workspaces_containing_window(server_window(tip)), ElementsAre(workspace));
+}
+
