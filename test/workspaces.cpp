@@ -127,6 +127,21 @@ struct Workspaces : public miral::TestServer
         return client_windows[key];
     }
 
+    auto windows_in_workspace(std::shared_ptr<miral::Workspace> const& workspace) -> std::vector<miral::Window>
+    {
+        std::vector<miral::Window> result;
+
+        auto enumerate = [&result](miral::Window const& window)
+            {
+                result.push_back(window);
+            };
+
+        invoke_tools([&](WindowManagerTools& tools)
+            { tools.for_each_window_in_workspace(workspace, enumerate); });
+
+        return result;
+    }
+
 private:
     std::mutex mutable mutex;
     std::map<std::string, Window> client_windows;
@@ -161,17 +176,7 @@ TEST_F(Workspaces, before_a_tree_is_added_to_workspace_it_is_empty)
 {
     auto const workspace = create_workspace();
 
-    std::vector<miral::Window> windows_in_workspace;
-
-    auto enumerate = [&windows_in_workspace](miral::Window const& window)
-        {
-            windows_in_workspace.push_back(window);
-        };
-
-    invoke_tools([&](WindowManagerTools& tools)
-        { tools.for_each_window_in_workspace(workspace, enumerate); });
-
-    EXPECT_THAT(windows_in_workspace.size(), Eq(0u));
+    EXPECT_THAT(windows_in_workspace(workspace).size(), Eq(0u));
 }
 
 TEST_F(Workspaces, when_a_tree_is_added_to_workspace_all_surfaces_in_tree_are_added)
@@ -180,16 +185,7 @@ TEST_F(Workspaces, when_a_tree_is_added_to_workspace_all_surfaces_in_tree_are_ad
     invoke_tools([&, this](WindowManagerTools& tools)
                      { tools.add_tree_to_workspace(server_window(dialog), workspace); });
 
-    std::vector<miral::Window> windows_in_workspace;
-    auto enumerate = [&windows_in_workspace](miral::Window const& window)
-        {
-            windows_in_workspace.push_back(window);
-        };
-
-    invoke_tools([&](WindowManagerTools& tools)
-                     { tools.for_each_window_in_workspace(workspace, enumerate); });
-
-    EXPECT_THAT(windows_in_workspace.size(), Eq(3u));
+    EXPECT_THAT(windows_in_workspace(workspace).size(), Eq(3u));
 }
 
 TEST_F(Workspaces, when_a_tree_is_removed_from_workspace_all_surfaces_in_tree_are_removed)
@@ -201,15 +197,5 @@ TEST_F(Workspaces, when_a_tree_is_removed_from_workspace_all_surfaces_in_tree_ar
     invoke_tools([&, this](WindowManagerTools& tools)
                      { tools.remove_tree_from_workspace(server_window(tip), workspace); });
 
-    std::vector<miral::Window> windows_in_workspace;
-
-    auto enumerate = [&windows_in_workspace](miral::Window const& window)
-        {
-            windows_in_workspace.push_back(window);
-        };
-
-    invoke_tools([&](WindowManagerTools& tools)
-                     { tools.for_each_window_in_workspace(workspace, enumerate); });
-
-    EXPECT_THAT(windows_in_workspace.size(), Eq(0u));
+    EXPECT_THAT(windows_in_workspace(workspace).size(), Eq(0u));
 }
