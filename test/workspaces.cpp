@@ -277,3 +277,24 @@ TEST_F(Workspaces, when_a_tree_is_added_to_two_workspaces_all_surfaces_are_conta
     EXPECT_THAT(workspaces_containing_window(server_window(dialog)).size(), Eq(2u));
     EXPECT_THAT(workspaces_containing_window(server_window(tip)).size(), Eq(2u));
 }
+
+TEST_F(Workspaces, when_workspace_is_closed_surfaces_are_no_longer_contained_in_it)
+{
+    auto const workspace1 = create_workspace();
+    auto workspace2 = create_workspace();
+    invoke_tools([&, this](WindowManagerTools& tools)
+        {
+            tools.add_tree_to_workspace(server_window(dialog), workspace1);
+            tools.add_tree_to_workspace(server_window(dialog), workspace2);
+        });
+
+    workspace2.reset();
+
+    EXPECT_THAT(workspaces_containing_window(server_window(top_level)), ElementsAre(workspace1));
+    EXPECT_THAT(workspaces_containing_window(server_window(dialog)), ElementsAre(workspace1));
+    EXPECT_THAT(workspaces_containing_window(server_window(tip)), ElementsAre(workspace1));
+
+    EXPECT_THAT(workspaces_containing_window(server_window(top_level)).size(), Eq(1u));
+    EXPECT_THAT(workspaces_containing_window(server_window(dialog)).size(), Eq(1u));
+    EXPECT_THAT(workspaces_containing_window(server_window(tip)).size(), Eq(1u));
+}
