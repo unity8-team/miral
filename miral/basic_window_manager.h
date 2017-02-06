@@ -190,6 +190,8 @@ private:
         std::vector<std::weak_ptr<Workspace>> workspaces;
     } dead_workspaces;
 
+    struct Locker;
+
     void update_event_timestamp(MirKeyboardEvent const* kev);
     void update_event_timestamp(MirPointerEvent const* pev);
     void update_event_timestamp(MirTouchEvent const* tev);
