@@ -31,6 +31,9 @@
 #include <mir/shell/abstract_shell.h>
 #include <mir/shell/window_manager.h>
 
+#include <boost/bimap.hpp>
+#include <boost/bimap/multiset_of.hpp>
+
 #include <map>
 #include <mutex>
 
@@ -174,10 +177,11 @@ private:
     FullscreenSurfaces fullscreen_surfaces;
 
     friend class Workspace;
-    using window_for_workspace_t = std::multimap<std::weak_ptr<Workspace>, Window, std::owner_less<std::weak_ptr<Workspace>>>;
-    using workspace_for_window_t = std::multimap<Window, std::weak_ptr<Workspace>>;
-    window_for_workspace_t window_for_workspace;
-    workspace_for_window_t workspace_for_window;
+    using wwbimap_t = boost::bimap<
+        boost::bimaps::multiset_of<std::weak_ptr<Workspace>, std::owner_less<std::weak_ptr<Workspace>>>,
+        boost::bimaps::multiset_of<Window>>;
+
+    wwbimap_t workspaces_to_windows;
 
     void update_event_timestamp(MirKeyboardEvent const* kev);
     void update_event_timestamp(MirPointerEvent const* pev);
