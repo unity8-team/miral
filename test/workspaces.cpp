@@ -63,40 +63,41 @@ struct WorkspacesWindowManagerPolicy : miral::TestServer::TestWindowManagerPolic
 
 struct Workspaces : public miral::TestServer
 {
-    auto create_window(Connection const& connection, std::string const& name) -> Window
+    auto create_window(std::string const& name) -> Window
     {
-        auto const spec = WindowSpec::for_normal_window(connection, 50, 50, mir_pixel_format_argb_8888)
+        auto const window = WindowSpec::for_normal_window(client_connection, 50, 50, mir_pixel_format_argb_8888)
             .set_buffer_usage(mir_buffer_usage_software)
-            .set_name(name.c_str());
+            .set_name(name.c_str())
+            .create_window();
 
-        Window const window{spec.create_window()};
         client_windows[name] = window;
         mir_buffer_stream_swap_buffers_sync(mir_window_get_buffer_stream(window));
 
         return window;
     }
 
-    auto create_tip(Connection const& connection, std::string const& name, Window const& parent) -> Window
+    auto create_tip(std::string const& name, Window const& parent) -> Window
     {
         MirRectangle aux_rect{10, 10, 10, 10};
-        auto const spec = WindowSpec::for_tip(connection, 50, 50, mir_pixel_format_argb_8888, parent, &aux_rect, mir_edge_attachment_any)
+        auto const window = WindowSpec::for_tip(client_connection, 50, 50, mir_pixel_format_argb_8888, parent,
+                                                &aux_rect, mir_edge_attachment_any)
             .set_buffer_usage(mir_buffer_usage_software)
-            .set_name(name.c_str());
+            .set_name(name.c_str())
+            .create_window();
 
-        Window const window{spec.create_window()};
         client_windows[name] = window;
         mir_buffer_stream_swap_buffers_sync(mir_window_get_buffer_stream(window));
 
         return window;
     }
 
-    auto create_dialog(Connection const& connection, std::string const& name, Window const& parent) -> Window
+    auto create_dialog(std::string const& name, Window const& parent) -> Window
     {
-        auto const spec = WindowSpec::for_dialog(connection, 50, 50, mir_pixel_format_argb_8888, parent)
+        auto const window = WindowSpec::for_dialog(client_connection, 50, 50, mir_pixel_format_argb_8888, parent)
             .set_buffer_usage(mir_buffer_usage_software)
-            .set_name(name.c_str());
+            .set_name(name.c_str())
+            .create_window();
 
-        Window const window{spec.create_window()};
         client_windows[name] = window;
         mir_buffer_stream_swap_buffers_sync(mir_window_get_buffer_stream(window));
 
@@ -117,9 +118,9 @@ struct Workspaces : public miral::TestServer
     {
         miral::TestServer::SetUp();
         client_connection  = connect_client("Workspaces");
-        create_window(client_connection, top_level);
-        create_dialog(client_connection, dialog, client_windows[top_level]);
-        create_tip(client_connection, tip, client_windows[dialog]);
+        create_window(top_level);
+        create_dialog(dialog, client_windows[top_level]);
+        create_tip(tip, client_windows[dialog]);
 
         EXPECT_THAT(client_windows.size(), Eq(3u));
         EXPECT_THAT(server_windows.size(), Eq(3u));
@@ -140,9 +141,8 @@ struct Workspaces : public miral::TestServer
         return server_windows[key];
     }
 
-    auto client_window(std::string const& key) -> Window
+    auto client_window(std::string const& key) -> Window&
     {
-        std::lock_guard<decltype(mutex)> lock{mutex};
         return client_windows[key];
     }
 
@@ -250,7 +250,7 @@ TEST_F(Workspaces, given_a_tree_in_a_workspace_when_another_tree_is_added_and_re
 {
     auto const workspace = create_workspace();
     auto const original_tree = "original_tree";
-    auto const client_window = create_window(client_connection, original_tree);
+    auto const client_window = create_window(original_tree);
     auto const original_window= server_window(original_tree);
 
     invoke_tools([&, this](WindowManagerTools& tools)
@@ -392,5 +392,5 @@ TEST_F(Workspaces, a_child_window_is_added_to_workspace_of_parent)
 
     EXPECT_CALL(policy(), advise_adding_to_workspace(workspace, ElementsAre(_)));
 
-    create_dialog(client_connection, "child", client_window(top_level));
+    create_dialog("child", client_window(top_level));
 }
