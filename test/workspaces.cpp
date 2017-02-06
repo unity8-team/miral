@@ -52,7 +52,7 @@ struct Workspaces : public miral::TestServer
             .set_name(name.c_str());
 
         Window const window{spec.create_window()};
-        client_window[name] = window;
+        client_windows[name] = window;
         mir_buffer_stream_swap_buffers_sync(mir_window_get_buffer_stream(window));
 
         return window;
@@ -66,7 +66,7 @@ struct Workspaces : public miral::TestServer
             .set_name(name.c_str());
 
         Window const window{spec.create_window()};
-        client_window[name] = window;
+        client_windows[name] = window;
         mir_buffer_stream_swap_buffers_sync(mir_window_get_buffer_stream(window));
 
         return window;
@@ -79,7 +79,7 @@ struct Workspaces : public miral::TestServer
             .set_name(name.c_str());
 
         Window const window{spec.create_window()};
-        client_window[name] = window;
+        client_windows[name] = window;
         mir_buffer_stream_swap_buffers_sync(mir_window_get_buffer_stream(window));
 
         return window;
@@ -98,45 +98,60 @@ struct Workspaces : public miral::TestServer
         miral::TestServer::SetUp();
         client_connection  = connect_client("Workspaces");
         create_window(client_connection, top_level);
-        create_dialog(client_connection, dialog, client_window[top_level]);
-        create_tip(client_connection, tip, client_window[dialog]);
+        create_dialog(client_connection, dialog, client_windows[top_level]);
+        create_tip(client_connection, tip, client_windows[dialog]);
 
-        EXPECT_THAT(client_window.size(), Eq(3u));
-        EXPECT_THAT(server_window.size(), Eq(3u));
+        EXPECT_THAT(client_windows.size(), Eq(3u));
+        EXPECT_THAT(server_windows.size(), Eq(3u));
     }
 
     void TearDown() override
     {
-        client_window.clear();
+        client_windows.clear();
         client_connection.reset();
         workspaces.clear();
         miral::TestServer::TearDown();
     }
 
     Connection client_connection;
-    std::map<std::string, Window> client_window;
 
+    auto server_window(std::string const& key) -> miral::Window
+    {
+        std::lock_guard<decltype(mutex)> lock{mutex};
+        return server_windows[key];
+    }
+
+    auto client_window(std::string const& key) -> Window
+    {
+        std::lock_guard<decltype(mutex)> lock{mutex};
+        return client_windows[key];
+    }
+
+private:
+    std::mutex mutable mutex;
+    std::map<std::string, Window> client_windows;
     std::vector<std::shared_ptr<miral::Workspace>> workspaces;
-    std::map<std::string, miral::Window> server_window;
+    std::map<std::string, miral::Window> server_windows;
+
+    struct WorkspacesWindowManagerPolicy : miral::TestServer::TestWindowManagerPolicy
+    {
+        WorkspacesWindowManagerPolicy(WindowManagerTools const& tools, Workspaces& test_fixture) :
+            TestWindowManagerPolicy(tools, test_fixture), test_fixture{test_fixture} {}
+
+        void advise_new_window(miral::WindowInfo const& window_info) override
+        {
+            miral::TestServer::TestWindowManagerPolicy::advise_new_window(window_info);
+
+            std::lock_guard<decltype(test_fixture.mutex)> lock{test_fixture.mutex};
+            test_fixture.server_windows[window_info.name()] = window_info.window();
+        }
+
+        Workspaces& test_fixture;
+    };
 
     auto build_window_manager_policy(WindowManagerTools const& tools)
     -> std::unique_ptr<TestWindowManagerPolicy> override
     {
-        struct WorkspacesWindowManagerPolicy : miral::TestServer::TestWindowManagerPolicy
-        {
-            WorkspacesWindowManagerPolicy(WindowManagerTools const& tools, Workspaces& test_fixture) :
-                TestWindowManagerPolicy(tools, test_fixture), test_fixture{test_fixture} {}
-
-            void advise_new_window(miral::WindowInfo const& window_info) override
-            {
-                miral::TestServer::TestWindowManagerPolicy::advise_new_window(window_info);
-
-                test_fixture.server_window[window_info.name()] = window_info.window();
-            }
-
-            Workspaces& test_fixture;
-        };
-
         return std::make_unique<WorkspacesWindowManagerPolicy>(tools, *this);
     }
 };
@@ -162,6 +177,29 @@ TEST_F(Workspaces, before_a_tree_is_added_to_workspace_it_is_empty)
 TEST_F(Workspaces, when_a_tree_is_added_to_workspace_all_surfaces_in_tree_are_added)
 {
     auto const workspace = create_workspace();
+    invoke_tools([&, this](WindowManagerTools& tools)
+                     { tools.add_tree_to_workspace(server_window(dialog), workspace); });
+
+    std::vector<miral::Window> windows_in_workspace;
+    auto enumerate = [&windows_in_workspace](miral::Window const& window)
+        {
+            windows_in_workspace.push_back(window);
+        };
+
+    invoke_tools([&](WindowManagerTools& tools)
+                     { tools.for_each_window_in_workspace(workspace, enumerate); });
+
+    EXPECT_THAT(windows_in_workspace.size(), Eq(3u));
+}
+
+TEST_F(Workspaces, when_a_tree_is_removed_from_workspace_all_surfaces_in_tree_are_removed)
+{
+    auto const workspace = create_workspace();
+    invoke_tools([&, this](WindowManagerTools& tools)
+                     { tools.add_tree_to_workspace(server_window(dialog), workspace); });
+
+    invoke_tools([&, this](WindowManagerTools& tools)
+                     { tools.remove_tree_from_workspace(server_window(tip), workspace); });
 
     std::vector<miral::Window> windows_in_workspace;
 
@@ -170,11 +208,8 @@ TEST_F(Workspaces, when_a_tree_is_added_to_workspace_all_surfaces_in_tree_are_ad
             windows_in_workspace.push_back(window);
         };
 
-    invoke_tools([&, this](WindowManagerTools& tools)
-        { tools.add_tree_to_workspace(server_window[dialog], workspace); });
-
     invoke_tools([&](WindowManagerTools& tools)
                      { tools.for_each_window_in_workspace(workspace, enumerate); });
 
-    EXPECT_THAT(windows_in_workspace.size(), Eq(3u));
+    EXPECT_THAT(windows_in_workspace.size(), Eq(0u));
 }
