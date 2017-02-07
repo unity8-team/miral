@@ -353,6 +353,7 @@ global:
 MIRAL_1.2 {
 global:
   extern "C++" {
+    miral::WindowInfo::shell_chrome*;
     miral::WindowManagerTools::add_tree_to_workspace*;
     miral::WindowManagerTools::create_workspace*;
     miral::WindowManagerTools::drag_window*;

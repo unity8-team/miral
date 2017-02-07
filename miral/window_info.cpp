@@ -61,6 +61,7 @@ struct miral::WindowInfo::Self
     AspectRatio min_aspect;
     AspectRatio max_aspect;
     mir::optional_value<int> output_id;
+    MirShellChrome shell_chrome;
     std::shared_ptr<void> userdata;
 };
 
@@ -79,7 +80,8 @@ miral::WindowInfo::Self::Self(Window window, WindowSpecification const& params) 
     width_inc{optional_value_or_default(params.width_inc(), DeltaX{1})},
     height_inc{optional_value_or_default(params.height_inc(), DeltaY{1})},
     min_aspect(optional_value_or_default(params.min_aspect(), AspectRatio{0U, std::numeric_limits<unsigned>::max()})),
-    max_aspect(optional_value_or_default(params.max_aspect(), AspectRatio{std::numeric_limits<unsigned>::max(), 0U}))
+    max_aspect(optional_value_or_default(params.max_aspect(), AspectRatio{std::numeric_limits<unsigned>::max(), 0U})),
+    shell_chrome(optional_value_or_default(params.shell_chrome(), mir_shell_chrome_normal))
 {
     if (params.output_id().is_set())
         output_id = params.output_id().value();
@@ -91,7 +93,8 @@ miral::WindowInfo::Self::Self(Window window, WindowSpecification const& params) 
 miral::WindowInfo::Self::Self() :
     type{mir_window_type_normal},
     state{mir_window_state_unknown},
-    preferred_orientation{mir_orientation_mode_any}
+    preferred_orientation{mir_orientation_mode_any},
+    shell_chrome{mir_shell_chrome_normal}
 {
 }
 
@@ -568,6 +571,16 @@ auto miral::WindowInfo::confine_pointer() const -> MirPointerConfinementState
 void miral::WindowInfo::confine_pointer(MirPointerConfinementState confinement)
 {
     self->confine_pointer = confinement;
+}
+
+auto miral::WindowInfo::shell_chrome() const -> MirShellChrome
+{
+    return self->shell_chrome;
+}
+
+void miral::WindowInfo::shell_chrome(MirShellChrome chrome)
+{
+    self->shell_chrome = chrome;
 }
 
 auto miral::WindowInfo::name() const -> std::string
