@@ -204,6 +204,7 @@ void miral::BasicWindowManager::remove_surface(
 
 void miral::BasicWindowManager::remove_window(Application const& application, miral::WindowInfo const& info)
 {
+    std::vector<std::shared_ptr<Workspace>> workspaces_containing_window;
     {
         std::vector<Window> const windows_removed{info.window()};
 
@@ -211,7 +212,10 @@ void miral::BasicWindowManager::remove_window(Application const& application, mi
         for (auto kv = iter_pair.first; kv != iter_pair.second; ++kv)
         {
             if (auto const workspace = kv->second.lock())
+            {
                 workspace_policy->advise_removing_from_workspace(workspace, windows_removed);
+                workspaces_containing_window.push_back(workspace);
+            }
         }
 
         workspaces_to_windows.right.erase(iter_pair.first, iter_pair.second);
@@ -231,10 +235,18 @@ void miral::BasicWindowManager::remove_window(Application const& application, mi
     auto const parent = info.parent();
     erase(info);
 
+    // DEBUG - TODO remove before MPing
+    puts("+++ MRU list +++");
+    mru_active_windows.enumerate([&](miral::Window& window){ puts(info_for(window).name().c_str()); return true; });
+    puts("--- MRU list ---");
+
     if (is_active_window)
     {
         // Try to make the parent active
         if (parent && select_active_window(parent))
+            return;
+
+        if (can_activate_window_for_session_in_workspace(application, workspaces_containing_window))
             return;
 
         if (can_activate_window_for_session(application))
@@ -1128,6 +1140,39 @@ auto miral::BasicWindowManager::can_activate_window_for_session(miral::Applicati
             // select_active_window() calls set_focus_to() which updates mru_active_windows and changes window
             auto const w = window;
             return w.application() != session || !(new_focus = select_active_window(w));
+        });
+
+    return new_focus;
+}
+
+auto miral::BasicWindowManager::can_activate_window_for_session_in_workspace(
+    Application const& session,
+    std::vector<std::shared_ptr<Workspace>> const& workspaces) -> bool
+{
+    miral::Window new_focus;
+
+    mru_active_windows.enumerate([&](miral::Window& window)
+        {
+            // select_active_window() calls set_focus_to() which updates mru_active_windows and changes window
+            auto const w = window;
+
+            if (w.application() != session)
+                return true;
+
+            auto const iter_pair = workspaces_to_windows.right.equal_range(w);
+            for (auto kv = iter_pair.first; kv != iter_pair.second; ++kv)
+            {
+                if (auto const workspace = kv->second.lock())
+                {
+                    for (auto const& ww : workspaces)
+                        if (ww == workspace)
+                        {
+                            return !(new_focus = select_active_window(w));
+                        }
+                }
+            }
+
+            return true;
         });
 
     return new_focus;

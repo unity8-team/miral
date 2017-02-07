@@ -199,6 +199,9 @@ private:
     void update_event_timestamp(MirTouchEvent const* tev);
 
     auto can_activate_window_for_session(miral::Application const& session) -> bool;
+    auto can_activate_window_for_session_in_workspace(
+        miral::Application const& session,
+        std::vector<std::shared_ptr<Workspace>> const& workspaces) -> bool;
 
     auto place_new_surface(ApplicationInfo const& app_info, WindowSpecification parameters) -> WindowSpecification;
     auto place_relative(mir::geometry::Rectangle const& parent, miral::WindowSpecification const& parameters, Size size)
