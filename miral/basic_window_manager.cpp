@@ -235,7 +235,7 @@ void miral::BasicWindowManager::remove_window(Application const& application, mi
     auto const parent = info.parent();
     erase(info);
 
-    // DEBUG - TODO remove before MPing
+    // DEBUG - remove before MPing
     puts("+++ MRU list +++");
     mru_active_windows.enumerate([&](miral::Window& window){ puts(info_for(window).name().c_str()); return true; });
     puts("--- MRU list ---");
@@ -248,6 +248,34 @@ void miral::BasicWindowManager::remove_window(Application const& application, mi
 
         if (can_activate_window_for_session_in_workspace(application, workspaces_containing_window))
             return;
+
+        // Try to activate to recently active window of any application in a shared workspace
+        {
+            miral::Window new_focus;
+
+            mru_active_windows.enumerate([&](miral::Window& window)
+                {
+                    // select_active_window() calls set_focus_to() which updates mru_active_windows and changes window
+                    auto const w = window;
+
+                    auto const iter_pair = workspaces_to_windows.right.equal_range(w);
+                    for (auto kv = iter_pair.first; kv != iter_pair.second; ++kv)
+                    {
+                        if (auto const workspace = kv->second.lock())
+                        {
+                            for (auto const& ww : workspaces_containing_window)
+                                if (ww == workspace)
+                                {
+                                    return !(new_focus = select_active_window(w));
+                                }
+                        }
+                    }
+
+                    return true;
+                });
+
+            if (new_focus) return;
+        }
 
         if (can_activate_window_for_session(application))
             return;

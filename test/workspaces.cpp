@@ -438,3 +438,33 @@ TEST_F(Workspaces, when_a_window_in_a_workspace_closes_focus_remains_in_workspac
             << "server_window(another_window): " << tools.info_for(server_window(another_window)).name();
     });
 }
+
+TEST_F(Workspaces, with_two_applications_when_a_window_in_a_workspace_closes_focus_remains_in_workspace)
+{
+    auto const workspace = create_workspace();
+
+    create_window(another_window);
+
+    {
+        auto const another_app = connect_client("another app");
+        auto const window = WindowSpec::for_normal_window(another_app, 50, 50, mir_pixel_format_argb_8888)
+            .set_buffer_usage(mir_buffer_usage_software)
+            .set_name(a_window.c_str())
+            .create_window();
+
+        mir_buffer_stream_swap_buffers_sync(mir_window_get_buffer_stream(window));
+
+        invoke_tools([&, this](WindowManagerTools& tools)
+            {
+                tools.add_tree_to_workspace(server_window(top_level), workspace);
+                tools.add_tree_to_workspace(server_window(a_window), workspace);
+            });
+    }
+
+    invoke_tools([&, this](WindowManagerTools& tools)
+        {
+            EXPECT_THAT(tools.active_window(), Eq(server_window(dialog)))
+                << "tools.active_window(): " << tools.info_for(tools.active_window()).name() << "\n"
+                << "server_window(dialog): " << tools.info_for(server_window(dialog)).name();
+        });
+}
