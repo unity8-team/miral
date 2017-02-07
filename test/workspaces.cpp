@@ -544,3 +544,28 @@ TEST_F(Workspaces, with_two_applications_when_a_window_in_a_workspace_hides_focu
     Mock::VerifyAndClearExpectations(&policy()); // before shutdown
 }
 
+TEST_F(Workspaces, focus_next_within_application_keeps_focus_in_workspace)
+{
+    auto const workspace = create_workspace();
+
+    create_window(another_window);
+    create_window(a_window);
+
+    invoke_tools([&, this](WindowManagerTools& tools)
+        {
+            tools.add_tree_to_workspace(server_window(a_window), workspace);
+            tools.add_tree_to_workspace(server_window(dialog), workspace);
+
+            tools.focus_next_within_application();
+
+            EXPECT_THAT(tools.active_window(), Eq(server_window(dialog)))
+                << "tools.active_window(): " << tools.info_for(tools.active_window()).name() << "\n"
+                << "server_window(dialog): " << tools.info_for(server_window(dialog)).name();
+
+            tools.focus_next_within_application();
+
+            EXPECT_THAT(tools.active_window(), Eq(server_window(a_window)))
+                << "tools.active_window(). : " << tools.info_for(tools.active_window()).name() << "\n"
+                << "server_window(a_window): " << tools.info_for(server_window(a_window)).name();
+        });
+}

@@ -521,9 +521,59 @@ void miral::BasicWindowManager::focus_next_within_application()
 {
     if (auto const prev = active_window())
     {
+        std::vector<std::shared_ptr<Workspace>> workspaces_containing_window;
+        {
+            auto const iter_pair = workspaces_to_windows.right.equal_range(prev);
+            for (auto kv = iter_pair.first; kv != iter_pair.second; ++kv)
+            {
+                if (auto const workspace = kv->second.lock())
+                {
+                    workspaces_containing_window.push_back(workspace);
+                }
+            }
+        }
+
         auto const& siblings = info_for(prev.application()).windows();
         auto current = find(begin(siblings), end(siblings), prev);
 
+        if (current != end(siblings))
+        {
+            while (++current != end(siblings))
+            {
+                auto const iter_pair = workspaces_to_windows.right.equal_range(*current);
+                for (auto kv = iter_pair.first; kv != iter_pair.second; ++kv)
+                {
+                    if (auto const workspace = kv->second.lock())
+                    {
+                        for (auto const& ww : workspaces_containing_window)
+                            if (ww == workspace)
+                            {
+                                if (prev != select_active_window(*current))
+                                    return;
+                            }
+                    }
+                }
+            }
+        }
+
+        for (current = begin(siblings); *current != prev; ++current)
+        {
+            auto const iter_pair = workspaces_to_windows.right.equal_range(*current);
+            for (auto kv = iter_pair.first; kv != iter_pair.second; ++kv)
+            {
+                if (auto const workspace = kv->second.lock())
+                {
+                    for (auto const& ww : workspaces_containing_window)
+                        if (ww == workspace)
+                        {
+                            if (prev != select_active_window(*current))
+                                return;
+                        }
+                }
+            }
+        }
+
+        current = find(begin(siblings), end(siblings), prev);
         if (current != end(siblings))
         {
             while (++current != end(siblings) && prev == select_active_window(*current))
