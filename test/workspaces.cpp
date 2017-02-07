@@ -26,6 +26,7 @@
 #include "test_server.h"
 
 #include <gmock/gmock.h>
+#include <mir/test/signal.h>
 
 
 using namespace testing;
@@ -59,6 +60,8 @@ struct WorkspacesWindowManagerPolicy : miral::TestServer::TestWindowManagerPolic
 
     MOCK_METHOD2(advise_removing_from_workspace,
                  void(std::shared_ptr<miral::Workspace> const&, std::vector<miral::Window> const&));
+
+    MOCK_METHOD1(advise_focus_gained, void(miral::WindowInfo const&));
 
     Workspaces& test_fixture;
 };
@@ -121,6 +124,7 @@ struct Workspaces : public miral::TestServer
         miral::TestServer::SetUp();
         EXPECT_CALL(policy(), advise_adding_to_workspace(_, _)).Times(AnyNumber());
         EXPECT_CALL(policy(), advise_removing_from_workspace(_, _)).Times(AnyNumber());
+        EXPECT_CALL(policy(), advise_focus_gained(_)).Times(AnyNumber());
 
         client_connection  = connect_client("Workspaces");
         create_window(top_level);
@@ -468,3 +472,35 @@ TEST_F(Workspaces, with_two_applications_when_a_window_in_a_workspace_closes_foc
                 << "server_window(dialog): " << tools.info_for(server_window(dialog)).name();
         });
 }
+
+TEST_F(Workspaces, when_a_window_in_a_workspace_hides_focus_remains_in_workspace)
+{
+    auto const workspace = create_workspace();
+
+    create_window(a_window);
+    create_window(another_window);
+
+    invoke_tools([&, this](WindowManagerTools& tools)
+        {
+            tools.add_tree_to_workspace(server_window(a_window), workspace);
+            tools.add_tree_to_workspace(server_window(another_window), workspace);
+
+            tools.select_active_window(server_window(dialog));
+            tools.select_active_window(server_window(a_window));
+        });
+
+    mir::test::Signal focus_changed;
+    EXPECT_CALL(policy(), advise_focus_gained(_)).WillOnce(InvokeWithoutArgs([&]{ focus_changed.raise(); }));
+
+    mir_window_set_state(client_window(a_window), mir_window_state_hidden);
+
+    EXPECT_TRUE(focus_changed.wait_for(1s));
+
+    invoke_tools([&, this](WindowManagerTools& tools)
+    {
+        EXPECT_THAT(tools.active_window(), Eq(server_window(another_window)))
+            << "tools.active_window() . . . .: " << tools.info_for(tools.active_window()).name() << "\n"
+            << "server_window(another_window): " << tools.info_for(server_window(another_window)).name();
+    });
+}
+
