@@ -353,6 +353,7 @@ global:
 MIRAL_1.2 {
 global:
   extern "C++" {
+    miral::WindowInfo::shell_chrome*;
     miral::WindowManagerTools::drag_window*;
   };
 } MIRAL_1.1;
