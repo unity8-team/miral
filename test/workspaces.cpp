@@ -504,3 +504,42 @@ TEST_F(Workspaces, when_a_window_in_a_workspace_hides_focus_remains_in_workspace
     });
 }
 
+
+TEST_F(Workspaces, with_two_applications_when_a_window_in_a_workspace_hides_focus_remains_in_workspace)
+{
+    auto const workspace = create_workspace();
+
+    create_window(another_window);
+
+    auto const another_app = connect_client("another app");
+    auto const window = WindowSpec::for_normal_window(another_app, 50, 50, mir_pixel_format_argb_8888)
+        .set_buffer_usage(mir_buffer_usage_software)
+        .set_name(a_window.c_str())
+        .create_window();
+
+    mir_buffer_stream_swap_buffers_sync(mir_window_get_buffer_stream(window));
+
+    invoke_tools([&, this](WindowManagerTools& tools)
+        {
+            tools.add_tree_to_workspace(server_window(top_level), workspace);
+            tools.add_tree_to_workspace(server_window(a_window), workspace);
+        });
+
+
+    mir::test::Signal focus_changed;
+    EXPECT_CALL(policy(), advise_focus_gained(_)).WillOnce(InvokeWithoutArgs([&]{ focus_changed.raise(); }));
+
+    mir_window_set_state(window, mir_window_state_hidden);
+
+    EXPECT_TRUE(focus_changed.wait_for(1s));
+
+    invoke_tools([&, this](WindowManagerTools& tools)
+        {
+            EXPECT_THAT(tools.active_window(), Eq(server_window(dialog)))
+                << "tools.active_window(): " << tools.info_for(tools.active_window()).name() << "\n"
+                << "server_window(dialog): " << tools.info_for(server_window(dialog)).name();
+        });
+
+    Mock::VerifyAndClearExpectations(&policy()); // before shutdown
+}
+
