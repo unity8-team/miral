@@ -204,7 +204,12 @@ void miral::BasicWindowManager::remove_surface(
 
 void miral::BasicWindowManager::remove_window(Application const& application, miral::WindowInfo const& info)
 {
+    bool const is_active_window{mru_active_windows.top() == info.window()};
     std::vector<std::shared_ptr<Workspace>> workspaces_containing_window;
+
+    if (is_active_window)
+        workspaces_containing_window = workspaces_containing(info.window());
+
     {
         std::vector<Window> const windows_removed{info.window()};
 
@@ -214,7 +219,6 @@ void miral::BasicWindowManager::remove_window(Application const& application, mi
             if (auto const workspace = kv->second.lock())
             {
                 workspace_policy->advise_removing_from_workspace(workspace, windows_removed);
-                workspaces_containing_window.push_back(workspace);
             }
         }
 
@@ -222,8 +226,6 @@ void miral::BasicWindowManager::remove_window(Application const& application, mi
     }
 
     policy->advise_delete_window(info);
-
-    bool const is_active_window{mru_active_windows.top() == info.window()};
 
     info_for(application).remove_window(info.window());
     mru_active_windows.erase(info.window());
@@ -509,17 +511,7 @@ void miral::BasicWindowManager::focus_next_application()
 {
     if (auto const prev = active_window())
     {
-        std::vector<std::shared_ptr<Workspace>> workspaces_containing_window;
-        {
-            auto const iter_pair = workspaces_to_windows.right.equal_range(prev);
-            for (auto kv = iter_pair.first; kv != iter_pair.second; ++kv)
-            {
-                if (auto const workspace = kv->second.lock())
-                {
-                    workspaces_containing_window.push_back(workspace);
-                }
-            }
-        }
+        auto const workspaces_containing_window = workspaces_containing(prev);
 
         if (!workspaces_containing_window.empty())
         {
@@ -549,22 +541,28 @@ void miral::BasicWindowManager::focus_next_application()
     select_active_window(focussed_surface ? info_for(focussed_surface).window() : Window{});
 }
 
+auto miral::BasicWindowManager::workspaces_containing(Window const& window) const
+-> std::vector<std::shared_ptr<Workspace>>
+{
+    auto const iter_pair = workspaces_to_windows.right.equal_range(window);
+
+    std::vector<std::shared_ptr<Workspace>> workspaces_containing_window;
+    for (auto kv = iter_pair.first; kv != iter_pair.second; ++kv)
+    {
+        if (auto const workspace = kv->second.lock())
+        {
+            workspaces_containing_window.push_back(workspace);
+        }
+    }
+
+    return workspaces_containing_window;
+}
+
 void miral::BasicWindowManager::focus_next_within_application()
 {
     if (auto const prev = active_window())
     {
-        std::vector<std::shared_ptr<Workspace>> workspaces_containing_window;
-        {
-            auto const iter_pair = workspaces_to_windows.right.equal_range(prev);
-            for (auto kv = iter_pair.first; kv != iter_pair.second; ++kv)
-            {
-                if (auto const workspace = kv->second.lock())
-                {
-                    workspaces_containing_window.push_back(workspace);
-                }
-            }
-        }
-
+        auto const workspaces_containing_window = workspaces_containing(prev);
         auto const& siblings = info_for(prev.application()).windows();
         auto current = find(begin(siblings), end(siblings), prev);
 
@@ -1067,17 +1065,7 @@ void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirWin
 
         if (window == active_window())
         {
-            std::vector<std::shared_ptr<Workspace>> workspaces_containing_window;
-            {
-                auto const iter_pair = workspaces_to_windows.right.equal_range(window);
-                for (auto kv = iter_pair.first; kv != iter_pair.second; ++kv)
-                {
-                    if (auto const workspace = kv->second.lock())
-                    {
-                        workspaces_containing_window.push_back(workspace);
-                    }
-                }
-            }
+            auto const workspaces_containing_window = workspaces_containing(window);
 
             // Try to activate to recently active window of any application
             mru_active_windows.enumerate([&](Window& candidate)

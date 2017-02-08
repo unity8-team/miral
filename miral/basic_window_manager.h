@@ -216,6 +216,7 @@ private:
     void remove_window(Application const& application, miral::WindowInfo const& info);
     void refocus(Application const& application, Window const& parent,
                  std::vector<std::shared_ptr<Workspace>> const& workspaces_containing_window);
+    auto workspaces_containing(Window const& window) const -> std::vector<std::shared_ptr<Workspace>>;
 };
 }
 
