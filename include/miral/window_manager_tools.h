@@ -42,6 +42,13 @@ class WindowSpecification;
 /**
  * Workspace is intentionally opaque in the miral API. Its only purpose is to
  * provide a shared_ptr which is used as an identifier.
+ *
+ * The MirAL implementation of workspaces only prescribes the following:
+ *  o When child windows are created they are added to all(any) workspaces of parent
+ *  o Focus changes will first try windows with a common workspace
+ *  o Adding/removing windows to a workspace affects the whole ancestor/decendent tree
+ *
+ * The presentation of workspaces is left entirely to the policy
  */
 class Workspace;
 
