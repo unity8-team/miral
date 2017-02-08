@@ -507,6 +507,38 @@ auto miral::BasicWindowManager::active_window() const -> Window
 
 void miral::BasicWindowManager::focus_next_application()
 {
+    if (auto const prev = active_window())
+    {
+        std::vector<std::shared_ptr<Workspace>> workspaces_containing_window;
+        {
+            auto const iter_pair = workspaces_to_windows.right.equal_range(prev);
+            for (auto kv = iter_pair.first; kv != iter_pair.second; ++kv)
+            {
+                if (auto const workspace = kv->second.lock())
+                {
+                    workspaces_containing_window.push_back(workspace);
+                }
+            }
+        }
+
+        if (!workspaces_containing_window.empty())
+        {
+            do
+            {
+                focus_controller->focus_next_session();
+
+                if (can_activate_window_for_session_in_workspace(
+                    focus_controller->focused_session(),
+                    workspaces_containing_window))
+                {
+                    return;
+                }
+            }
+            while (focus_controller->focused_session() != prev.application());
+        }
+
+    }
+
     focus_controller->focus_next_session();
 
     if (can_activate_window_for_session(focus_controller->focused_session()))
