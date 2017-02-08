@@ -205,24 +205,17 @@ void miral::BasicWindowManager::remove_surface(
 void miral::BasicWindowManager::remove_window(Application const& application, miral::WindowInfo const& info)
 {
     bool const is_active_window{mru_active_windows.top() == info.window()};
-    std::vector<std::shared_ptr<Workspace>> workspaces_containing_window;
-
-    if (is_active_window)
-        workspaces_containing_window = workspaces_containing(info.window());
+    auto const workspaces_containing_window = workspaces_containing(info.window());
 
     {
         std::vector<Window> const windows_removed{info.window()};
 
-        auto const iter_pair = workspaces_to_windows.right.equal_range(info.window());
-        for (auto kv = iter_pair.first; kv != iter_pair.second; ++kv)
+        for (auto const& workspace : workspaces_containing_window)
         {
-            if (auto const workspace = kv->second.lock())
-            {
-                workspace_policy->advise_removing_from_workspace(workspace, windows_removed);
-            }
+            workspace_policy->advise_removing_from_workspace(workspace, windows_removed);
         }
 
-        workspaces_to_windows.right.erase(iter_pair.first, iter_pair.second);
+        workspaces_to_windows.right.erase(info.window());
     }
 
     policy->advise_delete_window(info);
@@ -245,7 +238,7 @@ void miral::BasicWindowManager::remove_window(Application const& application, mi
 
 void miral::BasicWindowManager::refocus(
     miral::Application const& application, miral::Window const& parent,
-    std::vector<std::shared_ptr<miral::Workspace>> const& workspaces_containing_window)
+    std::vector<std::shared_ptr<Workspace>> const& workspaces_containing_window)
 {
     // Try to make the parent active
     if (parent && select_active_window(parent))
@@ -263,16 +256,14 @@ void miral::BasicWindowManager::refocus(
                 // select_active_window() calls set_focus_to() which updates mru_active_windows and changes window
                 auto const w = window;
 
-                auto const iter_pair = workspaces_to_windows.right.equal_range(w);
-                for (auto kv = iter_pair.first; kv != iter_pair.second; ++kv)
+                for (auto const& workspace : workspaces_containing(w))
                 {
-                    if (auto const workspace = kv->second.lock())
+                    for (auto const& ww : workspaces_containing_window)
                     {
-                        for (auto const& ww : workspaces_containing_window)
-                            if (ww == workspace)
-                            {
-                                return !(new_focus = select_active_window(w));
-                            }
+                        if (ww == workspace)
+                        {
+                            return !(new_focus = select_active_window(w));
+                        }
                     }
                 }
 
@@ -570,17 +561,15 @@ void miral::BasicWindowManager::focus_next_within_application()
         {
             while (++current != end(siblings))
             {
-                auto const iter_pair = workspaces_to_windows.right.equal_range(*current);
-                for (auto kv = iter_pair.first; kv != iter_pair.second; ++kv)
+                for (auto const& workspace : workspaces_containing(*current))
                 {
-                    if (auto const workspace = kv->second.lock())
+                    for (auto const& ww : workspaces_containing_window)
                     {
-                        for (auto const& ww : workspaces_containing_window)
-                            if (ww == workspace)
-                            {
-                                if (prev != select_active_window(*current))
-                                    return;
-                            }
+                        if (ww == workspace)
+                        {
+                            if (prev != select_active_window(*current))
+                                return;
+                        }
                     }
                 }
             }
@@ -588,17 +577,15 @@ void miral::BasicWindowManager::focus_next_within_application()
 
         for (current = begin(siblings); *current != prev; ++current)
         {
-            auto const iter_pair = workspaces_to_windows.right.equal_range(*current);
-            for (auto kv = iter_pair.first; kv != iter_pair.second; ++kv)
+            for (auto const& workspace : workspaces_containing(*current))
             {
-                if (auto const workspace = kv->second.lock())
+                for (auto const& ww : workspaces_containing_window)
                 {
-                    for (auto const& ww : workspaces_containing_window)
-                        if (ww == workspace)
-                        {
-                            if (prev != select_active_window(*current))
-                                return;
-                        }
+                    if (ww == workspace)
+                    {
+                        if (prev != select_active_window(*current))
+                            return;
+                    }
                 }
             }
         }
@@ -1073,16 +1060,14 @@ void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirWin
                     if (candidate == window)
                         return true;
                     auto const w = candidate;
-                    auto const iter_pair = workspaces_to_windows.right.equal_range(w);
-                    for (auto kv = iter_pair.first; kv != iter_pair.second; ++kv)
+                    for (auto const& workspace : workspaces_containing(w))
                     {
-                        if (auto const workspace = kv->second.lock())
+                        for (auto const& ww : workspaces_containing_window)
                         {
-                            for (auto const& ww : workspaces_containing_window)
-                                if (ww == workspace)
-                                {
-                                    return !(select_active_window(w));
-                                }
+                            if (ww == workspace)
+                            {
+                                return !(select_active_window(w));
+                            }
                         }
                     }
 
@@ -1294,16 +1279,12 @@ auto miral::BasicWindowManager::can_activate_window_for_session_in_workspace(
             if (w.application() != session)
                 return true;
 
-            auto const iter_pair = workspaces_to_windows.right.equal_range(w);
-            for (auto kv = iter_pair.first; kv != iter_pair.second; ++kv)
+            for (auto const& workspace : workspaces_containing(w))
             {
-                if (auto const workspace = kv->second.lock())
+                for (auto const& ww : workspaces)
                 {
-                    for (auto const& ww : workspaces)
-                        if (ww == workspace)
-                        {
-                            return !(new_focus = select_active_window(w));
-                        }
+                    if (ww == workspace)
+                        return !(new_focus = select_active_window(w));
                 }
             }
 
