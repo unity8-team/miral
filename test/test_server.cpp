@@ -113,7 +113,7 @@ void miral::TestServer::SetUp()
 
                             auto builder = [this](WindowManagerTools const& tools) -> std::unique_ptr<miral::WindowManagementPolicy>
                                 {
-                                    return this->build_window_manager_policy(tools);
+                                    return build_window_manager_policy(tools);
                                 };
 
                             auto wm = std::make_shared<miral::BasicWindowManager>(focus_controller, display_layout, persistent_surface_store, builder);
