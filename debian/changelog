@@ -19,6 +19,7 @@ miral (1.1.0+17.04.20170127-0ubuntu1) zesty; urgency=medium
       . top-level window is not raised along with its child (LP: #1658085)
       . miral-shell depends on default cursor theme being installed
         (LP: #1658159)
+      . Chrome-less shell hint does not work any more (LP: #1658117)
 
  -- Cemil Azizoglu <cemil.azizoglu@canonical.com>  Fri, 27 Jan 2017 03:02:28 +0000
 
