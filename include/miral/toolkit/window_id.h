@@ -16,8 +16,8 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#ifndef MIRAL_TOOLKIT_PERSISTENT_ID_H
-#define MIRAL_TOOLKIT_PERSISTENT_ID_H
+#ifndef MIRAL_TOOLKIT_WINDOW_ID_H
+#define MIRAL_TOOLKIT_WINDOW_ID_H
 
 #include <miral/detail/mir_forward_compatibility.h>
 #if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
@@ -47,12 +47,12 @@ namespace miral
 namespace toolkit
 {
 /// Handle class for MirWindowId - provides automatic reference counting
-class PersistentId
+class WindowId
 {
 public:
-    explicit PersistentId(MirWindowId* id) : self{id, deleter} {}
+    explicit WindowId(MirWindowId* id) : self{id, deleter} {}
 
-    explicit PersistentId(MirWindow* window) : PersistentId{mir_window_request_window_id_sync(window)} {}
+    explicit WindowId(MirWindow* window) : WindowId{mir_window_request_window_id_sync(window)} {}
 
     auto c_str() const -> char const* { return mir_window_id_as_string(self.get()); }
 
@@ -63,4 +63,4 @@ private:
 }
 }
 
-#endif //MIRAL_TOOLKIT_PERSISTENT_ID_H
+#endif //MIRAL_TOOLKIT_WINDOW_ID_H
