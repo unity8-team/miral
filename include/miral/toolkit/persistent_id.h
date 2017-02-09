@@ -27,28 +27,38 @@
 #include <mir_toolkit/mir_persistent_id.h>
 #endif
 
+#if MIR_CLIENT_API_VERSION < MIR_VERSION_NUMBER(0, 27, 0)
+#if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
+auto const mir_window_request_window_id_sync = mir_surface_request_persistent_id_sync;
+#else
+auto const mir_window_request_window_id_sync = mir_window_request_persistent_id_sync;
+#endif
+auto const mir_window_id_as_string  = mir_persistent_id_as_string;
+auto const mir_window_id_as_string  = mir_persistent_id_release;
+auto const mir_window_id_release    = mir_persistent_id_release;
+#else
+#include <mir_toolkit/mir_window_id.h>
+#endif
+
 #include <memory>
 
 namespace miral
 {
 namespace toolkit
 {
-/// Handle class for MirPersistentId - provides automatic reference counting
+/// Handle class for MirWindowId - provides automatic reference counting
 class PersistentId
 {
 public:
-    explicit PersistentId(MirPersistentId* id) : self{id, deleter} {}
-#if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
-    explicit PersistentId(MirWindow* window) : PersistentId{mir_surface_request_persistent_id_sync(window)} {}
-#else
-    explicit PersistentId(MirWindow* window) : PersistentId{mir_window_request_persistent_id_sync(window)} {}
-#endif
+    explicit PersistentId(MirWindowId* id) : self{id, deleter} {}
 
-    auto c_str() const -> char const* { return mir_persistent_id_as_string(self.get()); }
+    explicit PersistentId(MirWindow* window) : PersistentId{mir_window_request_window_id_sync(window)} {}
+
+    auto c_str() const -> char const* { return mir_window_id_as_string(self.get()); }
 
 private:
-    static void deleter(MirPersistentId* id) { mir_persistent_id_release(id); }
-    std::shared_ptr<MirPersistentId> self;
+    static void deleter(MirWindowId* id) { mir_window_id_release(id); }
+    std::shared_ptr<MirWindowId> self;
 };
 }
 }
