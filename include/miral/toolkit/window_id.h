@@ -34,8 +34,8 @@ auto const mir_window_request_window_id_sync = mir_surface_request_persistent_id
 auto const mir_window_request_window_id_sync = mir_window_request_persistent_id_sync;
 #endif
 auto const mir_window_id_as_string  = mir_persistent_id_as_string;
-auto const mir_window_id_as_string  = mir_persistent_id_release;
 auto const mir_window_id_release    = mir_persistent_id_release;
+typedef struct MirPersistentId MirWindowId;
 #else
 #include <mir_toolkit/mir_window_id.h>
 #endif

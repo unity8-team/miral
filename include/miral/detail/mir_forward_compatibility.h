@@ -63,9 +63,6 @@ typedef struct MirSurfacePlacementEvent MirWindowPlacementEvent;
 typedef struct MirSurfaceSpec MirWindowSpec;
 #endif
 
-#if MIR_CLIENT_API_VERSION < MIR_VERSION_NUMBER(0, 27, 0)
-using MirWindowId = MirPersistentId;
-#endif
 
 // Types that don't exist in earlier versions of Mir's toolkit
 #if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 4, 0)
