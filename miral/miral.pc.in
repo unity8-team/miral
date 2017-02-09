@@ -4,6 +4,6 @@ includedir=@INCLUDEDIR@
 Name: miral
 Description: Mir Abstraction Layer library
 Version: @MIRAL_VERSION@
-Requires: mirclient
+Requires: miral-toolkit
 Libs: -L${libdir} -lmiral
 Cflags: -I${includedir}
