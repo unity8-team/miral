@@ -190,6 +190,16 @@ public:
         return *this;
     }
 
+    auto set_shell_chrome(MirShellChrome chrome) -> WindowSpec&
+    {
+#if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
+        mir_surface_spec_set_shell_chrome(*this, chrome);
+#else
+        mir_window_spec_set_shell_chrome(*this, chrome);
+#endif
+        return *this;
+    }
+
     auto set_min_size(int min_width, int min_height) -> WindowSpec&
     {
 #if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
