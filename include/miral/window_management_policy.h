@@ -130,13 +130,13 @@ public:
      *
      * @param window_info   the window
      */
-    virtual void advise_focus_lost(WindowInfo const& info);
+    virtual void advise_focus_lost(WindowInfo const& window_info);
 
     /** Notification that a window has gained focus
      *
      * @param window_info   the window
      */
-    virtual void advise_focus_gained(WindowInfo const& info);
+    virtual void advise_focus_gained(WindowInfo const& window_info);
 
     /** Notification that a window is about to change state
      *
