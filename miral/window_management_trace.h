@@ -90,6 +90,19 @@ private:
 
     auto confirm_inherited_move(WindowInfo const& window_info, Displacement movement) -> Rectangle override;
 
+    auto create_workspace() -> std::shared_ptr<Workspace> override;
+
+    void add_tree_to_workspace(Window const& window, std::shared_ptr<Workspace> const& workspace) override;
+
+    void remove_tree_from_workspace(Window const& window, std::shared_ptr<Workspace> const& workspace) override;
+
+    void for_each_workspace_containing(
+        Window const& window,
+        std::function<void(std::shared_ptr<Workspace> const& workspace)> const& callback) override;
+
+    void for_each_window_in_workspace(
+        std::shared_ptr<Workspace> const& workspace, std::function<void(Window const&)> const& callback) override;
+
 public:
     virtual void advise_begin() override;
 

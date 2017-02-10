@@ -120,3 +120,8 @@ bool miral::operator==(Window const& lhs, std::shared_ptr<mir::scene::Surface> c
 {
     return rhs == lhs;
 }
+
+bool miral::operator<(Window const& lhs, Window const& rhs)
+{
+    return lhs.self.owner_before(rhs.self);
+}
