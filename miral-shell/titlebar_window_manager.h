@@ -20,10 +20,12 @@
 #define MIRAL_SHELL_TITLEBAR_WINDOW_MANAGER_H
 
 #include <miral/canonical_window_manager.h>
+#include <miral/workspace_policy.h>
 
 #include "spinner/splash.h"
 
 #include <chrono>
+#include <map>
 
 namespace miral { class InternalClientLauncher; }
 
@@ -31,7 +33,7 @@ using namespace mir::geometry;
 
 class TitlebarProvider;
 
-class TitlebarWindowManagerPolicy : public miral::CanonicalWindowManagerPolicy
+class TitlebarWindowManagerPolicy : public miral::CanonicalWindowManagerPolicy, miral::WorkspacePolicy
 {
 public:
     TitlebarWindowManagerPolicy(miral::WindowManagerTools const& tools, SpinnerSplash const& spinner, miral::InternalClientLauncher const& launcher);
@@ -104,6 +106,19 @@ private:
 
     // Workaround for lp:1627697
     std::chrono::steady_clock::time_point last_resize;
+
+    void advise_adding_to_workspace(
+        std::shared_ptr<miral::Workspace> const& workspace,
+        std::vector<miral::Window> const& windows) override;
+
+    void advise_removing_from_workspace(
+        std::shared_ptr<miral::Workspace> const& workspace,
+        std::vector<miral::Window> const& windows) override;
+
+    void switch_workspace_to(std::shared_ptr<miral::Workspace> const& workspace);
+
+    std::shared_ptr<miral::Workspace> active_workspace;
+    std::map<int, std::shared_ptr<miral::Workspace>> key_to_workspace;
 };
 
 #endif //MIRAL_SHELL_TITLEBAR_WINDOW_MANAGER_H

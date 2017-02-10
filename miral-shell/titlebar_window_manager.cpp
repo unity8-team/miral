@@ -32,6 +32,17 @@ using namespace miral;
 namespace
 {
 int const title_bar_height = 12;
+
+struct PolicyData
+{
+    bool in_hidden_workspace{false};
+    MirWindowState old_state;
+};
+
+inline PolicyData& policy_data_for(WindowInfo const& info)
+{
+    return *std::static_pointer_cast<PolicyData>(info.userdata());
+}
 }
 
 TitlebarWindowManagerPolicy::TitlebarWindowManagerPolicy(
@@ -43,6 +54,11 @@ TitlebarWindowManagerPolicy::TitlebarWindowManagerPolicy(
     titlebar_provider{std::make_unique<TitlebarProvider>(tools)}
 {
     launcher.launch("decorations", *titlebar_provider);
+
+    for (auto key : {KEY_F1, KEY_F2, KEY_F3, KEY_F4})
+        key_to_workspace[key] = this->tools.create_workspace();
+
+    active_workspace = key_to_workspace[KEY_F1];
 }
 
 TitlebarWindowManagerPolicy::~TitlebarWindowManagerPolicy() = default;
@@ -267,17 +283,36 @@ void TitlebarWindowManagerPolicy::advise_new_window(WindowInfo const& window_inf
     CanonicalWindowManagerPolicy::advise_new_window(window_info);
 
     auto const application = window_info.window().application();
+    auto const parent = window_info.parent();
 
-    if (application == titlebar_provider->session())
+    auto const is_titlebar = application == titlebar_provider->session();
+
+    if (is_titlebar)
     {
         titlebar_provider->advise_new_titlebar(window_info);
-
-        auto const parent = window_info.parent();
 
         if (tools.active_window() == parent)
             titlebar_provider->paint_titlebar_for(tools.info_for(parent), 0xFF);
         else
             titlebar_provider->paint_titlebar_for(tools.info_for(parent), 0x3F);
+    }
+
+    if (!parent)
+        tools.add_tree_to_workspace(window_info.window(), active_workspace);
+    else
+    {
+        auto& pdata = policy_data_for(window_info);
+
+        pdata.in_hidden_workspace = policy_data_for(tools.info_for(parent)).in_hidden_workspace;
+        pdata.old_state = window_info.state();
+
+        if (pdata.in_hidden_workspace)
+        {
+            WindowSpecification modifications;
+            modifications.state() = mir_window_state_hidden;
+            tools.place_and_size_for_state(modifications, window_info);
+            tools.modify_window(window_info.window(), modifications);
+        }
     }
 }
 
@@ -339,6 +374,26 @@ bool TitlebarWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* 
     auto const scan_code = mir_keyboard_event_scan_code(event);
     auto const modifiers = mir_keyboard_event_modifiers(event) & modifier_mask;
 
+    if (action == mir_keyboard_action_down &&
+        modifiers == (mir_input_event_modifier_alt | mir_input_event_modifier_meta))
+    {
+        switch (scan_code)
+        {
+        case KEY_F1:
+            switch_workspace_to(key_to_workspace[KEY_F1]);
+            return true;
+        case KEY_F2:
+            switch_workspace_to(key_to_workspace[KEY_F2]);
+            return true;
+        case KEY_F3:
+            switch_workspace_to(key_to_workspace[KEY_F3]);
+            return true;
+        case KEY_F4:
+            switch_workspace_to(key_to_workspace[KEY_F4]);
+            return true;
+        }
+    }
+
     if (action != mir_keyboard_action_repeat)
         end_resize();
 
@@ -364,7 +419,7 @@ bool TitlebarWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* 
     }
     else if (action == mir_keyboard_action_down && scan_code == KEY_F4)
     {
-        switch (modifiers & modifier_mask)
+        switch (modifiers)
         {
         case mir_input_event_modifier_alt|mir_input_event_modifier_shift:
             if (auto const& window = tools.active_window())
@@ -571,5 +626,85 @@ WindowSpecification TitlebarWindowManagerPolicy::place_new_window(
     if (app_info.application() == titlebar_provider->session())
         titlebar_provider->place_new_titlebar(parameters);
 
+    parameters.userdata() = std::make_shared<PolicyData>();
     return parameters;
+}
+
+void TitlebarWindowManagerPolicy::advise_adding_to_workspace(
+    std::shared_ptr<Workspace> const& workspace, std::vector<Window> const& windows)
+{
+    if (windows.empty())
+        return;
+
+    for (auto const& window : windows)
+    {
+        auto const& window_info = tools.info_for(window);
+        auto& pdata = policy_data_for(window_info);
+
+        if (workspace == active_workspace)
+        {
+            if (pdata.in_hidden_workspace)
+            {
+                pdata.in_hidden_workspace = false;
+                WindowSpecification modifications;
+                modifications.state() = pdata.old_state;
+                tools.place_and_size_for_state(modifications, window_info);
+                tools.modify_window(window, modifications);
+            }
+        }
+        else
+        {
+            pdata.in_hidden_workspace = true;
+            pdata.old_state = window_info.state();
+
+            WindowSpecification modifications;
+            modifications.state() = mir_window_state_hidden;
+            tools.place_and_size_for_state(modifications, window_info);
+            tools.modify_window(window, modifications);
+        }
+    }
+}
+
+void TitlebarWindowManagerPolicy::advise_removing_from_workspace(
+    std::shared_ptr<Workspace> const& /*workspace*/, std::vector<Window> const& /*windows*/)
+{
+}
+
+void TitlebarWindowManagerPolicy::switch_workspace_to(std::shared_ptr<miral::Workspace> const& workspace)
+{
+    if (workspace == active_workspace)
+        return;
+
+    auto const old_active = active_workspace;
+    active_workspace = workspace;
+
+    tools.for_each_window_in_workspace(workspace, [&](Window const& window)
+        {
+        if (window.application() == titlebar_provider->session())
+            return; // titlebars are taken care of automatically
+
+        auto const& window_info = tools.info_for(window);
+        auto& pdata = policy_data_for(window_info);
+        pdata.in_hidden_workspace = false;
+        WindowSpecification modifications;
+        modifications.state() = pdata.old_state;
+        tools.place_and_size_for_state(modifications, window_info);
+        tools.modify_window(window, modifications);
+        });
+
+    tools.for_each_window_in_workspace(old_active, [&](Window const& window)
+        {
+            if (window.application() == titlebar_provider->session())
+                return; // titlebars are taken care of automatically
+
+            auto const& window_info = tools.info_for(window);
+            auto& pdata = policy_data_for(window_info);
+            pdata.in_hidden_workspace = true;
+            pdata.old_state = window_info.state();
+
+            WindowSpecification modifications;
+            modifications.state() = mir_window_state_hidden;
+            tools.place_and_size_for_state(modifications, window_info);
+            tools.modify_window(window, modifications);
+        });
 }
