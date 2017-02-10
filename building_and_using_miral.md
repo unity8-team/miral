@@ -71,7 +71,7 @@ Using MirAL examples
 
 You can install the MirAL examples as follows:
 
-    $ sudo apt install libmiral-dev
+    $ sudo apt install libmiral-examples
 
 For convenient testing there's a "miral-app" script that wraps the commands used
 in the last section to start the server and then launches the gnome-terminal (as
