@@ -374,6 +374,7 @@ bool TitlebarWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* 
     auto const scan_code = mir_keyboard_event_scan_code(event);
     auto const modifiers = mir_keyboard_event_modifiers(event) & modifier_mask;
 
+    // Switch workspaces
     if (action == mir_keyboard_action_down &&
         modifiers == (mir_input_event_modifier_alt | mir_input_event_modifier_meta))
     {
@@ -390,6 +391,27 @@ bool TitlebarWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* 
             return true;
         case KEY_F4:
             switch_workspace_to(key_to_workspace[KEY_F4]);
+            return true;
+        }
+    }
+
+    // Switch workspace taking the active window
+    if (action == mir_keyboard_action_down &&
+        modifiers == (mir_input_event_modifier_ctrl | mir_input_event_modifier_meta))
+    {
+        switch (scan_code)
+        {
+        case KEY_F1:
+            switch_workspace_to(key_to_workspace[KEY_F1], tools.active_window());
+            return true;
+        case KEY_F2:
+            switch_workspace_to(key_to_workspace[KEY_F2], tools.active_window());
+            return true;
+        case KEY_F3:
+            switch_workspace_to(key_to_workspace[KEY_F3], tools.active_window());
+            return true;
+        case KEY_F4:
+            switch_workspace_to(key_to_workspace[KEY_F4], tools.active_window());
             return true;
         }
     }
@@ -670,7 +692,9 @@ void TitlebarWindowManagerPolicy::advise_removing_from_workspace(
 {
 }
 
-void TitlebarWindowManagerPolicy::switch_workspace_to(std::shared_ptr<miral::Workspace> const& workspace)
+void TitlebarWindowManagerPolicy::switch_workspace_to(
+    std::shared_ptr<Workspace> const& workspace,
+    Window const& window)
 {
     if (workspace == active_workspace)
         return;
@@ -678,19 +702,23 @@ void TitlebarWindowManagerPolicy::switch_workspace_to(std::shared_ptr<miral::Wor
     auto const old_active = active_workspace;
     active_workspace = workspace;
 
-    tools.for_each_window_in_workspace(workspace, [&](Window const& window)
-        {
-        if (window.application() == titlebar_provider->session())
-            return; // titlebars are taken care of automatically
+    tools.add_tree_to_workspace(window, active_workspace);
 
-        auto const& window_info = tools.info_for(window);
-        auto& pdata = policy_data_for(window_info);
-        pdata.in_hidden_workspace = false;
-        WindowSpecification modifications;
-        modifications.state() = pdata.old_state;
-        tools.place_and_size_for_state(modifications, window_info);
-        tools.modify_window(window, modifications);
+    tools.for_each_window_in_workspace(active_workspace, [&](Window const& window)
+        {
+            if (window.application() == titlebar_provider->session())
+                return; // titlebars are taken care of automatically
+
+            auto const& window_info = tools.info_for(window);
+            auto& pdata = policy_data_for(window_info);
+            pdata.in_hidden_workspace = false;
+            WindowSpecification modifications;
+            modifications.state() = pdata.old_state;
+            tools.place_and_size_for_state(modifications, window_info);
+            tools.modify_window(window, modifications);
         });
+
+    tools.remove_tree_from_workspace(window, old_active);
 
     tools.for_each_window_in_workspace(old_active, [&](Window const& window)
         {

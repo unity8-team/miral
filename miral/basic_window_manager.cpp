@@ -1858,6 +1858,8 @@ auto miral::BasicWindowManager::create_workspace() -> std::shared_ptr<Workspace>
 void miral::BasicWindowManager::add_tree_to_workspace(
     miral::Window const& window, std::shared_ptr<miral::Workspace> const& workspace)
 {
+    if (!window) return;
+
     auto root = window;
     auto const* info = &info_for(root);
 
@@ -1903,6 +1905,8 @@ void miral::BasicWindowManager::add_tree_to_workspace(
 void miral::BasicWindowManager::remove_tree_from_workspace(
     miral::Window const& window, std::shared_ptr<miral::Workspace> const& workspace)
 {
+    if (!window) return;
+
     auto root = window;
     auto const* info = &info_for(root);
 
