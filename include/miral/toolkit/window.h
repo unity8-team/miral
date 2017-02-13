@@ -23,9 +23,12 @@
 
 #if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
 #include <mir_toolkit/mir_surface.h>
-auto const mir_window_release_sync = mir_surface_release_sync;
-auto const mir_window_release = mir_surface_release;
+auto const mir_window_release_sync      = mir_surface_release_sync;
+auto const mir_window_release           = mir_surface_release;
 auto const mir_window_get_buffer_stream = mir_surface_get_buffer_stream;
+auto const mir_window_is_valid          = mir_surface_is_valid;
+auto const mir_window_get_error_message = mir_surface_get_error_message;
+auto const mir_window_set_state         = mir_surface_set_state;
 #else
 #include <mir_toolkit/mir_window.h>
 #endif
