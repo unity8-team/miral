@@ -27,7 +27,7 @@ the current user):
 To run independently of X11 you need to grant access to the graphics hardware
 (by running as root) and specify a VT to run in. There's a "miral-desktop"
 script that wraps to start the server (as root) and then launch gnome-terminal
-(as the current user:
+(as the current user):
 
     $ miral-desktop
     
@@ -110,13 +110,13 @@ examples support this option.
     --window-manager arg (=titlebar)   window management strategy 
                                        [{titlebar|tiling|system-compositor}]
 
-Is only supported by miral-shell and its main use is to allows an alternative
+Is only supported by miral-shell and its main use is to allow an alternative
 "tiling" window manager to be selected.
 
 Using MirAL for development
 ---------------------------
 
-you can install the headers and libraries for using libmiral in development:
+Install the headers and libraries for using libmiral in development:
 
     $ sudo apt install libmiral-dev
 
