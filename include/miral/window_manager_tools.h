@@ -107,7 +107,7 @@ public:
 
     /** retrieve the persistent surface id for a window
      *
-     * @param id        the window
+     * @param window    the window
      * @return          the persistent surface id
      */
     auto id_for_window(Window const& window) const -> std::string;
