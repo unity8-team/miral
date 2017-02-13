@@ -25,7 +25,7 @@ There are two significant components to the MirAL project:
 
 See also:
 
- - \ref getting_and_using_miral "Building and using Miral"
+ - \ref getting_and_using_miral "Getting and using Miral"
  - \ref tasks_for_the_interested_reader "Tasks for the interested reader"
 
 License
