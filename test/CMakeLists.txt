@@ -42,7 +42,7 @@ include_directories(
 add_executable(miral-test
     mru_window_list.cpp
     active_outputs.cpp
-    persistent_surface_store.cpp
+    window_id.cpp
     runner.cpp
     select_active_window.cpp
     window_placement.cpp
