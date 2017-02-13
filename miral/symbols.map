@@ -364,7 +364,9 @@ global:
     miral::WorkspacePolicy::WorkspacePolicy*;
     miral::WorkspacePolicy::operator*;
     non-virtual?thunk?to?miral::WorkspacePolicy::?WorkspacePolicy*;
+    typeinfo?for?miral::ApplicationAuthorizer1;
     typeinfo?for?miral::WorkspacePolicy;
+    vtable?for?miral::ApplicationAuthorizer1;
     vtable?for?miral::WorkspacePolicy;
   };
 } MIRAL_1.1;

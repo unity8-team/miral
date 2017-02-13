@@ -373,3 +373,5 @@ libmiral.so.2 libmiral2 #MINVER#
  (c++)"miral::WindowManagerTools::for_each_workspace_containing(miral::Window const&, std::function<void (std::shared_ptr<miral::Workspace> const&)> const&)@MIRAL_1.2" 1.2.0
  (c++)"miral::operator<(miral::Window const&, miral::Window const&)@MIRAL_1.0" 1.2.0
  (c++)"typeinfo for miral::WorkspacePolicy@MIRAL_1.2" 1.2.0
+ (c++)"typeinfo for miral::ApplicationAuthorizer@MIRAL_1.0" 1.2.0
+ (c++)"typeinfo for miral::ApplicationAuthorizer1@MIRAL_1.2" 1.2.0

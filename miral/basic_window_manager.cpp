@@ -727,6 +727,7 @@ void miral::BasicWindowManager::modify_window(WindowInfo& window_info, WindowSpe
     COPY_IF_SET(preferred_orientation);
     COPY_IF_SET(confine_pointer);
     COPY_IF_SET(userdata);
+    COPY_IF_SET(shell_chrome);
 
 #undef COPY_IF_SET
 
