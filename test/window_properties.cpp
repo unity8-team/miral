@@ -35,10 +35,6 @@ using miral::WindowManagerTools;
 
 namespace
 {
-#if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
-auto const mir_window_get_buffer_stream = mir_surface_get_buffer_stream;
-#endif
-
 std::string const a_window{"a window"};
 
 struct WindowProperties;

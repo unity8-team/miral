@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016 Canonical Ltd.
+ * Copyright © 2016-2017 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3,
@@ -169,13 +169,22 @@ public:
     static auto for_satellite(MirConnection* connection, int width, int height, MirWindow* parent)
     {
         // There's no mir_create_satellite_window_spec()
-        auto spec = WindowSpec{mir_create_window_spec(connection)}
+        return WindowSpec{mir_create_window_spec(connection)}
             .set_buffer_usage(mir_buffer_usage_hardware) // Required protobuf field for create_window()
             .set_pixel_format(mir_pixel_format_invalid)  // Required protobuf field for create_window()
             .set_size(width, height)
             .set_type(mir_window_type_satellite)
             .set_parent(parent);
-        return spec;
+    }
+
+    static auto for_gloss(MirConnection* connection, int width, int height)
+    {
+        // There's no mir_create_gloss_window_spec()
+        return WindowSpec{mir_create_window_spec(connection)}
+            .set_buffer_usage(mir_buffer_usage_hardware) // Required protobuf field for create_window()
+            .set_pixel_format(mir_pixel_format_invalid)  // Required protobuf field for create_window()
+            .set_size(width, height)
+            .set_type(mir_window_type_gloss);
     }
 
     static auto for_changes(MirConnection* connection) -> WindowSpec

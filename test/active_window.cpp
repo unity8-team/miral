@@ -80,11 +80,7 @@ struct ActiveWindow : public miral::TestServer
 
         Window const surface{spec.create_window()};
 
-#if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
-        sync.exec([&]{ mir_buffer_stream_swap_buffers_sync(mir_surface_get_buffer_stream(surface)); });
-#else
         sync.exec([&]{ mir_buffer_stream_swap_buffers_sync(mir_window_get_buffer_stream(surface)); });
-#endif
         EXPECT_TRUE(sync.signal_raised());
 
         return surface;
@@ -102,11 +98,7 @@ struct ActiveWindow : public miral::TestServer
         Window const surface{spec.create_window()};
 
         // Expect this to timeout: A tip should not receive focus
-#if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
-        sync.exec([&]{ mir_buffer_stream_swap_buffers_sync(mir_surface_get_buffer_stream(surface)); });
-#else
         sync.exec([&]{ mir_buffer_stream_swap_buffers_sync(mir_window_get_buffer_stream(surface)); });
-#endif
         EXPECT_FALSE(sync.signal_raised());
 
         return surface;

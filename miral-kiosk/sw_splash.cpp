@@ -153,11 +153,7 @@ void SwSplash::operator()(MirConnection* connection)
     auto const surface = create_window(connection, pixel_format);
 
     MirGraphicsRegion graphics_region;
-#if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
-    MirBufferStream* buffer_stream = mir_surface_get_buffer_stream(surface);
-#else
     MirBufferStream* buffer_stream = mir_window_get_buffer_stream(surface);
-#endif
 
     auto const time_limit = std::chrono::steady_clock::now() + std::chrono::seconds(2);
 
@@ -175,9 +171,5 @@ void SwSplash::operator()(MirConnection* connection)
     }
     while (std::chrono::steady_clock::now() < time_limit);
 
-#if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
-    mir_surface_release_sync(surface);
-#else
     mir_window_release_sync(surface);
-#endif
 }
