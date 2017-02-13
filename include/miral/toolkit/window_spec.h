@@ -34,6 +34,7 @@
 
 // Forward compatibility hacks for earlier Mir versions
 #if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
+using MirWindowCallback = mir_surface_callback;
 using MirWindowEventCallback = mir_surface_event_callback;
 auto const mir_create_window_spec               = mir_connection_create_spec_for_changes;
 auto const mir_window_spec_set_event_handler    = mir_surface_spec_set_event_handler;
