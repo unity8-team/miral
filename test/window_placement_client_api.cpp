@@ -22,6 +22,7 @@
 #if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 25, 0)
 #if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
 #include <mir_toolkit/events/surface_placement.h>
+auto const mir_event_get_window_placement_event = mir_event_get_surface_placement_event;
 #else
 #include <mir_toolkit/events/window_placement.h>
 #endif
@@ -92,11 +93,8 @@ struct CheckPlacement
 
     void check(MirWindowPlacementEvent const* placement_event)
     {
-#if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
-        auto relative_position = mir_surface_placement_get_relative_position(placement_event);
-#else
         auto relative_position = mir_window_placement_get_relative_position(placement_event);
-#endif
+
         EXPECT_THAT(relative_position.top, Eq(expected.top));
         EXPECT_THAT(relative_position.left, Eq(expected.left));
         EXPECT_THAT(relative_position.height, Eq(expected.height));
@@ -109,11 +107,7 @@ struct CheckPlacement
     {
         if (mir_event_get_type(event) == mir_event_type_window_placement)
         {
-#if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
-            auto const placement_event = mir_event_get_surface_placement_event(event);
-#else
             auto const placement_event = mir_event_get_window_placement_event(event);
-#endif
             static_cast<CheckPlacement*>(context)->check(placement_event);
         }
     }
