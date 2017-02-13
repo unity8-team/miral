@@ -99,7 +99,7 @@ public:
                          MirRectangle* rect,
                          MirEdgeAttachment edge) -> WindowSpec
     {
-#if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
+#if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
         return WindowSpec{mir_connection_create_spec_for_menu(connection, width, height, format, parent, rect, edge)};
 #else
         auto spec = WindowSpec{mir_create_menu_window_spec(connection, width, height, parent, rect, edge)};
@@ -152,7 +152,7 @@ public:
 
     static auto for_input_method(MirConnection* connection, int width, int height, MirWindow* parent)
     {
-#if MIR_CLIENT_VERSION > MIR_VERSION_NUMBER(3, 4, 0)
+#if MIR_CLIENT_VERSION >= MIR_VERSION_NUMBER(3, 5, 0)
         auto spec = WindowSpec{mir_create_input_method_window_spec(connection, width, height)}
 #else
         auto spec = WindowSpec{mir_create_surface_spec(connection)}
