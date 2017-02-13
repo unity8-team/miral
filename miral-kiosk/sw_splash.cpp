@@ -27,6 +27,7 @@
 #include <cstring>
 #include <thread>
 #include <mutex>
+#include <miral/toolkit/window_spec.h>
 
 namespace
 {
@@ -62,28 +63,12 @@ MirPixelFormat find_8888_format(MirConnection* connection)
 
 auto create_window(MirConnection* connection, MirPixelFormat pixel_format) -> MirWindow*
 {
-#if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
-    auto* spec = mir_connection_create_spec_for_normal_surface(connection, 42, 42, pixel_format);
+    auto const spec = miral::toolkit::WindowSpec::for_normal_window(connection, 42, 42, pixel_format)
+        .set_name("splash")
+        .set_buffer_usage(mir_buffer_usage_software)
+        .set_fullscreen_on_output(0);
 
-    mir_surface_spec_set_name(spec, "splash");
-    mir_surface_spec_set_buffer_usage(spec, mir_buffer_usage_software);
-    mir_surface_spec_set_fullscreen_on_output(spec, 0);
-
-    auto const surface = mir_surface_create_sync(spec);
-    mir_surface_spec_release(spec);
-#else
-    auto* spec = mir_create_normal_window_spec(connection, 42, 42);
-
-    mir_window_spec_set_name(spec, "splash");
-    mir_window_spec_set_buffer_usage(spec, mir_buffer_usage_software);
-    mir_window_spec_set_fullscreen_on_output(spec, 0);
-    mir_window_spec_set_pixel_format(spec, pixel_format);
-
-    auto const surface = mir_create_window_sync(spec);
-    mir_window_spec_release(spec);
-#endif
-
-    return surface;
+    return mir_create_window_sync(spec);
 }
 
 void render_pattern(MirGraphicsRegion *region, uint8_t pattern[])
