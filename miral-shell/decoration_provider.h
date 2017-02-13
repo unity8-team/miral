@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016 Canonical Ltd.
+ * Copyright © 2016-2017 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3,
@@ -16,8 +16,8 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#ifndef MIRAL_SHELL_TITLEBAR_PROVIDER_H
-#define MIRAL_SHELL_TITLEBAR_PROVIDER_H
+#ifndef MIRAL_SHELL_DECORATION_PROVIDER_H
+#define MIRAL_SHELL_DECORATION_PROVIDER_H
 
 
 #include <miral/window_manager_tools.h>
@@ -29,6 +29,7 @@
 #include <map>
 #include <mutex>
 #include <miral/toolkit/connection.h>
+#include <miral/toolkit/window.h>
 #include <thread>
 #include <condition_variable>
 #include <queue>
@@ -54,11 +55,11 @@ private:
     void do_work();
 };
 
-class TitlebarProvider : Worker
+class DecorationProvider : Worker
 {
 public:
-    TitlebarProvider(miral::WindowManagerTools const& tools);
-    ~TitlebarProvider();
+    DecorationProvider(miral::WindowManagerTools const& tools);
+    ~DecorationProvider();
 
     void operator()(miral::toolkit::Connection connection);
     void operator()(std::weak_ptr<mir::scene::Session> const& session);
@@ -74,6 +75,9 @@ public:
     void advise_state_change(miral::WindowInfo const& window_info, MirWindowState state);
 
     void stop();
+
+    bool is_decoration(miral::Window const& window) const;
+    bool is_titlebar(miral::WindowInfo const& window_info) const;
 
 private:
     struct Data
@@ -91,6 +95,7 @@ private:
     miral::WindowManagerTools tools;
     std::mutex mutable mutex;
     miral::toolkit::Connection connection;
+    miral::toolkit::Window wallpaper;
     std::weak_ptr<mir::scene::Session> weak_session;
     std::atomic<int> intensity{0xff};
 
@@ -104,4 +109,4 @@ private:
 };
 
 
-#endif //MIRAL_SHELL_TITLEBAR_PROVIDER_H
+#endif //MIRAL_SHELL_DECORATION_PROVIDER_H

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016 Canonical Ltd.
+ * Copyright © 2016-2017 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3,
@@ -17,7 +17,7 @@
  */
 
 #include "titlebar_window_manager.h"
-#include "titlebar_provider.h"
+#include "decoration_provider.h"
 
 #include <miral/application_info.h>
 #include <miral/internal_client.h>
@@ -40,9 +40,9 @@ TitlebarWindowManagerPolicy::TitlebarWindowManagerPolicy(
     miral::InternalClientLauncher const& launcher) :
     CanonicalWindowManagerPolicy(tools),
     spinner{spinner},
-    titlebar_provider{std::make_unique<TitlebarProvider>(tools)}
+    decoration_provider{std::make_unique<DecorationProvider>(tools)}
 {
-    launcher.launch("decorations", *titlebar_provider);
+    launcher.launch("decorations", *decoration_provider);
 }
 
 TitlebarWindowManagerPolicy::~TitlebarWindowManagerPolicy() = default;
@@ -99,9 +99,9 @@ bool TitlebarWindowManagerPolicy::handle_pointer_event(MirPointerEvent const* ev
         {
             if (auto const possible_titlebar = tools.window_at(old_cursor))
             {
-                if (possible_titlebar.application() == titlebar_provider->session())
+                auto const& info = tools.info_for(possible_titlebar);
+                if (decoration_provider->is_titlebar(info))
                 {
-                    auto const& info = tools.info_for(possible_titlebar);
                     if (tools.select_active_window(info.parent()) == info.parent())
                         tools.drag_active_window(cursor - old_cursor);
                     consumes_event = true;
@@ -266,25 +266,23 @@ void TitlebarWindowManagerPolicy::advise_new_window(WindowInfo const& window_inf
 {
     CanonicalWindowManagerPolicy::advise_new_window(window_info);
 
-    auto const application = window_info.window().application();
-
-    if (application == titlebar_provider->session())
+    if (decoration_provider->is_titlebar(window_info))
     {
-        titlebar_provider->advise_new_titlebar(window_info);
+        decoration_provider->advise_new_titlebar(window_info);
 
         auto const parent = window_info.parent();
 
         if (tools.active_window() == parent)
-            titlebar_provider->paint_titlebar_for(tools.info_for(parent), 0xFF);
+            decoration_provider->paint_titlebar_for(tools.info_for(parent), 0xFF);
         else
-            titlebar_provider->paint_titlebar_for(tools.info_for(parent), 0x3F);
+            decoration_provider->paint_titlebar_for(tools.info_for(parent), 0x3F);
     }
 }
 
 void TitlebarWindowManagerPolicy::handle_window_ready(WindowInfo& window_info)
 {
     if (window_info.window().application() != spinner.session() && window_info.needs_titlebar(window_info.type()))
-        titlebar_provider->create_titlebar_for(window_info.window());
+        decoration_provider->create_titlebar_for(window_info.window());
 
     CanonicalWindowManagerPolicy::handle_window_ready(window_info);
 }
@@ -293,14 +291,14 @@ void TitlebarWindowManagerPolicy::advise_focus_lost(WindowInfo const& info)
 {
     CanonicalWindowManagerPolicy::advise_focus_lost(info);
 
-    titlebar_provider->paint_titlebar_for(info, 0x3F);
+    decoration_provider->paint_titlebar_for(info, 0x3F);
 }
 
 void TitlebarWindowManagerPolicy::advise_focus_gained(WindowInfo const& info)
 {
     CanonicalWindowManagerPolicy::advise_focus_gained(info);
 
-    titlebar_provider->paint_titlebar_for(info, 0xFF);
+    decoration_provider->paint_titlebar_for(info, 0xFF);
 
     // Frig to force the spinner to the top
     if (auto const spinner_session = spinner.session())
@@ -316,21 +314,21 @@ void TitlebarWindowManagerPolicy::advise_state_change(WindowInfo const& window_i
 {
     CanonicalWindowManagerPolicy::advise_state_change(window_info, state);
 
-    titlebar_provider->advise_state_change(window_info, state);
+    decoration_provider->advise_state_change(window_info, state);
 }
 
 void TitlebarWindowManagerPolicy::advise_resize(WindowInfo const& window_info, Size const& new_size)
 {
     CanonicalWindowManagerPolicy::advise_resize(window_info, new_size);
 
-    titlebar_provider->resize_titlebar_for(window_info, new_size);
+    decoration_provider->resize_titlebar_for(window_info, new_size);
 }
 
 void TitlebarWindowManagerPolicy::advise_delete_window(WindowInfo const& window_info)
 {
     CanonicalWindowManagerPolicy::advise_delete_window(window_info);
 
-    titlebar_provider->destroy_titlebar_for(window_info.window());
+    decoration_provider->destroy_titlebar_for(window_info.window());
 }
 
 bool TitlebarWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* event)
@@ -449,7 +447,7 @@ bool TitlebarWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* 
     if (action == mir_keyboard_action_down && scan_code == KEY_BACKSPACE &&
         (modifiers == (mir_input_event_modifier_alt | mir_input_event_modifier_ctrl)))
     {
-        titlebar_provider->stop();
+        decoration_provider->stop();
     }
 
     return false;
@@ -568,8 +566,8 @@ WindowSpecification TitlebarWindowManagerPolicy::place_new_window(
     if (parameters.state().value() != mir_window_state_fullscreen && needs_titlebar)
         parameters.top_left() = Point{parameters.top_left().value().x, parameters.top_left().value().y + DeltaY{title_bar_height}};
 
-    if (app_info.application() == titlebar_provider->session())
-        titlebar_provider->place_new_titlebar(parameters);
+    if (app_info.application() == decoration_provider->session())
+        decoration_provider->place_new_titlebar(parameters);
 
     return parameters;
 }
