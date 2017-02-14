@@ -17,7 +17,6 @@
  */
 
 #include "miral/internal_client.h"
-#include "both_versions.h"
 
 #include <mir/fd.h>
 #include <mir/server.h>
@@ -28,6 +27,18 @@
 #include <condition_variable>
 #include <mutex>
 #include <thread>
+
+// both_versions.h assumes the old symbol is generated for Mir < 0.26, which isn't true here.
+#ifndef __clang__
+    #define MIRAL_BOTH_VERSIONS(old_sym, old_version, new_sym, new_version)\
+        extern "C" __attribute__((alias(#new_sym))) void old_sym();\
+        __asm__(".symver " #old_sym"," #old_sym "@" #old_version);\
+        __asm__(".symver " #new_sym"," #new_sym "@@" #new_version);
+#else
+    #define MIRAL_BOTH_VERSIONS(old_sym, old_version, new_sym, new_version)\
+        __asm__(".symver " #new_sym"," #old_sym "@" #old_version);\
+        __asm__(".symver " #new_sym"," #new_sym "@@@" #new_version);
+#endif
 
 namespace
 {
