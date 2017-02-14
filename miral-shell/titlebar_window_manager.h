@@ -113,10 +113,6 @@ private:
         std::shared_ptr<miral::Workspace> const& workspace,
         std::vector<miral::Window> const& windows) override;
 
-    void advise_removing_from_workspace(
-        std::shared_ptr<miral::Workspace> const& workspace,
-        std::vector<miral::Window> const& windows) override;
-
     // Switch workspace, taking window (if not null)
     void switch_workspace_to(
         std::shared_ptr<miral::Workspace> const& workspace,

@@ -381,16 +381,10 @@ bool TitlebarWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* 
         switch (scan_code)
         {
         case KEY_F1:
-            switch_workspace_to(key_to_workspace[KEY_F1]);
-            return true;
         case KEY_F2:
-            switch_workspace_to(key_to_workspace[KEY_F2]);
-            return true;
         case KEY_F3:
-            switch_workspace_to(key_to_workspace[KEY_F3]);
-            return true;
         case KEY_F4:
-            switch_workspace_to(key_to_workspace[KEY_F4]);
+            switch_workspace_to(key_to_workspace[scan_code]);
             return true;
         }
     }
@@ -402,16 +396,10 @@ bool TitlebarWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* 
         switch (scan_code)
         {
         case KEY_F1:
-            switch_workspace_to(key_to_workspace[KEY_F1], tools.active_window());
-            return true;
         case KEY_F2:
-            switch_workspace_to(key_to_workspace[KEY_F2], tools.active_window());
-            return true;
         case KEY_F3:
-            switch_workspace_to(key_to_workspace[KEY_F3], tools.active_window());
-            return true;
         case KEY_F4:
-            switch_workspace_to(key_to_workspace[KEY_F4], tools.active_window());
+            switch_workspace_to(key_to_workspace[scan_code], tools.active_window());
             return true;
         }
     }
@@ -685,11 +673,6 @@ void TitlebarWindowManagerPolicy::advise_adding_to_workspace(
             tools.modify_window(window, modifications);
         }
     }
-}
-
-void TitlebarWindowManagerPolicy::advise_removing_from_workspace(
-    std::shared_ptr<Workspace> const& /*workspace*/, std::vector<Window> const& /*windows*/)
-{
 }
 
 void TitlebarWindowManagerPolicy::switch_workspace_to(

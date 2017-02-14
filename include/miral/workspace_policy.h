@@ -61,7 +61,7 @@ public:
      */
     virtual void advise_adding_to_workspace(
         std::shared_ptr<Workspace> const& workspace,
-        std::vector<Window> const& windows) = 0;
+        std::vector<Window> const& windows);
 
     /** Notification that windows are being removed from a workspace.
      *  These windows are ordered with parents before children,
@@ -72,7 +72,7 @@ public:
      */
     virtual void advise_removing_from_workspace(
         std::shared_ptr<Workspace> const& workspace,
-        std::vector<Window> const& windows) = 0;
+        std::vector<Window> const& windows);
 
 /** @} */
 
