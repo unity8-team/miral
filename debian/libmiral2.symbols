@@ -373,7 +373,10 @@ libmiral.so.2 libmiral2 #MINVER#
  (c++)"miral::WindowManagerTools::remove_tree_from_workspace(miral::Window const&, std::shared_ptr<miral::Workspace> const&)@MIRAL_1.2" 1.2.0
  (c++)"miral::WindowManagerTools::for_each_window_in_workspace(std::shared_ptr<miral::Workspace> const&, std::function<void (miral::Window const&)> const&)@MIRAL_1.2" 1.2.0
  (c++)"miral::WindowManagerTools::for_each_workspace_containing(miral::Window const&, std::function<void (std::shared_ptr<miral::Workspace> const&)> const&)@MIRAL_1.2" 1.2.0
+ (c++)"miral::WorkspacePolicy::advise_adding_to_workspace(std::shared_ptr<miral::Workspace> const&, std::vector<miral::Window, std::allocator<miral::Window> > const&)@MIRAL_1.2" 1.2.0
+ (c++)"miral::WorkspacePolicy::advise_removing_from_workspace(std::shared_ptr<miral::Workspace> const&, std::vector<miral::Window, std::allocator<miral::Window> > const&)@MIRAL_1.2" 1.2.0
  (c++)"miral::operator<(miral::Window const&, miral::Window const&)@MIRAL_1.0" 1.2.0
  (c++)"typeinfo for miral::WorkspacePolicy@MIRAL_1.2" 1.2.0
  (c++)"typeinfo for miral::ApplicationAuthorizer@MIRAL_1.0" 1.2.0
  (c++)"typeinfo for miral::ApplicationAuthorizer1@MIRAL_1.2" 1.2.0
+ (c++)"vtable for miral::WorkspacePolicy@MIRAL_1.2" 1.2.0
