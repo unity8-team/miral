@@ -130,7 +130,7 @@ TEST_F(WindowPlacement, fixture_sets_up_parent_and_child)
 }
 
 
-/* From the Mir toolkit API:
+/* From the Mir client API:
  * Positioning of the surface is specified with respect to the parent surface
  * via an adjacency rectangle. The server will attempt to choose an edge of the
  * adjacency rectangle on which to place the surface taking in to account

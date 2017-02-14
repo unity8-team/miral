@@ -28,9 +28,9 @@ auto const mir_event_get_window_placement_event = mir_event_get_surface_placemen
 #endif
 #endif
 
-#include <miral/detail/mir_forward_compatibility.h>
-#include <miral/toolkit/window_spec.h>
-#include <miral/toolkit/window.h>
+#include <mir/client/detail/mir_forward_compatibility.h>
+#include <mir/client/window_spec.h>
+#include <mir/client/window.h>
 
 #include <mir/test/signal.h>
 #include "test_server.h"
@@ -44,7 +44,7 @@ using namespace testing;
 namespace mt = mir::test;
 namespace mtf = mir_test_framework;
 
-using namespace miral::toolkit;
+using namespace mir::client;
 
 namespace
 {

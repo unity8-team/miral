@@ -18,8 +18,8 @@
 
 #include "test_server.h"
 
-#include <miral/toolkit/window.h>
-#include <miral/toolkit/window_spec.h>
+#include <mir/client/window.h>
+#include <mir/client/window_spec.h>
 #include <mir_toolkit/mir_buffer_stream.h>
 #include <mir_toolkit/version.h>
 
@@ -30,7 +30,7 @@
 #include <gtest/gtest.h>
 
 using namespace testing;
-using namespace miral::toolkit;
+using namespace mir::client;
 using namespace std::chrono_literals;
 using miral::WindowManagerTools;
 

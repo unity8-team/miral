@@ -15,6 +15,8 @@ miral (1.1.0+17.04.20170127-0ubuntu1) zesty; urgency=medium
         enums.
       . Logging of exceptions added to --window-management-trace
       . Rename WindowManagementPolicy::place_new_surface => place_new_window"
+      . New libmirclientcpp-dev package "C++ wrapper for libmirclient". (Split
+        from libmiral-dev)
     - Bugs fixed:
       . top-level window is not raised along with its child (LP: #1658085)
       . miral-shell depends on default cursor theme being installed

@@ -16,11 +16,11 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#ifndef MIRAL_TOOLKIT_WINDOW_SPEC_H
-#define MIRAL_TOOLKIT_WINDOW_SPEC_H
+#ifndef MIR_CLIENT_WINDOW_SPEC_H
+#define MIR_CLIENT_WINDOW_SPEC_H
 
-#include <miral/toolkit/window.h>
-#include <miral/detail/mir_forward_compatibility.h>
+#include <mir/client/window.h>
+#include <mir/client/detail/mir_forward_compatibility.h>
 
 #include <mir_toolkit/mir_connection.h>
 
@@ -64,9 +64,9 @@ auto const mir_window_spec_set_placement        = mir_surface_spec_set_placement
 #endif
 #endif
 
-namespace miral
+namespace mir
 {
-namespace toolkit
+namespace client
 {
 /// Handle class for MirWindowSpec - provides automatic reference counting, method chaining.
 class WindowSpec

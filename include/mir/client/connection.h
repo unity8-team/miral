@@ -16,19 +16,19 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#ifndef MIRAL_TOOLKIT_CONNECTION_H
-#define MIRAL_TOOLKIT_CONNECTION_H
+#ifndef MIR_CLIENT_CONNECTION_H
+#define MIR_CLIENT_CONNECTION_H
 
 #include <mir_toolkit/mir_connection.h>
 
 #include <memory>
 
-namespace miral
+namespace mir
 {
-/// Convinent C++ wrappers around the Mir toolkit API.
+/// Convenient C++ wrappers around the Mir toolkit API.
 ///
 /// These wrappers are intentionally inline adapters: the compiled code depend directly on the Mir toolkit API.
-namespace toolkit
+namespace client
 {
 /// Handle class for MirConnection - provides automatic reference counting.
 class Connection
@@ -48,4 +48,4 @@ private:
 }
 }
 
-#endif //MIRAL_TOOLKIT_CONNECTION_H
+#endif //MIR_CLIENT_CONNECTION_H

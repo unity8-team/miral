@@ -16,10 +16,10 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#ifndef MIRAL_TOOLKIT_WINDOW_H
-#define MIRAL_TOOLKIT_WINDOW_H
+#ifndef MIR_CLIENT_WINDOW_H
+#define MIR_CLIENT_WINDOW_H
 
-#include <miral/detail/mir_forward_compatibility.h>
+#include <mir/client/detail/mir_forward_compatibility.h>
 
 #if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
 #include <mir_toolkit/mir_surface.h>
@@ -35,9 +35,9 @@ auto const mir_window_set_state         = mir_surface_set_state;
 
 #include <memory>
 
-namespace miral
+namespace mir
 {
-namespace toolkit
+namespace client
 {
 /// Handle class for MirWindow - provides automatic reference counting.
 class Window
@@ -58,4 +58,4 @@ private:
 }
 }
 
-#endif //MIRAL_TOOLKIT_WINDOW_H
+#endif //MIR_CLIENT_WINDOW_H

@@ -51,11 +51,11 @@ add_library(miral SHARED
     set_window_managment_policy.cpp     ${CMAKE_SOURCE_DIR}/include/miral/set_window_managment_policy.h
     window_management_policy.cpp        ${CMAKE_SOURCE_DIR}/include/miral/window_management_policy.h
     window_manager_tools.cpp            ${CMAKE_SOURCE_DIR}/include/miral/window_manager_tools.h
-                                        ${CMAKE_SOURCE_DIR}/include/miral/toolkit/window_spec.h
-                                        ${CMAKE_SOURCE_DIR}/include/miral/toolkit/window_id.h
-                                        ${CMAKE_SOURCE_DIR}/include/miral/toolkit/connection.h
-                                        ${CMAKE_SOURCE_DIR}/include/miral/toolkit/window.h
-                                        ${CMAKE_SOURCE_DIR}/include/miral/detail/mir_forward_compatibility.h
+                                        ${CMAKE_SOURCE_DIR}/include/mir/client/window_spec.h
+                                        ${CMAKE_SOURCE_DIR}/include/mir/client/window_id.h
+                                        ${CMAKE_SOURCE_DIR}/include/mir/client/connection.h
+                                        ${CMAKE_SOURCE_DIR}/include/mir/client/window.h
+                                        ${CMAKE_SOURCE_DIR}/include/mir/client/detail/mir_forward_compatibility.h
 )
 
 target_link_libraries(miral
@@ -74,7 +74,6 @@ set_target_properties(miral
         LINK_DEPENDS ${symbol_map}
 )
 
-
 add_custom_target(check-symbols ALL
         DEPENDS miral ${PROJECT_SOURCE_DIR}/debian/libmiral${MIRAL_ABI}.symbols
         COMMAND dpkg-gensymbols -e${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libmiral.so.${MIRAL_ABI} -plibmiral${MIRAL_ABI} | scripts/filter_symbols_diff.sh
@@ -90,6 +89,11 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/miral.pc.in
     @ONLY
 )
 
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/mirclientcpp.pc.in
+    ${CMAKE_CURRENT_BINARY_DIR}/mirclientcpp.pc
+    @ONLY
+)
+
 if (MIRSERVER_VERSION VERSION_LESS 0.24)
     set(MIR_POINTER_CONFINEMENT 0)
 else()
@@ -98,7 +102,7 @@ endif()
 
 configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/mir_features.h.in
-  ${PROJECT_SOURCE_DIR}/include/miral/detail/mir_features.h
+        ${PROJECT_SOURCE_DIR}/include/mir/client/detail/mir_features.h
 )
 
 configure_file(
@@ -106,6 +110,7 @@ configure_file(
   ${PROJECT_SOURCE_DIR}/include/miral/version.h
 )
 
-install(TARGETS     miral                           LIBRARY DESTINATION "${CMAKE_INSTALL_FULL_LIBDIR}")
-install(DIRECTORY   ${CMAKE_SOURCE_DIR}/include/            DESTINATION "${INCLUDEDIR}")
-install(FILES       ${CMAKE_CURRENT_BINARY_DIR}/miral.pc    DESTINATION "${CMAKE_INSTALL_FULL_LIBDIR}/pkgconfig")
+install(TARGETS     miral                           LIBRARY         DESTINATION "${CMAKE_INSTALL_FULL_LIBDIR}")
+install(DIRECTORY   ${CMAKE_SOURCE_DIR}/include/                    DESTINATION "${INCLUDEDIR}")
+install(FILES       ${CMAKE_CURRENT_BINARY_DIR}/miral.pc
+                    ${CMAKE_CURRENT_BINARY_DIR}/mirclientcpp.pc    DESTINATION "${CMAKE_INSTALL_FULL_LIBDIR}/pkgconfig")

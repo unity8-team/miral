@@ -15,14 +15,14 @@
  */
 
 #include "miregl.h"
-#include <miral/toolkit/window_spec.h>
+#include <mir/client/window_spec.h>
 #include <mir_toolkit/version.h>
 
 #include <cstring>
 
 #include <GLES2/gl2.h>
 #include <miral/window_specification.h>
-#include <miral/toolkit/window_spec.h>
+#include <mir/client/window_spec.h>
 
 class MirEglApp
 {
@@ -65,7 +65,7 @@ namespace
 MirWindow* create_window(MirConnection* const connection, MirWindowParameters const& parameters)
 {
 
-    auto spec = miral::toolkit::WindowSpec::for_normal_window(
+    auto spec = mir::client::WindowSpec::for_normal_window(
         connection, parameters.width, parameters.height, parameters.pixel_format)
         .set_name(parameters.name)
         .set_buffer_usage(parameters.buffer_usage);

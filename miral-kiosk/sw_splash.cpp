@@ -18,7 +18,7 @@
 
 #include "sw_splash.h"
 
-#include <miral/toolkit/window.h>
+#include <mir/client/window.h>
 
 #include <mir_toolkit/mir_connection.h>
 #include <mir_toolkit/mir_buffer_stream.h>
@@ -27,7 +27,7 @@
 #include <cstring>
 #include <thread>
 #include <mutex>
-#include <miral/toolkit/window_spec.h>
+#include <mir/client/window_spec.h>
 
 namespace
 {
@@ -63,7 +63,7 @@ MirPixelFormat find_8888_format(MirConnection* connection)
 
 auto create_window(MirConnection* connection, MirPixelFormat pixel_format) -> MirWindow*
 {
-    auto const spec = miral::toolkit::WindowSpec::for_normal_window(connection, 42, 42, pixel_format)
+    auto const spec = mir::client::WindowSpec::for_normal_window(connection, 42, 42, pixel_format)
         .set_name("splash")
         .set_buffer_usage(mir_buffer_usage_software)
         .set_fullscreen_on_output(0);
