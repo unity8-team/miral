@@ -19,7 +19,7 @@
 #ifndef MIRAL_TEST_SERVER_H
 #define MIRAL_TEST_SERVER_H
 
-#include <miral/toolkit/connection.h>
+#include <mir/client/connection.h>
 
 #include <miral/canonical_window_manager.h>
 #include <miral/runner.h>
@@ -55,7 +55,7 @@ struct TestServer : testing::Test, private TestRuntimeEnvironment
     void SetUp() override;
     void TearDown() override;
 
-    auto connect_client(std::string name) -> toolkit::Connection;
+    auto connect_client(std::string name) -> mir::client::Connection;
 
     using TestRuntimeEnvironment::add_to_environment;
 
