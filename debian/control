@@ -60,7 +60,7 @@ Description: Developer files for the Mir ABI-stable abstraction layer
  Contains header files required for development using the MirAL abstraction
  layer.
 
-Package: miral-toolkit-dev
+Package: mirclientcpp-dev
 Section: libdevel
 Architecture: linux-any
 Multi-Arch: same
