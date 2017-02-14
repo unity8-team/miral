@@ -74,7 +74,6 @@ set_target_properties(miral
         LINK_DEPENDS ${symbol_map}
 )
 
-
 add_custom_target(check-symbols ALL
         DEPENDS miral ${PROJECT_SOURCE_DIR}/debian/libmiral${MIRAL_ABI}.symbols
         COMMAND dpkg-gensymbols -e${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libmiral.so.${MIRAL_ABI} -plibmiral${MIRAL_ABI} | scripts/filter_symbols_diff.sh
@@ -103,7 +102,7 @@ endif()
 
 configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/mir_features.h.in
-        ../include/mir/client/detail/mir_features.h
+        ${PROJECT_SOURCE_DIR}/include/mir/client/detail/mir_features.h
 )
 
 configure_file(
