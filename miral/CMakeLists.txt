@@ -90,8 +90,8 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/miral.pc.in
     @ONLY
 )
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/miral-toolkit.pc.in
-    ${CMAKE_CURRENT_BINARY_DIR}/miral-toolkit.pc
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/mirclientcpp.pc.in
+    ${CMAKE_CURRENT_BINARY_DIR}/mirclientcpp.pc
     @ONLY
 )
 
@@ -114,4 +114,4 @@ configure_file(
 install(TARGETS     miral                           LIBRARY         DESTINATION "${CMAKE_INSTALL_FULL_LIBDIR}")
 install(DIRECTORY   ${CMAKE_SOURCE_DIR}/include/                    DESTINATION "${INCLUDEDIR}")
 install(FILES       ${CMAKE_CURRENT_BINARY_DIR}/miral.pc
-                    ${CMAKE_CURRENT_BINARY_DIR}/miral-toolkit.pc    DESTINATION "${CMAKE_INSTALL_FULL_LIBDIR}/pkgconfig")
+                    ${CMAKE_CURRENT_BINARY_DIR}/mirclientcpp.pc    DESTINATION "${CMAKE_INSTALL_FULL_LIBDIR}/pkgconfig")
