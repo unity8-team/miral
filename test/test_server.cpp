@@ -160,7 +160,7 @@ void miral::TestServer::TearDown()
     server_thread.stop();
 }
 
-auto miral::TestServer::connect_client(std::string name) -> client::Connection
+auto miral::TestServer::connect_client(std::string name) -> mir::client::Connection
 {
     std::lock_guard<std::mutex> lock(mutex);
 
@@ -170,7 +170,7 @@ auto miral::TestServer::connect_client(std::string name) -> client::Connection
     char connect_string[64] = {0};
     sprintf(connect_string, "fd://%d", dup(server_running->open_client_socket()));
 
-    return client::Connection{mir_connect_sync(connect_string, name.c_str())};
+    return mir::client::Connection{mir_connect_sync(connect_string, name.c_str())};
 }
 
 void miral::TestServer::invoke_tools(std::function<void(WindowManagerTools& tools)> const& f)

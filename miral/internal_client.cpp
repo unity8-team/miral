@@ -35,7 +35,7 @@ class InternalClientRunner
 {
 public:
     InternalClientRunner(std::string name,
-         std::function<void(miral::client::Connection connection)> client_code,
+         std::function<void(mir::client::Connection connection)> client_code,
          std::function<void(std::weak_ptr<mir::scene::Session> const session)> connect_notification);
 
     void run(mir::Server& server);
@@ -48,8 +48,8 @@ private:
     std::condition_variable mutable cv;
     mir::Fd fd;
     std::weak_ptr<mir::scene::Session> session;
-    miral::client::Connection connection;
-    std::function<void(miral::client::Connection connection)> const client_code;
+    mir::client::Connection connection;
+    std::function<void(mir::client::Connection connection)> const client_code;
     std::function<void(std::weak_ptr<mir::scene::Session> const session)> connect_notification;
 };
 }
@@ -63,7 +63,7 @@ public:
 
 InternalClientRunner::InternalClientRunner(
     std::string const name,
-    std::function<void(miral::client::Connection connection)> client_code,
+    std::function<void(mir::client::Connection connection)> client_code,
     std::function<void(std::weak_ptr<mir::scene::Session> const session)> connect_notification) :
     name(name),
     client_code(std::move(client_code)),
@@ -84,7 +84,7 @@ void InternalClientRunner::run(mir::Server& server)
     char connect_string[64] = {0};
     sprintf(connect_string, "fd://%d", fd.operator int());
 
-    connection = miral::client::Connection{mir_connect_sync(connect_string, name.c_str())};
+    connection = mir::client::Connection{mir_connect_sync(connect_string, name.c_str())};
 
     std::unique_lock<decltype(mutex)> lock{mutex};
     cv.wait(lock, [&] { return !!session.lock(); });
@@ -106,10 +106,10 @@ InternalClientRunner::~InternalClientRunner()
 
 MIRAL_BOTH_VERSIONS(
     _ZN5miral21StartupInternalClientC1ENSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt8functionIFvNS_7toolkit10ConnectionEEES7_IFvSt8weak_ptrIN3mir5scene7SessionEEEE, MIRAL_1.0,
-    _ZN5miral21StartupInternalClientC1ENSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt8functionIFvNS_6client10ConnectionEEES7_IFvSt8weak_ptrIN3mir5scene7SessionEEEE,  MIRAL_1.2)
+    _ZN5miral21StartupInternalClientC1ENSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt8functionIFvN3mir6client10ConnectionEEES7_IFvSt8weak_ptrINS8_5scene7SessionEEEE, MIRAL_1.2)
 miral::StartupInternalClient::StartupInternalClient(
     std::string name,
-    std::function<void(client::Connection connection)> client_code,
+    std::function<void(mir::client::Connection connection)> client_code,
     std::function<void(std::weak_ptr<mir::scene::Session> const session)> connect_notification) :
     internal_client(std::make_shared<Self>(std::move(name), std::move(client_code), std::move(connect_notification)))
 {
@@ -142,10 +142,10 @@ void miral::InternalClientLauncher::operator()(mir::Server& server)
 
 MIRAL_BOTH_VERSIONS(
     _ZNK5miral22InternalClientLauncher6launchERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEERKSt8functionIFvNS_7toolkit10ConnectionEEERKS9_IFvSt8weak_ptrIN3mir5scene7SessionEEEE, MIRAL_1.0,
-    _ZNK5miral22InternalClientLauncher6launchERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEERKSt8functionIFvNS_6client10ConnectionEEERKS9_IFvSt8weak_ptrIN3mir5scene7SessionEEEE,  MIRAL_1.2)
+    _ZNK5miral22InternalClientLauncher6launchERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEERKSt8functionIFvN3mir6client10ConnectionEEERKS9_IFvSt8weak_ptrINSA_5scene7SessionEEEE, MIRAL_1.2)
 void miral::InternalClientLauncher::launch(
     std::string const& name,
-    std::function<void(client::Connection connection)> const& client_code,
+    std::function<void(mir::client::Connection connection)> const& client_code,
     std::function<void(std::weak_ptr<mir::scene::Session> const session)> const& connect_notification) const
 {
     self->runner = std::make_unique<InternalClientRunner>(name, client_code, connect_notification);
