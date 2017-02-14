@@ -16,10 +16,10 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#ifndef MIRAL_TOOLKIT_WINDOW_ID_H
-#define MIRAL_TOOLKIT_WINDOW_ID_H
+#ifndef MIR_CLIENT_WINDOW_ID_H
+#define MIR_CLIENT_WINDOW_ID_H
 
-#include <miral/toolkit/detail/mir_forward_compatibility.h>
+#include <mir/client/detail/mir_forward_compatibility.h>
 #if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
 #include <mir_toolkit/mir_surface.h>
 #else
@@ -42,7 +42,7 @@ typedef struct MirPersistentId MirWindowId;
 
 #include <memory>
 
-namespace miral
+namespace mir
 {
 namespace client
 {
@@ -63,4 +63,4 @@ private:
 }
 }
 
-#endif //MIRAL_TOOLKIT_WINDOW_ID_H
+#endif //MIR_CLIENT_WINDOW_ID_H

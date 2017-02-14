@@ -16,14 +16,14 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#ifndef MIRAL_TOOLKIT_CONNECTION_H
-#define MIRAL_TOOLKIT_CONNECTION_H
+#ifndef MIR_CLIENT_CONNECTION_H
+#define MIR_CLIENT_CONNECTION_H
 
 #include <mir_toolkit/mir_connection.h>
 
 #include <memory>
 
-namespace miral
+namespace mir
 {
 /// Convenient C++ wrappers around the Mir toolkit API.
 ///
@@ -48,4 +48,4 @@ private:
 }
 }
 
-#endif //MIRAL_TOOLKIT_CONNECTION_H
+#endif //MIR_CLIENT_CONNECTION_H
