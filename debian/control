@@ -51,7 +51,7 @@ Architecture: linux-any
 Multi-Arch: same
 Pre-Depends: ${misc:Pre-Depends}
 Depends: libmiral2 (= ${binary:Version}),
-         miral-toolkit-dev (= ${binary:Version}),
+         libmirclientcpp-dev (= ${binary:Version}),
          ${misc:Depends},
 Description: Developer files for the Mir ABI-stable abstraction layer
  MirAL provides an ABI-stable abstraction layer for Mir based shells,
@@ -60,7 +60,7 @@ Description: Developer files for the Mir ABI-stable abstraction layer
  Contains header files required for development using the MirAL abstraction
  layer.
 
-Package: mirclientcpp-dev
+Package: libmirclientcpp-dev
 Section: libdevel
 Architecture: linux-any
 Multi-Arch: same
