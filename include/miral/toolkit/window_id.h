@@ -19,7 +19,7 @@
 #ifndef MIRAL_TOOLKIT_WINDOW_ID_H
 #define MIRAL_TOOLKIT_WINDOW_ID_H
 
-#include <miral/detail/mir_forward_compatibility.h>
+#include <miral/toolkit/detail/mir_forward_compatibility.h>
 #if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
 #include <mir_toolkit/mir_surface.h>
 #else
@@ -44,7 +44,7 @@ typedef struct MirPersistentId MirWindowId;
 
 namespace miral
 {
-namespace toolkit
+namespace client
 {
 /// Handle class for MirWindowId - provides automatic reference counting
 class WindowId

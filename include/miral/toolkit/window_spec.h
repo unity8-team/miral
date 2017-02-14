@@ -20,7 +20,7 @@
 #define MIRAL_TOOLKIT_WINDOW_SPEC_H
 
 #include <miral/toolkit/window.h>
-#include <miral/detail/mir_forward_compatibility.h>
+#include <miral/toolkit/detail/mir_forward_compatibility.h>
 
 #include <mir_toolkit/mir_connection.h>
 
@@ -66,7 +66,7 @@ auto const mir_window_spec_set_placement        = mir_surface_spec_set_placement
 
 namespace miral
 {
-namespace toolkit
+namespace client
 {
 /// Handle class for MirWindowSpec - provides automatic reference counting, method chaining.
 class WindowSpec

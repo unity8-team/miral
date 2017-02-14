@@ -29,7 +29,7 @@
 
 
 using namespace testing;
-using namespace miral::toolkit;
+using namespace miral::client;
 using namespace std::chrono_literals;
 using miral::WindowManagerTools;
 

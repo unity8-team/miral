@@ -19,7 +19,7 @@
 #ifndef MIRAL_TOOLKIT_WINDOW_H
 #define MIRAL_TOOLKIT_WINDOW_H
 
-#include <miral/detail/mir_forward_compatibility.h>
+#include <miral/toolkit/detail/mir_forward_compatibility.h>
 
 #if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
 #include <mir_toolkit/mir_surface.h>
@@ -37,7 +37,7 @@ auto const mir_window_set_state         = mir_surface_set_state;
 
 namespace miral
 {
-namespace toolkit
+namespace client
 {
 /// Handle class for MirWindow - provides automatic reference counting.
 class Window

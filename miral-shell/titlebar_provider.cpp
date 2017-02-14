@@ -154,7 +154,7 @@ void Printer::print(MirGraphicsRegion const& region, std::string const& title_, 
 }
 }
 
-using namespace miral::toolkit;
+using namespace miral::client;
 using namespace mir::geometry;
 
 TitlebarProvider::TitlebarProvider(miral::WindowManagerTools const& tools) : tools{tools}
@@ -182,7 +182,7 @@ void TitlebarProvider::stop()
         });
 }
 
-void TitlebarProvider::operator()(miral::toolkit::Connection connection)
+void TitlebarProvider::operator()(miral::client::Connection connection)
 {
     this->connection = connection;
     start_work();

@@ -63,7 +63,7 @@ MirPixelFormat find_8888_format(MirConnection* connection)
 
 auto create_window(MirConnection* connection, MirPixelFormat pixel_format) -> MirWindow*
 {
-    auto const spec = miral::toolkit::WindowSpec::for_normal_window(connection, 42, 42, pixel_format)
+    auto const spec = miral::client::WindowSpec::for_normal_window(connection, 42, 42, pixel_format)
         .set_name("splash")
         .set_buffer_usage(mir_buffer_usage_software)
         .set_fullscreen_on_output(0);

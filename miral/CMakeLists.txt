@@ -55,7 +55,7 @@ add_library(miral SHARED
                                         ${CMAKE_SOURCE_DIR}/include/miral/toolkit/window_id.h
                                         ${CMAKE_SOURCE_DIR}/include/miral/toolkit/connection.h
                                         ${CMAKE_SOURCE_DIR}/include/miral/toolkit/window.h
-                                        ${CMAKE_SOURCE_DIR}/include/miral/detail/mir_forward_compatibility.h
+                                        ${CMAKE_SOURCE_DIR}/include/miral/toolkit/detail/mir_forward_compatibility.h
 )
 
 target_link_libraries(miral
@@ -103,7 +103,7 @@ endif()
 
 configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/mir_features.h.in
-  ${PROJECT_SOURCE_DIR}/include/miral/detail/mir_features.h
+        ../include/miral/toolkit/detail/mir_features.h
 )
 
 configure_file(

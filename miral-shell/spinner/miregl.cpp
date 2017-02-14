@@ -65,7 +65,7 @@ namespace
 MirWindow* create_window(MirConnection* const connection, MirWindowParameters const& parameters)
 {
 
-    auto spec = miral::toolkit::WindowSpec::for_normal_window(
+    auto spec = miral::client::WindowSpec::for_normal_window(
         connection, parameters.width, parameters.height, parameters.pixel_format)
         .set_name(parameters.name)
         .set_buffer_usage(parameters.buffer_usage);
