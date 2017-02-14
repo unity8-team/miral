@@ -19,7 +19,7 @@
 #include "titlebar_provider.h"
 #include "titlebar_config.h"
 
-#include <miral/toolkit/window_spec.h>
+#include <mir/client/window_spec.h>
 
 #include <mir_toolkit/mir_buffer_stream.h>
 
@@ -154,7 +154,7 @@ void Printer::print(MirGraphicsRegion const& region, std::string const& title_, 
 }
 }
 
-using namespace miral::toolkit;
+using namespace mir::client;
 using namespace mir::geometry;
 
 TitlebarProvider::TitlebarProvider(miral::WindowManagerTools const& tools) : tools{tools}
@@ -182,7 +182,7 @@ void TitlebarProvider::stop()
         });
 }
 
-void TitlebarProvider::operator()(miral::toolkit::Connection connection)
+void TitlebarProvider::operator()(mir::client::Connection connection)
 {
     this->connection = connection;
     start_work();

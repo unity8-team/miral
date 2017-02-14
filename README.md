@@ -25,7 +25,7 @@ There are two significant components to the MirAL project:
 
 See also:
 
- - \ref building_and_using_miral "Building and using Miral"
+ - \ref getting_and_using_miral "Getting and using Miral"
  - \ref tasks_for_the_interested_reader "Tasks for the interested reader"
 
 License
@@ -42,5 +42,5 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-\copyright Copyright © 2016 Canonical Ltd.
+\copyright Copyright © 2016-2017 Canonical Ltd.
 \author Alan Griffiths <alan@octopull.co.uk>

@@ -363,6 +363,8 @@ libmiral.so.2 libmiral2 #MINVER#
  (c++)"miral::WindowInfo::can_morph_to(MirWindowType) const@MIRAL_1.1" 1.1.0
  (c++)"miral::CanonicalWindowManagerPolicy::place_new_window(miral::ApplicationInfo const&, miral::WindowSpecification const&)@MIRAL_1.1" 1.1.0
  MIRAL_1.2@MIRAL_1.2 1.2.0
+ (c++)"miral::InternalClientLauncher::launch(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::function<void (mir::client::Connection)> const&, std::function<void (std::weak_ptr<mir::scene::Session>)> const&) const@MIRAL_1.2" 1.2.0
+ (c++)"miral::StartupInternalClient::StartupInternalClient(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::function<void (mir::client::Connection)>, std::function<void (std::weak_ptr<mir::scene::Session>)>)@MIRAL_1.2" 1.2.0
  (c++)"miral::WindowInfo::shell_chrome(MirShellChrome)@MIRAL_1.2" 1.2.0
  (c++)"miral::WindowInfo::shell_chrome() const@MIRAL_1.2" 1.2.0
  (c++)"miral::WindowManagerTools::drag_window(miral::Window const&, mir::geometry::Displacement)@MIRAL_1.2" 1.2.0
