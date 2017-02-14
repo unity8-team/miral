@@ -142,7 +142,6 @@ global:
     miral::DebugExtension::operator*;
     miral::InternalClientLauncher::?InternalClientLauncher*;
     miral::InternalClientLauncher::InternalClientLauncher*;
-    miral::InternalClientLauncher::launch*;
     miral::InternalClientLauncher::operator*;
     miral::Keymap::?Keymap*;
     miral::Keymap::Keymap*;
@@ -181,7 +180,6 @@ global:
     miral::SetWindowManagmentPolicy::SetWindowManagmentPolicy*;
     miral::SetWindowManagmentPolicy::operator*;
     miral::StartupInternalClient::?StartupInternalClient*;
-    miral::StartupInternalClient::StartupInternalClient*;
     miral::StartupInternalClient::operator*;
     miral::Window::?Window*;
     miral::Window::Window*;
@@ -294,8 +292,8 @@ global:
     miral::name_of*;
     miral::operator*;
     miral::pid_of*;
-    mir::client::Connection::Connection*;
-    mir::client::Surface::Surface*;
+    miral::toolkit::Connection::Connection*;
+    miral::toolkit::Surface::Surface*;
     non-virtual?thunk?to?miral::ActiveOutputsListener::?ActiveOutputsListener*;
     non-virtual?thunk?to?miral::ActiveOutputsListener::advise_output_begin*;
     non-virtual?thunk?to?miral::ActiveOutputsListener::advise_output_create*;
@@ -351,10 +349,10 @@ global:
     typeinfo?for?miral::WindowManagerTools;
     typeinfo?for?miral::WindowSpecification;
     typeinfo?for?miral::WindowSpecification::AspectRatio;
-    typeinfo?for?mir::client::Connection;
-    typeinfo?for?mir::client::PersistentId;
-    typeinfo?for?mir::client::Surface;
-    typeinfo?for?mir::client::SurfaceSpec;
+    typeinfo?for?miral::toolkit::Connection;
+    typeinfo?for?miral::toolkit::PersistentId;
+    typeinfo?for?miral::toolkit::Surface;
+    typeinfo?for?miral::toolkit::SurfaceSpec;
     vtable?for?miral::ActiveOutputsListener;
     vtable?for?miral::ActiveOutputsMonitor;
     vtable?for?miral::AddInitCallback;
@@ -384,10 +382,10 @@ global:
     vtable?for?miral::WindowManagerTools;
     vtable?for?miral::WindowSpecification;
     vtable?for?miral::WindowSpecification::AspectRatio;
-    vtable?for?mir::client::Connection;
-    vtable?for?mir::client::PersistentId;
-    vtable?for?mir::client::Surface;
-    vtable?for?mir::client::SurfaceSpec;
+    vtable?for?miral::toolkit::Connection;
+    vtable?for?miral::toolkit::PersistentId;
+    vtable?for?miral::toolkit::Surface;
+    vtable?for?miral::toolkit::SurfaceSpec;
   };
 #    miral::WindowInfo::can_morph_to*;
     _ZNK5miral10WindowInfo12can_morph_toE14MirSurfaceType;
@@ -405,6 +403,11 @@ global:
 
 #    miral::WindowManagementPolicy::advise_state_change*;
     _ZN5miral22WindowManagementPolicy19advise_state_changeERKNS_10WindowInfoE15MirSurfaceState;
+
+#    miral::StartupInternalClient::StartupInternalClient*;
+    _ZN5miral21StartupInternalClientC1ENSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt8functionIFvNS_7toolkit10ConnectionEEES7_IFvSt8weak_ptrIN3mir5scene7SessionEEEE;
+#    miral::InternalClientLauncher::launch*;
+    _ZNK5miral22InternalClientLauncher6launchERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEERKSt8functionIFvNS_7toolkit10ConnectionEEERKS9_IFvSt8weak_ptrIN3mir5scene7SessionEEEE;
 local: *;
 };
 
@@ -435,6 +438,11 @@ global:
 
 MIRAL_1.2 {
 global:
+#    miral::InternalClientLauncher::launch*;
+  _ZNK5miral22InternalClientLauncher6launchERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEERKSt8functionIFvN3mir6client10ConnectionEEERKS9_IFvSt8weak_ptrINSA_5scene7SessionEEEE;
+
+#    miral::StartupInternalClient::StartupInternalClient*;
+  _ZN5miral21StartupInternalClientC1ENSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt8functionIFvN3mir6client10ConnectionEEES7_IFvSt8weak_ptrINS8_5scene7SessionEEEE;
   extern "C++" {'''
 
 END_NEW_STANZA = '''  };

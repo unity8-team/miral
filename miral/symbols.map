@@ -363,17 +363,7 @@ global:
   extern "C++" {
     miral::WindowInfo::shell_chrome*;
     miral::WindowManagerTools::drag_window*;
-    mir::client::Connection::Connection*;
-    mir::client::Window::Window*;
     typeinfo?for?miral::ApplicationAuthorizer1;
-    typeinfo?for?mir::client::Connection;
-    typeinfo?for?mir::client::Window;
-    typeinfo?for?mir::client::WindowId;
-    typeinfo?for?mir::client::WindowSpec;
     vtable?for?miral::ApplicationAuthorizer1;
-    vtable?for?mir::client::Connection;
-    vtable?for?mir::client::Window;
-    vtable?for?mir::client::WindowId;
-    vtable?for?mir::client::WindowSpec;
   };
 } MIRAL_1.1;
