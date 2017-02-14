@@ -90,6 +90,11 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/miral.pc.in
     @ONLY
 )
 
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/miral-toolkit.pc.in
+    ${CMAKE_CURRENT_BINARY_DIR}/miral-toolkit.pc
+    @ONLY
+)
+
 if (MIRSERVER_VERSION VERSION_LESS 0.24)
     set(MIR_POINTER_CONFINEMENT 0)
 else()
@@ -106,6 +111,7 @@ configure_file(
   ${PROJECT_SOURCE_DIR}/include/miral/version.h
 )
 
-install(TARGETS     miral                           LIBRARY DESTINATION "${CMAKE_INSTALL_FULL_LIBDIR}")
-install(DIRECTORY   ${CMAKE_SOURCE_DIR}/include/            DESTINATION "${INCLUDEDIR}")
-install(FILES       ${CMAKE_CURRENT_BINARY_DIR}/miral.pc    DESTINATION "${CMAKE_INSTALL_FULL_LIBDIR}/pkgconfig")
+install(TARGETS     miral                           LIBRARY         DESTINATION "${CMAKE_INSTALL_FULL_LIBDIR}")
+install(DIRECTORY   ${CMAKE_SOURCE_DIR}/include/                    DESTINATION "${INCLUDEDIR}")
+install(FILES       ${CMAKE_CURRENT_BINARY_DIR}/miral.pc
+                    ${CMAKE_CURRENT_BINARY_DIR}/miral-toolkit.pc    DESTINATION "${CMAKE_INSTALL_FULL_LIBDIR}/pkgconfig")
