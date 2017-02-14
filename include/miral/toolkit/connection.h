@@ -25,10 +25,10 @@
 
 namespace miral
 {
-/// Convinent C++ wrappers around the Mir toolkit API.
+/// Convenient C++ wrappers around the Mir toolkit API.
 ///
 /// These wrappers are intentionally inline adapters: the compiled code depend directly on the Mir toolkit API.
-namespace toolkit
+namespace client
 {
 /// Handle class for MirConnection - provides automatic reference counting.
 class Connection

@@ -1,3 +1,2 @@
 usr/include/miral/*/toolkit/*
-usr/include/miral/*/detail/*
 usr/lib/*/pkgconfig/miral-toolkit.pc

@@ -60,7 +60,7 @@ public:
     TitlebarProvider(miral::WindowManagerTools const& tools);
     ~TitlebarProvider();
 
-    void operator()(miral::toolkit::Connection connection);
+    void operator()(miral::client::Connection connection);
     void operator()(std::weak_ptr<mir::scene::Session> const& session);
 
     auto session() const -> std::shared_ptr<mir::scene::Session>;
@@ -90,7 +90,7 @@ private:
 
     miral::WindowManagerTools tools;
     std::mutex mutable mutex;
-    miral::toolkit::Connection connection;
+    miral::client::Connection connection;
     std::weak_ptr<mir::scene::Session> weak_session;
     std::atomic<int> intensity{0xff};
 

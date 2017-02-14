@@ -21,7 +21,7 @@
 
 #include <mir_toolkit/common.h>
 
-#include <miral/detail/mir_forward_compatibility.h>
+#include <miral/toolkit/detail/mir_forward_compatibility.h>
 
 #include <mir/geometry/displacement.h>
 #include <mir/geometry/rectangles.h>

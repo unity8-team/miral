@@ -54,7 +54,7 @@ struct TestServer : testing::Test, private TestRuntimeEnvironment
     void SetUp() override;
     void TearDown() override;
 
-    auto connect_client(std::string name) -> toolkit::Connection;
+    auto connect_client(std::string name) -> client::Connection;
 
     using TestRuntimeEnvironment::add_to_environment;
 

@@ -41,7 +41,7 @@ class StartupInternalClient
 public:
     explicit StartupInternalClient(
         std::string name,
-        std::function<void(toolkit::Connection connection)> client_code,
+        std::function<void(client::Connection connection)> client_code,
         std::function<void(std::weak_ptr<mir::scene::Session> const session)> connect_notification);
 
     template <typename ClientObject>
@@ -67,7 +67,7 @@ public:
 
     void launch(
         std::string const& name,
-        std::function<void(toolkit::Connection connection)> const& client_code,
+        std::function<void(client::Connection connection)> const& client_code,
         std::function<void(std::weak_ptr<mir::scene::Session> const session)> const& connect_notification) const;
 
     template <typename ClientObject>
@@ -75,7 +75,7 @@ public:
     {
         launch(
             name,
-            [&](toolkit::Connection connection) { client_object(connection); },
+            [&](client::Connection connection) { client_object(connection); },
             [&](std::weak_ptr<mir::scene::Session> const session) { client_object(session); });
     }
 

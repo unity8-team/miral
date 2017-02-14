@@ -59,7 +59,6 @@ global:
     miral::DebugExtension::operator*;
     miral::InternalClientLauncher::?InternalClientLauncher*;
     miral::InternalClientLauncher::InternalClientLauncher*;
-    miral::InternalClientLauncher::launch*;
     miral::InternalClientLauncher::operator*;
     miral::Keymap::?Keymap*;
     miral::Keymap::Keymap*;
@@ -98,7 +97,6 @@ global:
     miral::SetWindowManagmentPolicy::SetWindowManagmentPolicy*;
     miral::SetWindowManagmentPolicy::operator*;
     miral::StartupInternalClient::?StartupInternalClient*;
-    miral::StartupInternalClient::StartupInternalClient*;
     miral::StartupInternalClient::operator*;
     miral::Window::?Window*;
     miral::Window::Window*;
@@ -322,6 +320,11 @@ global:
 
 #    miral::WindowManagementPolicy::advise_state_change*;
     _ZN5miral22WindowManagementPolicy19advise_state_changeERKNS_10WindowInfoE15MirSurfaceState;
+
+#    miral::StartupInternalClient::StartupInternalClient*;
+    _ZN5miral21StartupInternalClientC1ENSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt8functionIFvNS_7toolkit10ConnectionEEES7_IFvSt8weak_ptrIN3mir5scene7SessionEEEE;
+#    miral::InternalClientLauncher::launch*;
+    _ZNK5miral22InternalClientLauncher6launchERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEERKSt8functionIFvNS_7toolkit10ConnectionEEERKS9_IFvSt8weak_ptrIN3mir5scene7SessionEEEE;
 local: *;
 };
 
@@ -352,10 +355,25 @@ global:
 
 MIRAL_1.2 {
 global:
+#    miral::InternalClientLauncher::launch*;
+  _ZNK5miral22InternalClientLauncher6launchERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEERKSt8functionIFvNS_6client10ConnectionEEERKS9_IFvSt8weak_ptrIN3mir5scene7SessionEEEE;
+
+#    miral::StartupInternalClient::StartupInternalClient*;
+  _ZN5miral21StartupInternalClientC1ENSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt8functionIFvNS_6client10ConnectionEEES7_IFvSt8weak_ptrIN3mir5scene7SessionEEEE;
   extern "C++" {
     miral::WindowInfo::shell_chrome*;
     miral::WindowManagerTools::drag_window*;
+    miral::client::Connection::Connection*;
+    miral::client::Window::Window*;
     typeinfo?for?miral::ApplicationAuthorizer1;
+    typeinfo?for?miral::client::Connection;
+    typeinfo?for?miral::client::Window;
+    typeinfo?for?miral::client::WindowId;
+    typeinfo?for?miral::client::WindowSpec;
     vtable?for?miral::ApplicationAuthorizer1;
+    vtable?for?miral::client::Connection;
+    vtable?for?miral::client::Window;
+    vtable?for?miral::client::WindowId;
+    vtable?for?miral::client::WindowSpec;
   };
 } MIRAL_1.1;

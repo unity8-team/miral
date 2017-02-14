@@ -23,7 +23,7 @@
 #include <mir/geometry/rectangles.h>
 #include <mir_toolkit/event.h>
 
-#include <miral/detail/mir_forward_compatibility.h>
+#include <miral/toolkit/detail/mir_forward_compatibility.h>
 
 namespace miral
 {
