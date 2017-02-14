@@ -294,8 +294,8 @@ global:
     miral::name_of*;
     miral::operator*;
     miral::pid_of*;
-    miral::toolkit::Connection::Connection*;
-    miral::toolkit::Surface::Surface*;
+    mir::client::Connection::Connection*;
+    mir::client::Surface::Surface*;
     non-virtual?thunk?to?miral::ActiveOutputsListener::?ActiveOutputsListener*;
     non-virtual?thunk?to?miral::ActiveOutputsListener::advise_output_begin*;
     non-virtual?thunk?to?miral::ActiveOutputsListener::advise_output_create*;
@@ -351,10 +351,10 @@ global:
     typeinfo?for?miral::WindowManagerTools;
     typeinfo?for?miral::WindowSpecification;
     typeinfo?for?miral::WindowSpecification::AspectRatio;
-    typeinfo?for?miral::toolkit::Connection;
-    typeinfo?for?miral::toolkit::PersistentId;
-    typeinfo?for?miral::toolkit::Surface;
-    typeinfo?for?miral::toolkit::SurfaceSpec;
+    typeinfo?for?mir::client::Connection;
+    typeinfo?for?mir::client::PersistentId;
+    typeinfo?for?mir::client::Surface;
+    typeinfo?for?mir::client::SurfaceSpec;
     vtable?for?miral::ActiveOutputsListener;
     vtable?for?miral::ActiveOutputsMonitor;
     vtable?for?miral::AddInitCallback;
@@ -384,10 +384,10 @@ global:
     vtable?for?miral::WindowManagerTools;
     vtable?for?miral::WindowSpecification;
     vtable?for?miral::WindowSpecification::AspectRatio;
-    vtable?for?miral::toolkit::Connection;
-    vtable?for?miral::toolkit::PersistentId;
-    vtable?for?miral::toolkit::Surface;
-    vtable?for?miral::toolkit::SurfaceSpec;
+    vtable?for?mir::client::Connection;
+    vtable?for?mir::client::PersistentId;
+    vtable?for?mir::client::Surface;
+    vtable?for?mir::client::SurfaceSpec;
   };
 #    miral::WindowInfo::can_morph_to*;
     _ZNK5miral10WindowInfo12can_morph_toE14MirSurfaceType;
@@ -444,7 +444,7 @@ def _print_report():
     print OLD_STANZAS
     for symbol in sorted(SYMBOLS['public']):
         formatted_symbol = '    {};'.format(symbol)
-        if formatted_symbol not in OLD_STANZAS and 'miral::toolkit::' not in formatted_symbol:
+        if formatted_symbol not in OLD_STANZAS and 'mir::client::' not in formatted_symbol:
             print formatted_symbol
     print END_NEW_STANZA
 
