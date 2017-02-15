@@ -542,7 +542,7 @@ MIRAL_TRACE_EXCEPTION
 void miral::WindowManagementTrace::add_tree_to_workspace(
     miral::Window const& window, std::shared_ptr<miral::Workspace> const& workspace)
 try {
-    mir::log_info("%s window=%s, workspace =%p", __func__, dump_of(window), workspace.get());
+    mir::log_info("%s window=%s, workspace =%p", __func__, dump_of(window).c_str(), workspace.get());
     wrapped.add_tree_to_workspace(window, workspace);
 }
 MIRAL_TRACE_EXCEPTION
@@ -550,7 +550,7 @@ MIRAL_TRACE_EXCEPTION
 void miral::WindowManagementTrace::remove_tree_from_workspace(
     miral::Window const& window, std::shared_ptr<miral::Workspace> const& workspace)
 try {
-    mir::log_info("%s window=%s, workspace =%p", __func__, dump_of(window), workspace.get());
+    mir::log_info("%s window=%s, workspace =%p", __func__, dump_of(window).c_str(), workspace.get());
     wrapped.remove_tree_from_workspace(window, workspace);
 }
 MIRAL_TRACE_EXCEPTION

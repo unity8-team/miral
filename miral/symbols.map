@@ -370,8 +370,12 @@ global:
     miral::WindowManagerTools::remove_tree_from_workspace*;
     miral::WorkspacePolicy::?WorkspacePolicy*;
     miral::WorkspacePolicy::WorkspacePolicy*;
+    miral::WorkspacePolicy::advise_adding_to_workspace*;
+    miral::WorkspacePolicy::advise_removing_from_workspace*;
     miral::WorkspacePolicy::operator*;
     non-virtual?thunk?to?miral::WorkspacePolicy::?WorkspacePolicy*;
+    non-virtual?thunk?to?miral::WorkspacePolicy::advise_adding_to_workspace*;
+    non-virtual?thunk?to?miral::WorkspacePolicy::advise_removing_from_workspace*;
     typeinfo?for?miral::ApplicationAuthorizer1;
     typeinfo?for?miral::WorkspacePolicy;
     vtable?for?miral::ApplicationAuthorizer1;
