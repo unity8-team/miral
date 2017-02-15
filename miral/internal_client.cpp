@@ -17,6 +17,7 @@
  */
 
 #include "miral/internal_client.h"
+#include "both_versions.h"
 
 #include <mir/fd.h>
 #include <mir/server.h>
@@ -27,18 +28,6 @@
 #include <condition_variable>
 #include <mutex>
 #include <thread>
-
-// both_versions.h assumes the old symbol is generated for Mir < 0.26, which isn't true here.
-#ifndef __clang__
-    #define MIRAL_BOTH_VERSIONS(old_sym, old_version, new_sym, new_version)\
-        extern "C" __attribute__((alias(#new_sym))) void old_sym();\
-        __asm__(".symver " #old_sym"," #old_sym "@" #old_version);\
-        __asm__(".symver " #new_sym"," #new_sym "@@" #new_version);
-#else
-    #define MIRAL_BOTH_VERSIONS(old_sym, old_version, new_sym, new_version)\
-        __asm__(".symver " #new_sym"," #old_sym "@" #old_version);\
-        __asm__(".symver " #new_sym"," #new_sym "@@@" #new_version);
-#endif
 
 namespace
 {
@@ -115,9 +104,16 @@ InternalClientRunner::~InternalClientRunner()
     }
 }
 
-MIRAL_BOTH_VERSIONS(
-    _ZN5miral21StartupInternalClientC1ENSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt8functionIFvNS_7toolkit10ConnectionEEES7_IFvSt8weak_ptrIN3mir5scene7SessionEEEE, MIRAL_1.0,
-    _ZN5miral21StartupInternalClientC1ENSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt8functionIFvN3mir6client10ConnectionEEES7_IFvSt8weak_ptrINS8_5scene7SessionEEEE, MIRAL_1.2)
+#ifndef __clang__
+MIRAL_FAKE_OLD_SYMBOL(
+    _ZN5miral21StartupInternalClientC1ENSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt8functionIFvNS_7toolkit10ConnectionEEES7_IFvSt8weak_ptrIN3mir5scene7SessionEEEE,
+    _ZN5miral21StartupInternalClientC1ENSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt8functionIFvN3mir6client10ConnectionEEES7_IFvSt8weak_ptrINS8_5scene7SessionEEEE)
+#else
+MIRAL_FAKE_OLD_SYMBOL(
+    _ZN5miral21StartupInternalClientC1ENSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt8functionIFvNS_7toolkit10ConnectionEEES7_IFvSt8weak_ptrIN3mir5scene7SessionEEEE,
+    _ZN5miral21StartupInternalClientC2ENSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt8functionIFvN3mir6client10ConnectionEEES7_IFvSt8weak_ptrINS8_5scene7SessionEEEE)
+// clang emits a different symbol ---^
+#endif
 miral::StartupInternalClient::StartupInternalClient(
     std::string name,
     std::function<void(mir::client::Connection connection)> client_code,
@@ -151,9 +147,9 @@ void miral::InternalClientLauncher::operator()(mir::Server& server)
 }
 
 
-MIRAL_BOTH_VERSIONS(
-    _ZNK5miral22InternalClientLauncher6launchERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEERKSt8functionIFvNS_7toolkit10ConnectionEEERKS9_IFvSt8weak_ptrIN3mir5scene7SessionEEEE, MIRAL_1.0,
-    _ZNK5miral22InternalClientLauncher6launchERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEERKSt8functionIFvN3mir6client10ConnectionEEERKS9_IFvSt8weak_ptrINSA_5scene7SessionEEEE, MIRAL_1.2)
+MIRAL_FAKE_OLD_SYMBOL(
+    _ZNK5miral22InternalClientLauncher6launchERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEERKSt8functionIFvNS_7toolkit10ConnectionEEERKS9_IFvSt8weak_ptrIN3mir5scene7SessionEEEE,
+    _ZNK5miral22InternalClientLauncher6launchERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEERKSt8functionIFvN3mir6client10ConnectionEEERKS9_IFvSt8weak_ptrINSA_5scene7SessionEEEE)
 void miral::InternalClientLauncher::launch(
     std::string const& name,
     std::function<void(mir::client::Connection connection)> const& client_code,
