@@ -1,6 +1,24 @@
 miral (1.2.0) UNRELEASED; urgency=medium
 
-  * 
+  * New upstream release 1.2.0 (https://launchpad.net/miral/+milestone/1.2)
+
+    - ABI summary:
+      . miral ABI unchanged at 2
+    - Enhancements:
+      . New libmirclientcpp-dev package "C++ wrapper for libmirclient". (Split
+        from libmiral-dev)
+      . Give miral-app and miral-desktop a good default for -bindir
+      . More surface to window renaming to reflect Mir name changes
+      . Refresh the "Building and Using MirAL" doc
+    - Bugs fixed:
+      . Chrome-less shell hint does not work any more (LP: #1658117)
+      . WindowSpec::set_state() wrapper for mir_window_spec_set_state()
+        (LP: #1661256)
+      . "$ miral-app -kiosk" fails with "Unknown command line options: 
+        --desktop_file_hint=miral-shell.desktop" (LP: #1660933)
+      . libmiral] Fix focus and movement rules for Input Method and Satellite
+         windows. (LP: #1660691)
+      
 
  -- Alan Griffiths <alan.griffiths@canonical.com>  Thu, 02 Feb 2017 17:26:54 +0000
 
@@ -15,14 +33,10 @@ miral (1.1.0+17.04.20170127-0ubuntu1) zesty; urgency=medium
         enums.
       . Logging of exceptions added to --window-management-trace
       . Rename WindowManagementPolicy::place_new_surface => place_new_window"
-      . Implement workspaces and restrict focus changes accordingly
-      . New libmirclientcpp-dev package "C++ wrapper for libmirclient". (Split
-        from libmiral-dev)
     - Bugs fixed:
       . top-level window is not raised along with its child (LP: #1658085)
       . miral-shell depends on default cursor theme being installed
         (LP: #1658159)
-      . Chrome-less shell hint does not work any more (LP: #1658117)
 
  -- Cemil Azizoglu <cemil.azizoglu@canonical.com>  Fri, 27 Jan 2017 03:02:28 +0000
 
