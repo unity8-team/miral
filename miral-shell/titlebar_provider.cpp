@@ -19,7 +19,7 @@
 #include "titlebar_provider.h"
 #include "titlebar_config.h"
 
-#include <miral/toolkit/window_spec.h>
+#include <mir/client/window_spec.h>
 
 #include <mir_toolkit/mir_buffer_stream.h>
 
@@ -154,7 +154,7 @@ void Printer::print(MirGraphicsRegion const& region, std::string const& title_, 
 }
 }
 
-using namespace miral::toolkit;
+using namespace mir::client;
 using namespace mir::geometry;
 
 TitlebarProvider::TitlebarProvider(miral::WindowManagerTools const& tools) : tools{tools}
@@ -182,7 +182,7 @@ void TitlebarProvider::stop()
         });
 }
 
-void TitlebarProvider::operator()(miral::toolkit::Connection connection)
+void TitlebarProvider::operator()(mir::client::Connection connection)
 {
     this->connection = connection;
     start_work();
@@ -208,7 +208,7 @@ void TitlebarProvider::create_titlebar_for(miral::Window const& window)
 
             buffer << std::shared_ptr<mir::scene::Surface>(window).get();
 
-            auto const spec = WindowSpec::for_normal_surface(
+            auto const spec = WindowSpec::for_normal_window(
                 connection, window.size().width.as_int(), title_bar_height, mir_pixel_format_xrgb_8888)
                 .set_buffer_usage(mir_buffer_usage_software)
                 .set_type(mir_window_type_gloss)
@@ -216,7 +216,7 @@ void TitlebarProvider::create_titlebar_for(miral::Window const& window)
 
             std::lock_guard<decltype(mutex)> lock{mutex};
             windows_awaiting_titlebar[buffer.str()] = window;
-            spec.create_surface(insert, &window_to_titlebar[window]);
+            spec.create_window(insert, &window_to_titlebar[window]);
         });
 }
 

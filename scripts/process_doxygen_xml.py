@@ -142,7 +142,6 @@ global:
     miral::DebugExtension::operator*;
     miral::InternalClientLauncher::?InternalClientLauncher*;
     miral::InternalClientLauncher::InternalClientLauncher*;
-    miral::InternalClientLauncher::launch*;
     miral::InternalClientLauncher::operator*;
     miral::Keymap::?Keymap*;
     miral::Keymap::Keymap*;
@@ -181,7 +180,6 @@ global:
     miral::SetWindowManagmentPolicy::SetWindowManagmentPolicy*;
     miral::SetWindowManagmentPolicy::operator*;
     miral::StartupInternalClient::?StartupInternalClient*;
-    miral::StartupInternalClient::StartupInternalClient*;
     miral::StartupInternalClient::operator*;
     miral::Window::?Window*;
     miral::Window::Window*;
@@ -405,6 +403,11 @@ global:
 
 #    miral::WindowManagementPolicy::advise_state_change*;
     _ZN5miral22WindowManagementPolicy19advise_state_changeERKNS_10WindowInfoE15MirSurfaceState;
+
+#    miral::StartupInternalClient::StartupInternalClient*;
+    _ZN5miral21StartupInternalClientC1ENSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt8functionIFvNS_7toolkit10ConnectionEEES7_IFvSt8weak_ptrIN3mir5scene7SessionEEEE;
+#    miral::InternalClientLauncher::launch*;
+    _ZNK5miral22InternalClientLauncher6launchERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEERKSt8functionIFvNS_7toolkit10ConnectionEEERKS9_IFvSt8weak_ptrIN3mir5scene7SessionEEEE;
 local: *;
 };
 
@@ -427,16 +430,29 @@ global:
     # miral::WindowManagementPolicy::advise_state_change*;
     _ZN5miral22WindowManagementPolicy19advise_state_changeERKNS_10WindowInfoE14MirWindowState;
 
+  extern "C++" {
+    miral::CanonicalWindowManagerPolicy::place_new_window*;
+    non-virtual?thunk?to?miral::CanonicalWindowManagerPolicy::place_new_window*;
+  };
+} MIRAL_1.0;
+
+MIRAL_1.2 {
+global:
+#    miral::InternalClientLauncher::launch*;
+  _ZNK5miral22InternalClientLauncher6launchERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEERKSt8functionIFvN3mir6client10ConnectionEEERKS9_IFvSt8weak_ptrINSA_5scene7SessionEEEE;
+
+#    miral::StartupInternalClient::StartupInternalClient*;
+  _ZN5miral21StartupInternalClientC?ENSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt8functionIFvN3mir6client10ConnectionEEES7_IFvSt8weak_ptrINS8_5scene7SessionEEEE;
   extern "C++" {'''
 
 END_NEW_STANZA = '''  };
-} MIRAL_1.0;'''
+} MIRAL_1.1;'''
 
 def _print_report():
     print OLD_STANZAS
     for symbol in sorted(SYMBOLS['public']):
         formatted_symbol = '    {};'.format(symbol)
-        if formatted_symbol not in OLD_STANZAS and 'miral::toolkit::' not in formatted_symbol:
+        if formatted_symbol not in OLD_STANZAS and 'mir::client::' not in formatted_symbol:
             print formatted_symbol
     print END_NEW_STANZA
 

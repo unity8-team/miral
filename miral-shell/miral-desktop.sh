@@ -3,7 +3,7 @@
 socket=${XDG_RUNTIME_DIR}/mir_socket
 miral_server=miral-shell
 launcher='gnome-terminal --app-id com.canonical.miral.Terminal'
-bindir=
+bindir=$(dirname $0)
 vt=4
 
 while [ $# -gt 0 ]
@@ -11,13 +11,13 @@ do
   if [ "$1" == "--help" -o "$1" == "-h" ]
   then
     echo "$(basename $0) - Handy launch script for a miral \"desktop session\""
-    echo "Usage: $0 [options] [shell options]"
+    echo "Usage: $(basename $0) [options] [shell options]"
     echo "Options are:"
     echo "    -kiosk               use miral-kiosk instead of ${miral_server}"
     echo "    -launcher <launcher> use <launcher> instead of '${launcher}'"
     echo "    -vt       <termid>   set the virtual terminal [${vt}]"
     echo "    -socket   <socket>   set the mir socket [${socket}]"
-    echo "    -bindir   <bindir>   path to the miral executable"
+    echo "    -bindir   <bindir>   path to the miral executable [${bindir}]"
     exit 0
     elif [ "$1" == "-kiosk" ];              then miral_server=miral-kiosk
     elif [ "$1" == "-launcher" ];           then shift; launcher=$1
@@ -28,6 +28,8 @@ do
     fi
     shift
 done
+
+if [ "${bindir}" != "" ]; then bindir="${bindir}/"; fi
 
 if [ -e "${socket}" ]; then echo "Error: '${socket}' already exists"; exit 1 ;fi
 

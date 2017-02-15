@@ -17,6 +17,7 @@
  */
 
 #include "miral/internal_client.h"
+#include "both_versions.h"
 
 #include <mir/fd.h>
 #include <mir/server.h>
@@ -34,7 +35,7 @@ class InternalClientRunner
 {
 public:
     InternalClientRunner(std::string name,
-         std::function<void(miral::toolkit::Connection connection)> client_code,
+         std::function<void(mir::client::Connection connection)> client_code,
          std::function<void(std::weak_ptr<mir::scene::Session> const session)> connect_notification);
 
     void run(mir::Server& server);
@@ -47,8 +48,8 @@ private:
     std::condition_variable mutable cv;
     mir::Fd fd;
     std::weak_ptr<mir::scene::Session> session;
-    miral::toolkit::Connection connection;
-    std::function<void(miral::toolkit::Connection connection)> const client_code;
+    mir::client::Connection connection;
+    std::function<void(mir::client::Connection connection)> const client_code;
     std::function<void(std::weak_ptr<mir::scene::Session> const session)> connect_notification;
 };
 }
@@ -62,7 +63,7 @@ public:
 
 InternalClientRunner::InternalClientRunner(
     std::string const name,
-    std::function<void(miral::toolkit::Connection connection)> client_code,
+    std::function<void(mir::client::Connection connection)> client_code,
     std::function<void(std::weak_ptr<mir::scene::Session> const session)> connect_notification) :
     name(name),
     client_code(std::move(client_code)),
@@ -83,7 +84,7 @@ void InternalClientRunner::run(mir::Server& server)
     char connect_string[64] = {0};
     sprintf(connect_string, "fd://%d", fd.operator int());
 
-    connection = miral::toolkit::Connection{mir_connect_sync(connect_string, name.c_str())};
+    connection = mir::client::Connection{mir_connect_sync(connect_string, name.c_str())};
 
     std::unique_lock<decltype(mutex)> lock{mutex};
     cv.wait(lock, [&] { return !!session.lock(); });
@@ -103,9 +104,19 @@ InternalClientRunner::~InternalClientRunner()
     }
 }
 
+#ifndef __clang__
+MIRAL_FAKE_OLD_SYMBOL(
+    _ZN5miral21StartupInternalClientC1ENSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt8functionIFvNS_7toolkit10ConnectionEEES7_IFvSt8weak_ptrIN3mir5scene7SessionEEEE,
+    _ZN5miral21StartupInternalClientC1ENSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt8functionIFvN3mir6client10ConnectionEEES7_IFvSt8weak_ptrINS8_5scene7SessionEEEE)
+#else
+MIRAL_FAKE_OLD_SYMBOL(
+    _ZN5miral21StartupInternalClientC1ENSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt8functionIFvNS_7toolkit10ConnectionEEES7_IFvSt8weak_ptrIN3mir5scene7SessionEEEE,
+    _ZN5miral21StartupInternalClientC2ENSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt8functionIFvN3mir6client10ConnectionEEES7_IFvSt8weak_ptrINS8_5scene7SessionEEEE)
+// clang emits a different symbol ---^
+#endif
 miral::StartupInternalClient::StartupInternalClient(
     std::string name,
-    std::function<void(toolkit::Connection connection)> client_code,
+    std::function<void(mir::client::Connection connection)> client_code,
     std::function<void(std::weak_ptr<mir::scene::Session> const session)> connect_notification) :
     internal_client(std::make_shared<Self>(std::move(name), std::move(client_code), std::move(connect_notification)))
 {
@@ -135,9 +146,13 @@ void miral::InternalClientLauncher::operator()(mir::Server& server)
     self->server = &server;
 }
 
+
+MIRAL_FAKE_OLD_SYMBOL(
+    _ZNK5miral22InternalClientLauncher6launchERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEERKSt8functionIFvNS_7toolkit10ConnectionEEERKS9_IFvSt8weak_ptrIN3mir5scene7SessionEEEE,
+    _ZNK5miral22InternalClientLauncher6launchERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEERKSt8functionIFvN3mir6client10ConnectionEEERKS9_IFvSt8weak_ptrINSA_5scene7SessionEEEE)
 void miral::InternalClientLauncher::launch(
     std::string const& name,
-    std::function<void(toolkit::Connection connection)> const& client_code,
+    std::function<void(mir::client::Connection connection)> const& client_code,
     std::function<void(std::weak_ptr<mir::scene::Session> const session)> const& connect_notification) const
 {
     self->runner = std::make_unique<InternalClientRunner>(name, client_code, connect_notification);

@@ -28,8 +28,8 @@ void miral::WindowManagementPolicy::advise_focus_lost(WindowInfo const& /*info*/
 void miral::WindowManagementPolicy::advise_focus_gained(WindowInfo const& /*info*/) {}
 
 MIRAL_BOTH_VERSIONS(
-    _ZN5miral22WindowManagementPolicy19advise_state_changeERKNS_10WindowInfoE15MirSurfaceState, MIRAL_1.0,
-    _ZN5miral22WindowManagementPolicy19advise_state_changeERKNS_10WindowInfoE14MirWindowState,  MIRAL_1.1)
+    _ZN5miral22WindowManagementPolicy19advise_state_changeERKNS_10WindowInfoE15MirSurfaceState,
+    _ZN5miral22WindowManagementPolicy19advise_state_changeERKNS_10WindowInfoE14MirWindowState)
 void miral::WindowManagementPolicy::advise_state_change(WindowInfo const& /*window_info*/, MirWindowState /*state*/) {}
 void miral::WindowManagementPolicy::advise_move_to(WindowInfo const& /*window_info*/, Point /*top_left*/) {}
 void miral::WindowManagementPolicy::advise_resize(WindowInfo const& /*window_info*/, Size const& /*new_size*/) {}

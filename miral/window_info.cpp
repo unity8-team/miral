@@ -61,6 +61,7 @@ struct miral::WindowInfo::Self
     AspectRatio min_aspect;
     AspectRatio max_aspect;
     mir::optional_value<int> output_id;
+    MirShellChrome shell_chrome;
     std::shared_ptr<void> userdata;
 };
 
@@ -79,7 +80,8 @@ miral::WindowInfo::Self::Self(Window window, WindowSpecification const& params) 
     width_inc{optional_value_or_default(params.width_inc(), DeltaX{1})},
     height_inc{optional_value_or_default(params.height_inc(), DeltaY{1})},
     min_aspect(optional_value_or_default(params.min_aspect(), AspectRatio{0U, std::numeric_limits<unsigned>::max()})),
-    max_aspect(optional_value_or_default(params.max_aspect(), AspectRatio{std::numeric_limits<unsigned>::max(), 0U}))
+    max_aspect(optional_value_or_default(params.max_aspect(), AspectRatio{std::numeric_limits<unsigned>::max(), 0U})),
+    shell_chrome(optional_value_or_default(params.shell_chrome(), mir_shell_chrome_normal))
 {
     if (params.output_id().is_set())
         output_id = params.output_id().value();
@@ -91,7 +93,8 @@ miral::WindowInfo::Self::Self(Window window, WindowSpecification const& params) 
 miral::WindowInfo::Self::Self() :
     type{mir_window_type_normal},
     state{mir_window_state_unknown},
-    preferred_orientation{mir_orientation_mode_any}
+    preferred_orientation{mir_orientation_mode_any},
+    shell_chrome{mir_shell_chrome_normal}
 {
 }
 
@@ -129,12 +132,12 @@ bool miral::WindowInfo::can_be_active() const
     case mir_window_type_normal:       /**< AKA "regular"                       */
     case mir_window_type_utility:      /**< AKA "floating"                      */
     case mir_window_type_dialog:
-    case mir_window_type_satellite:    /**< AKA "toolbox"/"toolbar"             */
     case mir_window_type_freestyle:
     case mir_window_type_menu:
-    case mir_window_type_inputmethod:  /**< AKA "OSK" or handwriting etc.       */
         return true;
 
+    case mir_window_type_satellite:    /**< AKA "toolbox"/"toolbar"             */
+    case mir_window_type_inputmethod:  /**< AKA "OSK" or handwriting etc.       */
     case mir_window_type_gloss:
     case mir_window_type_tip:          /**< AKA "tooltip"                       */
     default:
@@ -159,8 +162,8 @@ bool miral::WindowInfo::must_have_parent() const
 }
 
 MIRAL_BOTH_VERSIONS(
-    _ZNK5miral10WindowInfo12can_morph_toE14MirSurfaceType, MIRAL_1.0,
-    _ZNK5miral10WindowInfo12can_morph_toE13MirWindowType,  MIRAL_1.1)
+    _ZNK5miral10WindowInfo12can_morph_toE14MirSurfaceType,
+    _ZNK5miral10WindowInfo12can_morph_toE13MirWindowType)
 bool miral::WindowInfo::can_morph_to(MirWindowType new_type) const
 {
     switch (new_type)
@@ -352,8 +355,8 @@ void miral::WindowInfo::constrain_resize(Point& requested_pos, Size& requested_s
 }
 
 MIRAL_BOTH_VERSIONS(
-    _ZN5miral10WindowInfo14needs_titlebarE14MirSurfaceType, MIRAL_1.0,
-    _ZN5miral10WindowInfo14needs_titlebarE13MirWindowType,  MIRAL_1.1)
+    _ZN5miral10WindowInfo14needs_titlebarE14MirSurfaceType,
+    _ZN5miral10WindowInfo14needs_titlebarE13MirWindowType)
 bool miral::WindowInfo::needs_titlebar(MirWindowType type)
 {
     switch (type)
@@ -376,8 +379,8 @@ auto miral::WindowInfo::type() const -> MirWindowType
 }
 
 MIRAL_BOTH_VERSIONS(
-    _ZN5miral10WindowInfo4typeE14MirSurfaceType, MIRAL_1.0,
-    _ZN5miral10WindowInfo4typeE13MirWindowType,  MIRAL_1.1)
+    _ZN5miral10WindowInfo4typeE14MirSurfaceType,
+    _ZN5miral10WindowInfo4typeE13MirWindowType)
 void miral::WindowInfo::type(MirWindowType type)
 {
     self->type = type;
@@ -389,8 +392,8 @@ auto miral::WindowInfo::state() const -> MirWindowState
 }
 
 MIRAL_BOTH_VERSIONS(
-    _ZN5miral10WindowInfo5stateE15MirSurfaceState, MIRAL_1.0,
-    _ZN5miral10WindowInfo5stateE14MirWindowState,  MIRAL_1.1)
+    _ZN5miral10WindowInfo5stateE15MirSurfaceState,
+    _ZN5miral10WindowInfo5stateE14MirWindowState)
 void miral::WindowInfo::state(MirWindowState state)
 {
     self->state = state;
@@ -568,6 +571,16 @@ auto miral::WindowInfo::confine_pointer() const -> MirPointerConfinementState
 void miral::WindowInfo::confine_pointer(MirPointerConfinementState confinement)
 {
     self->confine_pointer = confinement;
+}
+
+auto miral::WindowInfo::shell_chrome() const -> MirShellChrome
+{
+    return self->shell_chrome;
+}
+
+void miral::WindowInfo::shell_chrome(MirShellChrome chrome)
+{
+    self->shell_chrome = chrome;
 }
 
 auto miral::WindowInfo::name() const -> std::string

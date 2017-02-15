@@ -22,14 +22,15 @@
 #if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 25, 0)
 #if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
 #include <mir_toolkit/events/surface_placement.h>
+auto const mir_event_get_window_placement_event = mir_event_get_surface_placement_event;
 #else
 #include <mir_toolkit/events/window_placement.h>
 #endif
 #endif
 
-#include <miral/detail/mir_forward_compatibility.h>
-#include <miral/toolkit/window_spec.h>
-#include <miral/toolkit/window.h>
+#include <mir/client/detail/mir_forward_compatibility.h>
+#include <mir/client/window_spec.h>
+#include <mir/client/window.h>
 
 #include <mir/test/signal.h>
 #include "test_server.h"
@@ -43,7 +44,7 @@ using namespace testing;
 namespace mt = mir::test;
 namespace mtf = mir_test_framework;
 
-using namespace miral::toolkit;
+using namespace mir::client;
 
 namespace
 {
@@ -56,10 +57,10 @@ struct WindowPlacementClientAPI : miral::TestServer
         char const* const test_name = __PRETTY_FUNCTION__;
 
         connection = connect_client(test_name);
-        auto spec = WindowSpec::for_normal_surface(connection, 400, 400, mir_pixel_format_argb_8888)
+        auto spec = WindowSpec::for_normal_window(connection, 400, 400, mir_pixel_format_argb_8888)
             .set_name(test_name);
 
-        parent = spec.create_surface();
+        parent = spec.create_window();
     }
 
     void TearDown() override
@@ -92,11 +93,8 @@ struct CheckPlacement
 
     void check(MirWindowPlacementEvent const* placement_event)
     {
-#if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
-        auto relative_position = mir_surface_placement_get_relative_position(placement_event);
-#else
         auto relative_position = mir_window_placement_get_relative_position(placement_event);
-#endif
+
         EXPECT_THAT(relative_position.top, Eq(expected.top));
         EXPECT_THAT(relative_position.left, Eq(expected.left));
         EXPECT_THAT(relative_position.height, Eq(expected.height));
@@ -109,11 +107,7 @@ struct CheckPlacement
     {
         if (mir_event_get_type(event) == mir_event_type_window_placement)
         {
-#if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
-            auto const placement_event = mir_event_get_surface_placement_event(event);
-#else
             auto const placement_event = mir_event_get_window_placement_event(event);
-#endif
             static_cast<CheckPlacement*>(context)->check(placement_event);
         }
     }
@@ -147,7 +141,7 @@ TEST_F(WindowPlacementClientAPI, given_menu_placements_away_from_edges_when_noti
             .set_event_handler(&CheckPlacement::callback, &expected)
             .set_name(test_name);
 
-        child = spec.create_surface();
+        child = spec.create_window();
     }
 
     // subsequent movement

@@ -560,6 +560,7 @@ void miral::BasicWindowManager::modify_window(WindowInfo& window_info, WindowSpe
     COPY_IF_SET(preferred_orientation);
     COPY_IF_SET(confine_pointer);
     COPY_IF_SET(userdata);
+    COPY_IF_SET(shell_chrome);
 
 #undef COPY_IF_SET
 
@@ -999,6 +1000,11 @@ void miral::BasicWindowManager::drag_active_window(mir::geometry::Displacement m
 {
     auto const window = active_window();
 
+    drag_window(window, movement);
+}
+
+void miral::BasicWindowManager::drag_window(miral::Window const& window, Displacement& movement)
+{
     if (!window)
         return;
 

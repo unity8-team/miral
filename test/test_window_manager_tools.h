@@ -49,7 +49,7 @@ struct StubFocusController : mir::shell::FocusController
 
     auto focused_surface() const -> std::shared_ptr<mir::scene::Surface> override { return {}; }
 
-    void raise(mir::shell::SurfaceSet const& /*surfaces*/) override {}
+    void raise(mir::shell::SurfaceSet const& /*windows*/) override {}
 
     virtual auto surface_at(mir::geometry::Point /*cursor*/) const -> std::shared_ptr<mir::scene::Surface> override
         { return {}; }

@@ -476,6 +476,17 @@ try {
 }
 MIRAL_TRACE_EXCEPTION
 
+void miral::WindowManagementTrace::drag_window(Window const& window, mir::geometry::Displacement& movement)
+try {
+    log_input();
+    std::stringstream out;
+    out << movement;
+    mir::log_info("%s window=%s -> %s", __func__, dump_of(window).c_str(), out.str().c_str());
+    trace_count++;
+    wrapped.drag_window(window, movement);
+}
+MIRAL_TRACE_EXCEPTION
+
 void miral::WindowManagementTrace::focus_next_application()
 try {
     log_input();

@@ -39,7 +39,7 @@ public:
     void enumerate(Enumerator const& enumerator) const;
 
 private:
-    std::vector<Window> surfaces;
+    std::vector<Window> windows;
 };
 }
 

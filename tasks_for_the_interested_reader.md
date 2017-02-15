@@ -6,21 +6,6 @@ simple miral-shell example is around the "minimally viable product" point. That
 is, it can be used but isn't very satisfying. Also the encapsulation provided
 by libmiral is leaky.
 
-ABI design and stability
-------------------------
-
-There are some aspects of the current interface that are of concern for the
-stability of the ABI. In particular, classes with accessible data members or
-with virtual function tables can only be modified in restricted ways.
- 
- - There are neither tests of MirAL code, nor of the sample code using it.
-   (This comes from its origin as a proof-of-concept "spike", but needs
-   correcting.) The test doubles supplied by mir-test-tools should be helpful.
-   (NB the version of mir-test-tools in Xenial is broken. lp:1583536)
-   
- - There's a lack of documentation of the preconditions and postconditions of
-   the API.
-   
 Missing functionality
 ---------------------
 
@@ -29,8 +14,7 @@ needed. Some are simple improvements to the sample shell, other may need
 additions to libmiral to expose additional Mir functionality.
 
  - Titlebars. The default "titlebar" window management strategy paints
-   grey rectangles for titlebars.  They should contain the window title and
-   sizing controls.
+   grey rectangles for titlebars.  They should contain sizing controls.
    
  - Titlebars. The "tiling" window does not offer them at all.
    
