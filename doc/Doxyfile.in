@@ -666,7 +666,7 @@ WARN_LOGFILE           =
 
 INPUT                  = @CMAKE_CURRENT_SOURCE_DIR@/doc \
                          @CMAKE_CURRENT_SOURCE_DIR@/include \
-                         @CMAKE_CURRENT_SOURCE_DIR@/building_and_using_miral.md \
+                         @CMAKE_CURRENT_SOURCE_DIR@/getting_and_using_miral.md \
                          @CMAKE_CURRENT_SOURCE_DIR@/tasks_for_the_interested_reader.md
 
 # This tag can be used to specify the character encoding of the source files
@@ -1518,18 +1518,6 @@ GENERATE_XML           = YES
 # put in front of it. If left blank `xml' will be used as the default path.
 
 XML_OUTPUT             = xml
-
-# The XML_SCHEMA tag can be used to specify an XML schema,
-# which can be used by a validating XML parser to check the
-# syntax of the XML files.
-
-XML_SCHEMA             =
-
-# The XML_DTD tag can be used to specify an XML DTD,
-# which can be used by a validating XML parser to check the
-# syntax of the XML files.
-
-XML_DTD                =
 
 # If the XML_PROGRAMLISTING tag is set to YES Doxygen will
 # dump the program listings (including syntax highlighting

@@ -108,6 +108,9 @@ struct WindowInfo
     auto confine_pointer() const -> MirPointerConfinementState;
     void confine_pointer(MirPointerConfinementState confinement);
 
+    auto shell_chrome() const -> MirShellChrome;
+    void shell_chrome(MirShellChrome chrome);
+
     /// This can be used by client code to store window manager specific information
     auto userdata() const -> std::shared_ptr<void>;
     void userdata(std::shared_ptr<void> userdata);

@@ -107,7 +107,7 @@ public:
 
     /** retrieve the persistent surface id for a window
      *
-     * @param id        the window
+     * @param window    the window
      * @return          the persistent surface id
      */
     auto id_for_window(Window const& window) const -> std::string;
@@ -131,6 +131,9 @@ public:
 
     /// move the active window
     void drag_active_window(mir::geometry::Displacement movement);
+
+    /// move the window
+    void drag_window(Window const& window, mir::geometry::Displacement movement);
 
     /// make the next application active
     void focus_next_application();

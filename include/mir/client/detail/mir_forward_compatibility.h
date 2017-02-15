@@ -21,7 +21,7 @@
 
 #include <mir_toolkit/version.h>
 #include <mir_toolkit/common.h>
-#include <miral/detail/mir_features.h>
+#include <mir/client/detail/mir_features.h>
 
 #if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
 using MirWindowAttrib = MirSurfaceAttrib;
@@ -64,7 +64,7 @@ typedef struct MirSurfaceSpec MirWindowSpec;
 #endif
 
 
-// Types that don't exist in earlier versions of Mir's toolkit
+// Types that don't exist in earlier versions of Mir's client
 #if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 4, 0)
 
 // Inspired by GdkGravity

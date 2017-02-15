@@ -1,3 +1,9 @@
+miral (1.2.0) UNRELEASED; urgency=medium
+
+  * 
+
+ -- Alan Griffiths <alan.griffiths@canonical.com>  Thu, 02 Feb 2017 17:26:54 +0000
+
 miral (1.1.0+17.04.20170127-0ubuntu1) zesty; urgency=medium
 
   [ Alan Griffiths ]
@@ -9,10 +15,13 @@ miral (1.1.0+17.04.20170127-0ubuntu1) zesty; urgency=medium
         enums.
       . Logging of exceptions added to --window-management-trace
       . Rename WindowManagementPolicy::place_new_surface => place_new_window"
+      . New libmirclientcpp-dev package "C++ wrapper for libmirclient". (Split
+        from libmiral-dev)
     - Bugs fixed:
       . top-level window is not raised along with its child (LP: #1658085)
       . miral-shell depends on default cursor theme being installed
         (LP: #1658159)
+      . Chrome-less shell hint does not work any more (LP: #1658117)
 
  -- Cemil Azizoglu <cemil.azizoglu@canonical.com>  Fri, 27 Jan 2017 03:02:28 +0000
 
