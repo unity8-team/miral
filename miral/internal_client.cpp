@@ -104,9 +104,16 @@ InternalClientRunner::~InternalClientRunner()
     }
 }
 
+#ifndef __clang__
 MIRAL_FAKE_OLD_SYMBOL(
     _ZN5miral21StartupInternalClientC1ENSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt8functionIFvNS_7toolkit10ConnectionEEES7_IFvSt8weak_ptrIN3mir5scene7SessionEEEE, MIRAL_1.0,
     _ZN5miral21StartupInternalClientC1ENSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt8functionIFvN3mir6client10ConnectionEEES7_IFvSt8weak_ptrINS8_5scene7SessionEEEE, MIRAL_1.2)
+#else
+MIRAL_FAKE_OLD_SYMBOL(
+    _ZN5miral21StartupInternalClientC1ENSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt8functionIFvNS_7toolkit10ConnectionEEES7_IFvSt8weak_ptrIN3mir5scene7SessionEEEE, MIRAL_1.0,
+    _ZN5miral21StartupInternalClientC2ENSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt8functionIFvN3mir6client10ConnectionEEES7_IFvSt8weak_ptrINS8_5scene7SessionEEEE, MIRAL_1.2)
+// clang emits a different symbol ---^
+#endif
 miral::StartupInternalClient::StartupInternalClient(
     std::string name,
     std::function<void(mir::client::Connection connection)> client_code,
