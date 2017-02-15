@@ -27,7 +27,7 @@
 #include <mir_toolkit/mir_persistent_id.h>
 #endif
 
-#if MIR_CLIENT_API_VERSION < MIR_VERSION_NUMBER(0, 27, 0)
+#if MIR_CLIENT_API_VERSION < MIR_VERSION_NUMBER(0, 26, 1)
 #if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
 auto const mir_window_request_window_id_sync = mir_surface_request_persistent_id_sync;
 #else
