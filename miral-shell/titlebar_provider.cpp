@@ -222,10 +222,10 @@ void TitlebarProvider::create_titlebar_for(miral::Window const& window)
 
 void TitlebarProvider::paint_titlebar_for(miral::WindowInfo const& info, int intensity)
 {
-    this->intensity = intensity;
-
     if (auto data = find_titlebar_data(info.window()))
     {
+        data->intensity = intensity;
+
         auto const title = info.name();
 
         if (auto surface = data->titlebar.load())
@@ -339,7 +339,10 @@ void TitlebarProvider::repaint_titlebar_for(miral::WindowInfo const& window_info
         auto const title = window_info.name();
 
         if (auto surface = data->titlebar.load())
-            enqueue_work([this, surface, title]{ paint_surface(surface, title, intensity); });
+        {
+            enqueue_work([this, surface, title, intensity=data->intensity.load()]
+                             { paint_surface(surface, title, intensity); });
+        }
     }
 }
 
