@@ -1094,8 +1094,13 @@ void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirWin
 
     default:
         mir_surface->show();
-        if (was_hidden && !active_window())
-            select_active_window(window);
+        if (was_hidden)
+        {
+            if (!active_window())
+                select_active_window(window);
+            else if (window_info.can_be_active())
+                mru_active_windows.push_back(window);
+        }
     }
 }
 

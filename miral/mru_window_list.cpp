@@ -31,6 +31,12 @@ void miral::MRUWindowList::erase(Window const& window)
     windows.erase(remove(begin(windows), end(windows), window), end(windows));
 }
 
+void miral::MRUWindowList::push_back(Window const& window)
+{
+    windows.erase(remove(begin(windows), end(windows), window), end(windows));
+    windows.insert(begin(windows), window);
+}
+
 auto miral::MRUWindowList::top() const -> Window
 {
     return (!windows.empty()) ? windows.back() : Window{};
