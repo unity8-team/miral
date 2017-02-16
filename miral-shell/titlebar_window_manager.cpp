@@ -36,6 +36,33 @@ int const title_bar_height = 12;
 struct PolicyData
 {
     bool in_hidden_workspace{false};
+
+    void update_for_active_workspace(WindowManagerTools& tools, WindowInfo const& window_info)
+    {
+        if (in_hidden_workspace)
+        {
+            in_hidden_workspace = false;
+            WindowSpecification modifications;
+            modifications.state() = old_state;
+            tools.place_and_size_for_state(modifications, window_info);
+            tools.modify_window(window_info.window(), modifications);
+        }
+    }
+
+    void update_for_hidden_workspace(WindowManagerTools& tools, WindowInfo const& window_info)
+    {
+        if (!in_hidden_workspace)
+        {
+            in_hidden_workspace = true;
+            old_state = window_info.state();
+
+            WindowSpecification modifications;
+            modifications.state() = mir_window_state_hidden;
+            tools.place_and_size_for_state(modifications, window_info);
+            tools.modify_window(window_info.window(), modifications);
+        }
+    }
+private:
     MirWindowState old_state;
 };
 
@@ -304,15 +331,9 @@ void TitlebarWindowManagerPolicy::advise_new_window(WindowInfo const& window_inf
         auto& pdata = policy_data_for(window_info);
 
         pdata.in_hidden_workspace = policy_data_for(tools.info_for(parent)).in_hidden_workspace;
-        pdata.old_state = window_info.state();
 
-        if (pdata.in_hidden_workspace)
-        {
-            WindowSpecification modifications;
-            modifications.state() = mir_window_state_hidden;
-            tools.place_and_size_for_state(modifications, window_info);
-            tools.modify_window(window_info.window(), modifications);
-        }
+        if (policy_data_for(tools.info_for(parent)).in_hidden_workspace)
+            pdata.update_for_hidden_workspace(tools, window_info);
     }
 }
 
@@ -653,24 +674,11 @@ void TitlebarWindowManagerPolicy::advise_adding_to_workspace(
 
         if (workspace == active_workspace)
         {
-            if (pdata.in_hidden_workspace)
-            {
-                pdata.in_hidden_workspace = false;
-                WindowSpecification modifications;
-                modifications.state() = pdata.old_state;
-                tools.place_and_size_for_state(modifications, window_info);
-                tools.modify_window(window, modifications);
-            }
+            pdata.update_for_active_workspace(tools, window_info);
         }
         else
         {
-            pdata.in_hidden_workspace = true;
-            pdata.old_state = window_info.state();
-
-            WindowSpecification modifications;
-            modifications.state() = mir_window_state_hidden;
-            tools.place_and_size_for_state(modifications, window_info);
-            tools.modify_window(window, modifications);
+            pdata.update_for_hidden_workspace(tools, window_info);
         }
     }
 }
@@ -694,11 +702,7 @@ void TitlebarWindowManagerPolicy::switch_workspace_to(
 
             auto const& window_info = tools.info_for(window);
             auto& pdata = policy_data_for(window_info);
-            pdata.in_hidden_workspace = false;
-            WindowSpecification modifications;
-            modifications.state() = pdata.old_state;
-            tools.place_and_size_for_state(modifications, window_info);
-            tools.modify_window(window, modifications);
+            pdata.update_for_active_workspace(tools, window_info);
         });
 
     tools.remove_tree_from_workspace(window, old_active);
@@ -710,12 +714,7 @@ void TitlebarWindowManagerPolicy::switch_workspace_to(
 
             auto const& window_info = tools.info_for(window);
             auto& pdata = policy_data_for(window_info);
-            pdata.in_hidden_workspace = true;
-            pdata.old_state = window_info.state();
 
-            WindowSpecification modifications;
-            modifications.state() = mir_window_state_hidden;
-            tools.place_and_size_for_state(modifications, window_info);
-            tools.modify_window(window, modifications);
+            pdata.update_for_hidden_workspace(tools, window_info);
         });
 }
