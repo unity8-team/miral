@@ -67,6 +67,8 @@ public:
     void advise_state_change(miral::WindowInfo const& window_info, MirWindowState state) override;
     void advise_resize(miral::WindowInfo const& window_info, Size const& new_size) override;
     void advise_delete_window(miral::WindowInfo const& window_info) override;
+
+    void handle_modify_window(miral::WindowInfo& window_info, miral::WindowSpecification const& modifications) override;
     /** @} */
 
 protected:

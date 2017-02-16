@@ -62,7 +62,7 @@ struct PolicyData
             tools.modify_window(window_info.window(), modifications);
         }
     }
-private:
+
     MirWindowState old_state;
 };
 
@@ -718,3 +718,16 @@ void TitlebarWindowManagerPolicy::switch_workspace_to(
             pdata.update_for_hidden_workspace(tools, window_info);
         });
 }
+
+void TitlebarWindowManagerPolicy::handle_modify_window(WindowInfo& window_info, WindowSpecification const& modifications)
+{
+    auto mods = modifications;
+
+    auto& pdata = policy_data_for(window_info);
+
+    if (pdata.in_hidden_workspace && mods.state().is_set())
+        pdata.old_state = mods.state().consume();
+
+    CanonicalWindowManagerPolicy::handle_modify_window(window_info, mods);
+}
+
