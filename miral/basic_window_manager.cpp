@@ -1041,16 +1041,11 @@ void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirWin
                             window_info.state() == mir_window_state_minimized;
 
     policy->advise_state_change(window_info, value);
-    window_info.state(value);
-
-    mir_surface->configure(mir_window_attrib_state, value);
 
     switch (value)
     {
     case mir_window_state_hidden:
     case mir_window_state_minimized:
-        mir_surface->hide();
-
         if (window == active_window())
         {
             auto const workspaces_containing_window = workspaces_containing(window);
@@ -1087,15 +1082,23 @@ void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirWin
 
             if (window == active_window())
                 select_active_window({});
-
-            mru_active_windows.erase(window);
         }
+
+        window_info.state(value);
+        mir_surface->configure(mir_window_attrib_state, value);
+        mir_surface->hide();
+
         break;
 
     default:
+        auto const none_active = !active_window();
+        window_info.state(value);
+        mir_surface->configure(mir_window_attrib_state, value);
         mir_surface->show();
-        if (was_hidden && !active_window())
+        if (was_hidden && none_active)
+        {
             select_active_window(window);
+        }
     }
 }
 
@@ -1920,13 +1923,13 @@ void miral::BasicWindowManager::remove_tree_from_workspace(
 
     std::function<void(WindowInfo const& info)> const add_children =
         [&,this](WindowInfo const& info)
+        {
+            for (auto const& child : info.children())
             {
-                for (auto const& child : info.children())
-                {
-                    windows.push_back(child);
-                    add_children(info_for(child));
-                }
-            };
+                windows.push_back(child);
+                add_children(info_for(child));
+            }
+        };
 
     windows.push_back(root);
     add_children(*info);

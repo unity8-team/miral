@@ -24,17 +24,21 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-using StubSurface = mir::test::doubles::StubSurface;
 using namespace testing;
 
 namespace
 {
+struct StubSurface : mir::test::doubles::StubSurface
+{
+    bool visible() const override { return true; }
+};
+
 struct StubSession : mir::test::doubles::StubSession
 {
     StubSession(int number_of_surfaces)
     {
         for (auto i = 0; i != number_of_surfaces; ++i)
-            surfaces.push_back(std::make_shared<mir::test::doubles::StubSurface>());
+            surfaces.push_back(std::make_shared<StubSurface>());
     }
 
     std::shared_ptr<mir::scene::Surface> surface(mir::frontend::SurfaceId surface) const override
