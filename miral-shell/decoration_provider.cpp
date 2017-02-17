@@ -186,7 +186,7 @@ void Printer::printhelp(MirGraphicsRegion const& region)
 
         auto const line = converter.from_bytes(rawline);
 
-        auto const fwidth = region.width / 60;
+        auto const fwidth = std::min(region.width / 60, 20);
 
         FT_Set_Pixel_Sizes(face, fwidth, 0);
 
