@@ -19,6 +19,7 @@
 #include "decoration_provider.h"
 #include "titlebar_config.h"
 
+#include <mir/client/display_config.h>
 #include <mir/client/window_spec.h>
 
 #include <mir_toolkit/mir_buffer_stream.h>
@@ -267,7 +268,7 @@ void DecorationProvider::stop()
 
     enqueue_work([this]
         {
-            wallpaper.reset();
+            wallpaper.erase(begin(wallpaper), end(wallpaper));
             connection.reset();
             stop_work();
         });
@@ -275,7 +276,7 @@ void DecorationProvider::stop()
 
 namespace
 {
-void render_pattern(MirGraphicsRegion* region, uint8_t pattern[])
+void render_pattern(MirGraphicsRegion* region, uint8_t const pattern[])
 {
     char* row = region->vaddr;
 
@@ -294,25 +295,31 @@ void render_pattern(MirGraphicsRegion* region, uint8_t pattern[])
 }
 }
 
-void DecorationProvider::operator()(mir::client::Connection connection)
+void DecorationProvider::operator()(Connection connection)
 {
     this->connection = connection;
-    wallpaper = WindowSpec::for_gloss(this->connection, 100, 100)
-        .set_pixel_format(mir_pixel_format_xrgb_8888)
-        .set_buffer_usage(mir_buffer_usage_software)
-        .set_fullscreen_on_output(0)
-        .set_name(wallpaper_name).create_window();
 
-    uint8_t pattern[4] = { 0x00, 0x00, 0x00, 0x00 };
+    DisplayConfig const display_conf{this->connection};
 
-    MirGraphicsRegion graphics_region;
-    MirBufferStream* buffer_stream = mir_window_get_buffer_stream(wallpaper);
+    display_conf.for_each_output([this](MirOutput const* output)
+         {
+             wallpaper.push_back(
+                 WindowSpec::for_gloss(this->connection, 100, 100)
+                     .set_pixel_format(mir_pixel_format_xrgb_8888)
+                     .set_buffer_usage(mir_buffer_usage_software)
+                     .set_fullscreen_on_output(mir_output_get_id(output))
+                     .set_name(wallpaper_name).create_window());
 
-    mir_buffer_stream_get_graphics_region(buffer_stream, &graphics_region);
+             MirGraphicsRegion graphics_region;
+             MirBufferStream* buffer_stream = mir_window_get_buffer_stream(wallpaper.back());
 
-    render_pattern(&graphics_region, pattern);
-    mir_buffer_stream_swap_buffers_sync(buffer_stream);
+             mir_buffer_stream_get_graphics_region(buffer_stream, &graphics_region);
 
+             static uint8_t const pattern[4] = { 0x00, 0x00, 0x00, 0x00 };
+
+             render_pattern(&graphics_region, pattern);
+             mir_buffer_stream_swap_buffers_sync(buffer_stream);
+         });
 
     start_work();
 }

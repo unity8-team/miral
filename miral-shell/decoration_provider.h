@@ -96,7 +96,7 @@ private:
     miral::WindowManagerTools tools;
     std::mutex mutable mutex;
     mir::client::Connection connection;
-    mir::client::Window wallpaper;
+    std::vector<mir::client::Window> wallpaper;
     std::weak_ptr<mir::scene::Session> weak_session;
     std::atomic<int> intensity{0xff};
 
