@@ -18,6 +18,7 @@
 
 #include "mru_window_list.h"
 
+#include <mir/client/detail/mir_forward_compatibility.h>
 #include <mir/scene/surface.h>
 
 #include <algorithm>
