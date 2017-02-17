@@ -84,6 +84,7 @@ private:
     struct Data
     {
         std::atomic<MirWindow*> titlebar{nullptr};
+        std::atomic<int> intensity{0xff};
         std::function<void(MirWindow* surface)> on_create{[](MirWindow*){}};
         miral::Window window;
 
@@ -98,7 +99,6 @@ private:
     mir::client::Connection connection;
     std::vector<mir::client::Window> wallpaper;
     std::weak_ptr<mir::scene::Session> weak_session;
-    std::atomic<int> intensity{0xff};
 
     SurfaceMap window_to_titlebar;
     TitleMap windows_awaiting_titlebar;
