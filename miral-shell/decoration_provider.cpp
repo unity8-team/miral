@@ -235,6 +235,9 @@ void Printer::printhelp(MirGraphicsRegion const& region)
 
                     src += bitmap.pitch;
                     dest += region.stride;
+
+                    if (dest > region.vaddr + region.height * region.stride)
+                        break;
                 }
             }
 
