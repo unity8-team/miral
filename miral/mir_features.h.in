@@ -24,5 +24,6 @@
 // ============================================================
 
 #define MIRAL_MIR_DEFINES_POINTER_CONFINEMENT (@MIR_POINTER_CONFINEMENT@)
+#define MIR_DEFINES_DISPLAY_CONFIG_GET_MUTABLE_OUTPUT (@MIR_DISPLAY_CONFIG_GET_MUTABLE@)
 
 #endif // MIRAL_MIR_FEATURES_H
