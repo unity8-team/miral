@@ -690,12 +690,7 @@ void TitlebarWindowManagerPolicy::switch_workspace_to(
     auto const old_active = active_workspace;
     active_workspace = workspace;
 
-    // Remember active_window when we switch away
-    if (auto active_window = tools.active_window())
-    {
-        workspace_to_active[old_active] = active_window;
-        printf("DEBUG remembering %s\n", tools.info_for(workspace_to_active[old_active]).name().c_str());
-    }
+    auto const old_active_window = tools.active_window();
 
     if (!window)
     {
@@ -722,22 +717,36 @@ void TitlebarWindowManagerPolicy::switch_workspace_to(
                 return; // decorations are taken care of automatically
 
             auto const& window_info = tools.info_for(window);
-            printf("DEBUG activating %s\n", window_info.name().c_str());
             auto& pdata = policy_data_for(window_info);
             pdata.update_for_active_workspace(tools, window_info);
         });
 
+    bool hide_old_active = false;
     tools.for_each_window_in_workspace(old_active, [&](Window const& window)
         {
             if (decoration_provider->is_decoration(window))
                 return; // decorations are taken care of automatically
 
-            auto const& window_info = tools.info_for(window);
-            printf("DEBUG deactivating %s\n", window_info.name().c_str());
-            auto& pdata = policy_data_for(window_info);
+            if (window == old_active_window)
+            {
+                hide_old_active = true;
+                return; // Do the active window last to avoid focus shifting
+            }
 
+            auto const& window_info = tools.info_for(window);
+            auto& pdata = policy_data_for(window_info);
             pdata.update_for_hidden_workspace(tools, window_info);
         });
+
+    if (hide_old_active)
+    {
+        auto const& window_info = tools.info_for(old_active_window);
+        auto& pdata = policy_data_for(window_info);
+        pdata.update_for_hidden_workspace(tools, window_info);
+
+        // Remember the old active_window when we switch away
+        workspace_to_active[old_active] = old_active_window;
+    }
 }
 
 void TitlebarWindowManagerPolicy::handle_modify_window(WindowInfo& window_info, WindowSpecification const& modifications)
