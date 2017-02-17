@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016 Canonical Ltd.
+ * Copyright © 2016-2017 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3,
@@ -16,7 +16,7 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#include "titlebar_provider.h"
+#include "decoration_provider.h"
 #include "titlebar_config.h"
 
 #include <mir/client/window_spec.h>
@@ -37,8 +37,9 @@
 namespace
 {
 int const title_bar_height = 12;
+char const* const wallpaper_name = "wallpaper";
 
-void null_surface_callback(MirWindow*, void*) {}
+void null_window_callback(MirWindow*, void*) {}
 
 struct Printer
 {
@@ -48,6 +49,7 @@ struct Printer
     Printer& operator=(Printer const&) = delete;
 
     void print(MirGraphicsRegion const& region, std::string const& title, int const intensity);
+    void printhelp(MirGraphicsRegion const& region);
 
 private:
     std::wstring_convert<std::codecvt_utf16<wchar_t>> converter;
@@ -59,11 +61,7 @@ private:
 
 void paint_surface(MirWindow* surface, std::string const& title, int const intensity)
 {
-#if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
-    MirBufferStream* buffer_stream = mir_surface_get_buffer_stream(surface);
-#else
     MirBufferStream* buffer_stream = mir_window_get_buffer_stream(surface);
-#endif
 
     // TODO sometimes buffer_stream is nullptr - find out why (and fix).
     // (Only observed when creating a lot of clients at once)
@@ -152,22 +150,114 @@ void Printer::print(MirGraphicsRegion const& region, std::string const& title_, 
         base_y += glyph->advance.y >> 6;
     }
 }
+
+void Printer::printhelp(MirGraphicsRegion const& region)
+{
+    static char const* const helptext[] =
+        {
+            "Welcome to miral-shell",
+            "",
+            "Keyboard shortcuts:",
+            "",
+            "  o Switch apps: Alt-Tab, tap or click on the corresponding window",
+            "  o Switch window: Alt-`, tap or click on the corresponding window",
+            "",
+            "  o Move window: Alt-leftmousebutton drag (three finger drag)",
+            "  o Resize window: Alt-middle_button drag (three finger pinch)",
+            "",
+            "  o Maximize/restore current window (to display size). : Alt-F11",
+            "  o Maximize/restore current window (to display height): Shift-F11",
+            "  o Maximize/restore current window (to display width) : Ctrl-F11",
+//            "",
+//            "  o Switch workspace: Meta-Alt-[F1|F2|F3|F4]",
+//            "  o Switch workspace taking active window: Meta-Ctrl-[F1|F2|F3|F4]",
+            "",
+            "  o To exit: Ctrl-Alt-BkSp",
+        };
+
+    int help_width = 0;
+    unsigned int help_height = 0;
+    unsigned int line_height = 0;
+
+    for (auto const* rawline : helptext)
+    {
+        int line_width = 0;
+
+        auto const line = converter.from_bytes(rawline);
+
+        auto const fwidth = region.width / 60;
+
+        FT_Set_Pixel_Sizes(face, fwidth, 0);
+
+        for (auto const& ch : line)
+        {
+            FT_Load_Glyph(face, FT_Get_Char_Index(face, ch), FT_LOAD_DEFAULT);
+            auto const glyph = face->glyph;
+            FT_Render_Glyph(glyph, FT_RENDER_MODE_NORMAL);
+
+            line_width += glyph->advance.x >> 6;
+            line_height = std::max(line_height, glyph->bitmap.rows + glyph->bitmap.rows/2);
+        }
+
+        if (help_width < line_width) help_width = line_width;
+        help_height += line_height;
+    }
+
+    int base_y = (region.height - help_height)/2;
+
+    for (auto const* rawline : helptext)
+    {
+        int base_x = (region.width - help_width)/2;
+
+        auto const line = converter.from_bytes(rawline);
+
+        for (auto const& ch : line)
+        {
+            FT_Load_Glyph(face, FT_Get_Char_Index(face, ch), FT_LOAD_DEFAULT);
+            auto const glyph = face->glyph;
+            FT_Render_Glyph(glyph, FT_RENDER_MODE_NORMAL);
+
+            auto const& bitmap = glyph->bitmap;
+            auto const x = base_x + glyph->bitmap_left;
+
+            if (static_cast<int>(x + bitmap.width) <= region.width)
+            {
+                unsigned char* src = bitmap.buffer;
+
+                auto const y = base_y - glyph->bitmap_top;
+                char* dest = region.vaddr + y * region.stride + 4 * x;
+
+                for (auto row = 0u; row != bitmap.rows; ++row)
+                {
+                    for (auto col = 0u; col != 4 * bitmap.width; ++col)
+                        dest[col] |= src[col / 4]/2;
+
+                    src += bitmap.pitch;
+                    dest += region.stride;
+                }
+            }
+
+            base_x += glyph->advance.x >> 6;
+        }
+        base_y += line_height;
+    }
+}
 }
 
 using namespace mir::client;
 using namespace mir::geometry;
 
-TitlebarProvider::TitlebarProvider(miral::WindowManagerTools const& tools) : tools{tools}
+DecorationProvider::DecorationProvider(miral::WindowManagerTools const& tools) : tools{tools}
 {
 
 }
 
-TitlebarProvider::~TitlebarProvider()
+DecorationProvider::~DecorationProvider()
 {
     stop();
 }
 
-void TitlebarProvider::stop()
+void DecorationProvider::stop()
 {
     enqueue_work([this]
         {
@@ -177,30 +267,69 @@ void TitlebarProvider::stop()
 
     enqueue_work([this]
         {
+            wallpaper.reset();
             connection.reset();
             stop_work();
         });
 }
 
-void TitlebarProvider::operator()(mir::client::Connection connection)
+namespace
+{
+void render_pattern(MirGraphicsRegion* region, uint8_t pattern[])
+{
+    char* row = region->vaddr;
+
+    for (int j = 0; j < region->height; j++)
+    {
+        uint32_t* pixel = (uint32_t*)row;
+
+        for (int i = 0; i < region->width; i++)
+            memcpy(pixel + i, pattern, sizeof pixel[i]);
+
+        row += region->stride;
+    }
+
+    static Printer printer;
+    printer.printhelp(*region);
+}
+}
+
+void DecorationProvider::operator()(mir::client::Connection connection)
 {
     this->connection = connection;
+    wallpaper = WindowSpec::for_gloss(this->connection, 100, 100)
+        .set_pixel_format(mir_pixel_format_xrgb_8888)
+        .set_buffer_usage(mir_buffer_usage_software)
+        .set_fullscreen_on_output(0)
+        .set_name(wallpaper_name).create_window();
+
+    uint8_t pattern[4] = { 0x00, 0x00, 0x00, 0x00 };
+
+    MirGraphicsRegion graphics_region;
+    MirBufferStream* buffer_stream = mir_window_get_buffer_stream(wallpaper);
+
+    mir_buffer_stream_get_graphics_region(buffer_stream, &graphics_region);
+
+    render_pattern(&graphics_region, pattern);
+    mir_buffer_stream_swap_buffers_sync(buffer_stream);
+
+
     start_work();
 }
 
-void TitlebarProvider::operator()(std::weak_ptr<mir::scene::Session> const& session)
+void DecorationProvider::operator()(std::weak_ptr<mir::scene::Session> const& session)
 {
     std::lock_guard<decltype(mutex)> lock{mutex};
     this->weak_session = session;
 }
 
-auto TitlebarProvider::session() const -> std::shared_ptr<mir::scene::Session>
+auto DecorationProvider::session() const -> std::shared_ptr<mir::scene::Session>
 {
     std::lock_guard<decltype(mutex)> lock{mutex};
     return weak_session.lock();
 }
 
-void TitlebarProvider::create_titlebar_for(miral::Window const& window)
+void DecorationProvider::create_titlebar_for(miral::Window const& window)
 {
     enqueue_work([this, window]
         {
@@ -220,7 +349,7 @@ void TitlebarProvider::create_titlebar_for(miral::Window const& window)
         });
 }
 
-void TitlebarProvider::paint_titlebar_for(miral::WindowInfo const& info, int intensity)
+void DecorationProvider::paint_titlebar_for(miral::WindowInfo const& info, int intensity)
 {
     this->intensity = intensity;
 
@@ -240,7 +369,7 @@ void TitlebarProvider::paint_titlebar_for(miral::WindowInfo const& info, int int
     }
 }
 
-void TitlebarProvider::destroy_titlebar_for(miral::Window const& window)
+void DecorationProvider::destroy_titlebar_for(miral::Window const& window)
 {
     if (auto data = find_titlebar_data(window))
     {
@@ -248,11 +377,7 @@ void TitlebarProvider::destroy_titlebar_for(miral::Window const& window)
         {
             enqueue_work([surface]
                  {
-#if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
-                     mir_surface_release(surface, &null_surface_callback, nullptr);
-#else
-                     mir_window_release(surface, &null_surface_callback, nullptr);
-#endif
+                     mir_window_release(surface, &null_window_callback, nullptr);
                  });
         }
 
@@ -264,7 +389,7 @@ void TitlebarProvider::destroy_titlebar_for(miral::Window const& window)
     }
 }
 
-void TitlebarProvider::resize_titlebar_for(miral::WindowInfo const& window_info, Size const& size)
+void DecorationProvider::resize_titlebar_for(miral::WindowInfo const& window_info, Size const& size)
 {
     auto const window = window_info.window();
 
@@ -279,9 +404,10 @@ void TitlebarProvider::resize_titlebar_for(miral::WindowInfo const& window_info,
     }
 }
 
-void TitlebarProvider::place_new_titlebar(miral::WindowSpecification& window_spec)
+void DecorationProvider::place_new_titlebar(miral::WindowSpecification& window_spec)
 {
     auto const name = window_spec.name().value();
+    if (name == "wallpaper") return;
 
     std::lock_guard<decltype(mutex)> lock{mutex};
 
@@ -296,8 +422,10 @@ void TitlebarProvider::place_new_titlebar(miral::WindowSpecification& window_spe
     window_spec.top_left() = parent_window.top_left() - Displacement{0, title_bar_height};
 }
 
-void TitlebarProvider::advise_new_titlebar(miral::WindowInfo const& window_info)
+void DecorationProvider::advise_new_titlebar(miral::WindowInfo const& window_info)
 {
+    if (window_info.name() == wallpaper_name) return;
+
     {
         std::lock_guard<decltype(mutex)> lock{mutex};
 
@@ -307,7 +435,7 @@ void TitlebarProvider::advise_new_titlebar(miral::WindowInfo const& window_info)
     tools.raise_tree(window_info.parent());
 }
 
-void TitlebarProvider::advise_state_change(miral::WindowInfo const& window_info, MirWindowState state)
+void DecorationProvider::advise_state_change(miral::WindowInfo const& window_info, MirWindowState state)
 {
     if (auto titlebar = find_titlebar_window(window_info.window()))
     {
@@ -332,7 +460,7 @@ void TitlebarProvider::advise_state_change(miral::WindowInfo const& window_info,
     }
 }
 
-void TitlebarProvider::repaint_titlebar_for(miral::WindowInfo const& window_info)
+void DecorationProvider::repaint_titlebar_for(miral::WindowInfo const& window_info)
 {
     if (auto data = find_titlebar_data(window_info.window()))
     {
@@ -343,23 +471,19 @@ void TitlebarProvider::repaint_titlebar_for(miral::WindowInfo const& window_info
     }
 }
 
-TitlebarProvider::Data::~Data()
+DecorationProvider::Data::~Data()
 {
     if (auto surface = titlebar.exchange(nullptr))
-#if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
-        mir_surface_release(surface, &null_surface_callback, nullptr);
-#else
-        mir_window_release(surface, &null_surface_callback, nullptr);
-#endif
+        mir_window_release(surface, &null_window_callback, nullptr);
 }
 
-void TitlebarProvider::insert(MirWindow* surface, Data* data)
+void DecorationProvider::insert(MirWindow* surface, Data* data)
 {
     data->on_create(surface);
     data->titlebar = surface;
 }
 
-TitlebarProvider::Data* TitlebarProvider::find_titlebar_data(miral::Window const& window)
+DecorationProvider::Data* DecorationProvider::find_titlebar_data(miral::Window const& window)
 {
     std::lock_guard<decltype(mutex)> lock{mutex};
 
@@ -368,13 +492,23 @@ TitlebarProvider::Data* TitlebarProvider::find_titlebar_data(miral::Window const
     return (find != window_to_titlebar.end()) ? &find->second : nullptr;
 }
 
-miral::Window TitlebarProvider::find_titlebar_window(miral::Window const& window) const
+miral::Window DecorationProvider::find_titlebar_window(miral::Window const& window) const
 {
     std::lock_guard<decltype(mutex)> lock{mutex};
 
     auto const find = window_to_titlebar.find(window);
 
     return (find != window_to_titlebar.end()) ? find->second.window : miral::Window{};
+}
+
+bool DecorationProvider::is_decoration(miral::Window const& window) const
+{
+    return window.application() == session();
+}
+
+bool DecorationProvider::is_titlebar(miral::WindowInfo const& window_info) const
+{
+    return window_info.window().application() == session() && window_info.name() != wallpaper_name;
 }
 
 Worker::~Worker()
