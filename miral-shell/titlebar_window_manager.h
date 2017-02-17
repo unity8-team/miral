@@ -122,6 +122,7 @@ private:
 
     std::shared_ptr<miral::Workspace> active_workspace;
     std::map<int, std::shared_ptr<miral::Workspace>> key_to_workspace;
+    std::map<std::shared_ptr<miral::Workspace>, miral::Window> workspace_to_active;
 };
 
 #endif //MIRAL_SHELL_TITLEBAR_WINDOW_MANAGER_H

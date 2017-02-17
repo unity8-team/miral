@@ -693,7 +693,26 @@ void TitlebarWindowManagerPolicy::switch_workspace_to(
     auto const old_active = active_workspace;
     active_workspace = workspace;
 
+    // Remember active_window when we switch away
+    workspace_to_active[old_active] = tools.active_window();
+
     tools.add_tree_to_workspace(window, active_workspace);
+
+    if (!window)
+    {
+        if (auto const ww = workspace_to_active[workspace])
+        {
+            tools.for_each_workspace_containing(ww, [&](std::shared_ptr<miral::Workspace> const& ws)
+                {
+                    if (ws == workspace)
+                    {
+                        auto const& window_info = tools.info_for(ww);
+                        auto& pdata = policy_data_for(window_info);
+                        pdata.update_for_active_workspace(tools, window_info);
+                    }
+                });
+        }
+    }
 
     tools.for_each_window_in_workspace(active_workspace, [&](Window const& window)
         {
