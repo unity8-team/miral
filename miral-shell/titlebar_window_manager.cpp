@@ -691,7 +691,11 @@ void TitlebarWindowManagerPolicy::switch_workspace_to(
     active_workspace = workspace;
 
     // Remember active_window when we switch away
-    workspace_to_active[old_active] = tools.active_window();
+    if (auto active_window = tools.active_window())
+    {
+        workspace_to_active[old_active] = active_window;
+        printf("DEBUG remembering %s\n", tools.info_for(workspace_to_active[old_active]).name().c_str());
+    }
 
     if (!window)
     {
@@ -718,6 +722,7 @@ void TitlebarWindowManagerPolicy::switch_workspace_to(
                 return; // decorations are taken care of automatically
 
             auto const& window_info = tools.info_for(window);
+            printf("DEBUG activating %s\n", window_info.name().c_str());
             auto& pdata = policy_data_for(window_info);
             pdata.update_for_active_workspace(tools, window_info);
         });
@@ -728,6 +733,7 @@ void TitlebarWindowManagerPolicy::switch_workspace_to(
                 return; // decorations are taken care of automatically
 
             auto const& window_info = tools.info_for(window);
+            printf("DEBUG deactivating %s\n", window_info.name().c_str());
             auto& pdata = policy_data_for(window_info);
 
             pdata.update_for_hidden_workspace(tools, window_info);
