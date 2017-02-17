@@ -101,9 +101,15 @@ else()
     set(MIR_POINTER_CONFINEMENT 1)
 endif()
 
+if (MIRSERVER_VERSION VERSION_LESS 0.22)
+    set(MIR_DISPLAY_CONFIG_GET_MUTABLE 0)
+else()
+    set(MIR_DISPLAY_CONFIG_GET_MUTABLE 1)
+endif()
+
 configure_file(
-  ${CMAKE_CURRENT_SOURCE_DIR}/mir_features.h.in
-        ${PROJECT_SOURCE_DIR}/include/mir/client/detail/mir_features.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/mir_features.h.in
+    ${PROJECT_SOURCE_DIR}/include/mir/client/detail/mir_features.h
 )
 
 configure_file(
