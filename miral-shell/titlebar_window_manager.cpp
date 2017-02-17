@@ -693,8 +693,6 @@ void TitlebarWindowManagerPolicy::switch_workspace_to(
     // Remember active_window when we switch away
     workspace_to_active[old_active] = tools.active_window();
 
-    tools.add_tree_to_workspace(window, active_workspace);
-
     if (!window)
     {
         if (auto const ww = workspace_to_active[workspace])
@@ -711,6 +709,9 @@ void TitlebarWindowManagerPolicy::switch_workspace_to(
         }
     }
 
+    tools.remove_tree_from_workspace(window, old_active);
+    tools.add_tree_to_workspace(window, active_workspace);
+
     tools.for_each_window_in_workspace(active_workspace, [&](Window const& window)
         {
             if (decoration_provider->is_decoration(window))
@@ -720,8 +721,6 @@ void TitlebarWindowManagerPolicy::switch_workspace_to(
             auto& pdata = policy_data_for(window_info);
             pdata.update_for_active_workspace(tools, window_info);
         });
-
-    tools.remove_tree_from_workspace(window, old_active);
 
     tools.for_each_window_in_workspace(old_active, [&](Window const& window)
         {
