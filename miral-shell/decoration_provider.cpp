@@ -404,7 +404,7 @@ void DecorationProvider::resize_titlebar_for(miral::WindowInfo const& window_inf
     }
 }
 
-void DecorationProvider::place_new_titlebar(miral::WindowSpecification& window_spec)
+void DecorationProvider::place_new_decoration(miral::WindowSpecification& window_spec)
 {
     auto const name = window_spec.name().value();
     if (name == "wallpaper") return;

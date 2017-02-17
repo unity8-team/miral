@@ -567,7 +567,7 @@ WindowSpecification TitlebarWindowManagerPolicy::place_new_window(
         parameters.top_left() = Point{parameters.top_left().value().x, parameters.top_left().value().y + DeltaY{title_bar_height}};
 
     if (app_info.application() == decoration_provider->session())
-        decoration_provider->place_new_titlebar(parameters);
+        decoration_provider->place_new_decoration(parameters);
 
     return parameters;
 }
