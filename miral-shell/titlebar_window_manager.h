@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016 Canonical Ltd.
+ * Copyright © 2016-2017 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3,
@@ -31,7 +31,7 @@ namespace miral { class InternalClientLauncher; }
 
 using namespace mir::geometry;
 
-class TitlebarProvider;
+class DecorationProvider;
 
 class TitlebarWindowManagerPolicy : public miral::CanonicalWindowManagerPolicy, miral::WorkspacePolicy
 {
@@ -98,7 +98,7 @@ private:
 
     SpinnerSplash const spinner;
 
-    std::unique_ptr<TitlebarProvider> const titlebar_provider;
+    std::unique_ptr<DecorationProvider> const decoration_provider;
 
     void end_resize();
 
