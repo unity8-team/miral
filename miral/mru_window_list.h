@@ -34,8 +34,6 @@ public:
     void erase(Window const& window);
     auto top() const -> Window;
 
-    void push_back(Window const& window);
-
     using Enumerator = std::function<bool(Window& window)>;
 
     void enumerate(Enumerator const& enumerator) const;
