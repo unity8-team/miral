@@ -55,6 +55,7 @@ add_library(miral SHARED
                                         ${CMAKE_SOURCE_DIR}/include/mir/client/window_spec.h
                                         ${CMAKE_SOURCE_DIR}/include/mir/client/window_id.h
                                         ${CMAKE_SOURCE_DIR}/include/mir/client/connection.h
+                                        ${CMAKE_SOURCE_DIR}/include/mir/client/display_config.h
                                         ${CMAKE_SOURCE_DIR}/include/mir/client/window.h
                                         ${CMAKE_SOURCE_DIR}/include/mir/client/detail/mir_forward_compatibility.h
 )
