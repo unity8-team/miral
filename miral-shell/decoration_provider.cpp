@@ -169,9 +169,9 @@ void Printer::printhelp(MirGraphicsRegion const& region)
             "  o Maximize/restore current window (to display size). : Alt-F11",
             "  o Maximize/restore current window (to display height): Shift-F11",
             "  o Maximize/restore current window (to display width) : Ctrl-F11",
-//            "",
-//            "  o Switch workspace: Meta-Alt-[F1|F2|F3|F4]",
-//            "  o Switch workspace taking active window: Meta-Ctrl-[F1|F2|F3|F4]",
+            "",
+            "  o Switch workspace: Meta-Alt-[F1|F2|F3|F4]",
+            "  o Switch workspace taking active window: Meta-Ctrl-[F1|F2|F3|F4]",
             "",
             "  o To exit: Ctrl-Alt-BkSp",
         };
