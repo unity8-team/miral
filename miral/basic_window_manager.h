@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015-2016 Canonical Ltd.
+ * Copyright © 2015-2017 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3,
@@ -31,6 +31,9 @@
 #include <mir/shell/abstract_shell.h>
 #include <mir/shell/window_manager.h>
 
+#include <boost/bimap.hpp>
+#include <boost/bimap/multiset_of.hpp>
+
 #include <map>
 #include <mutex>
 
@@ -41,6 +44,7 @@ namespace shell { class DisplayLayout; class PersistentSurfaceStore; }
 
 namespace miral
 {
+class WorkspacePolicy;
 using mir::shell::SurfaceSet;
 using WindowManagementPolicyBuilder =
     std::function<std::unique_ptr<miral::WindowManagementPolicy>(miral::WindowManagerTools const& tools)>;
@@ -97,6 +101,19 @@ public:
         MirWindowAttrib attrib,
         int value) override;
 
+    auto create_workspace() -> std::shared_ptr<Workspace> override;
+
+    void add_tree_to_workspace(Window const& window, std::shared_ptr<Workspace> const& workspace) override;
+
+    void remove_tree_from_workspace(Window const& window, std::shared_ptr<Workspace> const& workspace) override;
+
+    void for_each_workspace_containing(
+        Window const& window,
+        std::function<void(std::shared_ptr<Workspace> const& workspace)> const& callback) override;
+
+    void for_each_window_in_workspace(
+        std::shared_ptr<Workspace> const& workspace, std::function<void(Window const&)> const& callback) override;
+
     auto count_applications() const -> unsigned int override;
 
     void for_each_application(std::function<void(ApplicationInfo& info)> const& functor) override;
@@ -149,6 +166,7 @@ private:
     std::shared_ptr<mir::shell::DisplayLayout> const display_layout;
     std::shared_ptr<mir::shell::PersistentSurfaceStore> const persistent_surface_store;
     std::unique_ptr<WindowManagementPolicy> const policy;
+    WorkspacePolicy* const workspace_policy;
 
     std::mutex mutex;
     SessionInfoMap app_info;
@@ -160,11 +178,30 @@ private:
     using FullscreenSurfaces = std::set<Window>;
     FullscreenSurfaces fullscreen_surfaces;
 
+    friend class Workspace;
+    using wwbimap_t = boost::bimap<
+        boost::bimaps::multiset_of<std::weak_ptr<Workspace>, std::owner_less<std::weak_ptr<Workspace>>>,
+        boost::bimaps::multiset_of<Window>>;
+
+    wwbimap_t workspaces_to_windows;
+
+    // Workspaces may die without any sync with the BWM mutex
+    struct DeadWorkspaces
+    {
+        std::mutex mutable dead_workspaces_mutex;
+        std::vector<std::weak_ptr<Workspace>> workspaces;
+    } dead_workspaces;
+
+    struct Locker;
+
     void update_event_timestamp(MirKeyboardEvent const* kev);
     void update_event_timestamp(MirPointerEvent const* pev);
     void update_event_timestamp(MirTouchEvent const* tev);
 
     auto can_activate_window_for_session(miral::Application const& session) -> bool;
+    auto can_activate_window_for_session_in_workspace(
+        miral::Application const& session,
+        std::vector<std::shared_ptr<Workspace>> const& workspaces) -> bool;
 
     auto place_new_surface(ApplicationInfo const& app_info, WindowSpecification parameters) -> WindowSpecification;
     auto place_relative(mir::geometry::Rectangle const& parent, miral::WindowSpecification const& parameters, Size size)
@@ -177,6 +214,9 @@ private:
     void set_state(miral::WindowInfo& window_info, MirWindowState value);
     auto fullscreen_rect_for(WindowInfo const& window_info) const -> Rectangle;
     void remove_window(Application const& application, miral::WindowInfo const& info);
+    void refocus(Application const& application, Window const& parent,
+                 std::vector<std::shared_ptr<Workspace>> const& workspaces_containing_window);
+    auto workspaces_containing(Window const& window) const -> std::vector<std::shared_ptr<Workspace>>;
 };
 }
 

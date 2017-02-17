@@ -1,7 +1,5 @@
 libmiral.so.2 libmiral2 #MINVER#
  MIRAL_1.0@MIRAL_1.0 1.0.0
- (c++)"miral::WindowInfo::shell_chrome(MirShellChrome)@MIRAL_1.2" 1.2.0
- (c++)"miral::WindowInfo::shell_chrome() const@MIRAL_1.2" 1.2.0
  (c++)"miral::WindowInfo::height_inc(mir::geometry::detail::IntWrapper<mir::geometry::DeltaYTag>)@MIRAL_1.0" 1.0.0
  (c++)"miral::WindowInfo::max_aspect(miral::WindowSpecification::AspectRatio)@MIRAL_1.0" 1.0.0
  (c++)"miral::WindowInfo::max_height(mir::geometry::detail::IntWrapper<mir::geometry::HeightTag>)@MIRAL_1.0" 1.0.0
@@ -367,6 +365,19 @@ libmiral.so.2 libmiral2 #MINVER#
  MIRAL_1.2@MIRAL_1.2 1.2.0
  (c++)"miral::StartupInternalClient::StartupInternalClient(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::function<void (mir::client::Connection)>, std::function<void (std::weak_ptr<mir::scene::Session>)>)@MIRAL_1.2" 1.2.0
  (c++)"miral::InternalClientLauncher::launch(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::function<void (mir::client::Connection)> const&, std::function<void (std::weak_ptr<mir::scene::Session>)> const&) const@MIRAL_1.2" 1.2.0
+ (c++)"miral::WindowInfo::shell_chrome(MirShellChrome)@MIRAL_1.2" 1.2.0
+ (c++)"miral::WindowInfo::shell_chrome() const@MIRAL_1.2" 1.2.0
  (c++)"miral::WindowManagerTools::drag_window(miral::Window const&, mir::geometry::Displacement)@MIRAL_1.2" 1.2.0
  (c++)"typeinfo for miral::ApplicationAuthorizer@MIRAL_1.0" 1.2.0
  (c++)"typeinfo for miral::ApplicationAuthorizer1@MIRAL_1.2" 1.2.0
+ MIRAL_1.3@MIRAL_1.3 1.3.0
+ (c++)"miral::operator<(miral::Window const&, miral::Window const&)@MIRAL_1.0" 1.3.0
+ (c++)"miral::WindowManagerTools::create_workspace()@MIRAL_1.3" 1.3.0
+ (c++)"miral::WindowManagerTools::add_tree_to_workspace(miral::Window const&, std::shared_ptr<miral::Workspace> const&)@MIRAL_1.3" 1.3.0
+ (c++)"miral::WindowManagerTools::remove_tree_from_workspace(miral::Window const&, std::shared_ptr<miral::Workspace> const&)@MIRAL_1.3" 1.3.0
+ (c++)"miral::WorkspacePolicy::advise_adding_to_workspace(std::shared_ptr<miral::Workspace> const&, std::vector<miral::Window, std::allocator<miral::Window> > const&)@MIRAL_1.3" 1.3.0
+ (c++)"miral::WorkspacePolicy::advise_removing_from_workspace(std::shared_ptr<miral::Workspace> const&, std::vector<miral::Window, std::allocator<miral::Window> > const&)@MIRAL_1.3" 1.3.0
+ (c++)"miral::WindowManagerTools::for_each_window_in_workspace(std::shared_ptr<miral::Workspace> const&, std::function<void (miral::Window const&)> const&)@MIRAL_1.3" 1.3.0
+ (c++)"miral::WindowManagerTools::for_each_workspace_containing(miral::Window const&, std::function<void (std::shared_ptr<miral::Workspace> const&)> const&)@MIRAL_1.3" 1.3.0
+ (c++)"typeinfo for miral::WorkspacePolicy@MIRAL_1.3" 1.3.0
+ (c++)"vtable for miral::WorkspacePolicy@MIRAL_1.3" 1.3.0
