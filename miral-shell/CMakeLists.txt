@@ -45,7 +45,7 @@ add_executable(miral-shell
     shell_main.cpp
     tiling_window_manager.cpp   tiling_window_manager.h
     titlebar_window_manager.cpp titlebar_window_manager.h
-    titlebar_provider.cpp       titlebar_provider.h
+    decoration_provider.cpp     decoration_provider.h
     titlebar_config.cpp         titlebar_config.h
 )
 
