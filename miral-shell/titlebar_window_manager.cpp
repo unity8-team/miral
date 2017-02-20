@@ -692,8 +692,9 @@ void TitlebarWindowManagerPolicy::switch_workspace_to(
 
     auto const old_active_window = tools.active_window();
 
-    if (!window)
+    if (!old_active_window)
     {
+        // If there's no active window, the first shown grabs focus: get the right one
         if (auto const ww = workspace_to_active[workspace])
         {
             tools.for_each_workspace_containing(ww, [&](std::shared_ptr<miral::Workspace> const& ws)
@@ -729,8 +730,9 @@ void TitlebarWindowManagerPolicy::switch_workspace_to(
 
             if (window == old_active_window)
             {
+                // If we hide the active window focus will shift: do that last
                 hide_old_active = true;
-                return; // Do the active window last to avoid focus shifting
+                return;
             }
 
             auto const& window_info = tools.info_for(window);
