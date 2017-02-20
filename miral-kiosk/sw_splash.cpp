@@ -20,7 +20,6 @@
 
 #include <mir/client/window.h>
 
-#include <mir_toolkit/mir_connection.h>
 #include <mir_toolkit/mir_buffer_stream.h>
 
 #include <chrono>
@@ -61,14 +60,13 @@ MirPixelFormat find_8888_format(MirConnection* connection)
     return *pixel_formats;
 }
 
-auto create_window(MirConnection* connection, MirPixelFormat pixel_format) -> MirWindow*
+auto create_window(MirConnection* connection, MirPixelFormat pixel_format) -> mir::client::Window
 {
-    auto const spec = mir::client::WindowSpec::for_normal_window(connection, 42, 42, pixel_format)
+    return mir::client::WindowSpec::for_normal_window(connection, 42, 42, pixel_format)
         .set_name("splash")
         .set_buffer_usage(mir_buffer_usage_software)
-        .set_fullscreen_on_output(0);
-
-    return mir_create_window_sync(spec);
+        .set_fullscreen_on_output(0)
+        .create_window();
 }
 
 void render_pattern(MirGraphicsRegion *region, uint8_t pattern[])
@@ -150,6 +148,4 @@ void SwSplash::operator()(MirConnection* connection)
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
     }
     while (std::chrono::steady_clock::now() < time_limit);
-
-    mir_window_release_sync(surface);
 }
