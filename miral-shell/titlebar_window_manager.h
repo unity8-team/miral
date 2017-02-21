@@ -20,10 +20,12 @@
 #define MIRAL_SHELL_TITLEBAR_WINDOW_MANAGER_H
 
 #include <miral/canonical_window_manager.h>
+#include <miral/workspace_policy.h>
 
 #include "spinner/splash.h"
 
 #include <chrono>
+#include <map>
 
 namespace miral { class InternalClientLauncher; }
 
@@ -31,7 +33,7 @@ using namespace mir::geometry;
 
 class DecorationProvider;
 
-class TitlebarWindowManagerPolicy : public miral::CanonicalWindowManagerPolicy
+class TitlebarWindowManagerPolicy : public miral::CanonicalWindowManagerPolicy, miral::WorkspacePolicy
 {
 public:
     TitlebarWindowManagerPolicy(miral::WindowManagerTools const& tools, SpinnerSplash const& spinner, miral::InternalClientLauncher const& launcher);
@@ -48,6 +50,8 @@ public:
      *  o Maximize/restore current window (to display size): Alt-F11
      *  o Maximize/restore current window (to display height): Shift-F11
      *  o Maximize/restore current window (to display width): Ctrl-F11
+     *  o Switch workspace . . . . . . . . . . : Meta-Alt-[F1|F2|F3|F4]
+     *  o Switch workspace taking active window: Meta-Ctrl-[F1|F2|F3|F4]
      *  @{ */
     bool handle_pointer_event(MirPointerEvent const* event) override;
     bool handle_touch_event(MirTouchEvent const* event) override;
@@ -63,6 +67,8 @@ public:
     void advise_state_change(miral::WindowInfo const& window_info, MirWindowState state) override;
     void advise_resize(miral::WindowInfo const& window_info, Size const& new_size) override;
     void advise_delete_window(miral::WindowInfo const& window_info) override;
+
+    void handle_modify_window(miral::WindowInfo& window_info, miral::WindowSpecification const& modifications) override;
     /** @} */
 
 protected:
@@ -104,6 +110,23 @@ private:
 
     // Workaround for lp:1627697
     std::chrono::steady_clock::time_point last_resize;
+
+    void advise_adding_to_workspace(
+        std::shared_ptr<miral::Workspace> const& workspace,
+        std::vector<miral::Window> const& windows) override;
+
+    // Switch workspace, taking window (if not null)
+    void switch_workspace_to(
+        std::shared_ptr<miral::Workspace> const& workspace,
+        miral::Window const& window = miral::Window{});
+
+    std::shared_ptr<miral::Workspace> active_workspace;
+    std::map<int, std::shared_ptr<miral::Workspace>> key_to_workspace;
+    std::map<std::shared_ptr<miral::Workspace>, miral::Window> workspace_to_active;
+
+    void apply_workspace_visible_to(miral::Window const& window);
+
+    void apply_workspace_hidden_to(miral::Window const& window);
 };
 
 #endif //MIRAL_SHELL_TITLEBAR_WINDOW_MANAGER_H

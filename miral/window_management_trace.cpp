@@ -558,7 +558,7 @@ MIRAL_TRACE_EXCEPTION
 void miral::WindowManagementTrace::for_each_workspace_containing(
     miral::Window const& window, std::function<void(std::shared_ptr<miral::Workspace> const&)> const& callback)
 try {
-    mir::log_info("%s window=%s", __func__, dump_of(window));
+    mir::log_info("%s window=%s", __func__, dump_of(window).c_str());
     wrapped.for_each_workspace_containing(window, callback);
 }
 MIRAL_TRACE_EXCEPTION
