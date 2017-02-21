@@ -190,7 +190,9 @@ private:
     {
         std::mutex mutable dead_workspaces_mutex;
         std::vector<std::weak_ptr<Workspace>> workspaces;
-    } dead_workspaces;
+    };
+
+    std::shared_ptr<DeadWorkspaces> const dead_workspaces{std::make_shared<DeadWorkspaces>()};
 
     struct Locker;
 
