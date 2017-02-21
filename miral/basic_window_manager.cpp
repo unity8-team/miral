@@ -60,8 +60,8 @@ miral::BasicWindowManager::Locker::Locker(BasicWindowManager* self) :
     policy->advise_begin();
     std::vector<std::weak_ptr<Workspace>> workspaces;
     {
-        std::lock_guard<std::mutex> const lock{self->dead_workspaces.dead_workspaces_mutex};
-        workspaces.swap(self->dead_workspaces.workspaces);
+        std::lock_guard<std::mutex> const lock{self->dead_workspaces->dead_workspaces_mutex};
+        workspaces.swap(self->dead_workspaces->workspaces);
     }
 
     for (auto const& workspace : workspaces)
@@ -1836,19 +1836,19 @@ void miral::BasicWindowManager::validate_modification_request(WindowSpecificatio
 class miral::Workspace
 {
 public:
-    explicit Workspace(miral::BasicWindowManager::DeadWorkspaces& dead_workspaces) :
+    explicit Workspace(std::shared_ptr<miral::BasicWindowManager::DeadWorkspaces> const& dead_workspaces) :
         dead_workspaces{dead_workspaces} {}
 
     std::weak_ptr<Workspace> self;
 
     ~Workspace()
     {
-        std::lock_guard<std::mutex> lock {dead_workspaces.dead_workspaces_mutex};
-        dead_workspaces.workspaces.push_back(self);
+        std::lock_guard<std::mutex> lock {dead_workspaces->dead_workspaces_mutex};
+        dead_workspaces->workspaces.push_back(self);
     }
 
 private:
-    miral::BasicWindowManager::DeadWorkspaces& dead_workspaces;
+    std::shared_ptr<miral::BasicWindowManager::DeadWorkspaces> const dead_workspaces;
 };
 
 auto miral::BasicWindowManager::create_workspace() -> std::shared_ptr<Workspace>
