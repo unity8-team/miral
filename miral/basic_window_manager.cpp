@@ -1937,12 +1937,13 @@ void miral::BasicWindowManager::remove_tree_from_workspace(
     std::vector<Window> windows_removed;
 
     auto const iter_pair = workspaces_to_windows.left.equal_range(workspace);
-    for (auto kv = iter_pair.first; kv != iter_pair.second; ++kv)
+    for (auto kv = iter_pair.first; kv != iter_pair.second;)
     {
-        if (std::count(begin(windows), end(windows), kv->second))
+        auto const current = kv++;
+        if (std::count(begin(windows), end(windows), current->second))
         {
-            workspaces_to_windows.left.erase(kv);
-            windows_removed.push_back(kv->second);
+            windows_removed.push_back(current->second);
+            workspaces_to_windows.left.erase(current);
         }
     }
 
