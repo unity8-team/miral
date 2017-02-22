@@ -322,9 +322,7 @@ private:
 
 // Provide a deleted overload to avoid double release "accidents".
 void mir_window_spec_release(WindowSpec const& spec) = delete;
-#if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
 void mir_surface_spec_release(WindowSpec const& spec) = delete;
-#endif
 }
 }
 

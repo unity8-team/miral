@@ -58,9 +58,7 @@ private:
 
 // Provide a deleted overload to avoid double release "accidents".
 void mir_window_release_sync(Window& window) = delete;
-#if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
 void mir_surface_release_sync(Window& window) = delete;
-#endif
 }
 }
 
