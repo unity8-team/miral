@@ -45,6 +45,9 @@ private:
     static void deleter(MirConnection* connection) { mir_connection_release(connection); }
     std::shared_ptr<MirConnection> self;
 };
+
+// Provide a deleted overload to avoid double release "accidents".
+void mir_connection_release(Connection& connection) = delete;
 }
 }
 

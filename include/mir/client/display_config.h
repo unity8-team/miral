@@ -74,6 +74,9 @@ private:
 
     std::shared_ptr <MirDisplayConfig> self;
 };
+
+// Provide a deleted overload to avoid double release "accidents".
+void mir_display_config_release(DisplayConfig& config) = delete;
 }
 }
 
