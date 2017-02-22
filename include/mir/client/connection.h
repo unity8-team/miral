@@ -47,7 +47,7 @@ private:
 };
 
 // Provide a deleted overload to avoid double release "accidents".
-void mir_connection_release(Connection& connection) = delete;
+void mir_connection_release(Connection const& connection) = delete;
 }
 }
 
