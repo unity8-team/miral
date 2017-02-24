@@ -10,8 +10,8 @@ miral (1.3.0) UNRELEASED; urgency=medium
       . [miral-shell] Use background to show keyboard shortcuts
       . [libmirclientcpp] A better description of libmirclientcpp-dev
       . [libmirclientcpp] Prevent accidental double-release by deleting release
-      . [libmirclientcpp] Add RAII wrapper for display_config.h
         functions for handle classes
+      . [libmirclientcpp] Add RAII wrapper for display_config.h
     - Bugs fixed:
 
  -- Alan Griffiths <alan.griffiths@canonical.com>  Thu, 02 Feb 2017 17:26:54 +0000
