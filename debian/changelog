@@ -11,7 +11,7 @@ miral (1.3.0) UNRELEASED; urgency=medium
       . [libmirclientcpp] A better description of libmirclientcpp-dev
       . [libmirclientcpp] Prevent accidental double-release by deleting release
         functions for handle classes
-      . [libmirclientcpp] Add RAII wrapper for display_config.h
+      . [libmirclientcpp] Add RAII wrapper for MirDisplayConfig.
     - Bugs fixed:
       . [miral-shell] Workaround for crash on exit (LP: #1667645)
 
