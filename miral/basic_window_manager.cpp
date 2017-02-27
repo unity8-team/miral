@@ -1951,6 +1951,39 @@ void miral::BasicWindowManager::remove_tree_from_workspace(
         workspace_policy->advise_removing_from_workspace(workspace, windows_removed);
 }
 
+void miral::BasicWindowManager::move_workspace_content(
+    std::shared_ptr<Workspace> const& from_workspace, std::shared_ptr<Workspace> const& to_workspace)
+{
+    std::vector<Window> windows_removed;
+
+    auto const iter_pair_from = workspaces_to_windows.left.equal_range(from_workspace);
+    for (auto kv = iter_pair_from.first; kv != iter_pair_from.second;)
+    {
+        auto const current = kv++;
+        windows_removed.push_back(current->second);
+        workspaces_to_windows.left.erase(current);
+    }
+
+    if (!windows_removed.empty())
+        workspace_policy->advise_removing_from_workspace(from_workspace, windows_removed);
+
+    std::vector<Window> windows_added;
+
+    auto const iter_pair_to = workspaces_to_windows.left.equal_range(to_workspace);
+    for (auto& w : windows_removed)
+    {
+        if (!std::count_if(iter_pair_to.first, iter_pair_to.second,
+                           [&w](wwbimap_t::left_value_type const& kv) { return kv.second == w; }))
+        {
+            workspaces_to_windows.left.insert(wwbimap_t::left_value_type{to_workspace, w});
+            windows_added.push_back(w);
+        }
+    }
+
+    if (!windows_added.empty())
+        workspace_policy->advise_adding_to_workspace(to_workspace, windows_added);
+}
+
 void miral::BasicWindowManager::for_each_workspace_containing(
     miral::Window const& window, std::function<void(std::shared_ptr<miral::Workspace> const&)> const& callback)
 {

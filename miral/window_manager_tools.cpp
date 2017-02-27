@@ -112,6 +112,11 @@ void miral::WindowManagerTools::remove_tree_from_workspace(
     std::shared_ptr<miral::Workspace> const& workspace)
 { tools->remove_tree_from_workspace(window, workspace); }
 
+void miral::WindowManagerTools::move_workspace_content(
+    std::shared_ptr<Workspace> const& from_workspace,
+    std::shared_ptr<Workspace> const& to_workspace)
+{ tools->move_workspace_content(from_workspace, to_workspace); }
+
 void miral::WindowManagerTools::for_each_workspace_containing(
     miral::Window const& window,
     std::function<void(std::shared_ptr<miral::Workspace> const&)> const& callback)
