@@ -194,8 +194,8 @@ public:
 
     /**
      * Moves all the content from one workspace to another
-     * @param workspace to move the windows from;
-     * @param workspace to move the windows to;
+     * @param from_workspace the workspace to move the windows from;
+     * @param to_workspace the workspace to move the windows to;
      */
     void move_workspace_content(
         std::shared_ptr<Workspace> const& from_workspace,
