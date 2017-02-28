@@ -165,6 +165,16 @@ private:
     mir::shell::FocusController* const focus_controller;
     std::shared_ptr<mir::shell::DisplayLayout> const display_layout;
     std::shared_ptr<mir::shell::PersistentSurfaceStore> const persistent_surface_store;
+
+    // Workspaces may die without any sync with the BWM mutex
+    struct DeadWorkspaces
+    {
+        std::mutex mutable dead_workspaces_mutex;
+        std::vector<std::weak_ptr<Workspace>> workspaces;
+    };
+
+    std::shared_ptr<DeadWorkspaces> const dead_workspaces{std::make_shared<DeadWorkspaces>()};
+
     std::unique_ptr<WindowManagementPolicy> const policy;
     WorkspacePolicy* const workspace_policy;
 
@@ -184,15 +194,6 @@ private:
         boost::bimaps::multiset_of<Window>>;
 
     wwbimap_t workspaces_to_windows;
-
-    // Workspaces may die without any sync with the BWM mutex
-    struct DeadWorkspaces
-    {
-        std::mutex mutable dead_workspaces_mutex;
-        std::vector<std::weak_ptr<Workspace>> workspaces;
-    };
-
-    std::shared_ptr<DeadWorkspaces> const dead_workspaces{std::make_shared<DeadWorkspaces>()};
 
     struct Locker;
 
