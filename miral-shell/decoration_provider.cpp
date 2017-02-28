@@ -271,13 +271,14 @@ void DecorationProvider::stop()
 
     enqueue_work([this]
         {
-             {
+            {
 #if MIR_CLIENT_API_VERSION < MIR_VERSION_NUMBER(0, 26, 2)
                 auto const Workaround_lp_1667645 =
-                     WindowSpec::for_normal_window(connection, 100, 100, mir_pixel_format_xrgb_8888).create_window();
+                     WindowSpec::for_normal_window(connection, 100, 100, mir_pixel_format_xrgb_8888)
+                         .set_name(wallpaper_name).create_window();
 #endif
                 wallpaper.erase(begin(wallpaper), end(wallpaper));
-             }
+            }
             connection.reset();
             stop_work();
         });
@@ -423,7 +424,7 @@ void DecorationProvider::resize_titlebar_for(miral::WindowInfo const& window_inf
 void DecorationProvider::place_new_decoration(miral::WindowSpecification& window_spec)
 {
     auto const name = window_spec.name().value();
-    if (name == "wallpaper") return;
+    if (name == wallpaper_name) return;
 
     std::lock_guard<decltype(mutex)> lock{mutex};
 
