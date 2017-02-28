@@ -555,11 +555,11 @@ try {
 }
 MIRAL_TRACE_EXCEPTION
 
-void miral::WindowManagementTrace::move_workspace_content(
-    std::shared_ptr<Workspace> const& from_workspace, std::shared_ptr<Workspace> const& to_workspace)
+void miral::WindowManagementTrace::move_workspace_content_to_workspace(
+    std::shared_ptr<Workspace> const& to_workspace, std::shared_ptr<Workspace> const& from_workspace)
 try {
-    mir::log_info("%s from_workspace=%p, to_workspace=%p", __func__, from_workspace.get(), to_workspace.get());
-    wrapped.move_workspace_content(from_workspace, to_workspace);
+    mir::log_info("%s to_workspace=%p, from_workspace=%p", __func__, to_workspace.get(), from_workspace.get());
+    wrapped.move_workspace_content_to_workspace(to_workspace, from_workspace);
 }
 MIRAL_TRACE_EXCEPTION
 

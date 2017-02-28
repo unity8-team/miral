@@ -618,7 +618,7 @@ TEST_F(Workspaces, move_windows_from_one_workspace_to_another)
             tools.add_tree_to_workspace(server_window(top_level), from_workspace);
             tools.add_tree_to_workspace(server_window(another_window), post_workspace);
 
-            tools.move_workspace_content(from_workspace, to_workspace);
+            tools.move_workspace_content_to_workspace(to_workspace, from_workspace);
         });
 
     EXPECT_THAT(workspaces_containing_window(server_window(a_window)), ElementsAre(pre_workspace));
@@ -642,6 +642,6 @@ TEST_F(Workspaces, when_workspace_content_is_moved_the_policy_is_notified)
     invoke_tools([&, this](WindowManagerTools& tools)
         {
             tools.add_tree_to_workspace(server_window(dialog), from_workspace);
-            tools.move_workspace_content(from_workspace, to_workspace);
+            tools.move_workspace_content_to_workspace(to_workspace, from_workspace);
         });
 }

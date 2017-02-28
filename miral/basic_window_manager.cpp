@@ -1951,8 +1951,8 @@ void miral::BasicWindowManager::remove_tree_from_workspace(
         workspace_policy->advise_removing_from_workspace(workspace, windows_removed);
 }
 
-void miral::BasicWindowManager::move_workspace_content(
-    std::shared_ptr<Workspace> const& from_workspace, std::shared_ptr<Workspace> const& to_workspace)
+void miral::BasicWindowManager::move_workspace_content_to_workspace(
+    std::shared_ptr<Workspace> const& to_workspace, std::shared_ptr<Workspace> const& from_workspace)
 {
     std::vector<Window> windows_removed;
 

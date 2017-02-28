@@ -73,9 +73,9 @@ public:
     virtual auto create_workspace() -> std::shared_ptr<Workspace> = 0;
     virtual void add_tree_to_workspace(Window const& window, std::shared_ptr<Workspace> const& workspace) = 0;
     virtual void remove_tree_from_workspace(Window const& window, std::shared_ptr<Workspace> const& workspace) = 0;
-    virtual void move_workspace_content(
-        std::shared_ptr<Workspace> const& from_workspace,
-        std::shared_ptr<Workspace> const& to_workspace) = 0;
+    virtual void move_workspace_content_to_workspace(
+        std::shared_ptr<Workspace> const& to_workspace,
+        std::shared_ptr<Workspace> const& from_workspace) = 0;
     virtual void for_each_workspace_containing(
         Window const& window,
         std::function<void(std::shared_ptr<Workspace> const& workspace)> const& callback) = 0;
