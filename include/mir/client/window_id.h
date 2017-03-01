@@ -22,15 +22,14 @@
 #include <mir/client/detail/mir_forward_compatibility.h>
 #if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
 #include <mir_toolkit/mir_surface.h>
+auto const mir_window_request_window_id_sync = mir_surface_request_persistent_id_sync;
 #else
 #include <mir_toolkit/mir_window.h>
-#include <mir_toolkit/mir_persistent_id.h>
 #endif
 
 #if MIR_CLIENT_API_VERSION < MIR_VERSION_NUMBER(0, 26, 1)
-#if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
-auto const mir_window_request_window_id_sync = mir_surface_request_persistent_id_sync;
-#else
+#if MIR_CLIENT_VERSION == MIR_VERSION_NUMBER(3, 5, 0)
+#include <mir_toolkit/mir_persistent_id.h>
 auto const mir_window_request_window_id_sync = mir_window_request_persistent_id_sync;
 #endif
 auto const mir_window_id_as_string  = mir_persistent_id_as_string;
