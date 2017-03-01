@@ -42,6 +42,8 @@ public:
          std::function<void(std::weak_ptr<mir::scene::Session> const session)> connect_notification);
 
     void run(mir::Server& server);
+    void join_client_thread();
+
     ~InternalClientRunner();
 
 private:
@@ -57,11 +59,9 @@ private:
 };
 }
 
-class miral::StartupInternalClient::Self : InternalClientRunner
+class miral::StartupInternalClient::Self : public InternalClientRunner
 {
-public:
     using InternalClientRunner::InternalClientRunner;
-    using InternalClientRunner::run;
 };
 
 InternalClientRunner::InternalClientRunner(
@@ -111,6 +111,12 @@ void InternalClientRunner::run(mir::Server& server)
 
 InternalClientRunner::~InternalClientRunner()
 {
+    join_client_thread();
+}
+
+
+void InternalClientRunner::join_client_thread()
+{
     if (thread.joinable())
     {
         thread.join();
@@ -146,6 +152,11 @@ void miral::StartupInternalClient::operator()(mir::Server& server)
     });
 }
 
+void miral::StartupInternalClient::join_client_thread() const
+{
+    internal_client->join_client_thread();
+}
+
 miral::StartupInternalClient::~StartupInternalClient() = default;
 
 struct miral::InternalClientLauncher::Self
@@ -174,3 +185,8 @@ void miral::InternalClientLauncher::launch(
 
 miral::InternalClientLauncher::InternalClientLauncher() : self{std::make_shared<Self>()} {}
 miral::InternalClientLauncher::~InternalClientLauncher() = default;
+
+void miral::InternalClientLauncher::join_client_thread() const
+{
+    self->runner->join_client_thread();
+}
