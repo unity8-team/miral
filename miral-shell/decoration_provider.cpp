@@ -535,7 +535,6 @@ bool DecorationProvider::is_titlebar(miral::WindowInfo const& window_info) const
 
 Worker::~Worker()
 {
-    if (worker.joinable()) worker.join();
 }
 
 void Worker::do_work()
@@ -563,7 +562,7 @@ void Worker::enqueue_work(std::function<void()> const& functor)
 
 void Worker::start_work()
 {
-    worker = std::thread{[this] { do_work(); }};
+    do_work();
 }
 
 void Worker::stop_work()
