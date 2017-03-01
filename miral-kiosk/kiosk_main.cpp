@@ -87,7 +87,13 @@ int main(int argc, char const* argv[])
         "Only allow applications to connect during startup",
         KioskAuthorizer::startup_only};
 
-    return MirRunner{argc, argv}.run_with(
+
+    MirRunner runner{argc, argv};
+    StartupInternalClient client{"Intro", splash};
+
+    runner.add_stop_callback([&]{ client.join_client_thread(); });
+    
+    return runner.run_with(
         {
             CommandLineOption{[&](std::string const& ) { },
                               "desktop_file_hint", "Ignored for Unity8 compatability", "miral-shell.desktop"},
@@ -96,6 +102,6 @@ int main(int argc, char const* argv[])
             Keymap{},
             maximise_roots,
             startup_only,
-            StartupInternalClient{"Intro", splash}
+            client
         });
 }
