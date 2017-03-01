@@ -215,6 +215,10 @@ try
         auto const main_loop = server->the_main_loop();
         main_loop->enqueue(this, start_callback);
 
+#if MIR_SERVER_VERSION < MIR_VERSION_NUMBER(0, 24, 0)
+        main_loop->register_signal_handler({SIGINT, SIGTERM}, [start_callback](int) {stop_callback();});
+#endif
+
         server->run();
     }
 
