@@ -2026,4 +2026,3 @@ void miral::BasicWindowManager::for_each_window_in_workspace(
     for (auto kv = iter_pair.first; kv != iter_pair.second; ++kv)
         callback(kv->second);
 }
-
