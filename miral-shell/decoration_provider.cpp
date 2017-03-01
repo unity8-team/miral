@@ -161,7 +161,7 @@ void Printer::printhelp(MirGraphicsRegion const& region)
             "Keyboard shortcuts:",
             "",
             "  o Switch apps: Alt-Tab, tap or click on the corresponding window",
-            "  o Switch window: Alt-`, tap or click on the corresponding window",
+            "  o Next (previous) app window: Alt-` (Alt-Shift-`)",
             "",
             "  o Move window: Alt-leftmousebutton drag (three finger drag)",
             "  o Resize window: Alt-middle_button drag (three finger pinch)",

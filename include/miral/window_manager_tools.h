@@ -154,6 +154,9 @@ public:
     /// make the next surface active within the active application
     void focus_next_within_application();
 
+    /// make the prev surface active within the active application
+    void focus_prev_within_application();
+
     /// Find the topmost window at the cursor
     auto window_at(mir::geometry::Point cursor) const -> Window;
 
