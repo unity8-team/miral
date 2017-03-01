@@ -49,12 +49,14 @@ inline PolicyData& policy_data_for(WindowInfo const& info)
 TitlebarWindowManagerPolicy::TitlebarWindowManagerPolicy(
     WindowManagerTools const& tools,
     SpinnerSplash const& spinner,
-    miral::InternalClientLauncher const& launcher) :
+    miral::InternalClientLauncher const& launcher,
+    std::function<void()>& shutdown_hook) :
     CanonicalWindowManagerPolicy(tools),
     spinner{spinner},
     decoration_provider{std::make_unique<DecorationProvider>(tools)}
 {
     launcher.launch("decorations", *decoration_provider);
+    shutdown_hook = [this] { decoration_provider->stop(); };
 
     for (auto key : {KEY_F1, KEY_F2, KEY_F3, KEY_F4})
         key_to_workspace[key] = this->tools.create_workspace();
@@ -495,14 +497,6 @@ bool TitlebarWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* 
             if (consume)
                 return true;
         }
-    }
-
-    // TODO this is a workaround for the lack of a way to detect server exit (Mir bug lp:1593655)
-    // We need to exit the decoration_provider "client" thread before the server exits
-    if (action == mir_keyboard_action_down && scan_code == KEY_BACKSPACE &&
-        (modifiers == (mir_input_event_modifier_alt | mir_input_event_modifier_ctrl)))
-    {
-        decoration_provider->stop();
     }
 
     return false;

@@ -37,16 +37,20 @@ int main(int argc, char const* argv[])
 {
     using namespace miral;
 
+    std::function<void()> shutdown_hook{[]{}};
+
     SpinnerSplash spinner;
     InternalClientLauncher launcher;
     ActiveOutputsMonitor outputs_monitor;
     WindowManagerOptions window_managers
         {
-            add_window_manager_policy<TitlebarWindowManagerPolicy>("titlebar", spinner, launcher),
+            add_window_manager_policy<TitlebarWindowManagerPolicy>("titlebar", spinner, launcher, shutdown_hook),
             add_window_manager_policy<TilingWindowManagerPolicy>("tiling", spinner, launcher, outputs_monitor),
         };
 
     MirRunner runner{argc, argv};
+
+    runner.add_stop_callback([&]{ shutdown_hook(); });
 
     auto const quit_on_ctrl_alt_bksp = [&](MirEvent const* event)
         {

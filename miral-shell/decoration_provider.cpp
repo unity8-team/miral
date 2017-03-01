@@ -258,14 +258,10 @@ DecorationProvider::DecorationProvider(miral::WindowManagerTools const& tools) :
 
 DecorationProvider::~DecorationProvider()
 {
-    stop();
-    stop_work();
 }
 
 void DecorationProvider::stop()
 {
-    if (stopping.exchange(true)) return;
-
     enqueue_work([this]
         {
             std::lock_guard<decltype(mutex)> lock{mutex};
@@ -274,6 +270,7 @@ void DecorationProvider::stop()
 
     enqueue_work([this]
         {
+            if (connection)
             {
 #if MIR_CLIENT_API_VERSION < MIR_VERSION_NUMBER(0, 26, 2)
                 auto const Workaround_lp_1667645 =
@@ -284,6 +281,7 @@ void DecorationProvider::stop()
             }
             connection.reset();
         });
+    stop_work();
 }
 
 namespace

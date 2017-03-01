@@ -97,7 +97,6 @@ private:
     mir::client::Connection connection;
     std::vector<mir::client::Window> wallpaper;
     std::weak_ptr<mir::scene::Session> weak_session;
-    std::atomic<bool> stopping{false};
 
     SurfaceMap window_to_titlebar;
     TitleMap windows_awaiting_titlebar;
