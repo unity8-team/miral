@@ -24,6 +24,9 @@
 #include <mir/scene/session.h>
 #include <mir/main_loop.h>
 
+#define MIR_LOG_COMPONENT "miral::Internal Client"
+#include <mir/log.h>
+
 #include <atomic>
 #include <condition_variable>
 #include <mutex>
@@ -85,6 +88,16 @@ void InternalClientRunner::run(mir::Server& server)
     sprintf(connect_string, "fd://%d", fd.operator int());
 
     connection = mir::client::Connection{mir_connect_sync(connect_string, name.c_str())};
+
+    mir_connection_set_lifecycle_event_callback(
+        connection,
+        [](MirConnection*, MirLifecycleState transition, void*)
+        {
+            // The default handler kills the process with SIGHUP - which is unhelpful for internal clients
+            if (transition == mir_lifecycle_connection_lost)
+                mir::log_warning("server disconnected before connection released by client");
+        },
+        this);
 
     std::unique_lock<decltype(mutex)> lock{mutex};
     cv.wait(lock, [&] { return !!session.lock(); });

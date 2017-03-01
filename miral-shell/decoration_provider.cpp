@@ -259,10 +259,13 @@ DecorationProvider::DecorationProvider(miral::WindowManagerTools const& tools) :
 DecorationProvider::~DecorationProvider()
 {
     stop();
+    stop_work();
 }
 
 void DecorationProvider::stop()
 {
+    if (stopping.exchange(true)) return;
+
     enqueue_work([this]
         {
             std::lock_guard<decltype(mutex)> lock{mutex};
@@ -280,7 +283,6 @@ void DecorationProvider::stop()
                 wallpaper.erase(begin(wallpaper), end(wallpaper));
             }
             connection.reset();
-            stop_work();
         });
 }
 
