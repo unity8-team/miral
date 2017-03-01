@@ -29,6 +29,10 @@
 #include <mutex>
 #include <thread>
 
+#if MIR_SERVER_VERSION < MIR_VERSION_NUMBER(0, 24, 0)
+#include <csignal>
+#endif
+
 namespace
 {
 inline auto filename(std::string path) -> std::string
@@ -216,7 +220,7 @@ try
         main_loop->enqueue(this, start_callback);
 
 #if MIR_SERVER_VERSION < MIR_VERSION_NUMBER(0, 24, 0)
-        main_loop->register_signal_handler({SIGINT, SIGTERM}, [start_callback](int) {stop_callback();});
+        main_loop->register_signal_handler({SIGINT, SIGTERM}, [this](int) {stop_callback();});
 #endif
 
         server->run();
