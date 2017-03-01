@@ -6,6 +6,7 @@ miral (1.3.0) UNRELEASED; urgency=medium
       . miral ABI unchanged at 2
     - Enhancements:
       . [libmiral] Support for workspaces
+      . [libmiral] Add facility to join() the thread(s) running internal clients
       . [miral-shell] Example workspaces implementation
       . [miral-shell] Use background to show keyboard shortcuts
       . [libmirclientcpp] A better description of libmirclientcpp-dev
