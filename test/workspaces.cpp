@@ -621,11 +621,33 @@ TEST_F(Workspaces, move_windows_from_one_workspace_to_another)
             tools.move_workspace_content_to_workspace(to_workspace, from_workspace);
         });
 
+    EXPECT_THAT(windows_in_workspace(from_workspace).size(), Eq(0u));
+
     EXPECT_THAT(workspaces_containing_window(server_window(a_window)), ElementsAre(pre_workspace));
     EXPECT_THAT(workspaces_containing_window(server_window(top_level)), ElementsAre(to_workspace));
     EXPECT_THAT(workspaces_containing_window(server_window(dialog)), ElementsAre(to_workspace));
     EXPECT_THAT(workspaces_containing_window(server_window(tip)), ElementsAre(to_workspace));
     EXPECT_THAT(workspaces_containing_window(server_window(another_window)), ElementsAre(post_workspace));
+}
+
+TEST_F(Workspaces, when_moving_windows_from_one_workspace_to_another_windows_only_appear_once_in_target_workspace)
+{
+    auto const from_workspace = create_workspace();
+    auto const to_workspace = create_workspace();
+
+    create_window(a_window);
+    create_window(another_window);
+
+    invoke_tools([&, this](WindowManagerTools& tools)
+        {
+            tools.add_tree_to_workspace(server_window(a_window), from_workspace);
+            tools.add_tree_to_workspace(server_window(another_window), from_workspace);
+            tools.add_tree_to_workspace(server_window(a_window), to_workspace);
+
+            tools.move_workspace_content_to_workspace(to_workspace, from_workspace);
+        });
+
+    EXPECT_THAT(windows_in_workspace(to_workspace), ElementsAre(server_window(a_window), server_window(another_window)));
 }
 
 TEST_F(Workspaces, when_workspace_content_is_moved_the_policy_is_notified)
