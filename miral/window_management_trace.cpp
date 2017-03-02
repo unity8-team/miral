@@ -25,6 +25,7 @@
 #include <mir/scene/surface.h>
 #include <mir/event_printer.h>
 
+#include <iomanip>
 #include <sstream>
 
 #define MIR_LOG_COMPONENT "miral::Window Management"
@@ -73,6 +74,22 @@ struct BracedItemStream
         first_field = false;
         return *this;
     }
+
+    auto append(char const* name, MirOrientationMode item) const -> BracedItemStream const&
+    {
+        auto const flags = out.flags();
+        auto const prec  = out.precision();
+        auto const fill  = out.fill();
+
+        if (!first_field) out << ", ";
+        out << name << '=' << std::showbase << std::internal << std::setfill('0') << std::setw(2) << std::hex << item;
+        first_field = false;
+
+        out.flags(flags);
+        out.precision(prec);
+        out.fill(fill);
+        return *this;
+    }
 };
 
 auto operator<< (std::ostream& out, miral::WindowSpecification::AspectRatio const& ratio) -> std::ostream&
@@ -99,8 +116,15 @@ auto dump_of(miral::Application const& application) -> std::string
 
 auto dump_of(std::vector<miral::Window> const& windows) -> std::string;
 
+inline auto operator!=(miral::WindowInfo::AspectRatio const& lhs, miral::WindowInfo::AspectRatio const& rhs)
+{
+    return lhs.width != rhs.width || lhs.height != rhs.height;
+}
+
 auto dump_of(miral::WindowInfo const& info) -> std::string
 {
+    using namespace mir::geometry;
+
     std::stringstream out;
     {
         BracedItemStream bout{out};
@@ -109,18 +133,18 @@ auto dump_of(miral::WindowInfo const& info) -> std::string
         APPEND(name);
         APPEND(type);
         APPEND(state);
-        APPEND(restore_rect);
+        if (info.state() != mir_window_state_restored) APPEND(restore_rect);
         if (std::shared_ptr<mir::scene::Surface> parent = info.parent())
             bout.append("parent", parent->name());
         bout.append("children", dump_of(info.children()));
-        APPEND(min_width);
-        APPEND(min_height);
-        APPEND(max_width);
-        APPEND(max_height);
-        APPEND(width_inc);
-        APPEND(height_inc);
-        APPEND(min_aspect);
-        APPEND(max_aspect);
+        if (info.min_width()  != Width{0}) APPEND(min_width);
+        if (info.min_height() != Height{0}) APPEND(min_height);
+        if (info.max_width()  != Width{std::numeric_limits<int>::max()}) APPEND(max_width);
+        if (info.max_height() != Height{std::numeric_limits<int>::max()}) APPEND(max_height);
+        if (info.width_inc()  != DeltaX{1}) APPEND(width_inc);
+        if (info.height_inc() != DeltaY{1}) APPEND(height_inc);
+        if (info.min_aspect() != miral::WindowInfo::AspectRatio{0U, std::numeric_limits<unsigned>::max()}) APPEND(min_aspect);
+        if (info.max_aspect() != miral::WindowInfo::AspectRatio{std::numeric_limits<unsigned>::max(), 0U}) APPEND(max_aspect);
         APPEND(preferred_orientation);
         APPEND(confine_pointer);
 
