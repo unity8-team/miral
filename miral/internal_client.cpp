@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016 Canonical Ltd.
+ * Copyright © 2016-2017 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3,
@@ -17,6 +17,7 @@
  */
 
 #include "miral/internal_client.h"
+#include "join_client_threads.h"
 #include "both_versions.h"
 
 #include <mir/fd.h>
@@ -24,10 +25,14 @@
 #include <mir/scene/session.h>
 #include <mir/main_loop.h>
 
+#define MIR_LOG_COMPONENT "miral::Internal Client"
+#include <mir/log.h>
+
 #include <atomic>
 #include <condition_variable>
 #include <mutex>
 #include <thread>
+#include <map>
 
 namespace
 {
@@ -39,6 +44,8 @@ public:
          std::function<void(std::weak_ptr<mir::scene::Session> const session)> connect_notification);
 
     void run(mir::Server& server);
+    void join_client_thread();
+
     ~InternalClientRunner();
 
 private:
@@ -52,13 +59,34 @@ private:
     std::function<void(mir::client::Connection connection)> const client_code;
     std::function<void(std::weak_ptr<mir::scene::Session> const session)> connect_notification;
 };
+
+std::mutex client_runners_mutex;
+std::multimap<mir::Server*, std::weak_ptr<InternalClientRunner>> client_runners;
+
+void register_runner(mir::Server* server, std::weak_ptr<InternalClientRunner> internal_client)
+{
+    std::lock_guard<decltype(client_runners_mutex)> lock{client_runners_mutex};
+    client_runners.emplace(server, std::move(internal_client));
 }
 
-class miral::StartupInternalClient::Self : InternalClientRunner
+void join_runners_for(mir::Server* server)
 {
-public:
+    std::lock_guard<decltype(client_runners_mutex)> lock{client_runners_mutex};
+    auto range = client_runners.equal_range(server);
+
+    for (auto i = range.first; i != range.second; ++i)
+    {
+        if (auto runner = i->second.lock())
+            runner->join_client_thread();
+    }
+
+    client_runners.erase(range.first, range.second);
+}
+}
+
+class miral::StartupInternalClient::Self : public InternalClientRunner
+{
     using InternalClientRunner::InternalClientRunner;
-    using InternalClientRunner::run;
 };
 
 InternalClientRunner::InternalClientRunner(
@@ -86,6 +114,16 @@ void InternalClientRunner::run(mir::Server& server)
 
     connection = mir::client::Connection{mir_connect_sync(connect_string, name.c_str())};
 
+    mir_connection_set_lifecycle_event_callback(
+        connection,
+        [](MirConnection*, MirLifecycleState transition, void*)
+        {
+            // The default handler kills the process with SIGHUP - which is unhelpful for internal clients
+            if (transition == mir_lifecycle_connection_lost)
+                mir::log_warning("server disconnected before connection released by client");
+        },
+        this);
+
     std::unique_lock<decltype(mutex)> lock{mutex};
     cv.wait(lock, [&] { return !!session.lock(); });
 
@@ -97,6 +135,12 @@ void InternalClientRunner::run(mir::Server& server)
 }
 
 InternalClientRunner::~InternalClientRunner()
+{
+    join_client_thread();
+}
+
+
+void InternalClientRunner::join_client_thread()
 {
     if (thread.joinable())
     {
@@ -124,6 +168,8 @@ miral::StartupInternalClient::StartupInternalClient(
 
 void miral::StartupInternalClient::operator()(mir::Server& server)
 {
+    register_runner(&server, internal_client);
+
     server.add_init_callback([this, &server]
     {
         server.the_main_loop()->enqueue(this, [this, &server]
@@ -138,7 +184,7 @@ miral::StartupInternalClient::~StartupInternalClient() = default;
 struct miral::InternalClientLauncher::Self
 {
     mir::Server* server = nullptr;
-    std::unique_ptr<InternalClientRunner> runner;
+    std::shared_ptr<InternalClientRunner> runner;
 };
 
 void miral::InternalClientLauncher::operator()(mir::Server& server)
@@ -155,9 +201,15 @@ void miral::InternalClientLauncher::launch(
     std::function<void(mir::client::Connection connection)> const& client_code,
     std::function<void(std::weak_ptr<mir::scene::Session> const session)> const& connect_notification) const
 {
-    self->runner = std::make_unique<InternalClientRunner>(name, client_code, connect_notification);
+    self->runner = std::make_shared<InternalClientRunner>(name, client_code, connect_notification);
     self->server->the_main_loop()->enqueue(this, [this] { self->runner->run(*self->server); });
+    register_runner(self->server, self->runner);
 }
 
 miral::InternalClientLauncher::InternalClientLauncher() : self{std::make_shared<Self>()} {}
 miral::InternalClientLauncher::~InternalClientLauncher() = default;
+
+void join_client_threads(mir::Server* server)
+{
+    join_runners_for(server);
+}

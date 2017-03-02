@@ -505,6 +505,15 @@ try {
 }
 MIRAL_TRACE_EXCEPTION
 
+void miral::WindowManagementTrace::focus_prev_within_application()
+try {
+    log_input();
+    mir::log_info("%s", __func__);
+    trace_count++;
+    wrapped.focus_prev_within_application();
+}
+MIRAL_TRACE_EXCEPTION
+
 void miral::WindowManagementTrace::raise_tree(miral::Window const& root)
 try {
     log_input();
@@ -529,6 +538,53 @@ void miral::WindowManagementTrace::invoke_under_lock(std::function<void()> const
 try {
     mir::log_info("%s", __func__);
     wrapped.invoke_under_lock(callback);
+}
+MIRAL_TRACE_EXCEPTION
+
+auto miral::WindowManagementTrace::create_workspace() -> std::shared_ptr<Workspace>
+try {
+    mir::log_info("%s", __func__);
+    return wrapped.create_workspace();
+}
+MIRAL_TRACE_EXCEPTION
+
+void miral::WindowManagementTrace::add_tree_to_workspace(
+    miral::Window const& window, std::shared_ptr<miral::Workspace> const& workspace)
+try {
+    mir::log_info("%s window=%s, workspace =%p", __func__, dump_of(window).c_str(), workspace.get());
+    wrapped.add_tree_to_workspace(window, workspace);
+}
+MIRAL_TRACE_EXCEPTION
+
+void miral::WindowManagementTrace::remove_tree_from_workspace(
+    miral::Window const& window, std::shared_ptr<miral::Workspace> const& workspace)
+try {
+    mir::log_info("%s window=%s, workspace =%p", __func__, dump_of(window).c_str(), workspace.get());
+    wrapped.remove_tree_from_workspace(window, workspace);
+}
+MIRAL_TRACE_EXCEPTION
+
+void miral::WindowManagementTrace::move_workspace_content_to_workspace(
+    std::shared_ptr<Workspace> const& to_workspace, std::shared_ptr<Workspace> const& from_workspace)
+try {
+    mir::log_info("%s to_workspace=%p, from_workspace=%p", __func__, to_workspace.get(), from_workspace.get());
+    wrapped.move_workspace_content_to_workspace(to_workspace, from_workspace);
+}
+MIRAL_TRACE_EXCEPTION
+
+void miral::WindowManagementTrace::for_each_workspace_containing(
+    miral::Window const& window, std::function<void(std::shared_ptr<miral::Workspace> const&)> const& callback)
+try {
+    mir::log_info("%s window=%s", __func__, dump_of(window).c_str());
+    wrapped.for_each_workspace_containing(window, callback);
+}
+MIRAL_TRACE_EXCEPTION
+
+void miral::WindowManagementTrace::for_each_window_in_workspace(
+    std::shared_ptr<miral::Workspace> const& workspace, std::function<void(miral::Window const&)> const& callback)
+try {
+    mir::log_info("%s workspace =%p", __func__, workspace.get());
+    wrapped.for_each_window_in_workspace(workspace, callback);
 }
 MIRAL_TRACE_EXCEPTION
 

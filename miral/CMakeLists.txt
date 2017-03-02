@@ -21,7 +21,8 @@ add_library(miral-internal STATIC
     window_management_trace.cpp         window_management_trace.h
     xcursor_loader.cpp                  xcursor_loader.h
     xcursor.c                           xcursor.h
-    both_versions.h
+                                        both_versions.h
+                                        join_client_threads.h
 )
 
 set_source_files_properties(xcursor.c PROPERTIES COMPILE_DEFINITIONS _GNU_SOURCE)
@@ -49,11 +50,13 @@ add_library(miral SHARED
     set_command_line_hander.cpp         ${CMAKE_SOURCE_DIR}/include/miral/set_command_line_hander.h
     set_terminator.cpp                  ${CMAKE_SOURCE_DIR}/include/miral/set_terminator.h
     set_window_managment_policy.cpp     ${CMAKE_SOURCE_DIR}/include/miral/set_window_managment_policy.h
+    workspace_policy.cpp                ${CMAKE_SOURCE_DIR}/include/miral/workspace_policy.h
     window_management_policy.cpp        ${CMAKE_SOURCE_DIR}/include/miral/window_management_policy.h
     window_manager_tools.cpp            ${CMAKE_SOURCE_DIR}/include/miral/window_manager_tools.h
                                         ${CMAKE_SOURCE_DIR}/include/mir/client/window_spec.h
                                         ${CMAKE_SOURCE_DIR}/include/mir/client/window_id.h
                                         ${CMAKE_SOURCE_DIR}/include/mir/client/connection.h
+                                        ${CMAKE_SOURCE_DIR}/include/mir/client/display_config.h
                                         ${CMAKE_SOURCE_DIR}/include/mir/client/window.h
                                         ${CMAKE_SOURCE_DIR}/include/mir/client/detail/mir_forward_compatibility.h
 )
@@ -100,9 +103,15 @@ else()
     set(MIR_POINTER_CONFINEMENT 1)
 endif()
 
+if (MIRSERVER_VERSION VERSION_LESS 0.22)
+    set(MIR_DISPLAY_CONFIG_GET_MUTABLE 0)
+else()
+    set(MIR_DISPLAY_CONFIG_GET_MUTABLE 1)
+endif()
+
 configure_file(
-  ${CMAKE_CURRENT_SOURCE_DIR}/mir_features.h.in
-        ${PROJECT_SOURCE_DIR}/include/mir/client/detail/mir_features.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/mir_features.h.in
+    ${PROJECT_SOURCE_DIR}/include/mir/client/detail/mir_features.h
 )
 
 configure_file(

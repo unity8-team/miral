@@ -66,12 +66,10 @@ Architecture: linux-any
 Multi-Arch: same
 Pre-Depends: ${misc:Pre-Depends}
 Depends: libmirclient-dev,
-Description: Developer files for the Mir ABI-stable abstraction layer
- MirAL provides an ABI-stable abstraction layer for Mir based shells,
- insulating them from mirserver ABI breaks.
+Description: A C++ wrapper for libmirclient-dev
+ Provides RAII (and other facilities) for Mir client library types.
  .
- Contains header files required for development using the MirAL abstraction
- layer.
+ Contains header files useful for C++ development against Mir.
 
 Package: miral-examples
 Architecture: linux-any

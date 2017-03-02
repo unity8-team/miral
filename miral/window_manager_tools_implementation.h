@@ -35,6 +35,7 @@ class Window;
 struct WindowInfo;
 struct ApplicationInfo;
 class WindowSpecification;
+class Workspace;
 
 // The interface through which the policy instructs the controller.
 class WindowManagerToolsImplementation
@@ -61,6 +62,7 @@ public:
     virtual void drag_window(Window const& window, mir::geometry::Displacement& movement) = 0;
     virtual void focus_next_application() = 0;
     virtual void focus_next_within_application() = 0;
+    virtual void focus_prev_within_application() = 0;
     virtual auto window_at(mir::geometry::Point cursor) const -> Window = 0;
     virtual auto active_display() -> mir::geometry::Rectangle const = 0;
     virtual void raise_tree(Window const& root) = 0;
@@ -68,6 +70,19 @@ public:
     virtual auto info_for_window_id(std::string const& id) const -> WindowInfo& = 0;
     virtual auto id_for_window(Window const& window) const -> std::string = 0;
     virtual void place_and_size_for_state(WindowSpecification& modifications, WindowInfo const& window_info) const= 0;
+
+    virtual auto create_workspace() -> std::shared_ptr<Workspace> = 0;
+    virtual void add_tree_to_workspace(Window const& window, std::shared_ptr<Workspace> const& workspace) = 0;
+    virtual void remove_tree_from_workspace(Window const& window, std::shared_ptr<Workspace> const& workspace) = 0;
+    virtual void move_workspace_content_to_workspace(
+        std::shared_ptr<Workspace> const& to_workspace,
+        std::shared_ptr<Workspace> const& from_workspace) = 0;
+    virtual void for_each_workspace_containing(
+        Window const& window,
+        std::function<void(std::shared_ptr<Workspace> const& workspace)> const& callback) = 0;
+    virtual void for_each_window_in_workspace(
+        std::shared_ptr<Workspace> const& workspace,
+        std::function<void(Window const& window)> const& callback) = 0;
 
 /** @} */
 

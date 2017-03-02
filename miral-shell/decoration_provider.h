@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016 Canonical Ltd.
+ * Copyright © 2016-2017 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3,
@@ -16,11 +16,14 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#ifndef MIRAL_SHELL_TITLEBAR_PROVIDER_H
-#define MIRAL_SHELL_TITLEBAR_PROVIDER_H
+#ifndef MIRAL_SHELL_DECORATION_PROVIDER_H
+#define MIRAL_SHELL_DECORATION_PROVIDER_H
 
 
 #include <miral/window_manager_tools.h>
+
+#include <mir/client/connection.h>
+#include <mir/client/window.h>
 
 #include <mir/geometry/rectangle.h>
 #include <mir_toolkit/client_types.h>
@@ -28,8 +31,6 @@
 #include <atomic>
 #include <map>
 #include <mutex>
-#include <mir/client/connection.h>
-#include <thread>
 #include <condition_variable>
 #include <queue>
 
@@ -49,16 +50,15 @@ private:
     std::condition_variable work_cv;
     WorkQueue work_queue;
     bool work_done = false;
-    std::thread worker;
 
     void do_work();
 };
 
-class TitlebarProvider : Worker
+class DecorationProvider : Worker
 {
 public:
-    TitlebarProvider(miral::WindowManagerTools const& tools);
-    ~TitlebarProvider();
+    DecorationProvider(miral::WindowManagerTools const& tools);
+    ~DecorationProvider();
 
     void operator()(mir::client::Connection connection);
     void operator()(std::weak_ptr<mir::scene::Session> const& session);
@@ -66,7 +66,7 @@ public:
     auto session() const -> std::shared_ptr<mir::scene::Session>;
 
     void create_titlebar_for(miral::Window const& window);
-    void place_new_titlebar(miral::WindowSpecification& window_spec);
+    void place_new_decoration(miral::WindowSpecification& window_spec);
     void paint_titlebar_for(miral::WindowInfo const& window, int intensity);
     void destroy_titlebar_for(miral::Window const& window);
     void resize_titlebar_for(miral::WindowInfo const& window_info, mir::geometry::Size const& size);
@@ -75,10 +75,14 @@ public:
 
     void stop();
 
+    bool is_decoration(miral::Window const& window) const;
+    bool is_titlebar(miral::WindowInfo const& window_info) const;
+
 private:
     struct Data
     {
         std::atomic<MirWindow*> titlebar{nullptr};
+        std::atomic<int> intensity{0xff};
         std::function<void(MirWindow* surface)> on_create{[](MirWindow*){}};
         miral::Window window;
 
@@ -91,8 +95,8 @@ private:
     miral::WindowManagerTools tools;
     std::mutex mutable mutex;
     mir::client::Connection connection;
+    std::vector<mir::client::Window> wallpaper;
     std::weak_ptr<mir::scene::Session> weak_session;
-    std::atomic<int> intensity{0xff};
 
     SurfaceMap window_to_titlebar;
     TitleMap windows_awaiting_titlebar;
@@ -104,4 +108,4 @@ private:
 };
 
 
-#endif //MIRAL_SHELL_TITLEBAR_PROVIDER_H
+#endif //MIRAL_SHELL_DECORATION_PROVIDER_H

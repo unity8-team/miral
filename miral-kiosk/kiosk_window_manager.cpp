@@ -58,6 +58,14 @@ bool KioskWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* eve
 
         return true;
     }
+    else if (action == mir_keyboard_action_down &&
+             modifiers == (mir_input_event_modifier_alt | mir_input_event_modifier_shift) &&
+             scan_code == KEY_GRAVE)
+    {
+        tools.focus_prev_within_application();
+
+        return true;
+    }
     else if (action == mir_keyboard_action_down && scan_code == KEY_F4)
     {
         switch (modifiers & modifier_mask)

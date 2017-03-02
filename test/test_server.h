@@ -21,6 +21,7 @@
 
 #include <mir/client/connection.h>
 
+#include <miral/canonical_window_manager.h>
 #include <miral/runner.h>
 #include <miral/window_manager_tools.h>
 
@@ -63,9 +64,10 @@ struct TestServer : testing::Test, private TestRuntimeEnvironment
     void invoke_tools(std::function<void(WindowManagerTools& tools)> const& f);
     void invoke_window_manager(std::function<void(mir::shell::WindowManager& wm)> const& f);
 
-private:
     struct TestWindowManagerPolicy;
+    virtual auto build_window_manager_policy(WindowManagerTools const& tools) -> std::unique_ptr<TestWindowManagerPolicy>;
 
+private:
     WindowManagerTools tools{nullptr};
     WindowManagementPolicy* policy{nullptr};
     std::weak_ptr<mir::shell::WindowManager> window_manager;
@@ -74,6 +76,16 @@ private:
     std::condition_variable started;
     mir::Server* server_running{nullptr};
 };
+
+struct TestServer::TestWindowManagerPolicy : CanonicalWindowManagerPolicy
+{
+    TestWindowManagerPolicy(WindowManagerTools const& tools, TestServer& test_fixture);
+
+    bool handle_keyboard_event(MirKeyboardEvent const*) override { return false; }
+    bool handle_pointer_event(MirPointerEvent const*) override { return false; }
+    bool handle_touch_event(MirTouchEvent const*) override { return false; }
+};
+
 }
 
 #endif //MIRAL_TEST_SERVER_H

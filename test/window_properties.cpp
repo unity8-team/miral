@@ -54,7 +54,28 @@ struct WindowProperties : public miral::TestServer
     }
 
     Connection client_connection;
+
+    std::unique_ptr<TestWindowManagerPolicy> build_window_manager_policy(WindowManagerTools const& tools) override;
+
+    mir::test::Signal window_ready;
 };
+
+auto WindowProperties::build_window_manager_policy(WindowManagerTools const& tools)
+-> std::unique_ptr<miral::TestServer::TestWindowManagerPolicy>
+{
+    struct MockWindowManagerPolicy : miral::TestServer::TestWindowManagerPolicy
+    {
+        using miral::TestServer::TestWindowManagerPolicy::TestWindowManagerPolicy;
+        MOCK_METHOD1(advise_focus_gained, void (miral::WindowInfo const& window_info));
+    };
+
+    auto result = std::make_unique<MockWindowManagerPolicy>(tools, *this);
+
+    ON_CALL(*result, advise_focus_gained(_))
+        .WillByDefault(InvokeWithoutArgs([this] { window_ready.raise(); }));
+
+    return std::move(result);
+}
 }
 
 TEST_F(WindowProperties, on_creation_default_shell_chrome_is_normal)
@@ -65,6 +86,7 @@ TEST_F(WindowProperties, on_creation_default_shell_chrome_is_normal)
         .create_window();
 
     mir_buffer_stream_swap_buffers_sync(mir_window_get_buffer_stream(window));
+    ASSERT_TRUE(window_ready.wait_for(400ms));
 
     invoke_tools([&, this](WindowManagerTools& tools)
     {
@@ -81,6 +103,7 @@ TEST_F(WindowProperties, on_creation_client_setting_shell_chrome_low_is_seen_by_
         .create_window();
 
     mir_buffer_stream_swap_buffers_sync(mir_window_get_buffer_stream(window));
+    ASSERT_TRUE(window_ready.wait_for(400ms));
 
     invoke_tools([&, this](WindowManagerTools& tools)
     {
@@ -100,6 +123,7 @@ TEST_F(WindowProperties, after_creation_client_setting_shell_chrome_low_is_seen_
         .apply_to(window);
 
     mir_buffer_stream_swap_buffers_sync(mir_window_get_buffer_stream(window));
+    ASSERT_TRUE(window_ready.wait_for(400ms));
 
     invoke_tools([&, this](WindowManagerTools& tools)
     {
@@ -120,6 +144,7 @@ TEST_F(WindowProperties, after_creation_client_setting_shell_chrome_normal_is_se
         .apply_to(window);
 
     mir_buffer_stream_swap_buffers_sync(mir_window_get_buffer_stream(window));
+    ASSERT_TRUE(window_ready.wait_for(400ms));
 
     invoke_tools([&, this](WindowManagerTools& tools)
     {
