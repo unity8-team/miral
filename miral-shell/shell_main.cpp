@@ -40,7 +40,6 @@ int main(int argc, char const* argv[])
     std::function<void()> shutdown_hook{[]{}};
 
     SpinnerSplash spinner;
-
     InternalClientLauncher launcher;
     ActiveOutputsMonitor outputs_monitor;
     WindowManagerOptions window_managers

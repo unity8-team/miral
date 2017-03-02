@@ -87,7 +87,6 @@ int main(int argc, char const* argv[])
         "Only allow applications to connect during startup",
         KioskAuthorizer::startup_only};
 
-
     return MirRunner{argc, argv}.run_with(
         {
             CommandLineOption{[&](std::string const& ) { },
