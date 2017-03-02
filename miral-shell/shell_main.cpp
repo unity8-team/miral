@@ -40,7 +40,6 @@ int main(int argc, char const* argv[])
     std::function<void()> shutdown_hook{[]{}};
 
     SpinnerSplash spinner;
-    StartupInternalClient spinner_client{"Intro", spinner};
 
     InternalClientLauncher launcher;
     ActiveOutputsMonitor outputs_monitor;
@@ -52,12 +51,7 @@ int main(int argc, char const* argv[])
 
     MirRunner runner{argc, argv};
 
-    runner.add_stop_callback([&]
-        { 
-            shutdown_hook();
-            spinner_client.join_client_thread();
-            launcher.join_client_thread();
-        });
+    runner.add_stop_callback([&] { shutdown_hook(); });
 
     auto const quit_on_ctrl_alt_bksp = [&](MirEvent const* event)
         {
@@ -98,7 +92,7 @@ int main(int argc, char const* argv[])
             config_keymap,
             debug_extensions,
             AppendEventFilter{quit_on_ctrl_alt_bksp},
-            spinner_client,
+            StartupInternalClient{"Intro", spinner},
             CommandLineOption{[&](std::string const& typeface) { ::titlebar::font_file(typeface); },
                               "shell-titlebar-font", "font file to use for titlebars", ::titlebar::font_file()}
         });

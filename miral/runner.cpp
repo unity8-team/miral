@@ -17,6 +17,7 @@
  */
 
 #include "miral/runner.h"
+#include "join_client_threads.h"
 
 #include <mir/server.h>
 #include <mir/main_loop.h>
@@ -54,7 +55,7 @@ struct miral::MirRunner::Self
     
     std::mutex mutex;
     std::function<void()> start_callback{[]{}};
-    std::function<void()> stop_callback{[]{}};
+    std::function<void()> stop_callback{[this]{ join_client_threads(weak_server.lock().get()); }};
     std::function<void()> exception_handler{static_cast<void(*)()>(mir::report_exception)};
     std::weak_ptr<mir::Server> weak_server;
 };

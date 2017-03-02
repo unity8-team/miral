@@ -88,12 +88,7 @@ int main(int argc, char const* argv[])
         KioskAuthorizer::startup_only};
 
 
-    MirRunner runner{argc, argv};
-    StartupInternalClient client{"Intro", splash};
-
-    runner.add_stop_callback([&]{ client.join_client_thread(); });
-    
-    return runner.run_with(
+    return MirRunner{argc, argv}.run_with(
         {
             CommandLineOption{[&](std::string const& ) { },
                               "desktop_file_hint", "Ignored for Unity8 compatability", "miral-shell.desktop"},
@@ -102,6 +97,6 @@ int main(int argc, char const* argv[])
             Keymap{},
             maximise_roots,
             startup_only,
-            client
+            StartupInternalClient{"Intro", splash}
         });
 }
