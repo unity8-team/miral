@@ -451,6 +451,14 @@ bool TitlebarWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* 
         return true;
     }
     else if (action == mir_keyboard_action_down &&
+             modifiers == (mir_input_event_modifier_alt | mir_input_event_modifier_shift) &&
+             scan_code == KEY_GRAVE)
+    {
+        tools.focus_prev_within_application();
+
+        return true;
+    }
+    else if (action == mir_keyboard_action_down &&
              modifiers == (mir_input_event_modifier_ctrl|mir_input_event_modifier_meta))
     {
         if (auto active_window = tools.active_window())

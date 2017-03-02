@@ -606,6 +606,63 @@ void miral::BasicWindowManager::focus_next_within_application()
     }
 }
 
+void miral::BasicWindowManager::focus_prev_within_application()
+{
+    if (auto const prev = active_window())
+    {
+        auto const workspaces_containing_window = workspaces_containing(prev);
+        auto const& siblings = info_for(prev.application()).windows();
+        auto current = find(rbegin(siblings), rend(siblings), prev);
+
+        if (current != rend(siblings))
+        {
+            while (++current != rend(siblings))
+            {
+                for (auto const& workspace : workspaces_containing(*current))
+                {
+                    for (auto const& ww : workspaces_containing_window)
+                    {
+                        if (ww == workspace)
+                        {
+                            if (prev != select_active_window(*current))
+                                return;
+                        }
+                    }
+                }
+            }
+        }
+
+        for (current = rbegin(siblings); *current != prev; ++current)
+        {
+            for (auto const& workspace : workspaces_containing(*current))
+            {
+                for (auto const& ww : workspaces_containing_window)
+                {
+                    if (ww == workspace)
+                    {
+                        if (prev != select_active_window(*current))
+                            return;
+                    }
+                }
+            }
+        }
+
+        current = find(rbegin(siblings), rend(siblings), prev);
+        if (current != rend(siblings))
+        {
+            while (++current != rend(siblings) && prev == select_active_window(*current))
+                ;
+        }
+
+        if (current == rend(siblings))
+        {
+            current = rbegin(siblings);
+            while (prev != *current && prev == select_active_window(*current))
+                ++current;
+        }
+    }
+}
+
 auto miral::BasicWindowManager::window_at(geometry::Point cursor) const
 -> Window
 {

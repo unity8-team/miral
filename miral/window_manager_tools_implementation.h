@@ -62,6 +62,7 @@ public:
     virtual void drag_window(Window const& window, mir::geometry::Displacement& movement) = 0;
     virtual void focus_next_application() = 0;
     virtual void focus_next_within_application() = 0;
+    virtual void focus_prev_within_application() = 0;
     virtual auto window_at(mir::geometry::Point cursor) const -> Window = 0;
     virtual auto active_display() -> mir::geometry::Rectangle const = 0;
     virtual void raise_tree(Window const& root) = 0;

@@ -66,6 +66,7 @@ private:
     virtual void focus_next_application() override;
 
     virtual void focus_next_within_application() override;
+    virtual void focus_prev_within_application() override;
 
     virtual void raise_tree(Window const& root) override;
 

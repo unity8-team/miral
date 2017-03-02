@@ -373,6 +373,7 @@ global:
   extern "C++" {
     miral::WindowManagerTools::add_tree_to_workspace*;
     miral::WindowManagerTools::create_workspace*;
+    miral::WindowManagerTools::focus_prev_within_application*;
     miral::WindowManagerTools::for_each_window_in_workspace*;
     miral::WindowManagerTools::for_each_workspace_containing*;
     miral::WindowManagerTools::remove_tree_from_workspace*;
