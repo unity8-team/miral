@@ -34,6 +34,12 @@ using namespace mir::client;
 using namespace std::chrono_literals;
 using miral::WindowManagerTools;
 
+#if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
+auto const mir_window_set_state = mir_surface_set_state;
+auto const mir_window_event_get_attribute = mir_surface_event_get_attribute;
+auto const mir_event_get_window_event = mir_event_get_surface_event;
+#endif
+
 namespace
 {
 class FocusChangeSync
@@ -48,13 +54,8 @@ public:
 
     static void raise_signal_on_focus_change(MirWindow* /*surface*/, MirEvent const* event, void* context)
     {
-#if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
-        if (mir_event_get_type(event) == mir_event_type_surface &&
-            mir_surface_event_get_attribute(mir_event_get_surface_event(event)) == mir_surface_attrib_focus)
-#else
         if (mir_event_get_type(event) == mir_event_type_window &&
             mir_window_event_get_attribute(mir_event_get_window_event(event)) == mir_window_attrib_focus)
-#endif
         {
             ((FocusChangeSync*)context)->signal.raise();
         }
@@ -160,11 +161,7 @@ TEST_F(ActiveWindow, a_single_window_when_hiding_becomes_inactive)
     auto const connection = connect_client(test_name);
     auto const surface = create_surface(connection, test_name, sync1);
 
-#if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
-    sync1.exec([&]{ mir_surface_set_state(surface, mir_surface_state_hidden); });
-#else
     sync1.exec([&]{ mir_window_set_state(surface, mir_window_state_hidden); });
-#endif
 
     EXPECT_TRUE(sync1.signal_raised());
     assert_no_active_window();
@@ -175,15 +172,11 @@ TEST_F(ActiveWindow, a_single_window_when_unhiding_becomes_active)
     char const* const test_name = __PRETTY_FUNCTION__;
     auto const connection = connect_client(test_name);
     auto const surface = create_surface(connection, test_name, sync1);
-#if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
-    sync1.exec([&]{ mir_surface_set_state(surface, mir_surface_state_hidden); });
 
-    sync1.exec([&]{ mir_surface_set_state(surface, mir_surface_state_restored); });
-#else
     sync1.exec([&]{ mir_window_set_state(surface, mir_window_state_hidden); });
 
     sync1.exec([&]{ mir_window_set_state(surface, mir_window_state_restored); });
-#endif
+
     EXPECT_TRUE(sync1.signal_raised());
 
     assert_active_window_is(test_name);
@@ -208,11 +201,7 @@ TEST_F(ActiveWindow, a_second_window_hiding_makes_first_active)
     auto const first_surface = create_surface(connection, test_name, sync1);
     auto const surface = create_surface(connection, another_name, sync2);
 
-#if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
-    sync2.exec([&]{ mir_surface_set_state(surface, mir_surface_state_hidden); });
-#else
     sync2.exec([&]{ mir_window_set_state(surface, mir_window_state_hidden); });
-#endif
 
     EXPECT_TRUE(sync2.signal_raised());
     assert_active_window_is(test_name);
@@ -226,17 +215,11 @@ TEST_F(ActiveWindow, a_second_window_unhiding_leaves_first_active)
     auto const first_surface = create_surface(connection, test_name, sync1);
     auto const surface = create_surface(connection, another_name, sync2);
 
-#if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
-    sync1.exec([&]{ mir_surface_set_state(surface, mir_surface_state_hidden); });
-
-    // Expect this to timeout
-    sync2.exec([&]{ mir_surface_set_state(surface, mir_surface_state_restored); });
-#else
     sync1.exec([&]{ mir_window_set_state(surface, mir_window_state_hidden); });
 
     // Expect this to timeout
     sync2.exec([&]{ mir_window_set_state(surface, mir_window_state_restored); });
-#endif
+
     EXPECT_THAT(sync2.signal_raised(), Eq(false));
     assert_active_window_is(test_name);
 }
