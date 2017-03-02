@@ -196,6 +196,15 @@ public:
     void remove_tree_from_workspace(Window const& window, std::shared_ptr<Workspace> const& workspace);
 
     /**
+     * Moves all the content from one workspace to another
+     * @param from_workspace the workspace to move the windows from;
+     * @param to_workspace the workspace to move the windows to;
+     */
+    void move_workspace_content_to_workspace(
+        std::shared_ptr<Workspace> const& to_workspace,
+        std::shared_ptr<Workspace> const& from_workspace);
+
+    /**
      * invoke callback with each workspace containing window
      * \warning it is unsafe to add or remove windows from workspaces from the callback during enumeration
      * @param window

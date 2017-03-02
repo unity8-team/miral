@@ -601,3 +601,69 @@ TEST_F(Workspaces, focus_next_application_keeps_focus_in_workspace)
                 << "server_window(a_window): " << tools.info_for(server_window(a_window)).name();
         });
 }
+
+TEST_F(Workspaces, move_windows_from_one_workspace_to_another)
+{
+    auto const pre_workspace = create_workspace();
+    auto const from_workspace = create_workspace();
+    auto const to_workspace = create_workspace();
+    auto const post_workspace = create_workspace();
+
+    create_window(a_window);
+    create_window(another_window);
+
+    invoke_tools([&, this](WindowManagerTools& tools)
+        {
+            tools.add_tree_to_workspace(server_window(a_window), pre_workspace);
+            tools.add_tree_to_workspace(server_window(top_level), from_workspace);
+            tools.add_tree_to_workspace(server_window(another_window), post_workspace);
+
+            tools.move_workspace_content_to_workspace(to_workspace, from_workspace);
+        });
+
+    EXPECT_THAT(windows_in_workspace(from_workspace).size(), Eq(0u));
+
+    EXPECT_THAT(workspaces_containing_window(server_window(a_window)), ElementsAre(pre_workspace));
+    EXPECT_THAT(workspaces_containing_window(server_window(top_level)), ElementsAre(to_workspace));
+    EXPECT_THAT(workspaces_containing_window(server_window(dialog)), ElementsAre(to_workspace));
+    EXPECT_THAT(workspaces_containing_window(server_window(tip)), ElementsAre(to_workspace));
+    EXPECT_THAT(workspaces_containing_window(server_window(another_window)), ElementsAre(post_workspace));
+}
+
+TEST_F(Workspaces, when_moving_windows_from_one_workspace_to_another_windows_only_appear_once_in_target_workspace)
+{
+    auto const from_workspace = create_workspace();
+    auto const to_workspace = create_workspace();
+
+    create_window(a_window);
+    create_window(another_window);
+
+    invoke_tools([&, this](WindowManagerTools& tools)
+        {
+            tools.add_tree_to_workspace(server_window(a_window), from_workspace);
+            tools.add_tree_to_workspace(server_window(another_window), from_workspace);
+            tools.add_tree_to_workspace(server_window(a_window), to_workspace);
+
+            tools.move_workspace_content_to_workspace(to_workspace, from_workspace);
+        });
+
+    EXPECT_THAT(windows_in_workspace(to_workspace), ElementsAre(server_window(a_window), server_window(another_window)));
+}
+
+TEST_F(Workspaces, when_workspace_content_is_moved_the_policy_is_notified)
+{
+    auto const from_workspace = create_workspace();
+    auto const to_workspace = create_workspace();
+
+    EXPECT_CALL(policy(), advise_removing_from_workspace(from_workspace,
+         ElementsAre(server_window(top_level), server_window(dialog), server_window(tip))));
+
+     EXPECT_CALL(policy(), advise_adding_to_workspace(to_workspace,
+          ElementsAre(server_window(top_level), server_window(dialog), server_window(tip))));
+
+    invoke_tools([&, this](WindowManagerTools& tools)
+        {
+            tools.add_tree_to_workspace(server_window(dialog), from_workspace);
+            tools.move_workspace_content_to_workspace(to_workspace, from_workspace);
+        });
+}
