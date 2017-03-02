@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016 Canonical Ltd.
+ * Copyright © 2016-2017 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3,
@@ -17,6 +17,7 @@
  */
 
 #include "miral/runner.h"
+#include "join_client_threads.h"
 
 #include <mir/server.h>
 #include <mir/main_loop.h>
@@ -28,6 +29,10 @@
 #include <cstdlib>
 #include <mutex>
 #include <thread>
+
+#if MIR_SERVER_VERSION < MIR_VERSION_NUMBER(0, 24, 0)
+#include <csignal>
+#endif
 
 namespace
 {
@@ -50,7 +55,7 @@ struct miral::MirRunner::Self
     
     std::mutex mutex;
     std::function<void()> start_callback{[]{}};
-    std::function<void()> stop_callback{[]{}};
+    std::function<void()> stop_callback{[this]{ join_client_threads(weak_server.lock().get()); }};
     std::function<void()> exception_handler{static_cast<void(*)()>(mir::report_exception)};
     std::weak_ptr<mir::Server> weak_server;
 };
@@ -214,6 +219,10 @@ try
         // ensuring that the server has really and fully started.
         auto const main_loop = server->the_main_loop();
         main_loop->enqueue(this, start_callback);
+
+#if MIR_SERVER_VERSION < MIR_VERSION_NUMBER(0, 24, 0)
+        main_loop->register_signal_handler({SIGINT, SIGTERM}, [this](int) {stop_callback();});
+#endif
 
         server->run();
     }

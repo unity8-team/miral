@@ -382,17 +382,10 @@ global:
     miral::WorkspacePolicy::advise_adding_to_workspace*;
     miral::WorkspacePolicy::advise_removing_from_workspace*;
     miral::WorkspacePolicy::operator*;
-    miral::toolkit::Window::Window*;
     non-virtual?thunk?to?miral::WorkspacePolicy::?WorkspacePolicy*;
     non-virtual?thunk?to?miral::WorkspacePolicy::advise_adding_to_workspace*;
     non-virtual?thunk?to?miral::WorkspacePolicy::advise_removing_from_workspace*;
     typeinfo?for?miral::WorkspacePolicy;
-    typeinfo?for?miral::toolkit::Window;
-    typeinfo?for?miral::toolkit::WindowId;
-    typeinfo?for?miral::toolkit::WindowSpec;
     vtable?for?miral::WorkspacePolicy;
-    vtable?for?miral::toolkit::Window;
-    vtable?for?miral::toolkit::WindowId;
-    vtable?for?miral::toolkit::WindowSpec;
   };
 } MIRAL_1.2;

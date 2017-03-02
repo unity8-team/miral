@@ -36,7 +36,11 @@ class DecorationProvider;
 class TitlebarWindowManagerPolicy : public miral::CanonicalWindowManagerPolicy, miral::WorkspacePolicy
 {
 public:
-    TitlebarWindowManagerPolicy(miral::WindowManagerTools const& tools, SpinnerSplash const& spinner, miral::InternalClientLauncher const& launcher);
+    TitlebarWindowManagerPolicy(
+        miral::WindowManagerTools const& tools,
+        SpinnerSplash const& spinner,
+        miral::InternalClientLauncher const& launcher,
+        std::function<void()>& shutdown_hook);
     ~TitlebarWindowManagerPolicy();
 
     virtual miral::WindowSpecification place_new_window(
