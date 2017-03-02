@@ -179,11 +179,6 @@ void miral::StartupInternalClient::operator()(mir::Server& server)
     });
 }
 
-void miral::StartupInternalClient::join_client_thread() const
-{
-    internal_client->join_client_thread();
-}
-
 miral::StartupInternalClient::~StartupInternalClient() = default;
 
 struct miral::InternalClientLauncher::Self
@@ -213,11 +208,6 @@ void miral::InternalClientLauncher::launch(
 
 miral::InternalClientLauncher::InternalClientLauncher() : self{std::make_shared<Self>()} {}
 miral::InternalClientLauncher::~InternalClientLauncher() = default;
-
-void miral::InternalClientLauncher::join_client_thread() const
-{
-    self->runner->join_client_thread();
-}
 
 void join_client_threads(mir::Server* server)
 {

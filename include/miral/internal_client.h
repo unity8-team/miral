@@ -52,8 +52,6 @@ public:
 
     void operator()(mir::Server& server);
 
-    void join_client_thread() const;
-
 private:
     class Self;
     std::shared_ptr<Self> internal_client;
@@ -80,8 +78,6 @@ public:
             [&](mir::client::Connection connection) { client_object(connection); },
             [&](std::weak_ptr<mir::scene::Session> const session) { client_object(session); });
     }
-
-    void join_client_thread() const;
 
 private:
     struct Self;

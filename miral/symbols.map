@@ -371,8 +371,6 @@ global:
 MIRAL_1.3 {
 global:
   extern "C++" {
-    miral::InternalClientLauncher::join_client_thread*;
-    miral::StartupInternalClient::join_client_thread*;
     miral::WindowManagerTools::add_tree_to_workspace*;
     miral::WindowManagerTools::create_workspace*;
     miral::WindowManagerTools::for_each_window_in_workspace*;
