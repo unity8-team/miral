@@ -19,7 +19,6 @@
 #include "test_server.h"
 #include "../miral/basic_window_manager.h"
 
-#include <miral/canonical_window_manager.h>
 #include <miral/set_window_managment_policy.h>
 
 #include <mir_test_framework/executable_path.h>
@@ -48,19 +47,13 @@ std::chrono::seconds const timeout{20};
 char const* dummy_args[2] = { "TestServer", nullptr };
 }
 
-struct miral::TestServer::TestWindowManagerPolicy : CanonicalWindowManagerPolicy
+miral::TestServer::TestWindowManagerPolicy::TestWindowManagerPolicy(
+    WindowManagerTools const& tools, TestServer& test_fixture) :
+    CanonicalWindowManagerPolicy{tools}
 {
-    TestWindowManagerPolicy(WindowManagerTools const& tools, TestServer& test_fixture) :
-        CanonicalWindowManagerPolicy{tools}
-    {
-        test_fixture.tools = tools;
-        test_fixture.policy = this;
-    }
-
-    bool handle_keyboard_event(MirKeyboardEvent const*) override { return false; }
-    bool handle_pointer_event(MirPointerEvent const*) override { return false; }
-    bool handle_touch_event(MirTouchEvent const*) override { return false; }
-};
+    test_fixture.tools = tools;
+    test_fixture.policy = this;
+}
 
 miral::TestServer::TestServer() :
     runner{1, dummy_args}
@@ -68,6 +61,12 @@ miral::TestServer::TestServer() :
     add_to_environment("MIR_SERVER_PLATFORM_GRAPHICS_LIB", mtf::server_platform("graphics-dummy.so").c_str());
     add_to_environment("MIR_SERVER_PLATFORM_INPUT_LIB", mtf::server_platform("input-stub.so").c_str());
     add_to_environment("MIR_SERVER_NO_FILE", "on");
+}
+
+auto miral::TestServer::build_window_manager_policy(WindowManagerTools const& tools)
+-> std::unique_ptr<TestWindowManagerPolicy>
+{
+    return std::make_unique<TestWindowManagerPolicy>(tools, *this);
 }
 
 void miral::TestServer::SetUp()
@@ -114,7 +113,7 @@ void miral::TestServer::SetUp()
 
                             auto builder = [this](WindowManagerTools const& tools) -> std::unique_ptr<miral::WindowManagementPolicy>
                                 {
-                                    return std::make_unique<TestWindowManagerPolicy>(tools, *this);
+                                    return build_window_manager_policy(tools);
                                 };
 
                             auto wm = std::make_shared<miral::BasicWindowManager>(focus_controller, display_layout, persistent_surface_store, builder);

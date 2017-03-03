@@ -71,6 +71,9 @@ void miral::WindowManagerTools::focus_next_application()
 void miral::WindowManagerTools::focus_next_within_application()
 { tools->focus_next_within_application(); }
 
+void miral::WindowManagerTools::focus_prev_within_application()
+{ tools->focus_prev_within_application(); }
+
 auto miral::WindowManagerTools::window_at(mir::geometry::Point cursor) const -> Window
 { return tools->window_at(cursor); }
 
@@ -98,3 +101,31 @@ void miral::WindowManagerTools::invoke_under_lock(std::function<void()> const& c
 void miral::WindowManagerTools::place_and_size_for_state(
     WindowSpecification& modifications, WindowInfo const& window_info) const
 { tools->place_and_size_for_state(modifications, window_info); }
+
+auto miral::WindowManagerTools::create_workspace() -> std::shared_ptr<miral::Workspace>
+{ return tools->create_workspace(); }
+
+void miral::WindowManagerTools::add_tree_to_workspace(
+    miral::Window const& window,
+    std::shared_ptr<miral::Workspace> const& workspace)
+{ tools->add_tree_to_workspace(window, workspace); }
+
+void miral::WindowManagerTools::remove_tree_from_workspace(
+    miral::Window const& window,
+    std::shared_ptr<miral::Workspace> const& workspace)
+{ tools->remove_tree_from_workspace(window, workspace); }
+
+void miral::WindowManagerTools::move_workspace_content_to_workspace(
+    std::shared_ptr<Workspace> const& to_workspace,
+    std::shared_ptr<Workspace> const& from_workspace)
+{ tools->move_workspace_content_to_workspace(to_workspace, from_workspace); }
+
+void miral::WindowManagerTools::for_each_workspace_containing(
+    miral::Window const& window,
+    std::function<void(std::shared_ptr<miral::Workspace> const&)> const& callback)
+{ tools->for_each_workspace_containing(window, callback); }
+
+void miral::WindowManagerTools::for_each_window_in_workspace(
+    std::shared_ptr<miral::Workspace> const& workspace,
+    std::function<void(miral::Window const&)> const& callback)
+{ tools->for_each_window_in_workspace(workspace, callback); }

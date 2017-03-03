@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016 Canonical Ltd.
+ * Copyright © 2016-2017 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3,
@@ -38,6 +38,19 @@ class Window;
 struct WindowInfo;
 struct ApplicationInfo;
 class WindowSpecification;
+
+/**
+ * Workspace is intentionally opaque in the miral API. Its only purpose is to
+ * provide a shared_ptr which is used as an identifier.
+ *
+ * The MirAL implementation of workspaces only prescribes the following:
+ *  o When child windows are created they are added to all(any) workspaces of parent
+ *  o Focus changes will first try windows with a common workspace
+ *  o Adding/removing windows to a workspace affects the whole ancestor/decendent tree
+ *
+ * The presentation of workspaces is left entirely to the policy
+ */
+class Workspace;
 
 class WindowManagerToolsImplementation;
 
@@ -141,6 +154,9 @@ public:
     /// make the next surface active within the active application
     void focus_next_within_application();
 
+    /// make the prev surface active within the active application
+    void focus_prev_within_application();
+
     /// Find the topmost window at the cursor
     auto window_at(mir::geometry::Point cursor) const -> Window;
 
@@ -158,6 +174,56 @@ public:
 
     /// Set a default size and position to reflect state change
     void place_and_size_for_state(WindowSpecification& modifications, WindowInfo const& window_info) const;
+
+    /** Create a workspace.
+     * \remark the tools hold only a weak_ptr<> to the workspace - there is no need for an explicit "destroy".
+     * @return a shared_ptr owning the workspace
+     */
+    auto create_workspace() -> std::shared_ptr<Workspace>;
+
+    /**
+     * Add the tree containing window to a workspace
+     * @param window    the window
+     * @param workspace the workspace;
+     */
+    void add_tree_to_workspace(Window const& window, std::shared_ptr<Workspace> const& workspace);
+
+    /**
+     * Remove the tree containing window from a workspace
+     * @param window    the window
+     * @param workspace the workspace;
+     */
+    void remove_tree_from_workspace(Window const& window, std::shared_ptr<Workspace> const& workspace);
+
+    /**
+     * Moves all the content from one workspace to another
+     * @param from_workspace the workspace to move the windows from;
+     * @param to_workspace the workspace to move the windows to;
+     */
+    void move_workspace_content_to_workspace(
+        std::shared_ptr<Workspace> const& to_workspace,
+        std::shared_ptr<Workspace> const& from_workspace);
+
+    /**
+     * invoke callback with each workspace containing window
+     * \warning it is unsafe to add or remove windows from workspaces from the callback during enumeration
+     * @param window
+     * @param callback
+     */
+    void for_each_workspace_containing(
+        Window const& window,
+        std::function<void(std::shared_ptr<Workspace> const& workspace)> const& callback);
+
+    /**
+     * invoke callback with each window contained in workspace
+     * \warning it is unsafe to add or remove windows from workspaces from the callback during enumeration
+     * @param workspace
+     * @param callback
+     */
+    void for_each_window_in_workspace(
+        std::shared_ptr<Workspace> const& workspace,
+        std::function<void(Window const& window)> const& callback);
+
 /** @} */
 
     /** Multi-thread support

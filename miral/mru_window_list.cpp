@@ -18,7 +18,27 @@
 
 #include "mru_window_list.h"
 
+#include <mir/client/detail/mir_forward_compatibility.h>
+#include <mir/scene/surface.h>
+
 #include <algorithm>
+
+namespace
+{
+bool visible(miral::Window const& window)
+{
+    std::shared_ptr<mir::scene::Surface> const& surface{window};
+
+    switch (surface->state())
+    {
+    case mir_window_state_hidden:
+    case mir_window_state_minimized:
+        return false;
+    default:
+        return surface->visible();
+    }
+}
+}
 
 void miral::MRUWindowList::push(Window const& window)
 {
@@ -33,12 +53,14 @@ void miral::MRUWindowList::erase(Window const& window)
 
 auto miral::MRUWindowList::top() const -> Window
 {
-    return (!windows.empty()) ? windows.back() : Window{};
+    auto const& found = std::find_if(rbegin(windows), rend(windows), visible);
+    return (found != rend(windows)) ? *found: Window{};
 }
 
 void miral::MRUWindowList::enumerate(Enumerator const& enumerator) const
 {
     for (auto i = windows.rbegin(); i != windows.rend(); ++i)
-        if (!enumerator(const_cast<Window&>(*i)))
-            break;
+        if (visible(*i))
+            if (!enumerator(const_cast<Window&>(*i)))
+                break;
 }

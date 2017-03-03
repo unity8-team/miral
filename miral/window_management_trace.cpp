@@ -25,6 +25,7 @@
 #include <mir/scene/surface.h>
 #include <mir/event_printer.h>
 
+#include <iomanip>
 #include <sstream>
 
 #define MIR_LOG_COMPONENT "miral::Window Management"
@@ -73,6 +74,22 @@ struct BracedItemStream
         first_field = false;
         return *this;
     }
+
+    auto append(char const* name, MirOrientationMode item) const -> BracedItemStream const&
+    {
+        auto const flags = out.flags();
+        auto const prec  = out.precision();
+        auto const fill  = out.fill();
+
+        if (!first_field) out << ", ";
+        out << name << '=' << std::showbase << std::internal << std::setfill('0') << std::setw(2) << std::hex << item;
+        first_field = false;
+
+        out.flags(flags);
+        out.precision(prec);
+        out.fill(fill);
+        return *this;
+    }
 };
 
 auto operator<< (std::ostream& out, miral::WindowSpecification::AspectRatio const& ratio) -> std::ostream&
@@ -99,8 +116,15 @@ auto dump_of(miral::Application const& application) -> std::string
 
 auto dump_of(std::vector<miral::Window> const& windows) -> std::string;
 
+inline auto operator!=(miral::WindowInfo::AspectRatio const& lhs, miral::WindowInfo::AspectRatio const& rhs)
+{
+    return lhs.width != rhs.width || lhs.height != rhs.height;
+}
+
 auto dump_of(miral::WindowInfo const& info) -> std::string
 {
+    using namespace mir::geometry;
+
     std::stringstream out;
     {
         BracedItemStream bout{out};
@@ -109,18 +133,18 @@ auto dump_of(miral::WindowInfo const& info) -> std::string
         APPEND(name);
         APPEND(type);
         APPEND(state);
-        APPEND(restore_rect);
+        if (info.state() != mir_window_state_restored) APPEND(restore_rect);
         if (std::shared_ptr<mir::scene::Surface> parent = info.parent())
             bout.append("parent", parent->name());
         bout.append("children", dump_of(info.children()));
-        APPEND(min_width);
-        APPEND(min_height);
-        APPEND(max_width);
-        APPEND(max_height);
-        APPEND(width_inc);
-        APPEND(height_inc);
-        APPEND(min_aspect);
-        APPEND(max_aspect);
+        if (info.min_width()  != Width{0}) APPEND(min_width);
+        if (info.min_height() != Height{0}) APPEND(min_height);
+        if (info.max_width()  != Width{std::numeric_limits<int>::max()}) APPEND(max_width);
+        if (info.max_height() != Height{std::numeric_limits<int>::max()}) APPEND(max_height);
+        if (info.width_inc()  != DeltaX{1}) APPEND(width_inc);
+        if (info.height_inc() != DeltaY{1}) APPEND(height_inc);
+        if (info.min_aspect() != miral::WindowInfo::AspectRatio{0U, std::numeric_limits<unsigned>::max()}) APPEND(min_aspect);
+        if (info.max_aspect() != miral::WindowInfo::AspectRatio{std::numeric_limits<unsigned>::max(), 0U}) APPEND(max_aspect);
         APPEND(preferred_orientation);
         APPEND(confine_pointer);
 
@@ -505,6 +529,15 @@ try {
 }
 MIRAL_TRACE_EXCEPTION
 
+void miral::WindowManagementTrace::focus_prev_within_application()
+try {
+    log_input();
+    mir::log_info("%s", __func__);
+    trace_count++;
+    wrapped.focus_prev_within_application();
+}
+MIRAL_TRACE_EXCEPTION
+
 void miral::WindowManagementTrace::raise_tree(miral::Window const& root)
 try {
     log_input();
@@ -529,6 +562,53 @@ void miral::WindowManagementTrace::invoke_under_lock(std::function<void()> const
 try {
     mir::log_info("%s", __func__);
     wrapped.invoke_under_lock(callback);
+}
+MIRAL_TRACE_EXCEPTION
+
+auto miral::WindowManagementTrace::create_workspace() -> std::shared_ptr<Workspace>
+try {
+    mir::log_info("%s", __func__);
+    return wrapped.create_workspace();
+}
+MIRAL_TRACE_EXCEPTION
+
+void miral::WindowManagementTrace::add_tree_to_workspace(
+    miral::Window const& window, std::shared_ptr<miral::Workspace> const& workspace)
+try {
+    mir::log_info("%s window=%s, workspace =%p", __func__, dump_of(window).c_str(), workspace.get());
+    wrapped.add_tree_to_workspace(window, workspace);
+}
+MIRAL_TRACE_EXCEPTION
+
+void miral::WindowManagementTrace::remove_tree_from_workspace(
+    miral::Window const& window, std::shared_ptr<miral::Workspace> const& workspace)
+try {
+    mir::log_info("%s window=%s, workspace =%p", __func__, dump_of(window).c_str(), workspace.get());
+    wrapped.remove_tree_from_workspace(window, workspace);
+}
+MIRAL_TRACE_EXCEPTION
+
+void miral::WindowManagementTrace::move_workspace_content_to_workspace(
+    std::shared_ptr<Workspace> const& to_workspace, std::shared_ptr<Workspace> const& from_workspace)
+try {
+    mir::log_info("%s to_workspace=%p, from_workspace=%p", __func__, to_workspace.get(), from_workspace.get());
+    wrapped.move_workspace_content_to_workspace(to_workspace, from_workspace);
+}
+MIRAL_TRACE_EXCEPTION
+
+void miral::WindowManagementTrace::for_each_workspace_containing(
+    miral::Window const& window, std::function<void(std::shared_ptr<miral::Workspace> const&)> const& callback)
+try {
+    mir::log_info("%s window=%s", __func__, dump_of(window).c_str());
+    wrapped.for_each_workspace_containing(window, callback);
+}
+MIRAL_TRACE_EXCEPTION
+
+void miral::WindowManagementTrace::for_each_window_in_workspace(
+    std::shared_ptr<miral::Workspace> const& workspace, std::function<void(miral::Window const&)> const& callback)
+try {
+    mir::log_info("%s workspace =%p", __func__, workspace.get());
+    wrapped.for_each_window_in_workspace(workspace, callback);
 }
 MIRAL_TRACE_EXCEPTION
 
