@@ -36,7 +36,7 @@ using namespace std::chrono_literals;
 using miral::WindowManagerTools;
 
 #if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
-auto const mir_window_set_state = mir_surface_set_state;
+auto const mir_event_type_window = mir_event_type_surface;
 auto const mir_window_event_get_attribute = mir_surface_event_get_attribute;
 auto const mir_event_get_window_event = mir_event_get_surface_event;
 #endif
