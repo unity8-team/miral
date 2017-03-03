@@ -28,6 +28,7 @@
 #include <mir/test/signal.h>
 
 #include <gtest/gtest.h>
+#include <gmock/gmock.h>
 
 using namespace testing;
 using namespace mir::client;
