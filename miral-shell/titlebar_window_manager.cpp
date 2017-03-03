@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016 Canonical Ltd.
+ * Copyright © 2016-2017 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3,
@@ -17,7 +17,7 @@
  */
 
 #include "titlebar_window_manager.h"
-#include "titlebar_provider.h"
+#include "decoration_provider.h"
 
 #include <miral/application_info.h>
 #include <miral/internal_client.h>
@@ -32,17 +32,36 @@ using namespace miral;
 namespace
 {
 int const title_bar_height = 12;
+
+struct PolicyData
+{
+    bool in_hidden_workspace{false};
+
+    MirWindowState old_state;
+};
+
+inline PolicyData& policy_data_for(WindowInfo const& info)
+{
+    return *std::static_pointer_cast<PolicyData>(info.userdata());
+}
 }
 
 TitlebarWindowManagerPolicy::TitlebarWindowManagerPolicy(
     WindowManagerTools const& tools,
     SpinnerSplash const& spinner,
-    miral::InternalClientLauncher const& launcher) :
+    miral::InternalClientLauncher const& launcher,
+    std::function<void()>& shutdown_hook) :
     CanonicalWindowManagerPolicy(tools),
     spinner{spinner},
-    titlebar_provider{std::make_unique<TitlebarProvider>(tools)}
+    decoration_provider{std::make_unique<DecorationProvider>(tools)}
 {
-    launcher.launch("decorations", *titlebar_provider);
+    launcher.launch("decorations", *decoration_provider);
+    shutdown_hook = [this] { decoration_provider->stop(); };
+
+    for (auto key : {KEY_F1, KEY_F2, KEY_F3, KEY_F4})
+        key_to_workspace[key] = this->tools.create_workspace();
+
+    active_workspace = key_to_workspace[KEY_F1];
 }
 
 TitlebarWindowManagerPolicy::~TitlebarWindowManagerPolicy() = default;
@@ -99,9 +118,9 @@ bool TitlebarWindowManagerPolicy::handle_pointer_event(MirPointerEvent const* ev
         {
             if (auto const possible_titlebar = tools.window_at(old_cursor))
             {
-                if (possible_titlebar.application() == titlebar_provider->session())
+                auto const& info = tools.info_for(possible_titlebar);
+                if (decoration_provider->is_titlebar(info))
                 {
-                    auto const& info = tools.info_for(possible_titlebar);
                     if (tools.select_active_window(info.parent()) == info.parent())
                         tools.drag_active_window(cursor - old_cursor);
                     consumes_event = true;
@@ -266,25 +285,31 @@ void TitlebarWindowManagerPolicy::advise_new_window(WindowInfo const& window_inf
 {
     CanonicalWindowManagerPolicy::advise_new_window(window_info);
 
-    auto const application = window_info.window().application();
+    auto const parent = window_info.parent();
 
-    if (application == titlebar_provider->session())
+    if (decoration_provider->is_titlebar(window_info))
     {
-        titlebar_provider->advise_new_titlebar(window_info);
-
-        auto const parent = window_info.parent();
+        decoration_provider->advise_new_titlebar(window_info);
 
         if (tools.active_window() == parent)
-            titlebar_provider->paint_titlebar_for(tools.info_for(parent), 0xFF);
+            decoration_provider->paint_titlebar_for(tools.info_for(parent), 0xFF);
         else
-            titlebar_provider->paint_titlebar_for(tools.info_for(parent), 0x3F);
+            decoration_provider->paint_titlebar_for(tools.info_for(parent), 0x3F);
+    }
+
+    if (!parent)
+        tools.add_tree_to_workspace(window_info.window(), active_workspace);
+    else
+    {
+        if (policy_data_for(tools.info_for(parent)).in_hidden_workspace)
+            apply_workspace_hidden_to(window_info.window());
     }
 }
 
 void TitlebarWindowManagerPolicy::handle_window_ready(WindowInfo& window_info)
 {
     if (window_info.window().application() != spinner.session() && window_info.needs_titlebar(window_info.type()))
-        titlebar_provider->create_titlebar_for(window_info.window());
+        decoration_provider->create_titlebar_for(window_info.window());
 
     CanonicalWindowManagerPolicy::handle_window_ready(window_info);
 }
@@ -293,14 +318,14 @@ void TitlebarWindowManagerPolicy::advise_focus_lost(WindowInfo const& info)
 {
     CanonicalWindowManagerPolicy::advise_focus_lost(info);
 
-    titlebar_provider->paint_titlebar_for(info, 0x3F);
+    decoration_provider->paint_titlebar_for(info, 0x3F);
 }
 
 void TitlebarWindowManagerPolicy::advise_focus_gained(WindowInfo const& info)
 {
     CanonicalWindowManagerPolicy::advise_focus_gained(info);
 
-    titlebar_provider->paint_titlebar_for(info, 0xFF);
+    decoration_provider->paint_titlebar_for(info, 0xFF);
 
     // Frig to force the spinner to the top
     if (auto const spinner_session = spinner.session())
@@ -316,21 +341,21 @@ void TitlebarWindowManagerPolicy::advise_state_change(WindowInfo const& window_i
 {
     CanonicalWindowManagerPolicy::advise_state_change(window_info, state);
 
-    titlebar_provider->advise_state_change(window_info, state);
+    decoration_provider->advise_state_change(window_info, state);
 }
 
 void TitlebarWindowManagerPolicy::advise_resize(WindowInfo const& window_info, Size const& new_size)
 {
     CanonicalWindowManagerPolicy::advise_resize(window_info, new_size);
 
-    titlebar_provider->resize_titlebar_for(window_info, new_size);
+    decoration_provider->resize_titlebar_for(window_info, new_size);
 }
 
 void TitlebarWindowManagerPolicy::advise_delete_window(WindowInfo const& window_info)
 {
     CanonicalWindowManagerPolicy::advise_delete_window(window_info);
 
-    titlebar_provider->destroy_titlebar_for(window_info.window());
+    decoration_provider->destroy_titlebar_for(window_info.window());
 }
 
 bool TitlebarWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* event)
@@ -338,6 +363,36 @@ bool TitlebarWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* 
     auto const action = mir_keyboard_event_action(event);
     auto const scan_code = mir_keyboard_event_scan_code(event);
     auto const modifiers = mir_keyboard_event_modifiers(event) & modifier_mask;
+
+    // Switch workspaces
+    if (action == mir_keyboard_action_down &&
+        modifiers == (mir_input_event_modifier_alt | mir_input_event_modifier_meta))
+    {
+        switch (scan_code)
+        {
+        case KEY_F1:
+        case KEY_F2:
+        case KEY_F3:
+        case KEY_F4:
+            switch_workspace_to(key_to_workspace[scan_code]);
+            return true;
+        }
+    }
+
+    // Switch workspace taking the active window
+    if (action == mir_keyboard_action_down &&
+        modifiers == (mir_input_event_modifier_ctrl | mir_input_event_modifier_meta))
+    {
+        switch (scan_code)
+        {
+        case KEY_F1:
+        case KEY_F2:
+        case KEY_F3:
+        case KEY_F4:
+            switch_workspace_to(key_to_workspace[scan_code], tools.active_window());
+            return true;
+        }
+    }
 
     if (action != mir_keyboard_action_repeat)
         end_resize();
@@ -364,7 +419,7 @@ bool TitlebarWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* 
     }
     else if (action == mir_keyboard_action_down && scan_code == KEY_F4)
     {
-        switch (modifiers & modifier_mask)
+        switch (modifiers)
         {
         case mir_input_event_modifier_alt|mir_input_event_modifier_shift:
             if (auto const& window = tools.active_window())
@@ -392,6 +447,14 @@ bool TitlebarWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* 
              scan_code == KEY_GRAVE)
     {
         tools.focus_next_within_application();
+
+        return true;
+    }
+    else if (action == mir_keyboard_action_down &&
+             modifiers == (mir_input_event_modifier_alt | mir_input_event_modifier_shift) &&
+             scan_code == KEY_GRAVE)
+    {
+        tools.focus_prev_within_application();
 
         return true;
     }
@@ -442,14 +505,6 @@ bool TitlebarWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* 
             if (consume)
                 return true;
         }
-    }
-
-    // TODO this is a workaround for the lack of a way to detect server exit (Mir bug lp:1593655)
-    // We need to exit the titlebar_provider "client" thread before the server exits
-    if (action == mir_keyboard_action_down && scan_code == KEY_BACKSPACE &&
-        (modifiers == (mir_input_event_modifier_alt | mir_input_event_modifier_ctrl)))
-    {
-        titlebar_provider->stop();
     }
 
     return false;
@@ -568,8 +623,134 @@ WindowSpecification TitlebarWindowManagerPolicy::place_new_window(
     if (parameters.state().value() != mir_window_state_fullscreen && needs_titlebar)
         parameters.top_left() = Point{parameters.top_left().value().x, parameters.top_left().value().y + DeltaY{title_bar_height}};
 
-    if (app_info.application() == titlebar_provider->session())
-        titlebar_provider->place_new_titlebar(parameters);
+    if (app_info.application() == decoration_provider->session())
+        decoration_provider->place_new_decoration(parameters);
 
+    parameters.userdata() = std::make_shared<PolicyData>();
     return parameters;
 }
+
+void TitlebarWindowManagerPolicy::advise_adding_to_workspace(
+    std::shared_ptr<Workspace> const& workspace, std::vector<Window> const& windows)
+{
+    if (windows.empty())
+        return;
+
+    for (auto const& window : windows)
+    {
+        if (workspace == active_workspace)
+        {
+            apply_workspace_visible_to(window);
+        }
+        else
+        {
+            apply_workspace_hidden_to(window);
+        }
+    }
+}
+
+void TitlebarWindowManagerPolicy::switch_workspace_to(
+    std::shared_ptr<Workspace> const& workspace,
+    Window const& window)
+{
+    if (workspace == active_workspace)
+        return;
+
+    auto const old_active = active_workspace;
+    active_workspace = workspace;
+
+    auto const old_active_window = tools.active_window();
+
+    if (!old_active_window)
+    {
+        // If there's no active window, the first shown grabs focus: get the right one
+        if (auto const ww = workspace_to_active[workspace])
+        {
+            tools.for_each_workspace_containing(ww, [&](std::shared_ptr<miral::Workspace> const& ws)
+                {
+                    if (ws == workspace)
+                    {
+                        apply_workspace_visible_to(ww);
+                    }
+                });
+        }
+    }
+
+    tools.remove_tree_from_workspace(window, old_active);
+    tools.add_tree_to_workspace(window, active_workspace);
+
+    tools.for_each_window_in_workspace(active_workspace, [&](Window const& window)
+        {
+            if (decoration_provider->is_decoration(window))
+                return; // decorations are taken care of automatically
+
+        apply_workspace_visible_to(window);
+        });
+
+    bool hide_old_active = false;
+    tools.for_each_window_in_workspace(old_active, [&](Window const& window)
+        {
+            if (decoration_provider->is_decoration(window))
+                return; // decorations are taken care of automatically
+
+            if (window == old_active_window)
+            {
+                // If we hide the active window focus will shift: do that last
+                hide_old_active = true;
+                return;
+            }
+
+        apply_workspace_hidden_to(window);
+        });
+
+    if (hide_old_active)
+    {
+        apply_workspace_hidden_to(old_active_window);
+
+        // Remember the old active_window when we switch away
+        workspace_to_active[old_active] = old_active_window;
+    }
+}
+
+void TitlebarWindowManagerPolicy::apply_workspace_hidden_to(Window const& window)
+{
+    auto const& window_info = tools.info_for(window);
+    auto& pdata = policy_data_for(window_info);
+    if (!pdata.in_hidden_workspace)
+    {
+        pdata.in_hidden_workspace = true;
+        pdata.old_state = window_info.state();
+
+        WindowSpecification modifications;
+        modifications.state() = mir_window_state_hidden;
+        tools.place_and_size_for_state(modifications, window_info);
+        tools.modify_window(window_info.window(), modifications);
+    }
+}
+
+void TitlebarWindowManagerPolicy::apply_workspace_visible_to(Window const& window)
+{
+    auto const& window_info = tools.info_for(window);
+    auto& pdata = policy_data_for(window_info);
+    if (pdata.in_hidden_workspace)
+    {
+        pdata.in_hidden_workspace = false;
+        WindowSpecification modifications;
+        modifications.state() = pdata.old_state;
+        tools.place_and_size_for_state(modifications, window_info);
+        tools.modify_window(window_info.window(), modifications);
+    }
+}
+
+void TitlebarWindowManagerPolicy::handle_modify_window(WindowInfo& window_info, WindowSpecification const& modifications)
+{
+    auto mods = modifications;
+
+    auto& pdata = policy_data_for(window_info);
+
+    if (pdata.in_hidden_workspace && mods.state().is_set())
+        pdata.old_state = mods.state().consume();
+
+    CanonicalWindowManagerPolicy::handle_modify_window(window_info, mods);
+}
+

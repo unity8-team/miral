@@ -443,10 +443,20 @@ global:
 
 #    miral::StartupInternalClient::StartupInternalClient*;
   _ZN5miral21StartupInternalClientC?ENSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt8functionIFvN3mir6client10ConnectionEEES7_IFvSt8weak_ptrINS8_5scene7SessionEEEE;
+  extern "C++" {
+    miral::WindowInfo::shell_chrome*;
+    miral::WindowManagerTools::drag_window*;
+    typeinfo?for?miral::ApplicationAuthorizer1;
+    vtable?for?miral::ApplicationAuthorizer1;
+  };
+} MIRAL_1.1;
+
+MIRAL_1.3 {
+global:
   extern "C++" {'''
 
 END_NEW_STANZA = '''  };
-} MIRAL_1.1;'''
+} MIRAL_1.2;'''
 
 def _print_report():
     print OLD_STANZAS
