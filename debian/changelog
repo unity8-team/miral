@@ -1,4 +1,4 @@
-miral (1.3.0) UNRELEASED; urgency=medium
+miral (1.3.0+17.04.20170303-0ubuntu1) zesty; urgency=medium
 
   * New upstream release 1.3.0 (https://launchpad.net/miral/+milestone/1.3)
 
@@ -19,7 +19,7 @@ miral (1.3.0) UNRELEASED; urgency=medium
                    (LP: #1668651)
       . [miral-shell] Workaround for crash on exit (LP: #1667645)
 
- -- Alan Griffiths <alan.griffiths@canonical.com>  Thu, 02 Feb 2017 17:26:54 +0000
+ -- Alan Griffiths <alan.griffiths@canonical.com>  Fri, 03 Mar 2017 10:19:14 +0000
 
 miral (1.2.0+17.04.20170215.1-0ubuntu1) zesty; urgency=medium
 
