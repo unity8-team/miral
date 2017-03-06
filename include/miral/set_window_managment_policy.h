@@ -44,7 +44,7 @@ private:
 };
 
 template<typename Policy, typename ...Args>
-auto set_window_managment_policy(Args& ... args) -> SetWindowManagementPolicy
+auto set_window_management_policy(Args& ... args) -> SetWindowManagementPolicy
 {
     return SetWindowManagementPolicy{[&args...](WindowManagerTools const& tools) -> std::unique_ptr<WindowManagementPolicy>
         { return std::make_unique<Policy>(tools, args...); }};
