@@ -16,7 +16,7 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#include "miral/set_command_line_hander.h"
+#include "miral/set_command_line_handler.h"
 
 #include <mir/server.h>
 

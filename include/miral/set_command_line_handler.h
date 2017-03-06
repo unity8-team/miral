@@ -16,8 +16,8 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#ifndef MIRAL_SET_COMMAND_LINE_HANDER_H
-#define MIRAL_SET_COMMAND_LINE_HANDER_H
+#ifndef MIRAL_SET_COMMAND_LINE_HANDLER_H
+#define MIRAL_SET_COMMAND_LINE_HANDLER_H
 
 #include <functional>
 
@@ -47,4 +47,4 @@ private:
 };
 }
 
-#endif //MIRAL_SET_COMMAND_LINE_HANDER_H
+#endif //MIRAL_SET_COMMAND_LINE_HANDLER_H
