@@ -383,3 +383,8 @@ libmiral.so.2 libmiral2 #MINVER#
  (c++)"miral::WindowManagerTools::for_each_workspace_containing(miral::Window const&, std::function<void (std::shared_ptr<miral::Workspace> const&)> const&)@MIRAL_1.3" 1.3.0
  (c++)"typeinfo for miral::WorkspacePolicy@MIRAL_1.3" 1.3.0
  (c++)"vtable for miral::WorkspacePolicy@MIRAL_1.3" 1.3.0
+ MIRAL_1.4@MIRAL_1.4 1.4.0
+ (c++)"miral::SetWindowManagementPolicy::SetWindowManagementPolicy(std::function<std::unique_ptr<miral::WindowManagementPolicy, std::default_delete<miral::WindowManagementPolicy> > (miral::WindowManagerTools const&)> const&)@MIRAL_1.4" 1.4.0
+ (c++)"miral::SetWindowManagementPolicy::SetWindowManagementPolicy(std::function<std::unique_ptr<miral::WindowManagementPolicy, std::default_delete<miral::WindowManagementPolicy> > (miral::WindowManagerTools const&)> const&)@MIRAL_1.4" 1.4.0
+ (c++)"miral::SetWindowManagementPolicy::~SetWindowManagementPolicy()@MIRAL_1.4" 1.4.0
+ (c++)"miral::SetWindowManagementPolicy::operator()(mir::Server&) const@MIRAL_1.4" 1.4.0
