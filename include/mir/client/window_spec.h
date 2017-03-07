@@ -109,7 +109,6 @@ public:
 #endif
     }
 
-#if MIR_CLIENT_VERSION >= MIR_VERSION_NUMBER(3, 4, 0)
     static auto for_tip(MirConnection* connection,
                         int width,
                         int height,
@@ -118,6 +117,7 @@ public:
                         MirRectangle* rect,
                         MirEdgeAttachment edge) -> WindowSpec
     {
+#if MIR_CLIENT_VERSION >= MIR_VERSION_NUMBER(3, 4, 0)
 #if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
         return WindowSpec{mir_connection_create_spec_for_tip(connection, width, height, format, parent, rect, edge)};
 #else
@@ -125,8 +125,17 @@ public:
         mir_window_spec_set_pixel_format(spec, format);
         return spec;
 #endif
-    }
+#else
+        (void)rect;
+        (void)edge;
+        return WindowSpec{mir_create_surface_spec(connection)}
+            .set_buffer_usage(mir_buffer_usage_hardware) // Required protobuf field for create_window()
+            .set_pixel_format(format)  // Required protobuf field for create_window()
+            .set_size(width, height)
+            .set_parent(parent)
+            .set_type(mir_window_type_tip);
 #endif
+    }
 
     static auto for_dialog(MirConnection* connection,
                            int width,
