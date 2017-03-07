@@ -78,20 +78,7 @@ auto find_workspace_policy(std::unique_ptr<miral::WindowManagementPolicy> const&
     if (result)
         return result;
 
-    struct NullWorkspacePolicy : miral::WorkspacePolicy
-    {
-        void advise_adding_to_workspace(
-            std::shared_ptr<miral::Workspace> const&, std::vector<miral::Window> const&) override
-        {
-        }
-
-        void advise_removing_from_workspace(
-            std::shared_ptr<miral::Workspace> const&, std::vector<miral::Window> const&) override
-        {
-        }
-    };
-
-    static NullWorkspacePolicy null_workspace_policy;
+    static miral::WorkspacePolicy null_workspace_policy;
 
     return &null_workspace_policy;
 }

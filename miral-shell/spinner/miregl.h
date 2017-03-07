@@ -50,8 +50,6 @@ public:
         swap_buffers();
     }
 
-    MirWindow* mir_window() { return window; }
-
 private:
     void egl_make_current();
 
