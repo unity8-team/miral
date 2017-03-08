@@ -154,6 +154,9 @@ void Printer::print(MirGraphicsRegion const& region, std::string const& title_, 
 
 void Printer::printhelp(MirGraphicsRegion const& region)
 {
+    if (!working)
+        return;
+
     static char const* const helptext[] =
         {
             "Welcome to miral-shell",
