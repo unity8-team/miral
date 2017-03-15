@@ -53,6 +53,8 @@ add_library(miral SHARED
     workspace_policy.cpp                ${CMAKE_SOURCE_DIR}/include/miral/workspace_policy.h
     window_management_policy.cpp        ${CMAKE_SOURCE_DIR}/include/miral/window_management_policy.h
     window_manager_tools.cpp            ${CMAKE_SOURCE_DIR}/include/miral/window_manager_tools.h
+                                        ${CMAKE_SOURCE_DIR}/include/mir/client/blob.h
+                                        ${CMAKE_SOURCE_DIR}/include/mir/client/cookie.h
                                         ${CMAKE_SOURCE_DIR}/include/mir/client/window_spec.h
                                         ${CMAKE_SOURCE_DIR}/include/mir/client/window_id.h
                                         ${CMAKE_SOURCE_DIR}/include/mir/client/connection.h
