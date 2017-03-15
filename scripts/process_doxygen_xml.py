@@ -474,7 +474,7 @@ global:
   };
 } MIRAL_1.2;
 
-MIRAL_1.4 {
+MIRAL_1.3.1 {
 global:
   extern "C++" {'''
 
