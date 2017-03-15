@@ -4,7 +4,13 @@ miral (1.4.0) UNRELEASED; urgency=medium
     - ABI summary:
       . miral ABI unchanged at 2
     - Enhancements:
+      . [libmirclientcpp] RAII wrappers for MirBlob and MirCookie
+      . spelling: SetWindowManagmentPolicy => SetWindowManagementPolicy
     - Bugs fixed:
+      . [miral-shell] If a surface is deleted before its decoration is painted
+        miral-shell can crash, or hang on exit (LP: #1673038)
+      . [miral-shell] if the specified font doesn't exist the server crashes
+        (LP: #1671028)
 
  -- Alan Griffiths <alan.griffiths@canonical.com>  Mon, 06 Mar 2017 10:00:20 +0000
 
