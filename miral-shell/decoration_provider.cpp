@@ -401,11 +401,25 @@ void DecorationProvider::destroy_titlebar_for(miral::Window const& window)
                  });
         }
 
-        enqueue_work([this, window]
-            {
-                std::lock_guard<decltype(mutex)> lock{mutex};
-                window_to_titlebar.erase(window);
-            });
+        if (data->titlebar.load())
+        {
+            enqueue_work([this, window]
+                {
+                    std::lock_guard<decltype(mutex)> lock{mutex};
+                    window_to_titlebar.erase(window);
+                });
+        }
+        else
+        {
+            data->on_create = [this, window](MirWindow*)
+                {
+                    enqueue_work([this, window]
+                        {
+                            std::lock_guard<decltype(mutex)> lock{mutex};
+                            window_to_titlebar.erase(window);
+                        });
+                };
+        }
     }
 }
 
