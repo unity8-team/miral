@@ -1090,7 +1090,12 @@ void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirWin
     {
     case mir_window_state_hidden:
     case mir_window_state_minimized:
-        if (window == active_window())
+    {
+        bool const was_active = window == active_window();
+
+        window_info.state(value);
+
+        if (was_active)
         {
             auto const workspaces_containing_window = workspaces_containing(window);
 
@@ -1128,9 +1133,9 @@ void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirWin
                 select_active_window({});
         }
 
-        window_info.state(value);
         mir_surface->configure(mir_window_attrib_state, value);
         mir_surface->hide();
+    }
 
         break;
 
@@ -1205,11 +1210,10 @@ auto miral::BasicWindowManager::select_active_window(Window const& hint) -> mira
 
     for (auto const& child : info_for_hint.children())
     {
-        if (std::shared_ptr<mir::scene::Surface> surface = child)
-        {
-            if (surface->type() == mir_window_type_dialog && surface->visible())
-                return select_active_window(child);
-        }
+        auto const& info_for_child = info_for(child);
+
+        if (info_for_child.type() == mir_window_type_dialog && info_for_child.is_visible())
+            return select_active_window(child);
     }
 
     if (info_for_hint.can_be_active() && info_for_hint.is_visible())
