@@ -390,3 +390,14 @@ global:
     vtable?for?miral::WorkspacePolicy;
   };
 } MIRAL_1.2;
+
+MIRAL_1.3.1 {
+global:
+  extern "C++" {
+    miral::SetWindowManagementPolicy::?SetWindowManagementPolicy*;
+    miral::SetWindowManagementPolicy::SetWindowManagementPolicy*;
+    miral::SetWindowManagementPolicy::operator*;
+    typeinfo?for?miral::SetWindowManagementPolicy;
+    vtable?for?miral::SetWindowManagementPolicy;
+  };
+} MIRAL_1.3;

@@ -65,7 +65,7 @@ for a better approach:
 
  - Add a titlebar to the top of the screen. The titlebar should be split evenly
    into horizontal blocks, one per tile. Each block containing the title of the
-   top-level window. The focussed tile is highlighted. Clicking on a title
+   top-level window. The focused tile is highlighted. Clicking on a title
    selects the corresponding window.
 
 Art Resource

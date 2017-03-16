@@ -19,6 +19,7 @@
 #include "miral/set_window_managment_policy.h"
 #include "basic_window_manager.h"
 #include "window_management_trace.h"
+#include "both_versions.h"
 
 #include <mir/server.h>
 #include <mir/options/option.h>
@@ -31,14 +32,30 @@ namespace
 char const* const trace_option = "window-management-trace";
 }
 
-miral::SetWindowManagmentPolicy::SetWindowManagmentPolicy(WindowManagementPolicyBuilder const& builder) :
+MIRAL_BOTH_VERSIONS(
+    _ZN5miral24SetWindowManagmentPolicyC1ERKSt8functionIFSt10unique_ptrINS_22WindowManagementPolicyESt14default_deleteIS3_EERKNS_18WindowManagerToolsEEE,
+    _ZN5miral25SetWindowManagementPolicyC1ERKSt8functionIFSt10unique_ptrINS_22WindowManagementPolicyESt14default_deleteIS3_EERKNS_18WindowManagerToolsEEE)
+
+MIRAL_BOTH_VERSIONS(
+    _ZNK5miral24SetWindowManagmentPolicyclERN3mir6ServerE,
+    _ZNK5miral25SetWindowManagementPolicyclERN3mir6ServerE)
+
+MIRAL_BOTH_VERSIONS(
+    _ZN5miral24SetWindowManagmentPolicyD1Ev,
+    _ZN5miral25SetWindowManagementPolicyD1Ev)
+
+MIRAL_BOTH_VERSIONS(
+    _ZN5miral24SetWindowManagmentPolicyD2Ev,
+    _ZN5miral25SetWindowManagementPolicyD2Ev)
+
+miral::SetWindowManagementPolicy::SetWindowManagementPolicy(WindowManagementPolicyBuilder const& builder) :
     builder{builder}
 {
 }
 
-miral::SetWindowManagmentPolicy::~SetWindowManagmentPolicy() = default;
+miral::SetWindowManagementPolicy::~SetWindowManagementPolicy() = default;
 
-void miral::SetWindowManagmentPolicy::operator()(mir::Server& server) const
+void miral::SetWindowManagementPolicy::operator()(mir::Server& server) const
 {
     server.add_configuration_option(trace_option, "log trace message", mir::OptionType::null);
 

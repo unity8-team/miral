@@ -47,12 +47,14 @@ add_library(miral SHARED
     window_management_options.cpp       ${CMAKE_SOURCE_DIR}/include/miral/window_management_options.h
     window_specification.cpp            ${CMAKE_SOURCE_DIR}/include/miral/window_specification.h
     internal_client.cpp                 ${CMAKE_SOURCE_DIR}/include/miral/internal_client.h
-    set_command_line_hander.cpp         ${CMAKE_SOURCE_DIR}/include/miral/set_command_line_hander.h
+    set_command_line_handler.cpp        ${CMAKE_SOURCE_DIR}/include/miral/set_command_line_handler.h
     set_terminator.cpp                  ${CMAKE_SOURCE_DIR}/include/miral/set_terminator.h
     set_window_managment_policy.cpp     ${CMAKE_SOURCE_DIR}/include/miral/set_window_managment_policy.h
     workspace_policy.cpp                ${CMAKE_SOURCE_DIR}/include/miral/workspace_policy.h
     window_management_policy.cpp        ${CMAKE_SOURCE_DIR}/include/miral/window_management_policy.h
     window_manager_tools.cpp            ${CMAKE_SOURCE_DIR}/include/miral/window_manager_tools.h
+                                        ${CMAKE_SOURCE_DIR}/include/mir/client/blob.h
+                                        ${CMAKE_SOURCE_DIR}/include/mir/client/cookie.h
                                         ${CMAKE_SOURCE_DIR}/include/mir/client/window_spec.h
                                         ${CMAKE_SOURCE_DIR}/include/mir/client/window_id.h
                                         ${CMAKE_SOURCE_DIR}/include/mir/client/connection.h
