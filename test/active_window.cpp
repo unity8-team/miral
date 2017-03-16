@@ -28,6 +28,7 @@
 #include <mir/test/signal.h>
 
 #include <gtest/gtest.h>
+#include <gmock/gmock.h>
 
 using namespace testing;
 using namespace mir::client;
@@ -35,7 +36,7 @@ using namespace std::chrono_literals;
 using miral::WindowManagerTools;
 
 #if MIR_CLIENT_VERSION < MIR_VERSION_NUMBER(3, 5, 0)
-auto const mir_window_set_state = mir_surface_set_state;
+auto const mir_event_type_window = mir_event_type_surface;
 auto const mir_window_event_get_attribute = mir_surface_event_get_attribute;
 auto const mir_event_get_window_event = mir_event_get_surface_event;
 #endif
@@ -358,4 +359,40 @@ TEST_F(ActiveWindow, satellites_are_not_focussed)
     });
 
     assert_active_window_is(test_name);
+}
+
+// lp:1671072
+TEST_F(ActiveWindow, hiding_active_dialog_makes_parent_active)
+{
+    char const* const parent_name = __PRETTY_FUNCTION__;
+    auto const dialog_name = "dialog";
+    auto const connection = connect_client(parent_name);
+
+    auto const parent = create_surface(connection, parent_name, sync1);
+    auto const dialog = create_dialog(connection, dialog_name, parent, sync2);
+
+    sync1.exec([&]{ mir_window_set_state(dialog, mir_window_state_hidden); });
+
+    EXPECT_TRUE(sync1.signal_raised());
+
+    assert_active_window_is(parent_name);
+}
+
+TEST_F(ActiveWindow, when_another_window_is_about_hiding_active_dialog_makes_parent_active)
+{
+    FocusChangeSync sync3;
+    char const* const parent_name = __PRETTY_FUNCTION__;
+    auto const dialog_name = "dialog";
+    auto const another_window_name = "another window";
+    auto const connection = connect_client(parent_name);
+
+    auto const parent = create_surface(connection, parent_name, sync1);
+    auto const another_window = create_surface(connection, another_window_name, sync2);
+    auto const dialog = create_dialog(connection, dialog_name, parent, sync3);
+
+    sync1.exec([&]{ mir_window_set_state(dialog, mir_window_state_hidden); });
+
+    EXPECT_TRUE(sync1.signal_raised());
+
+    assert_active_window_is(parent_name);
 }

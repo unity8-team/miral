@@ -453,10 +453,33 @@ global:
 
 MIRAL_1.3 {
 global:
+  extern "C++" {
+    miral::WindowManagerTools::add_tree_to_workspace*;
+    miral::WindowManagerTools::create_workspace*;
+    miral::WindowManagerTools::focus_prev_within_application*;
+    miral::WindowManagerTools::for_each_window_in_workspace*;
+    miral::WindowManagerTools::for_each_workspace_containing*;
+    miral::WindowManagerTools::remove_tree_from_workspace*;
+    miral::WindowManagerTools::move_workspace_content_to_workspace*;
+    miral::WorkspacePolicy::?WorkspacePolicy*;
+    miral::WorkspacePolicy::WorkspacePolicy*;
+    miral::WorkspacePolicy::advise_adding_to_workspace*;
+    miral::WorkspacePolicy::advise_removing_from_workspace*;
+    miral::WorkspacePolicy::operator*;
+    non-virtual?thunk?to?miral::WorkspacePolicy::?WorkspacePolicy*;
+    non-virtual?thunk?to?miral::WorkspacePolicy::advise_adding_to_workspace*;
+    non-virtual?thunk?to?miral::WorkspacePolicy::advise_removing_from_workspace*;
+    typeinfo?for?miral::WorkspacePolicy;
+    vtable?for?miral::WorkspacePolicy;
+  };
+} MIRAL_1.2;
+
+MIRAL_1.3.1 {
+global:
   extern "C++" {'''
 
 END_NEW_STANZA = '''  };
-} MIRAL_1.2;'''
+} MIRAL_1.3;'''
 
 def _print_report():
     print OLD_STANZAS

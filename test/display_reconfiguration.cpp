@@ -34,8 +34,6 @@ Height const display_height{480};
 Rectangle const display_area{{display_left,  display_top},
                              {display_width, display_height}};
 
-auto const null_window = Window{};
-
 struct DisplayConfiguration : TestWindowManagerTools
 {
     Size const initial_window_size{600, 400};

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016 Canonical Ltd.
+ * Copyright © 2017 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3,
@@ -16,18 +16,35 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#include "miral/set_command_line_hander.h"
+#ifndef MIR_CLIENT_BLOB_H
+#define MIR_CLIENT_BLOB_H
 
-#include <mir/server.h>
+#include <mir_toolkit/mir_blob.h>
 
-miral::SetCommandLineHandler::SetCommandLineHandler(Handler const& handler) :
-    handler{handler}
+#include <memory>
+
+namespace mir
 {
+namespace client
+{
+class Blob
+{
+public:
+    Blob() = default;
+    explicit Blob(MirBlob* blob) : self{blob, deleter} {}
+
+    operator MirBlob*() const { return self.get(); }
+
+    void reset() { self.reset(); }
+    void reset(MirBlob* blob) { self.reset(blob, deleter); }
+
+    friend void mir_blob_release(Blob const&) = delete;
+
+private:
+    static void deleter(MirBlob* blob) { mir_blob_release(blob); }
+    std::shared_ptr<MirBlob> self;
+};
+}
 }
 
-miral::SetCommandLineHandler::~SetCommandLineHandler() = default;
-
-void miral::SetCommandLineHandler::operator()(mir::Server& server) const
-{
-    server.set_command_line_handler(handler);
-}
+#endif //MIR_CLIENT_BLOB_H

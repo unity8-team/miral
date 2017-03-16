@@ -119,7 +119,6 @@ private:
 
         void push(std::shared_ptr<void> const& tile);
         void erase(std::shared_ptr<void> const& tile);
-        auto top() const -> std::shared_ptr<void> const&;
 
         using Enumerator = std::function<void(std::shared_ptr<void> const& tile)>;
 

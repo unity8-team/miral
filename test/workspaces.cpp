@@ -36,11 +36,6 @@ using miral::WindowManagerTools;
 
 namespace
 {
-#if MIR_CLIENT_VERSION <= MIR_VERSION_NUMBER(3, 4, 0)
-auto const mir_window_get_buffer_stream = mir_surface_get_buffer_stream;
-auto const mir_window_set_state = mir_surface_set_state;
-#endif
-
 std::string const top_level{"top level"};
 std::string const dialog{"dialog"};
 std::string const tip{"tip"};

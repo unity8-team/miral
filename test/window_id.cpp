@@ -93,12 +93,12 @@ TEST_F(WindowId, server_fails_gracefully_to_identify_window_specified_by_client)
     using namespace mir::client;
 
     auto const connection = connect_client(test_name);
-    auto const spec = WindowSpec::for_normal_surface(connection, 50, 50, mir_pixel_format_argb_8888)
+    auto const spec = WindowSpec::for_normal_window(connection, 50, 50, mir_pixel_format_argb_8888)
         .set_name(test_name);
 
-    Window const surface{spec.create_surface()};
+    Window const surface{spec.create_window()};
 
-    mir::client::PersistentId client_surface_id{surface};
+    mir::client::WindowId client_surface_id{surface};
 
     invoke_tools([&](miral::WindowManagerTools& tools)
         {
@@ -112,14 +112,14 @@ TEST_F(WindowId, server_fails_gracefully_to_return_id_for_window)
     using namespace mir::client;
 
     auto const connection = connect_client(test_name);
-    auto const spec = WindowSpec::for_normal_surface(connection, 50, 50, mir_pixel_format_argb_8888)
+    auto const spec = WindowSpec::for_normal_window(connection, 50, 50, mir_pixel_format_argb_8888)
         .set_name(test_name);
 
-    Window const surface{spec.create_surface()};
+    Window const surface{spec.create_window()};
 
-    mir::client::PersistentId client_surface_id{surface};
+    mir::client::WindowId client_surface_id{surface};
 
-    invoke_tools([](miral::WindowManagerTools& tools)
+    invoke_tools([&](miral::WindowManagerTools& tools)
         {
             auto window = get_first_window(tools);
             EXPECT_THROW(tools.id_for_window(window), std::runtime_error);

@@ -78,20 +78,7 @@ auto find_workspace_policy(std::unique_ptr<miral::WindowManagementPolicy> const&
     if (result)
         return result;
 
-    struct NullWorkspacePolicy : miral::WorkspacePolicy
-    {
-        void advise_adding_to_workspace(
-            std::shared_ptr<miral::Workspace> const&, std::vector<miral::Window> const&) override
-        {
-        }
-
-        void advise_removing_from_workspace(
-            std::shared_ptr<miral::Workspace> const&, std::vector<miral::Window> const&) override
-        {
-        }
-    };
-
-    static NullWorkspacePolicy null_workspace_policy;
+    static miral::WorkspacePolicy null_workspace_policy;
 
     return &null_workspace_policy;
 }
@@ -1103,29 +1090,35 @@ void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirWin
     {
     case mir_window_state_hidden:
     case mir_window_state_minimized:
+        window_info.state(value);
         if (window == active_window())
         {
-            auto const workspaces_containing_window = workspaces_containing(window);
+            select_active_window(window);
 
-            // Try to activate to recently active window of any application
-            mru_active_windows.enumerate([&](Window& candidate)
-                {
-                    if (candidate == window)
-                        return true;
-                    auto const w = candidate;
-                    for (auto const& workspace : workspaces_containing(w))
+            if (window == active_window() || !active_window())
+            {
+                auto const workspaces_containing_window = workspaces_containing(window);
+
+                // Try to activate to recently active window of any application
+                mru_active_windows.enumerate([&](Window& candidate)
                     {
-                        for (auto const& ww : workspaces_containing_window)
+                        if (candidate == window)
+                            return true;
+                        auto const w = candidate;
+                        for (auto const& workspace : workspaces_containing(w))
                         {
-                            if (ww == workspace)
+                            for (auto const& ww : workspaces_containing_window)
                             {
-                                return !(select_active_window(w));
+                                if (ww == workspace)
+                                {
+                                    return !(select_active_window(w));
+                                }
                             }
                         }
-                    }
 
-                    return true;
-                });
+                        return true;
+                    });
+            }
 
             // Try to activate to recently active window of any application
             if (window == active_window() || !active_window())
@@ -1141,7 +1134,6 @@ void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirWin
                 select_active_window({});
         }
 
-        window_info.state(value);
         mir_surface->configure(mir_window_attrib_state, value);
         mir_surface->hide();
 
@@ -1218,11 +1210,10 @@ auto miral::BasicWindowManager::select_active_window(Window const& hint) -> mira
 
     for (auto const& child : info_for_hint.children())
     {
-        if (std::shared_ptr<mir::scene::Surface> surface = child)
-        {
-            if (surface->type() == mir_window_type_dialog && surface->visible())
-                return select_active_window(child);
-        }
+        auto const& info_for_child = info_for(child);
+
+        if (info_for_child.type() == mir_window_type_dialog && info_for_child.is_visible())
+            return select_active_window(child);
     }
 
     if (info_for_hint.can_be_active() && info_for_hint.is_visible())
