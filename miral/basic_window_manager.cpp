@@ -1090,12 +1090,8 @@ void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirWin
     {
     case mir_window_state_hidden:
     case mir_window_state_minimized:
-    {
-        bool const was_active = window == active_window();
-
         window_info.state(value);
-
-        if (was_active)
+        if (window == active_window())
         {
             auto const workspaces_containing_window = workspaces_containing(window);
 
@@ -1135,7 +1131,6 @@ void miral::BasicWindowManager::set_state(miral::WindowInfo& window_info, MirWin
 
         mir_surface->configure(mir_window_attrib_state, value);
         mir_surface->hide();
-    }
 
         break;
 
