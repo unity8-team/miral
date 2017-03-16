@@ -360,3 +360,20 @@ TEST_F(ActiveWindow, satellites_are_not_focussed)
 
     assert_active_window_is(test_name);
 }
+
+// lp:1671072
+TEST_F(ActiveWindow, hiding_a_dialog_makes_parent_active)
+{
+    char const* const parent_name = __PRETTY_FUNCTION__;
+    auto const dialog_name = "dialog";
+    auto const connection = connect_client(parent_name);
+
+    auto const parent = create_surface(connection, parent_name, sync1);
+    auto const dialog = create_dialog(connection, dialog_name, parent, sync2);
+
+    sync1.exec([&]{ mir_window_set_state(dialog, mir_window_state_hidden); });
+
+    EXPECT_TRUE(sync1.signal_raised());
+
+    assert_active_window_is(parent_name);
+}
