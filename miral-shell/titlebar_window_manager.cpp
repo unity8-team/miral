@@ -413,6 +413,10 @@ bool TitlebarWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* 
             toggle(mir_window_state_horizmaximized);
             return true;
 
+        case mir_input_event_modifier_meta:
+            toggle(mir_window_state_fullscreen);
+            return true;
+
         default:
             break;
         }
