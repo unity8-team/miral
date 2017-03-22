@@ -359,6 +359,16 @@ void miral::BasicWindowManager::handle_raise_surface(
         policy->handle_raise_window(info_for(surface));
 }
 
+#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 27, 0)
+void miral::BasicWindowManager::handle_request_drag_and_drop(
+    std::shared_ptr<mir::scene::Session> const& /*session*/,
+    std::shared_ptr<mir::scene::Surface> const& /*surface*/,
+    uint64_t /*timestamp*/)
+{
+    // TODO
+}
+#endif
+
 int miral::BasicWindowManager::set_surface_attribute(
     std::shared_ptr<scene::Session> const& /*application*/,
     std::shared_ptr<scene::Surface> const& surface,
