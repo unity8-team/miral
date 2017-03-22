@@ -16,7 +16,7 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#include "miral/set_window_managment_policy.h"
+#include "miral/set_window_management_policy.h"
 #include "basic_window_manager.h"
 #include "window_management_trace.h"
 #include "both_versions.h"

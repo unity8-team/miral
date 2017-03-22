@@ -19,7 +19,7 @@
 #include "test_server.h"
 #include "../miral/basic_window_manager.h"
 
-#include <miral/set_window_managment_policy.h>
+#include <miral/set_window_management_policy.h>
 
 #include <mir_test_framework/executable_path.h>
 #include <mir_test_framework/stub_server_platform_factory.h>
