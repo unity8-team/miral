@@ -6,9 +6,8 @@ while [ -e "/tmp/.X11-unix/X${port}" ]; do
 done
 
 unset QT_QPA_PLATFORMTHEME
-unset GDK_BACKEND
 unset QT_QPA_PLATFORM
 unset SDL_VIDEODRIVER
 Xmir -rootless :${port} & pid=$!
-DISPLAY=:${port} "$@"
+DISPLAY=:${port} GDK_BACKEND=x11 "$@"
 kill ${pid}
