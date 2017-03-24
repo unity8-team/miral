@@ -49,7 +49,7 @@ struct WorkspacesWindowManagerPolicy : miral::TestServer::TestWindowManagerPolic
     WorkspacesWindowManagerPolicy(WindowManagerTools const& tools, Workspaces& test_fixture);
     ~WorkspacesWindowManagerPolicy();
 
-    void advise_new_window(miral::WindowInfo const& window_info) override;
+    void advise_new_window(miral::WindowInfo const& window_info);
 
     MOCK_METHOD2(advise_adding_to_workspace,
                  void(std::shared_ptr<miral::Workspace> const&, std::vector<miral::Window> const&));

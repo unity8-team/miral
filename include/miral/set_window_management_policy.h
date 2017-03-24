@@ -16,8 +16,8 @@
  * Authored by: Alan Griffiths <alan@octopull.co.uk>
  */
 
-#ifndef MIRAL_SET_WINDOW_MANAGER_H
-#define MIRAL_SET_WINDOW_MANAGER_H
+#ifndef MIRAL_SET_WINDOW_MANAGEMENT_POLICY_H
+#define MIRAL_SET_WINDOW_MANAGEMENT_POLICY_H
 
 #include <memory>
 
@@ -51,4 +51,4 @@ auto set_window_management_policy(Args& ... args) -> SetWindowManagementPolicy
 }
 }
 
-#endif //MIRAL_SET_WINDOW_MANAGER_H
+#endif //MIRAL_SET_WINDOW_MANAGEMENT_POLICY_H

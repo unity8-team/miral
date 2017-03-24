@@ -1,6 +1,6 @@
 #! /bin/bash
 
-socket=${XDG_RUNTIME_DIR}/mir_socket
+socket=${XDG_RUNTIME_DIR}/miral_socket
 miral_server=miral-shell
 launcher='gnome-terminal --app-id com.canonical.miral.Terminal'
 bindir=$(dirname $0)
