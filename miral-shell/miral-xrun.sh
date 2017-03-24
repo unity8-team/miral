@@ -9,6 +9,6 @@ unset QT_QPA_PLATFORMTHEME
 unset GDK_BACKEND
 unset QT_QPA_PLATFORM
 unset SDL_VIDEODRIVER
-Xmir -rootless :${port} & pid=$!
+MIR_SOCKET=${XDG_RUNTIME_DIR}/miral_socket Xmir -rootless :${port} & pid=$!
 DISPLAY=:${port} "$@"
 kill ${pid}
