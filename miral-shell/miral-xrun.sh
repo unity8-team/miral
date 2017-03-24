@@ -29,6 +29,6 @@ do
   shift
 done
 
-Xmir -rootless :${port} & pid=$!
+MIR_SOCKET=${XDG_RUNTIME_DIR}/miral_socket Xmir -rootless :${port} & pid=$!
 DISPLAY=:${port} "$@"
 kill ${pid}
