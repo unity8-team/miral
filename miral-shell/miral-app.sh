@@ -11,12 +11,10 @@ then
   then
     echo "Error: Host endpoint '${MIR_SOCKET}' does not exists"; exit 1
   fi
-  i=0; while [ -e "${XDG_RUNTIME_DIR}/mir_socket${i}" ]; do let i+=1 ;done
-  socket=${XDG_RUNTIME_DIR}/mir_socket${i}
   hostsocket='--host-socket ${MIR_SOCKET}'
-else
-  socket=${XDG_RUNTIME_DIR}/mir_socket
 fi
+
+socket=${XDG_RUNTIME_DIR}/miral_socket
 
 while [ $# -gt 0 ]
 do

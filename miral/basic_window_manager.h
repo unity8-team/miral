@@ -30,6 +30,7 @@
 #include <mir/geometry/rectangles.h>
 #include <mir/shell/abstract_shell.h>
 #include <mir/shell/window_manager.h>
+#include <mir/version.h>
 
 #include <boost/bimap.hpp>
 #include <boost/bimap/multiset_of.hpp>
@@ -95,6 +96,13 @@ public:
         std::shared_ptr<mir::scene::Surface> const& surface,
         uint64_t timestamp) override;
 
+#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(0, 27, 0)
+    void handle_request_drag_and_drop(
+        std::shared_ptr<mir::scene::Session> const& session,
+        std::shared_ptr<mir::scene::Surface> const& surface,
+        uint64_t timestamp) override;
+#endif
+
     int set_surface_attribute(
         std::shared_ptr<mir::scene::Session> const& /*application*/,
         std::shared_ptr<mir::scene::Surface> const& surface,
@@ -109,7 +117,7 @@ public:
 
     void move_workspace_content_to_workspace(
         std::shared_ptr<Workspace> const& to_workspace,
-        std::shared_ptr<Workspace> const& from_workspace);
+        std::shared_ptr<Workspace> const& from_workspace) override;
 
     void for_each_workspace_containing(
         Window const& window,

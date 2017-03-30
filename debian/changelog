@@ -1,3 +1,22 @@
+miral (1.3.2) UNRELEASED; urgency=medium
+
+  * New upstream release 1.3.2 (https://launchpad.net/miral/+milestone/1.3.2)
+    - ABI summary:
+      . miral ABI unchanged at 2
+    - Enhancements:
+      . [miral-shell] Add a keyboard shortcut for forcing fullscreen
+    - Bugs fixed:
+      . [miral-examples] With latest zesty's libstdc++-6-dev miral-shell will
+        crash when trying to draw its background text. (LP: #1677550)
+      . [miral-examples] Update miral-xrun to match GDK changes (LP: #1675115)
+      . [miral-examples] change the server and client launch scripts to avoid
+        using the default Mir socket (LP: #1675794)
+      . [libmiral] Fix FTBFS against Mir < 0.26 (Xenial, Yakkety)
+      . [libmiral] correct spelling of miral/set_window_management_policy.h
+      . Update to fix FTBFS against lp:mir (and clang)
+
+ -- Alan Griffiths <alan.griffiths@canonical.com>  Mon, 24 Mar 2017 10:00:20 +0000
+
 miral (1.3.1+17.04.20170316.1-0ubuntu1) zesty; urgency=medium
 
   * New upstream release 1.3.1 (https://launchpad.net/miral/+milestone/1.3.1)

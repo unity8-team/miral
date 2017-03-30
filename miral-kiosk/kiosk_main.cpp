@@ -22,7 +22,7 @@
 #include <miral/application_authorizer.h>
 #include <miral/command_line_option.h>
 #include <miral/keymap.h>
-#include <miral/set_window_managment_policy.h>
+#include <miral/set_window_management_policy.h>
 #include <miral/internal_client.h>
 
 #include <unistd.h>
