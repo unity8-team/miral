@@ -50,6 +50,7 @@ struct WorkspacesWindowManagerPolicy : miral::TestServer::TestWindowManagerPolic
     ~WorkspacesWindowManagerPolicy();
 
     void advise_new_window(miral::WindowInfo const& window_info);
+    void handle_window_ready(miral::WindowInfo& window_info);
 
     MOCK_METHOD2(advise_adding_to_workspace,
                  void(std::shared_ptr<miral::Workspace> const&, std::vector<miral::Window> const&));
@@ -58,6 +59,8 @@ struct WorkspacesWindowManagerPolicy : miral::TestServer::TestWindowManagerPolic
                  void(std::shared_ptr<miral::Workspace> const&, std::vector<miral::Window> const&));
 
     MOCK_METHOD1(advise_focus_gained, void(miral::WindowInfo const&));
+
+    MOCK_METHOD1(advise_window_ready, void(miral::WindowInfo const&));
 
     Workspaces& test_fixture;
 };
@@ -72,9 +75,19 @@ struct Workspaces : public miral::TestServer
             .create_window();
 
         client_windows[name] = window;
-        mir_buffer_stream_swap_buffers_sync(mir_window_get_buffer_stream(window));
+        init_window(window);
 
         return window;
+    }
+
+    void init_window(Window const& window)
+    {
+        mir::test::Signal window_ready;
+        EXPECT_CALL(policy(), advise_window_ready(_)).WillOnce(InvokeWithoutArgs([&]{ window_ready.raise(); }));
+
+        mir_buffer_stream_swap_buffers_sync(mir_window_get_buffer_stream(window));
+
+        EXPECT_TRUE(window_ready.wait_for(1s));
     }
 
     auto create_tip(std::string const& name, Window const& parent) -> Window
@@ -87,7 +100,7 @@ struct Workspaces : public miral::TestServer
             .create_window();
 
         client_windows[name] = window;
-        mir_buffer_stream_swap_buffers_sync(mir_window_get_buffer_stream(window));
+        init_window(window);
 
         return window;
     }
@@ -100,7 +113,7 @@ struct Workspaces : public miral::TestServer
             .create_window();
 
         client_windows[name] = window;
-        mir_buffer_stream_swap_buffers_sync(mir_window_get_buffer_stream(window));
+        init_window(window);
 
         return window;
     }
@@ -220,6 +233,12 @@ void WorkspacesWindowManagerPolicy::advise_new_window(miral::WindowInfo const& w
 
     std::lock_guard<decltype(test_fixture.mutex)> lock{test_fixture.mutex};
     test_fixture.server_windows[window_info.name()] = window_info.window();
+}
+
+void WorkspacesWindowManagerPolicy::handle_window_ready(miral::WindowInfo& window_info)
+{
+    miral::CanonicalWindowManagerPolicy::handle_window_ready(window_info);
+    advise_window_ready(window_info);
 }
 }
 
@@ -452,7 +471,7 @@ TEST_F(Workspaces, with_two_applications_when_a_window_in_a_workspace_closes_foc
             .set_name(a_window.c_str())
             .create_window();
 
-        mir_buffer_stream_swap_buffers_sync(mir_window_get_buffer_stream(window));
+        init_window(window);
 
         invoke_tools([&, this](WindowManagerTools& tools)
             {
@@ -513,7 +532,7 @@ TEST_F(Workspaces, with_two_applications_when_a_window_in_a_workspace_hides_focu
         .set_name(a_window.c_str())
         .create_window();
 
-    mir_buffer_stream_swap_buffers_sync(mir_window_get_buffer_stream(window));
+    init_window(window);
 
     invoke_tools([&, this](WindowManagerTools& tools)
         {
@@ -576,7 +595,7 @@ TEST_F(Workspaces, focus_next_application_keeps_focus_in_workspace)
         .set_name(a_window.c_str())
         .create_window();
 
-    mir_buffer_stream_swap_buffers_sync(mir_window_get_buffer_stream(window));
+    init_window(window);
 
     invoke_tools([&, this](WindowManagerTools& tools)
         {
