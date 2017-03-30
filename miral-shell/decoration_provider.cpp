@@ -42,14 +42,6 @@ char const* const wallpaper_name = "wallpaper";
 
 void null_window_callback(MirWindow*, void*) {}
 
-template<class Facet>
-struct deletable_facet : Facet
-{
-    template<class ...Args>
-    deletable_facet(Args&& ...args) : Facet(std::forward<Args>(args)...) {}
-    ~deletable_facet() {}
-};
-
 struct Printer
 {
     Printer();
@@ -61,7 +53,7 @@ struct Printer
     void printhelp(MirGraphicsRegion const& region);
 
 private:
-    std::wstring_convert<deletable_facet<std::codecvt<wchar_t, char, std::mbstate_t>>> converter;
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
 
     bool working = false;
     FT_Library lib;
