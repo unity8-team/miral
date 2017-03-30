@@ -42,6 +42,12 @@ char const* const wallpaper_name = "wallpaper";
 
 void null_window_callback(MirWindow*, void*) {}
 
+struct preferred_codecvt : std::codecvt_byname<wchar_t, char, std::mbstate_t>
+{
+    preferred_codecvt() : std::codecvt_byname<wchar_t, char, std::mbstate_t>("") {}
+    ~preferred_codecvt() = default;
+};
+
 struct Printer
 {
     Printer();
@@ -53,7 +59,7 @@ struct Printer
     void printhelp(MirGraphicsRegion const& region);
 
 private:
-    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    std::wstring_convert<preferred_codecvt> converter;
 
     bool working = false;
     FT_Library lib;
