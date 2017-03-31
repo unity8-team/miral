@@ -2,7 +2,7 @@
 width=1920
 height=1080
 output=screencast.mp4
-socket=${XDG_RUNTIME_DIR}/mir_socket
+socket=${XDG_RUNTIME_DIR}/miral_socket
 if [ -v MIR_SERVER ]; then socket=${MIR_SERVER}; fi
 
 while [ $# -gt 0 ]
